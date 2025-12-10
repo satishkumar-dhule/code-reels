@@ -112,6 +112,8 @@ Make sure you have push access to the target repository.
 2. **Build fails**: Check that `pnpm run build:client` works locally
 3. **Wrong base URL**: Set `DEPLOY_BASE_URL` if deploying to a subdirectory
 4. **Custom domain not working**: Ensure DNS is configured and CNAME file is correct
+5. **pnpm lockfile missing**: Ensure `pnpm-lock.yaml` is committed to the repository
+6. **Corporate npm registry**: The `.npmrc` file forces use of public registry
 
 ### Debug Mode:
 
