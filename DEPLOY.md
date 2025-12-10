@@ -6,17 +6,17 @@ This project includes a feature to deploy the client application to GitHub Pages
 
 1. **Install dependencies** (if not already done):
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. **Deploy to GitHub Pages** (configured for reel-interview.github.io):
    ```bash
-   npm run deploy:pages
+   pnpm run deploy:pages
    ```
 
 3. **Deploy to a different repository** (override default):
    ```bash
-   DEPLOY_REPO=username/target-repo npm run deploy:pages
+   DEPLOY_REPO=username/target-repo pnpm run deploy:pages
    ```
 
 ## Configuration Options
@@ -49,17 +49,17 @@ Create a `deploy.config.json` file in the project root:
 
 ### Deploy to another repository
 ```bash
-DEPLOY_REPO=myusername/my-pages-repo npm run deploy:pages
+DEPLOY_REPO=myusername/my-pages-repo pnpm run deploy:pages
 ```
 
 ### Deploy with custom domain
 ```bash
-DEPLOY_REPO=myusername/my-pages-repo DEPLOY_CNAME=mydomain.com npm run deploy:pages
+DEPLOY_REPO=myusername/my-pages-repo DEPLOY_CNAME=mydomain.com pnpm run deploy:pages
 ```
 
 ### Deploy to subdirectory
 ```bash
-DEPLOY_REPO=myusername/my-pages-repo DEPLOY_BASE_URL=/my-app/ npm run deploy:pages
+DEPLOY_REPO=myusername/my-pages-repo DEPLOY_BASE_URL=/my-app/ pnpm run deploy:pages
 ```
 
 ## GitHub Actions Setup
@@ -102,7 +102,7 @@ Make sure you have push access to the target repository.
 ### Common Issues:
 
 1. **Permission denied**: Ensure you have push access to the target repository
-2. **Build fails**: Check that `npm run build:client` works locally
+2. **Build fails**: Check that `pnpm run build:client` works locally
 3. **Wrong base URL**: Set `DEPLOY_BASE_URL` if deploying to a subdirectory
 4. **Custom domain not working**: Ensure DNS is configured and CNAME file is correct
 
@@ -110,7 +110,7 @@ Make sure you have push access to the target repository.
 
 Add `DEBUG=gh-pages` to see detailed logs:
 ```bash
-DEBUG=gh-pages DEPLOY_REPO=username/repo npm run deploy:pages
+DEBUG=gh-pages DEPLOY_REPO=username/repo pnpm run deploy:pages
 ```
 
 ## Files Created During Deployment

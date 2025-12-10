@@ -41,7 +41,7 @@ async function deployToGitHubPages() {
     process.env.VITE_BASE_URL = baseUrl;
   }
   
-  execSync("npm run build:client", { stdio: "inherit" });
+  execSync("pnpm run build:client", { stdio: "inherit" });
 
   const distPath = join(process.cwd(), "dist/public");
   
