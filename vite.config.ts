@@ -40,6 +40,13 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          mermaid: ['mermaid']
+        }
+      }
+    }
   },
   server: {
     host: "0.0.0.0",

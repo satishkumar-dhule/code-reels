@@ -39,6 +39,12 @@ async function deployToGitHubPages() {
   // Build the client with proper base URL if specified
   if (baseUrl) {
     process.env.VITE_BASE_URL = baseUrl;
+  } else {
+    // For .github.io repos, ensure base URL is root
+    const repoName = targetRepo.split('/')[1];
+    if (repoName.endsWith('.github.io')) {
+      process.env.VITE_BASE_URL = '/';
+    }
   }
   
   execSync("pnpm run build:client", { stdio: "inherit" });
