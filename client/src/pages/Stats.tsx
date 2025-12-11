@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useGlobalStats } from "../hooks/use-progress";
 import { channels, getQuestions, getAllQuestions, getQuestionDifficulty } from "../lib/data";
@@ -24,6 +24,18 @@ export default function Stats() {
   const [_, setLocation] = useLocation();
   const { stats } = useGlobalStats();
   const [timeRange, setTimeRange] = useState<'30' | '90' | '365'>('90');
+
+  // Handle ESC key to go back to main page
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setLocation('/');
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setLocation]);
 
   const days = parseInt(timeRange);
   const activityData = generateActivityData(stats, days);

@@ -107,6 +107,23 @@ export function Mermaid({ chart }: MermaidProps) {
     if (!isExpanded) setZoomLevel(1);
   }, [isExpanded]);
 
+  // Handle ESC key to close expanded view
+  useEffect(() => {
+    if (!isExpanded) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        e.preventDefault();
+        setIsExpanded(false);
+      }
+    };
+    
+    // Use capture phase to intercept before parent handlers
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isExpanded]);
+
   useEffect(() => {
     if (!chart) {
       setError('Empty diagram');
