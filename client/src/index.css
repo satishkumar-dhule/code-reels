@@ -155,23 +155,47 @@
   margin: 0 auto;
 }
 
-/* Mobile touch improvements */
+/* Mobile mermaid adjustments - compact diagram, readable text */
 @media (max-width: 640px) {
-  .mermaid-container {
-    font-size: 9px;
+  .mermaid-mobile-fit {
+    max-height: 160px;
+    overflow: hidden;
   }
   
   .mermaid-container svg {
-    min-width: 200px;
     max-width: 100%;
-    transform: scale(0.85);
+    max-height: 150px;
+    width: auto !important;
+    transform: scale(0.65);
     transform-origin: top center;
   }
   
-  /* Ensure mermaid text is readable */
+  /* Make mermaid text larger and more readable */
   .mermaid-container .nodeLabel,
-  .mermaid-container .edgeLabel {
+  .mermaid-container .label,
+  .mermaid-container text {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+  
+  .mermaid-container .edgeLabel,
+  .mermaid-container .edgeLabel text {
     font-size: 10px !important;
+    font-weight: 500 !important;
+  }
+  
+  .mermaid-container .node rect,
+  .mermaid-container .node circle,
+  .mermaid-container .node polygon {
+    stroke-width: 2px !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .mermaid-container svg {
+    transform: scale(0.85);
+    transform-origin: top center;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useRoute } from 'wouter';
 import { channels, getQuestions, getChannel } from '../lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,45 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Popover from '@radix-ui/react-popover';
 import * as Switch from '@radix-ui/react-switch';
 import * as Slider from '@radix-ui/react-slider';
+
+// Custom hook for swipe detection
+function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  
+  const minSwipeDistance = 50;
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartY.current = e.targetTouches[0].clientY;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const distanceX = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distanceX > minSwipeDistance;
+    const isRightSwipe = distanceX < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      onSwipeLeft();
+    } else if (isRightSwipe) {
+      onSwipeRight();
+    }
+    
+    // Reset
+    touchStartX.current = null;
+    touchEndX.current = null;
+  }, [onSwipeLeft, onSwipeRight]);
+
+  return { onTouchStart, onTouchMove, onTouchEnd };
+}
 
 export default function Reels() {
   const [location, setLocation] = useLocation();
@@ -148,6 +187,19 @@ export default function Reels() {
       description: "URL saved to clipboard.",
     });
   };
+
+  // Swipe handlers for mobile navigation
+  const handleSwipeLeft = useCallback(() => {
+    // Swipe left = next question
+    nextQuestion();
+  }, [currentIndex, channelQuestions.length]);
+
+  const handleSwipeRight = useCallback(() => {
+    // Swipe right = previous question
+    prevQuestion();
+  }, [currentIndex]);
+
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipe(handleSwipeLeft, handleSwipeRight);
 
   if (!channel) return (
     <div className="h-screen flex items-center justify-center font-mono text-white">
@@ -413,7 +465,12 @@ export default function Reels() {
       </div>
 
       {/* Main Content Area - Split View */}
-      <div className="flex-1 w-full flex flex-col md:flex-row pt-11 sm:pt-14 pb-7 sm:pb-10 overflow-hidden">
+      <div 
+        className="flex-1 w-full flex flex-col md:flex-row pt-11 sm:pt-14 pb-7 sm:pb-10 overflow-hidden"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         <AnimatePresence mode="wait" custom={currentIndex}>
           <motion.div
             key={currentQuestion.id}
@@ -519,10 +576,10 @@ export default function Reels() {
             <span className="hidden sm:flex items-center gap-1"><span className="text-primary">↑</span> PREV</span>
             <span className="hidden sm:flex items-center gap-1"><span className="text-primary">↓</span> NEXT</span>
             <span className="hidden sm:flex items-center gap-1"><span className="text-primary">→</span> REVEAL</span>
-            <span className="sm:hidden text-white/40">TAP ARROWS TO NAV</span>
+            <span className="sm:hidden text-white/40">← SWIPE → TO NAVIGATE</span>
          </div>
          <div>
-            v2.2
+            v2.3
          </div>
       </div>
     </div>

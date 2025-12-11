@@ -7,17 +7,23 @@ let initialized = false;
 
 function initMermaid() {
   if (initialized) return;
-  
+
+  const isMobile = window.innerWidth < 640;
+
   try {
     mermaid.initialize({
       startOnLoad: false,
       theme: 'dark',
       securityLevel: 'loose',
       fontFamily: 'monospace, sans-serif',
+      fontSize: isMobile ? 14 : 12,
       flowchart: {
         useMaxWidth: true,
         htmlLabels: true,
         curve: 'basis',
+        nodeSpacing: isMobile ? 30 : 50,
+        rankSpacing: isMobile ? 30 : 50,
+        padding: isMobile ? 8 : 15,
       },
       themeVariables: {
         primaryColor: '#22c55e',
@@ -33,6 +39,7 @@ function initMermaid() {
         clusterBorder: '#333',
         titleColor: '#fff',
         edgeLabelBackground: '#1a1a1a',
+        fontSize: isMobile ? '14px' : '12px',
       },
     });
     initialized = true;
@@ -148,8 +155,7 @@ export function Mermaid({ chart }: MermaidProps) {
   return (
     <div 
       ref={ref}
-      className="w-full flex justify-center my-1 sm:my-4 overflow-x-auto mermaid-container"
-      style={{ minHeight: '60px', maxWidth: '100%' }}
+      className="w-full flex justify-center my-1 sm:my-4 overflow-x-auto mermaid-container mermaid-mobile-fit"
       dangerouslySetInnerHTML={{ __html: svgContent }}
     />
   );

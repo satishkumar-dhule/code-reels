@@ -10,7 +10,7 @@
       "scale",
       "networking"
     ],
-    "diagram": "\ngraph LR\n    User --> LB[Load Balancer]\n    LB -->|Layer 4| S1[Server 1 (IP:Port)]\n    LB -->|Layer 7| S2[Server 2 (/api)]\n    style LB fill:#fff,stroke:#000,color:#000\n"
+    "diagram": "graph LR\n    User --> LB[Load Balancer]\n    LB -->|Layer 4| S1[\"Server 1<br/>IP:Port\"]\n    LB -->|Layer 7| S2[\"Server 2<br/>/api\"]\n    style LB fill:#fff,stroke:#000,color:#000"
   },
   {
     "id": "sd-2",
@@ -153,7 +153,7 @@
       "indexing",
       "perf"
     ],
-    "diagram": "\ngraph TD\n    subgraph Clustered\n    Root1 --> Data[Data Pages (Sorted)]\n    end\n    subgraph NonClustered\n    Root2 --> Ptr[Pointers]\n    Ptr -.-> Data\n    end\n"
+    "diagram": "graph TD\n    subgraph Clustered\n    Root1 --> Data[\"Data Pages<br/>Sorted\"]\n    end\n    subgraph NonClustered\n    Root2 --> Ptr[Pointers]\n    Ptr -.-> Data\n    end"
   },
   {
     "id": "db-2",
@@ -220,7 +220,7 @@
       "definitions",
       "observability"
     ],
-    "diagram": "\ngraph TD\n    SLI[Indicator (Reality)] -->|Measured Against| SLO[Objective (Goal)]\n    SLO -->|Buffer| SLA[Agreement (Contract)]\n"
+    "diagram": "graph TD\n    SLI[\"Indicator<br/>Reality\"] -->|Measured Against| SLO[\"Objective<br/>Goal\"]\n    SLO -->|Buffer| SLA[\"Agreement<br/>Contract\"]"
   },
   {
     "id": "sre-2",
