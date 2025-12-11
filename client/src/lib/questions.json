@@ -36,7 +36,7 @@
       "dist-sys",
       "database"
     ],
-    "diagram": "\nvennDiagram\n    Consistency\n    Availability\n    Partition Tolerance\n"
+    "diagram": "graph TD\n    CAP[CAP Theorem]\n    CAP --> C[Consistency]\n    CAP --> A[Availability]\n    CAP --> P[Partition Tolerance]\n    Note[Pick 2 of 3]\n    style Note fill:#f59e0b,stroke:#fff,color:#000"
   },
   {
     "id": "sd-4",
