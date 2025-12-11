@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import mermaid from 'mermaid';
+// @ts-ignore - Use the full ESM bundle to avoid dynamic import issues on GitHub Pages
+import mermaid from 'mermaid/dist/mermaid.esm.mjs';
 
 // Initialize mermaid once
 let initialized = false;
