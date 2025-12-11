@@ -900,44 +900,37 @@ export default function Reels() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="w-full h-full overflow-y-auto p-2 sm:p-3 md:p-4 custom-scrollbar"
+                    className="w-full h-full overflow-y-auto p-3 sm:p-6 md:p-8 custom-scrollbar"
                   >
-                    {(() => {
-                      // Detect diagram orientation: LR/RL = horizontal (wide), TD/TB = vertical (tall)
-                      const isHorizontalDiagram = currentQuestion.diagram && 
-                        /graph\s+(LR|RL)|flowchart\s+(LR|RL)/i.test(currentQuestion.diagram);
-                      
-                      return (
-                        <div className={`h-full flex gap-3 md:gap-4 pb-10 sm:pb-12 ${
-                          isHorizontalDiagram 
-                            ? 'flex-col' // Wide diagram: stack vertically
-                            : 'flex-col md:flex-row' // Tall diagram: side by side on desktop
-                        }`}>
-                          {/* Diagram */}
-                          {currentQuestion.diagram && (
-                            <div className={`shrink-0 ${isHorizontalDiagram ? '' : 'md:max-w-[45%]'}`}>
-                              <div className="text-[8px] sm:text-[9px] font-bold text-primary uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                                <span className="w-1 h-1 bg-primary"></span> Diagram
-                              </div>
-                              <div className="bg-black/30 border border-white/10 rounded p-2 inline-block max-w-full overflow-x-auto">
-                                <Mermaid chart={currentQuestion.diagram} />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Explanation */}
-                          <div className="flex-1 min-w-0 flex flex-col">
-                            <div className="text-[8px] sm:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                              <span className="w-1 h-1 bg-white/30"></span> Explanation
-                              {isCompleted && <Check className="w-3 h-3 text-green-500 ml-2" />}
-                            </div>
-                            <div className="flex-1 text-[11px] sm:text-[13px] text-white/85 leading-5 sm:leading-6">
-                              {renderExplanation(currentQuestion.explanation)}
-                            </div>
+                    <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6 pb-16 sm:pb-20">
+                      {/* Diagram - full width on top */}
+                      {currentQuestion.diagram && (
+                        <div>
+                          <div className="text-[8px] sm:text-[10px] font-bold text-primary uppercase tracking-widest mb-2 border-b border-primary/20 pb-1 w-fit">
+                            Visualization
+                          </div>
+                          <div className="bg-black/30 border border-white/10 p-3 sm:p-4 rounded-lg overflow-x-auto">
+                            <Mermaid chart={currentQuestion.diagram} />
                           </div>
                         </div>
-                      );
-                    })()}
+                      )}
+
+                      {/* Explanation - below diagram */}
+                      <div>
+                        <div className="text-[8px] sm:text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 border-b border-white/10 pb-1 w-fit">
+                          Explanation
+                        </div>
+                        <div className="text-[11px] sm:text-sm md:text-base text-white/80 leading-5 sm:leading-7">
+                          {renderExplanation(currentQuestion.explanation)}
+                        </div>
+                      </div>
+                      
+                      {isCompleted && (
+                        <div className="flex items-center gap-2 text-green-500 text-[9px] sm:text-xs font-bold uppercase tracking-widest pt-4 border-t border-white/10">
+                          <Check className="w-3 h-3 sm:w-4 sm:h-4" /> Completed
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                )}
             </div>
