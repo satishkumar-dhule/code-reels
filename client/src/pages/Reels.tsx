@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { channels, getQuestions, getChannel, getQuestionDifficulty } from '../lib/data';
+import { getQuestions, getChannel } from '../lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mermaid } from '../components/Mermaid';
-import { ArrowLeft, ArrowRight, Share2, Terminal, Home, ChevronRight, Hash, ChevronDown, Check, Settings, Timer, Clock, List, Flag, Bookmark, Grid3X3, LayoutList, Zap, Target, Flame } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Share2, Terminal, ChevronRight, Hash, ChevronDown, Check, Timer, List, Flag, Bookmark, Grid3X3, LayoutList, Zap, Target, Flame } from 'lucide-react';
 import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -54,8 +54,8 @@ function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
 }
 
 export default function Reels() {
-  const [location, setLocation] = useLocation();
-  const [match, params] = useRoute('/channel/:id/:index?');
+  const [, setLocation] = useLocation();
+  const [, params] = useRoute('/channel/:id/:index?');
   const channelId = params?.id;
   const hasIndexInUrl = params?.index !== undefined && params?.index !== '';
   const paramIndex = hasIndexInUrl ? parseInt(params.index || '0') : null;
@@ -97,7 +97,6 @@ export default function Reels() {
   const totalQuestions = channelQuestions.length;
   const remainingQuestions = totalQuestions - currentIndex - 1;
   const isLastQuestion = currentIndex === totalQuestions - 1;
-  const isFirstQuestion = currentIndex === 0;
   const progressPercent = totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
 
   // Swipe hint state - show on first visit
@@ -901,122 +900,89 @@ export default function Reels() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="w-full h-full overflow-y-auto p-3 sm:p-6 md:p-12 custom-scrollbar"
+                    className="w-full h-full overflow-y-auto p-2 sm:p-3 md:p-4 custom-scrollbar"
                   >
-                    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-8 pb-16 sm:pb-20">
-                      {currentQuestion.diagram && (
-                        <div>
-                          <div className="text-[8px] sm:text-[10px] font-bold text-primary uppercase tracking-widest mb-2 sm:mb-3 border-b border-primary/20 pb-1 w-fit">Visualization</div>
-                          <div className="bg-black/40 border border-white/10 p-2 sm:p-4 md:p-6 rounded-lg overflow-x-auto">
-                            <Mermaid chart={currentQuestion.diagram} />
-                          </div>
-                        </div>
-                      )}
-
-                      <div>
-                        <div className="text-[8px] sm:text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 sm:mb-3 border-b border-white/10 pb-1 w-fit">Explanation</div>
-                        <div className="text-[11px] sm:text-sm md:text-base text-white/80 leading-5 sm:leading-7 font-light">
-                          {renderExplanation(currentQuestion.explanation)}
-                        </div>
-                      </div>
+                    {(() => {
+                      // Detect diagram orientation: LR/RL = horizontal (wide), TD/TB = vertical (tall)
+                      const isHorizontalDiagram = currentQuestion.diagram && 
+                        /graph\s+(LR|RL)|flowchart\s+(LR|RL)/i.test(currentQuestion.diagram);
                       
-                      {isCompleted && (
-                         <div className="flex items-center gap-2 text-green-500 text-[9px] sm:text-xs font-bold uppercase tracking-widest mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-white/10">
-                            <Check className="w-3 h-3 sm:w-4 sm:h-4" /> Completed
-                         </div>
-                      )}
-
-                      {/* Last question indicator with celebration */}
-                      {isLastQuestion && (
-                        <motion.div 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.5, ease: "easeOut" }}
-                          className="flex flex-col items-center gap-3 mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-primary/30 text-center relative overflow-hidden"
-                        >
-                          {/* Confetti-like particles */}
-                          <div className="absolute inset-0 pointer-events-none">
-                            {[...Array(12)].map((_, i) => (
-                              <motion.div
-                                key={i}
-                                className="absolute w-2 h-2 rounded-full"
-                                style={{
-                                  left: `${10 + (i * 7)}%`,
-                                  backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'][i % 5],
-                                }}
-                                initial={{ y: -20, opacity: 0 }}
-                                animate={{ 
-                                  y: [0, 100, 150],
-                                  opacity: [1, 1, 0],
-                                  x: [0, (i % 2 === 0 ? 20 : -20), (i % 2 === 0 ? 40 : -40)],
-                                }}
-                                transition={{ 
-                                  duration: 2,
-                                  delay: i * 0.1,
-                                  repeat: Infinity,
-                                  repeatDelay: 1,
-                                }}
-                              />
-                            ))}
-                          </div>
-
-                          {/* Trophy/Flag animation */}
-                          <motion.div
-                            animate={{ 
-                              rotate: [0, -10, 10, -10, 0],
-                              scale: [1, 1.1, 1],
-                            }}
-                            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-                          >
-                            <Flag className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                          </motion.div>
-
-                          {/* Celebration text */}
-                          <motion.div
-                            animate={{ scale: [1, 1.05, 1] }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                            className="text-base sm:text-lg font-bold uppercase tracking-widest text-primary"
-                          >
-                            🎉 Congratulations! 🎉
-                          </motion.div>
-                          
-                          <div className="text-[10px] sm:text-xs text-white/70">
-                            You've completed all questions in this module!
-                          </div>
-
-                          {/* Stats */}
-                          <div className="flex gap-4 mt-2 text-[9px] sm:text-[10px]">
-                            <div className="text-center">
-                              <div className="text-lg sm:text-xl font-bold text-green-400">{completed.length}</div>
-                              <div className="text-white/50 uppercase tracking-widest">Completed</div>
+                      return (
+                        <div className={`h-full flex gap-3 md:gap-4 pb-10 sm:pb-12 ${
+                          isHorizontalDiagram 
+                            ? 'flex-col' // Wide diagram: stack vertically
+                            : 'flex-col md:flex-row' // Tall diagram: side by side on desktop
+                        }`}>
+                          {/* Diagram */}
+                          {currentQuestion.diagram && (
+                            <div className={`shrink-0 ${isHorizontalDiagram ? '' : 'md:max-w-[45%]'}`}>
+                              <div className="text-[8px] sm:text-[9px] font-bold text-primary uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                                <span className="w-1 h-1 bg-primary"></span> Diagram
+                              </div>
+                              <div className="bg-black/30 border border-white/10 rounded p-2 inline-block max-w-full overflow-x-auto">
+                                <Mermaid chart={currentQuestion.diagram} />
+                              </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-lg sm:text-xl font-bold text-blue-400">{markedQuestions.length}</div>
-                              <div className="text-white/50 uppercase tracking-widest">Marked</div>
+                          )}
+
+                          {/* Explanation */}
+                          <div className="flex-1 min-w-0 flex flex-col">
+                            <div className="text-[8px] sm:text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                              <span className="w-1 h-1 bg-white/30"></span> Explanation
+                              {isCompleted && <Check className="w-3 h-3 text-green-500 ml-2" />}
                             </div>
-                            <div className="text-center">
-                              <div className="text-lg sm:text-xl font-bold text-primary">{totalQuestions}</div>
-                              <div className="text-white/50 uppercase tracking-widest">Total</div>
+                            <div className="flex-1 text-[11px] sm:text-[13px] text-white/85 leading-5 sm:leading-6">
+                              {renderExplanation(currentQuestion.explanation)}
                             </div>
                           </div>
-
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setLocation('/')}
-                            className="mt-3 px-4 py-2 bg-primary text-black text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-colors"
-                          >
-                            Back to Modules
-                          </motion.button>
-                        </motion.div>
-                      )}
-                    </div>
+                        </div>
+                      );
+                    })()}
                   </motion.div>
                )}
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Floating Congratulations Overlay - only on last question */}
+      <AnimatePresence>
+        {isLastQuestion && showAnswer && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-12 sm:bottom-14 right-4 sm:right-6 z-40 pointer-events-auto"
+          >
+            <div className="bg-black/80 backdrop-blur-sm border border-primary/50 rounded-lg p-3 sm:p-4 shadow-lg shadow-primary/10">
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ rotate: [0, -10, 10, 0] }}
+                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                >
+                  <Flag className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                </motion.div>
+                <div>
+                  <div className="text-[10px] sm:text-xs font-bold text-primary uppercase tracking-widest">
+                    🎉 Module Complete!
+                  </div>
+                  <div className="text-[9px] sm:text-[10px] text-white/60 mt-0.5">
+                    {completed.length}/{totalQuestions} questions done
+                  </div>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setLocation('/')}
+                  className="ml-2 px-3 py-1.5 bg-primary text-black text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded hover:bg-primary/90"
+                >
+                  Home
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Footer Navigation */}
       <div className="absolute bottom-0 w-full h-7 sm:h-10 px-2 sm:px-4 border-t border-white/10 flex justify-between items-center text-[7px] sm:text-[10px] font-bold uppercase tracking-widest text-white/30 bg-black z-50">
