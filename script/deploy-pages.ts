@@ -65,6 +65,15 @@ async function deployToGitHubPages() {
   // Add .nojekyll file to prevent Jekyll processing
   writeFileSync(join(distPath, ".nojekyll"), "");
 
+  // Copy index.html to 404.html for SPA routing support on GitHub Pages
+  // This ensures direct URL access works (e.g., /channel/devops)
+  const indexPath = join(distPath, "index.html");
+  if (existsSync(indexPath)) {
+    const indexContent = readFileSync(indexPath, "utf-8");
+    writeFileSync(join(distPath, "404.html"), indexContent);
+    console.log("📝 Created 404.html for SPA routing support");
+  }
+
   console.log(`🚀 Deploying to ${targetRepo} on branch ${branch}...`);
 
   try {
