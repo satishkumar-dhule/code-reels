@@ -4,7 +4,7 @@ import { channels, getQuestions, getChannel, getQuestionDifficulty } from '../li
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mermaid } from '../components/Mermaid';
 import { ArrowLeft, ArrowRight, Share2, Terminal, Home, ChevronRight, Hash, ChevronDown, Check, Settings, Timer, Clock, List, Flag, Bookmark, Grid3X3, LayoutList, Zap, Target, Flame } from 'lucide-react';
-import { useProgress } from '../hooks/use-progress';
+import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -117,12 +117,15 @@ export default function Reels() {
     }
   }, [showSwipeHint]);
 
-  // Load timer settings
+  // Load timer settings and track session start
   useEffect(() => {
     const savedTimerEnabled = localStorage.getItem('timer-enabled');
     const savedTimerDuration = localStorage.getItem('timer-duration');
     if (savedTimerEnabled !== null) setTimerEnabled(savedTimerEnabled === 'true');
     if (savedTimerDuration !== null) setTimerDuration(parseInt(savedTimerDuration));
+    
+    // Track that user started a learning session
+    trackActivity();
   }, []);
 
   // Save timer settings
@@ -212,6 +215,7 @@ export default function Reels() {
         if (!showAnswer) {
           setShowAnswer(true);
           markCompleted(channelQuestions[currentIndex].id);
+          trackActivity(); // Track user activity
         }
       } else if (e.key === 'ArrowLeft') {
         setLocation('/');
@@ -880,6 +884,7 @@ export default function Reels() {
                     onClick={() => {
                       setShowAnswer(true);
                       markCompleted(currentQuestion.id);
+                      trackActivity(); // Track user activity
                     }}
                     className="w-full h-full min-h-[120px] sm:min-h-[200px] flex flex-col items-center justify-center group hover:bg-white/10 transition-all cursor-pointer active:bg-white/10"
                   >

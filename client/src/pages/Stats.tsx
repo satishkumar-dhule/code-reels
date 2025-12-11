@@ -14,7 +14,7 @@ export default function Stats() {
   // Get all progress data across channels
   const allProgress = channels.map(channel => {
     const stored = localStorage.getItem(`progress-${channel.id}`);
-    const completed = stored ? JSON.parse(stored).completed || [] : [];
+    const completed = stored ? JSON.parse(stored) : [];
     const questions = getQuestions(channel.id);
     return {
       id: channel.id,

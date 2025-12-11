@@ -56,36 +56,79 @@ export function useProgress(channelId: string) {
   return { completed, history, markCompleted, lastVisitedIndex, saveLastVisitedIndex };
 }
 
+// Track a session/activity
+export function trackActivity() {
+  const today = new Date().toISOString().split('T')[0];
+  const activityKey = 'global-activity';
+  
+  const saved = localStorage.getItem(activityKey);
+  const activity: { date: string; count: number }[] = saved ? JSON.parse(saved) : [];
+  
+  const todayEntry = activity.find(a => a.date === today);
+  if (todayEntry) {
+    todayEntry.count += 1;
+  } else {
+    activity.push({ date: today, count: 1 });
+  }
+  
+  // Keep only last 90 days
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 90);
+  const filtered = activity.filter(a => new Date(a.date) >= cutoff);
+  
+  localStorage.setItem(activityKey, JSON.stringify(filtered));
+}
+
 export function useGlobalStats() {
   const [stats, setStats] = useState<{ date: string; count: number }[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Function to refresh stats
+  const refreshStats = () => setRefreshKey(k => k + 1);
 
   useEffect(() => {
-    // Aggregate stats across all channels
-    // This is a naive implementation scanning local storage
+    // Load global activity
+    const activityKey = 'global-activity';
+    const saved = localStorage.getItem(activityKey);
+    const activity: { date: string; count: number }[] = saved ? JSON.parse(saved) : [];
+    
+    // Also aggregate from channel history for backward compatibility
     const allHistory: ProgressEntry[] = [];
     
-    // Scan standard channels
-    ['system-design', 'algorithms', 'frontend', 'database'].forEach(cid => {
-      const saved = localStorage.getItem(`history-${cid}`);
-      if (saved) {
-        allHistory.push(...JSON.parse(saved));
+    // Scan ALL channels
+    ['system-design', 'algorithms', 'frontend', 'database', 'sre', 'devops'].forEach(cid => {
+      const savedHistory = localStorage.getItem(`history-${cid}`);
+      if (savedHistory) {
+        allHistory.push(...JSON.parse(savedHistory));
       }
     });
 
-    // Group by date
-    const grouped = allHistory.reduce((acc, curr) => {
-      const date = new Date(curr.timestamp).toLocaleDateString();
+    // Group history by date
+    const historyGrouped = allHistory.reduce((acc, curr) => {
+      const date = new Date(curr.timestamp).toISOString().split('T')[0];
       acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    const chartData = Object.entries(grouped).map(([date, count]) => ({
-      date,
-      count
-    })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Merge activity and history
+    const merged: Record<string, number> = {};
+    
+    // Add activity data
+    activity.forEach(a => {
+      merged[a.date] = (merged[a.date] || 0) + a.count;
+    });
+    
+    // Add history data (avoid double counting by using max)
+    Object.entries(historyGrouped).forEach(([date, count]) => {
+      merged[date] = Math.max(merged[date] || 0, count);
+    });
+
+    const chartData = Object.entries(merged)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     setStats(chartData);
-  }, []);
+  }, [refreshKey]);
 
-  return { stats };
+  return { stats, refreshStats };
 }
