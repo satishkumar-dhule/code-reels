@@ -3,7 +3,7 @@ import { useLocation, useRoute } from 'wouter';
 import { channels, getQuestions, getChannel } from '../lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mermaid } from '../components/Mermaid';
-import { ArrowLeft, ArrowRight, Share2, Terminal, Home, ChevronRight, Hash, ChevronDown, Check, Settings, Timer, Clock, List, Flag } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Share2, Terminal, Home, ChevronRight, Hash, ChevronDown, Check, Settings, Timer, Clock, List, Flag, Bookmark, Grid3X3, LayoutList } from 'lucide-react';
 import { useProgress } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -74,6 +74,22 @@ export default function Reels() {
   const [timeLeft, setTimeLeft] = useState(timerDuration);
   const [isActive, setIsActive] = useState(true);
   const [showQuestionPicker, setShowQuestionPicker] = useState(false);
+  const [seatMapView, setSeatMapView] = useState(true); // true = grid, false = list
+  const [markedQuestions, setMarkedQuestions] = useState<string[]>(() => {
+    const saved = localStorage.getItem(`marked-${channelId}`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Toggle bookmark for current question
+  const toggleMark = (questionId: string) => {
+    setMarkedQuestions(prev => {
+      const newMarked = prev.includes(questionId) 
+        ? prev.filter(id => id !== questionId)
+        : [...prev, questionId];
+      localStorage.setItem(`marked-${channelId}`, JSON.stringify(newMarked));
+      return newMarked;
+    });
+  };
 
   // Progress calculations
   const totalQuestions = channelQuestions.length;
@@ -81,6 +97,23 @@ export default function Reels() {
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const isFirstQuestion = currentIndex === 0;
   const progressPercent = totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
+
+  // Swipe hint state - show on first visit
+  const [showSwipeHint, setShowSwipeHint] = useState(() => {
+    const hasSeenHint = localStorage.getItem('swipe-hint-seen');
+    return !hasSeenHint;
+  });
+
+  // Hide swipe hint after 4 seconds or on first swipe
+  useEffect(() => {
+    if (showSwipeHint) {
+      const timer = setTimeout(() => {
+        setShowSwipeHint(false);
+        localStorage.setItem('swipe-hint-seen', 'true');
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSwipeHint]);
 
   // Load timer settings
   useEffect(() => {
@@ -199,13 +232,21 @@ export default function Reels() {
   // Swipe handlers for mobile navigation
   const handleSwipeLeft = useCallback(() => {
     // Swipe left = next question
+    if (showSwipeHint) {
+      setShowSwipeHint(false);
+      localStorage.setItem('swipe-hint-seen', 'true');
+    }
     nextQuestion();
-  }, [currentIndex, channelQuestions.length]);
+  }, [currentIndex, channelQuestions.length, showSwipeHint]);
 
   const handleSwipeRight = useCallback(() => {
     // Swipe right = previous question
+    if (showSwipeHint) {
+      setShowSwipeHint(false);
+      localStorage.setItem('swipe-hint-seen', 'true');
+    }
     prevQuestion();
-  }, [currentIndex]);
+  }, [currentIndex, showSwipeHint]);
 
   const { onTouchStart, onTouchMove, onTouchEnd } = useSwipe(handleSwipeLeft, handleSwipeRight);
 
@@ -399,7 +440,7 @@ export default function Reels() {
             </Popover.Trigger>
             <Popover.Portal>
               <Popover.Content 
-                className="bg-black border border-white/20 p-2 sm:p-3 w-72 sm:w-80 max-h-[60vh] z-50 shadow-xl animate-in fade-in zoom-in-95 duration-100" 
+                className="bg-black border border-white/20 p-2 sm:p-3 w-80 sm:w-96 max-h-[70vh] z-50 shadow-xl animate-in fade-in zoom-in-95 duration-100" 
                 sideOffset={5}
                 align="end"
               >
@@ -422,33 +463,121 @@ export default function Reels() {
                     </div>
                   </div>
 
-                  {/* Question list */}
-                  <div className="border-t border-white/10 pt-2">
-                    <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/50 mb-2">Jump to Question</div>
-                    <div className="max-h-[35vh] overflow-y-auto custom-scrollbar space-y-1">
-                      {channelQuestions.map((q, idx) => (
-                        <button
-                          key={q.id}
-                          onClick={() => {
-                            setCurrentIndex(idx);
-                            setShowQuestionPicker(false);
-                          }}
-                          className={`w-full text-left p-2 text-[10px] sm:text-xs rounded transition-colors flex items-start gap-2 ${
-                            idx === currentIndex 
-                              ? 'bg-primary/20 text-primary border border-primary/30' 
-                              : 'hover:bg-white/10 text-white/70'
-                          }`}
-                        >
-                          <span className="font-mono text-[9px] sm:text-[10px] opacity-50 shrink-0 w-6">
-                            {String(idx + 1).padStart(2, '0')}
-                          </span>
-                          <span className="line-clamp-2 flex-1">{q.question}</span>
-                          {completed.includes(q.id) && (
-                            <Check className="w-3 h-3 text-green-500 shrink-0" />
-                          )}
-                        </button>
-                      ))}
+                  {/* Legend */}
+                  <div className="flex flex-wrap gap-2 sm:gap-3 text-[8px] sm:text-[9px] border-t border-white/10 pt-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded bg-primary border border-primary"></div>
+                      <span className="text-white/50">Current</span>
                     </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded bg-green-500/30 border border-green-500"></div>
+                      <span className="text-white/50">Completed</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded bg-blue-500/30 border border-blue-500"></div>
+                      <span className="text-white/50">Marked</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded bg-white/10 border border-white/20"></div>
+                      <span className="text-white/50">Not Visited</span>
+                    </div>
+                  </div>
+
+                  {/* View Toggle & Question Grid/List */}
+                  <div className="border-t border-white/10 pt-2">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-white/50">Jump to Question</div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setSeatMapView(true)}
+                          className={`p-1 rounded ${seatMapView ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white'}`}
+                          title="Grid View"
+                        >
+                          <Grid3X3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setSeatMapView(false)}
+                          className={`p-1 rounded ${!seatMapView ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white'}`}
+                          title="List View"
+                        >
+                          <LayoutList className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Seat Map Grid View */}
+                    {seatMapView ? (
+                      <div className="grid grid-cols-8 sm:grid-cols-10 gap-1 max-h-[40vh] overflow-y-auto custom-scrollbar p-1">
+                        {channelQuestions.map((q, idx) => {
+                          const isCurrent = idx === currentIndex;
+                          const isMarked = markedQuestions.includes(q.id);
+                          const isCompletedQ = completed.includes(q.id);
+                          
+                          let bgClass = 'bg-white/10 border-white/20 hover:bg-white/20';
+                          if (isCurrent) bgClass = 'bg-primary border-primary text-black';
+                          else if (isCompletedQ) bgClass = 'bg-green-500/30 border-green-500 text-green-400';
+                          else if (isMarked) bgClass = 'bg-blue-500/30 border-blue-500 text-blue-400';
+                          
+                          return (
+                            <button
+                              key={q.id}
+                              onClick={() => {
+                                setCurrentIndex(idx);
+                                setShowQuestionPicker(false);
+                              }}
+                              className={`w-7 h-7 sm:w-8 sm:h-8 rounded border text-[9px] sm:text-[10px] font-mono font-bold transition-all ${bgClass} relative`}
+                              title={q.question.substring(0, 50) + '...'}
+                            >
+                              {idx + 1}
+                              {isMarked && !isCurrent && (
+                                <Bookmark className="w-2 h-2 absolute -top-0.5 -right-0.5 text-blue-400 fill-blue-400" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      /* List View */
+                      <div className="max-h-[40vh] overflow-y-auto custom-scrollbar space-y-1">
+                        {channelQuestions.map((q, idx) => {
+                          const isCurrent = idx === currentIndex;
+                          const isMarked = markedQuestions.includes(q.id);
+                          const isCompletedQ = completed.includes(q.id);
+                          
+                          let borderClass = 'hover:bg-white/10 text-white/70';
+                          if (isCurrent) borderClass = 'bg-primary/20 text-primary border border-primary/30';
+                          else if (isCompletedQ) borderClass = 'bg-green-500/10 text-green-400 border border-green-500/30';
+                          else if (isMarked) borderClass = 'bg-blue-500/10 text-blue-400 border border-blue-500/30';
+                          
+                          return (
+                            <button
+                              key={q.id}
+                              onClick={() => {
+                                setCurrentIndex(idx);
+                                setShowQuestionPicker(false);
+                              }}
+                              className={`w-full text-left p-2 text-[10px] sm:text-xs rounded transition-colors flex items-start gap-2 ${borderClass}`}
+                            >
+                              <span className="font-mono text-[9px] sm:text-[10px] opacity-50 shrink-0 w-6">
+                                {String(idx + 1).padStart(2, '0')}
+                              </span>
+                              <span className="line-clamp-2 flex-1">{q.question}</span>
+                              <div className="flex gap-1 shrink-0">
+                                {isMarked && <Bookmark className="w-3 h-3 text-blue-400 fill-blue-400" />}
+                                {isCompletedQ && <Check className="w-3 h-3 text-green-500" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stats summary */}
+                  <div className="flex justify-between text-[8px] sm:text-[9px] text-white/40 border-t border-white/10 pt-2">
+                    <span className="text-green-400">{completed.length} completed</span>
+                    <span className="text-blue-400">{markedQuestions.length} marked</span>
+                    <span>{totalQuestions - completed.length} remaining</span>
                   </div>
                 </div>
                 <Popover.Arrow className="fill-white/20" />
@@ -541,6 +670,72 @@ export default function Reels() {
         </div>
       </div>
 
+      {/* Swipe Hint Overlay - Mobile Only */}
+      <AnimatePresence>
+        {showSwipeHint && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 pointer-events-none sm:hidden flex items-center justify-center"
+          >
+            <div className="absolute inset-0 bg-black/60" />
+            <motion.div 
+              className="relative flex flex-col items-center gap-4 text-white"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+            >
+              {/* Swipe animation */}
+              <div className="flex items-center gap-6">
+                <motion.div
+                  animate={{ x: [-20, 0, -20] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-8 h-8 text-primary" />
+                  <span className="text-xs uppercase tracking-widest">Prev</span>
+                </motion.div>
+                
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  className="w-16 h-16 rounded-full border-2 border-dashed border-white/50 flex items-center justify-center"
+                >
+                  <span className="text-2xl">👆</span>
+                </motion.div>
+                
+                <motion.div
+                  animate={{ x: [20, 0, 20] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="flex items-center gap-2"
+                >
+                  <span className="text-xs uppercase tracking-widest">Next</span>
+                  <ArrowRight className="w-8 h-8 text-primary" />
+                </motion.div>
+              </div>
+              
+              <motion.p
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="text-sm font-bold uppercase tracking-widest text-center"
+              >
+                Swipe to Navigate
+              </motion.p>
+              
+              <button
+                onClick={() => {
+                  setShowSwipeHint(false);
+                  localStorage.setItem('swipe-hint-seen', 'true');
+                }}
+                className="mt-2 px-4 py-2 bg-primary text-black text-xs font-bold uppercase tracking-widest rounded pointer-events-auto"
+              >
+                Got it!
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Content Area - Split View */}
       <div 
         className="flex-1 w-full flex flex-col md:flex-row pt-11 sm:pt-14 pb-7 sm:pb-10 overflow-hidden"
@@ -559,9 +754,22 @@ export default function Reels() {
           >
             {/* Left Panel: Question */}
             <div className="w-full md:w-[30%] min-h-[20vh] md:min-h-0 md:h-full p-3 sm:p-6 md:p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10 relative shrink-0">
-               <div className="absolute top-2 left-3 sm:top-6 sm:left-6 md:top-8 md:left-8 flex items-center gap-1 sm:gap-2 text-[9px] sm:text-[10px] font-bold text-primary uppercase tracking-widest opacity-70">
-                 <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                 ID: {currentQuestion.id}
+               <div className="absolute top-2 left-3 sm:top-6 sm:left-6 md:top-8 md:left-8 flex items-center gap-2 sm:gap-3">
+                 <div className="flex items-center gap-1 sm:gap-2 text-[9px] sm:text-[10px] font-bold text-primary uppercase tracking-widest opacity-70">
+                   <Hash className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                   ID: {currentQuestion.id}
+                 </div>
+                 <button
+                   onClick={() => toggleMark(currentQuestion.id)}
+                   className={`p-1 rounded transition-colors ${
+                     markedQuestions.includes(currentQuestion.id)
+                       ? 'text-blue-400 bg-blue-500/20'
+                       : 'text-white/30 hover:text-blue-400 hover:bg-blue-500/10'
+                   }`}
+                   title={markedQuestions.includes(currentQuestion.id) ? 'Remove bookmark' : 'Bookmark this question'}
+                 >
+                   <Bookmark className={`w-3 h-3 sm:w-4 sm:h-4 ${markedQuestions.includes(currentQuestion.id) ? 'fill-blue-400' : ''}`} />
+                 </button>
                </div>
 
                <div className="flex-1 flex flex-col justify-center space-y-2 sm:space-y-6 max-w-2xl mx-auto w-full pt-6 md:pt-0">
@@ -640,23 +848,89 @@ export default function Reels() {
                          </div>
                       )}
 
-                      {/* Last question indicator */}
+                      {/* Last question indicator with celebration */}
                       {isLastQuestion && (
-                        <div className="flex flex-col items-center gap-2 mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-primary/30 text-center">
-                          <Flag className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                          <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary">
-                            🎉 Last Question!
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                          className="flex flex-col items-center gap-3 mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-primary/30 text-center relative overflow-hidden"
+                        >
+                          {/* Confetti-like particles */}
+                          <div className="absolute inset-0 pointer-events-none">
+                            {[...Array(12)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="absolute w-2 h-2 rounded-full"
+                                style={{
+                                  left: `${10 + (i * 7)}%`,
+                                  backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'][i % 5],
+                                }}
+                                initial={{ y: -20, opacity: 0 }}
+                                animate={{ 
+                                  y: [0, 100, 150],
+                                  opacity: [1, 1, 0],
+                                  x: [0, (i % 2 === 0 ? 20 : -20), (i % 2 === 0 ? 40 : -40)],
+                                }}
+                                transition={{ 
+                                  duration: 2,
+                                  delay: i * 0.1,
+                                  repeat: Infinity,
+                                  repeatDelay: 1,
+                                }}
+                              />
+                            ))}
                           </div>
-                          <div className="text-[9px] sm:text-[10px] text-white/50">
-                            You've reached the end of this module
+
+                          {/* Trophy/Flag animation */}
+                          <motion.div
+                            animate={{ 
+                              rotate: [0, -10, 10, -10, 0],
+                              scale: [1, 1.1, 1],
+                            }}
+                            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                          >
+                            <Flag className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                          </motion.div>
+
+                          {/* Celebration text */}
+                          <motion.div
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                            className="text-base sm:text-lg font-bold uppercase tracking-widest text-primary"
+                          >
+                            🎉 Congratulations! 🎉
+                          </motion.div>
+                          
+                          <div className="text-[10px] sm:text-xs text-white/70">
+                            You've completed all questions in this module!
                           </div>
-                          <button
+
+                          {/* Stats */}
+                          <div className="flex gap-4 mt-2 text-[9px] sm:text-[10px]">
+                            <div className="text-center">
+                              <div className="text-lg sm:text-xl font-bold text-green-400">{completed.length}</div>
+                              <div className="text-white/50 uppercase tracking-widest">Completed</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-lg sm:text-xl font-bold text-blue-400">{markedQuestions.length}</div>
+                              <div className="text-white/50 uppercase tracking-widest">Marked</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-lg sm:text-xl font-bold text-primary">{totalQuestions}</div>
+                              <div className="text-white/50 uppercase tracking-widest">Total</div>
+                            </div>
+                          </div>
+
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => setLocation('/')}
-                            className="mt-2 px-3 py-1.5 border border-primary text-primary text-[10px] sm:text-xs uppercase tracking-widest hover:bg-primary hover:text-black transition-colors"
+                            className="mt-3 px-4 py-2 bg-primary text-black text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-colors"
                           >
                             Back to Modules
-                          </button>
-                        </div>
+                          </motion.button>
+                        </motion.div>
                       )}
                     </div>
                   </motion.div>
