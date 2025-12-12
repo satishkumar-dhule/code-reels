@@ -71,15 +71,18 @@ function isDuplicate(q, existing) {
 function runOpenCode(prompt, attempt = 1) {
   console.log(`\n[Attempt ${attempt}/${MAX_RETRIES}] Calling OpenCode...`);
   try {
-    const escaped = prompt.replace(/'/g, "'\\''");
-    const result = execSync(`opencode -p '${escaped}'`, {
+    const escaped = prompt.replace(/'/g, "'\\''").replace(/"/g, '\\"');
+    // Use 'opencode run' which is the non-interactive mode
+    const result = execSync(`opencode run "${escaped}"`, {
       encoding: 'utf8',
-      timeout: 90000,
-      maxBuffer: 5 * 1024 * 1024
+      timeout: 120000, // 2 minutes
+      maxBuffer: 10 * 1024 * 1024,
+      env: { ...process.env, CI: 'true' }
     });
     return result;
   } catch (err) {
-    console.log(`Failed: ${err.message.split('\n')[0]}`);
+    const errMsg = err.message?.split('\n')[0] || 'Unknown error';
+    console.log(`Failed: ${errMsg}`);
     if (attempt < MAX_RETRIES) {
       console.log(`Waiting ${RETRY_DELAY/1000}s before retry...`);
       sleep(RETRY_DELAY);
@@ -114,6 +117,19 @@ function updateIndexFile() {
 
 async function main() {
   console.log('=== Daily Question Generator (OpenCode Only) ===\n');
+
+  // Check for API keys
+  const hasOpenAI = !!process.env.OPENAI_API_KEY;
+  const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
+  
+  if (!hasOpenAI && !hasAnthropic) {
+    console.log('⚠️  No API keys found (OPENAI_API_KEY or ANTHROPIC_API_KEY)');
+    console.log('Please add API keys as repository secrets to enable question generation.');
+    console.log('Exiting gracefully - no question added.\n');
+    process.exit(0);
+  }
+  
+  console.log(`API Keys: OpenAI=${hasOpenAI ? '✓' : '✗'}, Anthropic=${hasAnthropic ? '✓' : '✗'}`);
 
   const inputChannel = process.env.INPUT_CHANNEL || 'random';
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
