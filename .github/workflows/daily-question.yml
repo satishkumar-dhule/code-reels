@@ -207,6 +207,62 @@ jobs:
             return newId;
           }
 
+          // Smart deduplication functions
+          function normalizeText(text) {
+            return text.toLowerCase()
+              .replace(/[^a-z0-9\s]/g, '')
+              .replace(/\s+/g, ' ')
+              .trim();
+          }
+
+          function getKeywords(text) {
+            const stopWords = new Set(['what', 'is', 'the', 'a', 'an', 'how', 'does', 'do', 'are', 'in', 'of', 'to', 'and', 'for', 'with', 'between', 'explain', 'describe', 'difference']);
+            return normalizeText(text)
+              .split(' ')
+              .filter(w => w.length > 2 && !stopWords.has(w));
+          }
+
+          function calculateSimilarity(text1, text2) {
+            const words1 = new Set(getKeywords(text1));
+            const words2 = new Set(getKeywords(text2));
+            if (words1.size === 0 || words2.size === 0) return 0;
+            const intersection = [...words1].filter(w => words2.has(w)).length;
+            const union = new Set([...words1, ...words2]).size;
+            return intersection / union; // Jaccard similarity
+          }
+
+          function isDuplicate(newQuestion, existingQuestions, threshold = 0.6) {
+            const newNormalized = normalizeText(newQuestion);
+            const newKeywords = getKeywords(newQuestion);
+            
+            for (const existing of existingQuestions) {
+              // Exact match after normalization
+              if (normalizeText(existing.question) === newNormalized) {
+                console.log(`Exact duplicate found: "${existing.question.substring(0, 50)}..."`);
+                return true;
+              }
+              
+              // High keyword similarity
+              const similarity = calculateSimilarity(newQuestion, existing.question);
+              if (similarity >= threshold) {
+                console.log(`Similar question found (${(similarity * 100).toFixed(0)}%): "${existing.question.substring(0, 50)}..."`);
+                return true;
+              }
+            }
+            return false;
+          }
+
+          function findNonDuplicateFallback(existingQuestions, maxAttempts = 10) {
+            const shuffled = [...fallbackQuestions].sort(() => Math.random() - 0.5);
+            for (const fallback of shuffled) {
+              if (!isDuplicate(fallback.data.question, existingQuestions)) {
+                return fallback;
+              }
+            }
+            console.log('All fallback questions are duplicates');
+            return null;
+          }
+
           function runOpenCode(prompt) {
             try {
               // Escape the prompt for shell
@@ -315,7 +371,7 @@ jobs:
             let questionData = null;
             let usedFallback = false;
 
-            // Try OpenCode CLI
+            // Try OpenCode CLI with duplicate check
             const response = runOpenCode(prompt);
             
             if (response) {
@@ -323,7 +379,13 @@ jobs:
               questionData = parseJsonFromResponse(response);
               
               if (validateQuestion(questionData)) {
-                console.log('Successfully parsed AI-generated question');
+                // Check for duplicates
+                if (isDuplicate(questionData.question, questions)) {
+                  console.log('AI-generated question is a duplicate, will use fallback');
+                  questionData = null;
+                } else {
+                  console.log('Successfully parsed unique AI-generated question');
+                }
               } else {
                 console.log('Invalid response format, will use fallback');
                 questionData = null;
@@ -332,15 +394,22 @@ jobs:
               console.log('No response from OpenCode CLI');
             }
 
-            // Use fallback if needed
+            // Use fallback if needed (with dedup)
             if (!questionData) {
-              console.log('\nUsing fallback question...');
-              const fallback = getRandomFallback();
+              console.log('\nFinding non-duplicate fallback question...');
+              const fallback = findNonDuplicateFallback(questions);
+              
+              if (!fallback) {
+                console.log('No unique questions available. Skipping.');
+                process.exit(0);
+              }
+              
               questionData = fallback.data;
               category.channel = fallback.category.channel;
               category.subChannel = fallback.category.subChannel;
               category.tags = fallback.category.tags;
               usedFallback = true;
+              console.log('Found unique fallback question');
             }
 
             // Generate unique ID
@@ -418,7 +487,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             
-            # Re-run the question generation on latest base
+            # Re-run the question generation on latest base with dedup
             node << 'REGEN_SCRIPT'
             const fs = require('fs');
             const QUESTIONS_FILE = 'client/src/lib/questions.json';
@@ -431,9 +500,32 @@ jobs:
               process.exit(0);
             }
             
-            // Check if question already exists
-            if (questions.some(q => q.question === newQuestion.question)) {
-              console.log('Question already exists, skipping');
+            // Smart dedup functions
+            function normalizeText(text) {
+              return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+            }
+            function getKeywords(text) {
+              const stopWords = new Set(['what', 'is', 'the', 'a', 'an', 'how', 'does', 'do', 'are', 'in', 'of', 'to', 'and', 'for', 'with', 'between', 'explain', 'describe', 'difference']);
+              return normalizeText(text).split(' ').filter(w => w.length > 2 && !stopWords.has(w));
+            }
+            function calculateSimilarity(t1, t2) {
+              const w1 = new Set(getKeywords(t1)), w2 = new Set(getKeywords(t2));
+              if (!w1.size || !w2.size) return 0;
+              const inter = [...w1].filter(w => w2.has(w)).length;
+              return inter / new Set([...w1, ...w2]).size;
+            }
+            function isDuplicate(q, existing) {
+              const norm = normalizeText(q);
+              for (const e of existing) {
+                if (normalizeText(e.question) === norm) return true;
+                if (calculateSimilarity(q, e.question) >= 0.6) return true;
+              }
+              return false;
+            }
+            
+            // Check for duplicates
+            if (isDuplicate(newQuestion.question, questions)) {
+              console.log('Question is duplicate, skipping');
               process.exit(0);
             }
             
