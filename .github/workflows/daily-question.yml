@@ -1,0 +1,422 @@
+name: Daily Question Generator
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every day
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Category channel'
+        required: false
+        type: choice
+        default: 'random'
+        options:
+          - random
+          - system-design
+          - algorithms
+          - frontend
+          - database
+          - devops
+          - sre
+      difficulty:
+        description: 'Question difficulty'
+        required: false
+        type: choice
+        default: 'random'
+        options:
+          - random
+          - beginner
+          - intermediate
+          - advanced
+
+jobs:
+  add-question:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install OpenCode CLI
+        run: |
+          npm install -g opencode-ai
+          echo "OpenCode CLI installed successfully"
+          opencode --version || echo "Version check skipped"
+
+      - name: Generate and add question
+        id: generate
+        run: |
+          node << 'SCRIPT'
+          const fs = require('fs');
+          const { execSync } = require('child_process');
+
+          const QUESTIONS_FILE = 'client/src/lib/questions.json';
+
+          // All categories with their tags
+          const categories = [
+            { channel: 'system-design', subChannel: 'infrastructure', tags: ['infra', 'scale', 'networking'] },
+            { channel: 'system-design', subChannel: 'distributed-systems', tags: ['dist-sys', 'architecture'] },
+            { channel: 'system-design', subChannel: 'database', tags: ['db', 'scale', 'architecture'] },
+            { channel: 'system-design', subChannel: 'api-design', tags: ['api', 'rest', 'design'] },
+            { channel: 'algorithms', subChannel: 'data-structures', tags: ['struct', 'basics'] },
+            { channel: 'algorithms', subChannel: 'sorting', tags: ['sort', 'complexity'] },
+            { channel: 'algorithms', subChannel: 'dynamic-programming', tags: ['dp', 'optimization'] },
+            { channel: 'algorithms', subChannel: 'graphs', tags: ['graph', 'traversal'] },
+            { channel: 'frontend', subChannel: 'react', tags: ['react', 'perf'] },
+            { channel: 'frontend', subChannel: 'javascript', tags: ['js', 'core'] },
+            { channel: 'frontend', subChannel: 'css', tags: ['css', 'styling'] },
+            { channel: 'frontend', subChannel: 'performance', tags: ['perf', 'optimization'] },
+            { channel: 'database', subChannel: 'sql', tags: ['sql', 'indexing'] },
+            { channel: 'database', subChannel: 'nosql', tags: ['nosql', 'mongodb'] },
+            { channel: 'database', subChannel: 'transactions', tags: ['acid', 'transactions'] },
+            { channel: 'devops', subChannel: 'kubernetes', tags: ['k8s', 'orchestration'] },
+            { channel: 'devops', subChannel: 'cicd', tags: ['cicd', 'automation'] },
+            { channel: 'devops', subChannel: 'docker', tags: ['docker', 'containers'] },
+            { channel: 'devops', subChannel: 'terraform', tags: ['terraform', 'iac'] },
+            { channel: 'devops', subChannel: 'aws', tags: ['aws', 'cloud'] },
+            { channel: 'sre', subChannel: 'observability', tags: ['metrics', 'monitoring'] },
+            { channel: 'sre', subChannel: 'reliability', tags: ['reliability', 'incident'] },
+          ];
+
+          const difficulties = ['beginner', 'intermediate', 'advanced'];
+
+          // Comprehensive fallback questions pool
+          const fallbackQuestions = [
+            {
+              category: { channel: 'system-design', subChannel: 'infrastructure', tags: ['infra', 'scale'] },
+              difficulty: 'intermediate',
+              data: {
+                question: "What is the difference between horizontal and vertical scaling?",
+                answer: "Horizontal adds more machines, vertical adds more power to existing machines.",
+                explanation: "**Vertical Scaling (Scale Up)**:\n- Add more CPU, RAM, storage to existing server\n- Simpler but has hardware limits\n- Single point of failure\n\n**Horizontal Scaling (Scale Out)**:\n- Add more servers to the pool\n- Better fault tolerance\n- Requires load balancing\n- More complex but virtually unlimited",
+                diagram: "graph TD\n    VS[Vertical] --> Big[Bigger Server]\n    HS[Horizontal] --> S1[Server 1]\n    HS --> S2[Server 2]\n    HS --> S3[Server 3]"
+              }
+            },
+            {
+              category: { channel: 'database', subChannel: 'sql', tags: ['sql', 'indexing'] },
+              difficulty: 'beginner',
+              data: {
+                question: "Explain database indexing and when to use it.",
+                answer: "Indexes speed up data retrieval at the cost of write performance.",
+                explanation: "**How Indexes Work**:\n- Create a sorted data structure (B-tree, Hash)\n- Points to actual data location\n- Trades write speed for read speed\n\n**When to Use**:\n- Frequently queried columns\n- WHERE clause columns\n- JOIN columns\n- ORDER BY columns\n\n**When NOT to Use**:\n- Small tables\n- Frequently updated columns\n- Low cardinality columns",
+                diagram: "graph LR\n    Query --> Index[(Index)]\n    Index --> Data[(Data)]\n    style Index fill:#4ade80"
+              }
+            },
+            {
+              category: { channel: 'system-design', subChannel: 'distributed-systems', tags: ['dist-sys', 'messaging'] },
+              difficulty: 'intermediate',
+              data: {
+                question: "What is the purpose of a message queue in distributed systems?",
+                answer: "Message queues decouple services, enable async processing, and provide reliability.",
+                explanation: "**Benefits**:\n- **Decoupling**: Services don't need to know about each other\n- **Async Processing**: Producer doesn't wait for consumer\n- **Load Leveling**: Handle traffic spikes gracefully\n- **Reliability**: Messages persist until processed\n\n**Popular Solutions**: RabbitMQ, Apache Kafka, AWS SQS, Redis Streams",
+                diagram: "graph LR\n    P[Producer] --> Q[(Queue)]\n    Q --> C1[Consumer 1]\n    Q --> C2[Consumer 2]"
+              }
+            },
+            {
+              category: { channel: 'frontend', subChannel: 'javascript', tags: ['js', 'async'] },
+              difficulty: 'intermediate',
+              data: {
+                question: "What is the difference between Promise.all() and Promise.allSettled()?",
+                answer: "Promise.all() fails fast on first rejection, allSettled() waits for all to complete.",
+                explanation: "**Promise.all()**:\n- Resolves when ALL promises resolve\n- Rejects immediately if ANY promise rejects\n- Use when all results are required\n\n**Promise.allSettled()**:\n- Always waits for all promises to settle\n- Returns array of {status, value/reason}\n- Use when you need all results regardless of failures",
+                diagram: "graph TD\n    All[Promise.all] -->|Any Reject| Fail[Reject Fast]\n    All -->|All Resolve| Success[Resolve]\n    Settled[Promise.allSettled] --> Wait[Wait All]\n    Wait --> Results[All Results]"
+              }
+            },
+            {
+              category: { channel: 'devops', subChannel: 'kubernetes', tags: ['k8s', 'orchestration'] },
+              difficulty: 'beginner',
+              data: {
+                question: "What is the difference between a Deployment and a StatefulSet in Kubernetes?",
+                answer: "Deployments are for stateless apps, StatefulSets for stateful apps needing stable identity.",
+                explanation: "**Deployment**:\n- For stateless applications\n- Pods are interchangeable\n- Random pod names\n- Shared storage (if any)\n\n**StatefulSet**:\n- For stateful applications (databases)\n- Stable, unique pod names (app-0, app-1)\n- Ordered deployment and scaling\n- Persistent storage per pod",
+                diagram: "graph TD\n    D[Deployment] --> P1[pod-xyz]\n    D --> P2[pod-abc]\n    SS[StatefulSet] --> S1[app-0]\n    SS --> S2[app-1]"
+              }
+            },
+            {
+              category: { channel: 'algorithms', subChannel: 'data-structures', tags: ['struct', 'hash'] },
+              difficulty: 'intermediate',
+              data: {
+                question: "How does a HashMap handle collisions?",
+                answer: "HashMaps handle collisions using chaining (linked lists) or open addressing (probing).",
+                explanation: "**Chaining**:\n- Each bucket contains a linked list\n- Colliding keys added to the list\n- Simple but uses extra memory\n\n**Open Addressing**:\n- Find next empty slot (linear/quadratic probing)\n- All data in the array\n- Better cache performance\n\n**Load Factor**: When too full, resize and rehash",
+                diagram: "graph TD\n    Hash[Hash Function] --> B1[Bucket 1]\n    Hash --> B2[Bucket 2]\n    B1 --> N1[Node] --> N2[Node]\n    B2 --> N3[Node]"
+              }
+            },
+            {
+              category: { channel: 'sre', subChannel: 'observability', tags: ['metrics', 'monitoring'] },
+              difficulty: 'beginner',
+              data: {
+                question: "What are the four golden signals of monitoring?",
+                answer: "Latency, Traffic, Errors, and Saturation - key metrics for service health.",
+                explanation: "**The Four Golden Signals**:\n\n1. **Latency**: Time to serve a request\n2. **Traffic**: Demand on your system (requests/sec)\n3. **Errors**: Rate of failed requests\n4. **Saturation**: How full your service is (CPU, memory)\n\nThese signals help identify issues before they become outages.",
+                diagram: "graph TD\n    M[Monitoring] --> L[Latency]\n    M --> T[Traffic]\n    M --> E[Errors]\n    M --> S[Saturation]"
+              }
+            },
+            {
+              category: { channel: 'frontend', subChannel: 'react', tags: ['react', 'hooks'] },
+              difficulty: 'intermediate',
+              data: {
+                question: "What is the difference between useMemo and useCallback in React?",
+                answer: "useMemo memoizes a computed value, useCallback memoizes a function reference.",
+                explanation: "**useMemo**:\n- Memoizes the RESULT of a function\n- Use for expensive calculations\n- `useMemo(() => compute(a, b), [a, b])`\n\n**useCallback**:\n- Memoizes the FUNCTION itself\n- Use when passing callbacks to child components\n- `useCallback(() => doSomething(a), [a])`\n\nBoth help prevent unnecessary re-renders.",
+                diagram: "graph LR\n    useMemo --> Value[Cached Value]\n    useCallback --> Fn[Cached Function]\n    Value --> Render[Prevent Re-render]\n    Fn --> Render"
+              }
+            },
+            {
+              category: { channel: 'database', subChannel: 'transactions', tags: ['acid', 'isolation'] },
+              difficulty: 'advanced',
+              data: {
+                question: "What are the different transaction isolation levels in databases?",
+                answer: "Read Uncommitted, Read Committed, Repeatable Read, and Serializable - each with different guarantees.",
+                explanation: "**Isolation Levels** (lowest to highest):\n\n1. **Read Uncommitted**: Can see uncommitted changes (dirty reads)\n2. **Read Committed**: Only see committed data\n3. **Repeatable Read**: Same query returns same results in transaction\n4. **Serializable**: Full isolation, transactions appear sequential\n\nHigher isolation = more consistency but less concurrency.",
+                diagram: "graph TD\n    RU[Read Uncommitted] --> RC[Read Committed]\n    RC --> RR[Repeatable Read]\n    RR --> S[Serializable]\n    style S fill:#4ade80"
+              }
+            },
+            {
+              category: { channel: 'devops', subChannel: 'cicd', tags: ['cicd', 'testing'] },
+              difficulty: 'beginner',
+              data: {
+                question: "What is the difference between unit tests, integration tests, and e2e tests?",
+                answer: "Unit tests check individual functions, integration tests check component interactions, e2e tests check full user flows.",
+                explanation: "**Unit Tests**:\n- Test single functions/methods\n- Fast, isolated, many of them\n- Mock dependencies\n\n**Integration Tests**:\n- Test multiple components together\n- Database, API interactions\n- Slower, fewer than unit tests\n\n**E2E Tests**:\n- Test complete user workflows\n- Browser automation\n- Slowest, fewest in number",
+                diagram: "graph TD\n    Pyramid[Test Pyramid]\n    Pyramid --> E2E[E2E - Few]\n    Pyramid --> Int[Integration - Some]\n    Pyramid --> Unit[Unit - Many]"
+              }
+            }
+          ];
+
+          function generateUniqueId(questions, channel) {
+            const prefix = channel.substring(0, 2);
+            const existingIds = new Set(questions.map(q => q.id));
+            let counter = questions.length + 1;
+            let newId;
+            do {
+              newId = `${prefix}-${counter}`;
+              counter++;
+            } while (existingIds.has(newId));
+            return newId;
+          }
+
+          function runOpenCode(prompt) {
+            try {
+              // Escape the prompt for shell
+              const escapedPrompt = prompt.replace(/'/g, "'\\''");
+              const result = execSync(`opencode -p '${escapedPrompt}'`, {
+                encoding: 'utf8',
+                timeout: 120000, // 2 minute timeout
+                maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+              });
+              return result;
+            } catch (error) {
+              console.error('OpenCode CLI error:', error.message);
+              return null;
+            }
+          }
+
+          function parseJsonFromResponse(response) {
+            if (!response) return null;
+            
+            try {
+              // Try direct parse first
+              return JSON.parse(response.trim());
+            } catch (e) {
+              // Try to extract JSON from response
+              const patterns = [
+                /```json\s*([\s\S]*?)\s*```/,
+                /```\s*([\s\S]*?)\s*```/,
+                /(\{[\s\S]*\})/
+              ];
+              
+              for (const pattern of patterns) {
+                const match = response.match(pattern);
+                if (match) {
+                  try {
+                    return JSON.parse(match[1].trim());
+                  } catch (e2) {
+                    continue;
+                  }
+                }
+              }
+            }
+            return null;
+          }
+
+          function validateQuestion(data) {
+            return data &&
+              typeof data.question === 'string' && data.question.length > 10 &&
+              typeof data.answer === 'string' && data.answer.length > 5 &&
+              typeof data.explanation === 'string' && data.explanation.length > 20;
+          }
+
+          function getRandomFallback() {
+            return fallbackQuestions[Math.floor(Math.random() * fallbackQuestions.length)];
+          }
+
+          async function main() {
+            console.log('=== Daily Question Generator ===\n');
+            
+            // Load existing questions
+            let questions;
+            try {
+              questions = JSON.parse(fs.readFileSync(QUESTIONS_FILE, 'utf8'));
+              console.log(`Loaded ${questions.length} existing questions`);
+            } catch (error) {
+              console.error('Failed to load questions file:', error.message);
+              process.exit(1);
+            }
+
+            // Get inputs (from workflow_dispatch or use random)
+            const inputChannel = process.env.INPUT_CHANNEL || 'random';
+            const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
+
+            // Pick category based on input
+            let category;
+            if (inputChannel === 'random') {
+              category = categories[Math.floor(Math.random() * categories.length)];
+            } else {
+              const filtered = categories.filter(c => c.channel === inputChannel);
+              category = filtered[Math.floor(Math.random() * filtered.length)] || categories[0];
+            }
+
+            // Pick difficulty based on input
+            const difficulty = inputDifficulty === 'random' 
+              ? difficulties[Math.floor(Math.random() * difficulties.length)]
+              : inputDifficulty;
+            
+            console.log(`\nCategory: ${category.channel} / ${category.subChannel}`);
+            console.log(`Difficulty: ${difficulty}`);
+
+            // Build prompt
+            const prompt = `Generate a technical interview question for ${category.channel} (${category.subChannel}).
+Difficulty: ${difficulty}
+
+Return ONLY valid JSON (no markdown code blocks, no extra text):
+{
+  "question": "The interview question here",
+  "answer": "Brief one-line answer (max 150 chars)",
+  "explanation": "Detailed explanation with markdown formatting, bullet points, and examples",
+  "diagram": "Mermaid.js diagram starting with graph TD or graph LR"
+}
+
+Requirements:
+- Question should be practical and commonly asked in tech interviews
+- Explanation should be comprehensive with key points
+- Diagram should visualize the concept`;
+
+            console.log('\nCalling OpenCode CLI...');
+            
+            let questionData = null;
+            let usedFallback = false;
+
+            // Try OpenCode CLI
+            const response = runOpenCode(prompt);
+            
+            if (response) {
+              console.log('\nReceived response from OpenCode');
+              questionData = parseJsonFromResponse(response);
+              
+              if (validateQuestion(questionData)) {
+                console.log('Successfully parsed AI-generated question');
+              } else {
+                console.log('Invalid response format, will use fallback');
+                questionData = null;
+              }
+            } else {
+              console.log('No response from OpenCode CLI');
+            }
+
+            // Use fallback if needed
+            if (!questionData) {
+              console.log('\nUsing fallback question...');
+              const fallback = getRandomFallback();
+              questionData = fallback.data;
+              category.channel = fallback.category.channel;
+              category.subChannel = fallback.category.subChannel;
+              category.tags = fallback.category.tags;
+              usedFallback = true;
+            }
+
+            // Generate unique ID
+            const newId = generateUniqueId(questions, category.channel);
+
+            // Build new question object
+            const newQuestion = {
+              id: newId,
+              question: questionData.question,
+              answer: questionData.answer.substring(0, 200), // Ensure answer isn't too long
+              explanation: questionData.explanation,
+              tags: questionData.tags || category.tags,
+              difficulty: difficulty,
+              channel: category.channel,
+              subChannel: category.subChannel,
+              diagram: questionData.diagram || "graph TD\n    A[Concept] --> B[Implementation]"
+            };
+
+            // Add to questions array
+            questions.push(newQuestion);
+
+            // Write back to file
+            try {
+              fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(questions, null, 2));
+              console.log('\n=== Success ===');
+              console.log(`ID: ${newQuestion.id}`);
+              console.log(`Question: ${newQuestion.question}`);
+              console.log(`Source: ${usedFallback ? 'Fallback' : 'AI Generated'}`);
+            } catch (error) {
+              console.error('Failed to write questions file:', error.message);
+              process.exit(1);
+            }
+          }
+
+          main().catch(error => {
+            console.error('Fatal error:', error);
+            process.exit(1);
+          });
+          SCRIPT
+        env:
+          INPUT_CHANNEL: ${{ inputs.channel || 'random' }}
+          INPUT_DIFFICULTY: ${{ inputs.difficulty || 'random' }}
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet client/src/lib/questions.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add client/src/lib/questions.json
+          git commit -m "🤖 Add daily question $(date +%Y-%m-%d)"
+          
+          # Retry push up to 3 times in case of conflicts
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break
+            echo "Push attempt $i failed, retrying..."
+            sleep 5
+          done
+
+      - name: Summary
+        run: |
+          echo "## Daily Question Generator" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
+            echo "✅ Successfully added a new question!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes made" >> $GITHUB_STEP_SUMMARY
+          fi
