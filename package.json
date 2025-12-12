@@ -1,8 +1,31 @@
 {
-  "name": "rest-express",
-  "version": "1.0.0",
-  "type": "module",
+  "name": "learn-reels",
+  "version": "2.1.0",
+  "description": "Master technical interviews with bite-sized learning modules. Interactive platform for practicing system design, algorithms, frontend, database, DevOps, and SRE questions.",
+  "keywords": [
+    "interview-prep",
+    "technical-interviews",
+    "learning",
+    "system-design",
+    "algorithms",
+    "frontend",
+    "database",
+    "devops",
+    "sre",
+    "education",
+    "open-source"
+  ],
+  "author": "Satish Kumar Dhule",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/satishkumar-dhule/reel-interview-code.git"
+  },
+  "bugs": {
+    "url": "https://github.com/satishkumar-dhule/reel-interview-code/issues"
+  },
+  "homepage": "https://reel-interview.github.io/",
+  "type": "module",
   "scripts": {
     "dev:client": "vite dev --port 5000",
     "dev": "NODE_ENV=development tsx server/index.ts",
