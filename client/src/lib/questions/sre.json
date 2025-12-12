@@ -174,20 +174,6 @@
     "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
-    "id": "gh-80",
-    "question": "What is Log Management?",
-    "answer": "Log Management is the practice of collecting, analyzing, and managing log data to help diagnose and troubleshoot issues.",
-    "explanation": "Log Management is the practice of collecting, analyzing, and managing log data to help diagnose and troubleshoot issues.\n\nKey components:\n1. **Log Collection:**\n- Collecting log data from various sources\n- Centralized logging infrastructure\n\n2. **Log Analysis:**\n- Log aggregation\n- Security analytics\n- Application performance monitoring\n- Website search\n- Business analytics\n\n3. **Log Visualization:**\n- Dashboard creation\n- Alerting\n- Visualization",
-    "tags": [
-      "monitoring",
-      "infra"
-    ],
-    "difficulty": "beginner",
-    "channel": "sre",
-    "subChannel": "observability",
-    "lastUpdated": "2025-12-12T09:07:04.188Z"
-  },
-  {
     "id": "sr-124",
     "question": "What are the four golden signals of monitoring?",
     "answer": "Latency, Traffic, Errors, and Saturation - key metrics for service health.",

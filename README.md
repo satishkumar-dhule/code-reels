@@ -126,12 +126,15 @@ pnpm run preview
 
 ## 🔄 Automated Workflows
 
+All bots run daily to ensure continuous content management and quality maintenance.
+
 ### Daily Question Generator
 **Trigger:** Daily at 00:00 UTC (or manual via workflow_dispatch)
 
 Automatically generates new technical interview questions using OpenCode AI:
-- Randomly selects a channel and difficulty level
-- Generates unique questions with smart deduplication
+- Generates 5 new questions per run
+- Randomly selects channels and difficulty levels
+- Smart deduplication to prevent duplicates
 - Adds mermaid diagrams and detailed explanations
 - Commits changes and triggers deployment
 
@@ -141,10 +144,12 @@ gh workflow run daily-question.yml -f channel=algorithms -f difficulty=intermedi
 ```
 
 ### Question Improvement Bot
-**Trigger:** Weekly on Sundays at 12:00 UTC (or manual via workflow_dispatch)
+**Trigger:** Daily at 06:00 UTC (or manual via workflow_dispatch)
 
 Automatically improves existing questions:
-- Identifies questions needing improvement (short answers, missing diagrams, etc.)
+- Improves 5 questions per run
+- Prioritizes oldest questions for review
+- Identifies issues: short answers, missing diagrams, truncated content
 - Uses OpenCode to enhance content
 - Adds/improves mermaid diagrams
 - Optimizes word count and formatting
@@ -154,6 +159,33 @@ Automatically improves existing questions:
 # Manual trigger
 gh workflow run improve-question.yml
 ```
+
+### Question Deduplication Bot
+**Trigger:** Daily at 12:00 UTC (or manual via workflow_dispatch)
+
+Automatically removes duplicate questions:
+- Analyzes a random channel each run
+- Uses Jaccard similarity (60%+ threshold) to detect duplicates
+- Removes at most 1 duplicate per run (keeps oldest, removes newest)
+- Maintains question quality and uniqueness
+- Provides detailed duplicate analysis
+- Commits changes and triggers deployment
+
+```bash
+# Manual trigger
+gh workflow run deduplicate-questions.yml
+```
+
+### Workflow Schedule
+
+| Bot | Time (UTC) | Frequency | Purpose |
+|-----|-----------|-----------|---------|
+| Daily Question Generator | 00:00 | Daily | Add new questions |
+| Question Improvement Bot | 06:00 | Daily | Improve existing questions |
+| Question Deduplication Bot | 12:00 | Daily | Remove duplicates |
+| Deploy Workflow | On-demand | Triggered | Deploy changes |
+
+This ensures continuous content addition, improvement, and quality maintenance throughout the day.
 
 ## 🛠️ Technology Stack
 

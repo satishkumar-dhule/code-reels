@@ -14,8 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Detailed Summaries** - Enhanced workflow summaries with comprehensive details
 - **GitHub Links** - Added issue reporting and star buttons across all pages
 - **Open Source Ready** - Added CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
-- **Question Improvement Bot** - Weekly automated question improvement workflow
-- **Daily Question Generator** - Daily automated question generation workflow
+- **Daily Question Generator** - Daily automated question generation (00:00 UTC)
+- **Question Improvement Bot** - Daily automated question improvement (06:00 UTC)
+- **Question Deduplication Bot** - Daily automated duplicate detection and removal (12:00 UTC)
+- **Comprehensive Documentation** - Added DEVELOPMENT.md, ROADMAP.md, and GitHub templates
+
+### Changed
+- **Workflow Schedule** - All bots now run daily for continuous content management
+- **Improvement Bot** - Changed from weekly to daily execution
+- **Deduplication Bot** - Changed from weekly to daily execution
 
 ### Changed
 - Updated README with comprehensive documentation

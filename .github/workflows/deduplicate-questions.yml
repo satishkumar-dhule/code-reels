@@ -1,12 +1,12 @@
-name: Question Improvement Bot
+name: Question Deduplication Bot
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Daily at 06:00 UTC
+    - cron: '0 12 * * *'  # Daily at 12:00 UTC
   workflow_dispatch:
 
 jobs:
-  improve-question:
+  deduplicate:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -23,12 +23,9 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install OpenCode CLI
-        run: npm install -g opencode-ai
-
-      - name: Improve question
-        id: improve
-        run: node script/improve-question.js
+      - name: Analyze and deduplicate
+        id: deduplicate
+        run: node script/deduplicate-questions.js
 
       - name: Check for changes
         id: check
@@ -45,7 +42,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add client/src/lib/questions/
-          git commit -m "✨ Improve question $(date +%Y-%m-%d)"
+          git commit -m "🧹 Remove duplicate question $(date +%Y-%m-%d)"
           
           for i in 1 2 3; do
             git pull --rebase origin main && git push origin main && exit 0
@@ -71,14 +68,26 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## Question Improvement Bot" >> $GITHUB_STEP_SUMMARY
+          echo "## Question Deduplication Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
-            echo "### ✅ Questions Improved Successfully" >> $GITHUB_STEP_SUMMARY
+            echo "### ✅ Duplicate Removed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Removed Question ID:** \`${{ steps.deduplicate.outputs.removed_id }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Channel:** ${{ steps.deduplicate.outputs.removed_channel }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Duplicate Groups Found:** ${{ steps.deduplicate.outputs.duplicate_groups }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Questions Before:** ${{ steps.deduplicate.outputs.total_before }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Questions After:** ${{ steps.deduplicate.outputs.total_after }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
             echo "Deploy workflow has been triggered!" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### ℹ️ No Changes" >> $GITHUB_STEP_SUMMARY
-            echo "No improvements were made (OpenCode failed, invalid format, or all questions look good)" >> $GITHUB_STEP_SUMMARY
+            echo "### ℹ️ No Duplicates Found" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The analyzed channel has no duplicate questions." >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

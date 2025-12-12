@@ -2,7 +2,7 @@ name: Daily Question Generator
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # Daily at 00:00 UTC
   workflow_dispatch:
     inputs:
       channel:
