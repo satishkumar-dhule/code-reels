@@ -69,10 +69,16 @@ jobs:
             console.log('Triggered deploy workflow');
 
       - name: Summary
+        if: always()
         run: |
           echo "## Question Improvement Bot" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
-            echo "✅ Question improved and deploy triggered!" >> $GITHUB_STEP_SUMMARY
+            echo "### ✅ Questions Improved Successfully" >> $GITHUB_STEP_SUMMARY
+            echo "Deploy workflow has been triggered!" >> $GITHUB_STEP_SUMMARY
           else
-            echo "ℹ️ No improvements made (OpenCode failed or all questions look good)" >> $GITHUB_STEP_SUMMARY
+            echo "### ℹ️ No Changes" >> $GITHUB_STEP_SUMMARY
+            echo "No improvements were made (OpenCode failed, invalid format, or all questions look good)" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

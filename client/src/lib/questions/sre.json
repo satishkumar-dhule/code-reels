@@ -13,7 +13,8 @@
     "difficulty": "beginner",
     "channel": "sre",
     "subChannel": "observability",
-    "diagram": "graph TD\n    SLI[\"Indicator<br/>Reality\"] -->|Measured Against| SLO[\"Objective<br/>Goal\"]\n    SLO -->|Buffer| SLA[\"Agreement<br/>Contract\"]"
+    "diagram": "graph TD\n    SLI[\"Indicator<br/>Reality\"] -->|Measured Against| SLO[\"Objective<br/>Goal\"]\n    SLO -->|Buffer| SLA[\"Agreement<br/>Contract\"]",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "sre-2",
@@ -28,7 +29,8 @@
     "difficulty": "beginner",
     "channel": "sre",
     "subChannel": "reliability",
-    "diagram": "\ngraph LR\n    SLO[99.9% SLO] --> EB[0.1% Error Budget]\n    EB -->|Remaining| Ship[Ship Features]\n    EB -->|Exhausted| Freeze[Freeze Deploys]\n"
+    "diagram": "\ngraph LR\n    SLO[99.9% SLO] --> EB[0.1% Error Budget]\n    EB -->|Remaining| Ship[Ship Features]\n    EB -->|Exhausted| Freeze[Freeze Deploys]\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-59",
@@ -41,7 +43,8 @@
     ],
     "difficulty": "beginner",
     "channel": "sre",
-    "subChannel": "reliability"
+    "subChannel": "reliability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-60",
@@ -54,7 +57,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "sre",
-    "subChannel": "reliability"
+    "subChannel": "reliability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-61",
@@ -67,7 +71,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "sre",
-    "subChannel": "reliability"
+    "subChannel": "reliability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-62",
@@ -80,7 +85,8 @@
     ],
     "difficulty": "beginner",
     "channel": "sre",
-    "subChannel": "reliability"
+    "subChannel": "reliability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-63",
@@ -93,7 +99,8 @@
     ],
     "difficulty": "beginner",
     "channel": "sre",
-    "subChannel": "reliability"
+    "subChannel": "reliability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-73",
@@ -107,7 +114,8 @@
     "difficulty": "beginner",
     "channel": "sre",
     "subChannel": "incident-management",
-    "diagram": "\ngraph LR\n    Detect[Detect] --> Respond[Respond]\n    Respond --> Resolve[Resolve]\n    Resolve --> Review[Post-Mortem]\n"
+    "diagram": "\ngraph LR\n    Detect[Detect] --> Respond[Respond]\n    Respond --> Resolve[Resolve]\n    Resolve --> Review[Post-Mortem]\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-76",
@@ -120,7 +128,8 @@
     ],
     "difficulty": "beginner",
     "channel": "sre",
-    "subChannel": "observability"
+    "subChannel": "observability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-77",
@@ -133,7 +142,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "sre",
-    "subChannel": "observability"
+    "subChannel": "observability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-78",
@@ -146,7 +156,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "sre",
-    "subChannel": "observability"
+    "subChannel": "observability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-79",
@@ -159,7 +170,8 @@
     ],
     "difficulty": "beginner",
     "channel": "sre",
-    "subChannel": "observability"
+    "subChannel": "observability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-80",
@@ -172,7 +184,8 @@
     ],
     "difficulty": "beginner",
     "channel": "sre",
-    "subChannel": "observability"
+    "subChannel": "observability",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "sr-124",
@@ -186,7 +199,8 @@
     "difficulty": "beginner",
     "channel": "sre",
     "subChannel": "observability",
-    "diagram": "graph TD\n    M[Monitoring] --> L[Latency]\n    M --> T[Traffic]\n    M --> E[Errors]\n    M --> S[Saturation]"
+    "diagram": "graph TD\n    M[Monitoring] --> L[Latency]\n    M --> T[Traffic]\n    M --> E[Errors]\n    M --> S[Saturation]",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "sr-126",
@@ -200,6 +214,38 @@
     "difficulty": "advanced",
     "channel": "sre",
     "subChannel": "incident-management",
-    "diagram": "graph TD\n    Incident[Incident] --> Timeline[Timeline]\n    Timeline --> RCA[Root Cause]\n    RCA --> Actions[Action Items]\n    Actions --> Prevention[Prevention]"
+    "diagram": "graph TD\n    Incident[Incident] --> Timeline[Timeline]\n    Timeline --> RCA[Root Cause]\n    RCA --> Actions[Action Items]\n    Actions --> Prevention[Prevention]",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
+  },
+  {
+    "id": "sr-130",
+    "question": "Your web service has an SLO of 99.9% availability over 30 days. You've had 3 outages: 45 minutes, 20 minutes, and 15 minutes. What's your current availability SLI and are you meeting your SLO?",
+    "answer": "SLI: 99.81% availability. Not meeting 99.9% SLO - exceeded error budget by 0.09%.",
+    "explanation": "## SLI Calculation\n\n**Total time in 30 days:** 30 × 24 × 60 = 43,200 minutes\n\n**Total downtime:** 45 + 20 + 15 = 80 minutes\n\n**Uptime:** 43,200 - 80 = 43,120 minutes\n\n**SLI (Service Level Indicator):** (43,120 ÷ 43,200) × 100 = **99.81%**\n\n## SLO Analysis\n\n**Target SLO:** 99.9% availability\n**Current SLI:** 99.81%\n**Status:** ❌ **Not meeting SLO**\n\n## Error Budget\n\n**Allowed downtime for 99.9% SLO:** 43,200 × 0.001 = 43.2 minutes\n**Actual downtime:** 80 minutes\n**Error budget exceeded by:** 80 - 43.2 = 36.8 minutes (0.09%)\n\n## Key Concepts\n\n- **SLI (Service Level Indicator):** Actual measured performance metric\n- **SLO (Service Level Objective):** Target reliability goal\n- **Error Budget:** Allowed unreliability (100% - SLO%)\n\nWhen SLI < SLO, you've exceeded your error budget and should focus on reliability improvements over new features.",
+    "tags": [
+      "slo",
+      "sli",
+      "error-budget"
+    ],
+    "difficulty": "intermediate",
+    "channel": "sre",
+    "subChannel": "slo-sli",
+    "diagram": "graph TD\n    A[30 Days Total Time<br/>43,200 minutes] --> B[Calculate Downtime]\n    B --> C[Outage 1: 45 min<br/>Outage 2: 20 min<br/>Outage 3: 15 min]\n    C --> D[Total Downtime<br/>80 minutes]\n    A --> E[Calculate Uptime<br/>43,200 - 80 = 43,120 min]\n    E --> F[SLI Calculation<br/>43,120 ÷ 43,200 × 100]\n    F --> G[Current SLI<br/>99.81%]\n    H[SLO Target<br/>99.9%] --> I{SLI ≥ SLO?}\n    G --> I\n    I -->|No| J[❌ SLO Breach<br/>Error Budget Exceeded]\n    I -->|Yes| K[✅ SLO Met<br/>Within Error Budget]\n    L[Error Budget<br/>43.2 minutes allowed] --> M[Budget Exceeded<br/>36.8 minutes over]",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
+  },
+  {
+    "id": "sr-131",
+    "question": "You're managing a microservices platform with 50 services. Service A has a 95th percentile latency of 200ms and handles 10,000 RPS. It calls Service B (50ms, 5,000 RPS) and Service C (100ms, 3,000 RPS). During Black Friday, you expect 5x traffic. Service A's CPU utilization is currently 60%, memory at 70%. How do you plan capacity to maintain <500ms 95th percentile end-to-end latency?",
+    "answer": "Scale Service A to 15 instances, Service B to 8 instances, Service C to 5 instances. Add circuit breakers, implement caching, and use load shedding.",
+    "explanation": "## Capacity Planning Analysis\n\n### Current State Assessment\n- **Service A**: 200ms p95, 10K RPS, 60% CPU, 70% memory\n- **Service B**: 50ms p95, 5K RPS (called by A)\n- **Service C**: 100ms p95, 3K RPS (called by A)\n- **Current end-to-end latency**: ~350ms (200+50+100)\n\n### Black Friday Projections (5x traffic)\n- **Service A**: 50K RPS target\n- **Service B**: 25K RPS target  \n- **Service C**: 15K RPS target\n\n### Capacity Planning Strategy\n\n#### 1. **Horizontal Scaling Calculations**\n```\nService A: 50K RPS ÷ (10K RPS × 0.4 headroom) = ~12.5 → 15 instances\nService B: 25K RPS ÷ 5K RPS = 5 → 8 instances (buffer)\nService C: 15K RPS ÷ 3K RPS = 5 instances\n```\n\n#### 2. **Latency Optimization**\n- **Circuit breakers**: Prevent cascade failures\n- **Caching**: Reduce Service B/C calls by 30-40%\n- **Connection pooling**: Reduce connection overhead\n- **Load shedding**: Drop non-critical requests at 80% capacity\n\n#### 3. **Resource Allocation**\n- **CPU**: Target 40-50% utilization under peak load\n- **Memory**: Target 60% utilization with garbage collection headroom\n- **Network**: Ensure bandwidth can handle 5x throughput\n\n#### 4. **Monitoring & Alerting**\n- Set alerts at 70% capacity utilization\n- Monitor queue depths and connection pool exhaustion\n- Track error rates and implement auto-scaling triggers\n\n#### 5. **Fallback Strategies**\n- **Graceful degradation**: Disable non-essential features\n- **CDN offloading**: Cache static content\n- **Database read replicas**: Distribute read load\n\nThis approach ensures <500ms p95 latency while maintaining system reliability during traffic spikes.",
+    "tags": [
+      "capacity",
+      "scaling"
+    ],
+    "difficulty": "advanced",
+    "channel": "sre",
+    "subChannel": "capacity-planning",
+    "diagram": "graph TD\n    A[Load Balancer] --> B[Service A - 15 instances]\n    B --> C[Service B - 8 instances]\n    B --> D[Service C - 5 instances]\n    B --> E[Cache Layer]\n    F[Circuit Breaker] --> B\n    G[Auto Scaler] --> B\n    G --> C\n    G --> D\n    H[Monitoring] --> I[Alerts]\n    I --> G\n    J[Load Shedder] --> A\n    K[CDN] --> A\n    \n    style B fill:#ff9999\n    style C fill:#99ccff\n    style D fill:#99ff99\n    style E fill:#ffcc99\n    style F fill:#ff6666\n    style J fill:#cc99ff",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   }
 ]

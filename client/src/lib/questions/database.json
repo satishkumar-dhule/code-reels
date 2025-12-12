@@ -12,13 +12,14 @@
     "difficulty": "beginner",
     "channel": "database",
     "subChannel": "sql",
-    "diagram": "graph TD\n    subgraph Clustered\n    Root1 --> Data[\"Data Pages<br/>Sorted\"]\n    end\n    subgraph NonClustered\n    Root2 --> Ptr[Pointers]\n    Ptr -.-> Data\n    end"
+    "diagram": "graph TD\n    subgraph Clustered\n    Root1 --> Data[\"Data Pages<br/>Sorted\"]\n    end\n    subgraph NonClustered\n    Root2 --> Ptr[Pointers]\n    Ptr -.-> Data\n    end",
+    "lastUpdated": "2025-12-12T09:07:04.186Z"
   },
   {
     "id": "db-2",
-    "question": "Explain ACID properties in the context of a banking transaction.",
-    "answer": "Atomicity, Consistency, Isolation, Durability guarantee valid transactions.",
-    "explanation": "**Scenario**: A transfers $100 to B.\n\n- **Atomicity**: All or nothing. If debit A succeeds but credit B fails, ROLLBACK everything.\n- **Consistency**: DB moves from one valid state to another (constraints satisfied, total money same).\n- **Isolation**: Concurrent transactions don't interfere. If C checks A's balance during transfer, they see either pre- or post-state, not intermediate.\n- **Durability**: Once committed, it stays saved even if power fails (Write Ahead Log).",
+    "question": "How do ACID properties ensure data integrity in a banking transaction where $100 is transferred from Account A to Account B?",
+    "answer": "Atomicity ensures all-or-nothing execution, Consistency maintains valid states, Isolation prevents interference, Durability guarantees persistence.",
+    "explanation": "**Banking Transfer Scenario**: Account A transfers $100 to Account B\n\n• **Atomicity**: Either both debit from A AND credit to B succeed, or both fail and rollback completely\n• **Consistency**: Database maintains valid state - total money remains constant, account balances never go negative\n• **Isolation**: Concurrent transactions see consistent snapshots - if Account C checks A's balance during transfer, they see either before or after state, never partial\n• **Durability**: Once transaction commits, changes persist even through system crashes via Write-Ahead Logging",
     "tags": [
       "acid",
       "transactions",
@@ -27,26 +28,29 @@
     "difficulty": "intermediate",
     "channel": "database",
     "subChannel": "transactions",
-    "diagram": "\ngraph TD\n    A[Atomicity] --> T[Transaction]\n    C[Consistency] --> T\n    I[Isolation] --> T\n    D[Durability] --> T\n    T --> DB[(Database)]\n"
+    "diagram": "graph TD\n    Start[Transfer $100: A → B] --> Atomic{Atomicity Check}\n    Atomic -->|Success| Consistent[Consistency Validation]\n    Atomic -->|Failure| Rollback[Complete Rollback]\n    Consistent --> Isolated[Isolation Control]\n    Isolated --> Durable[Durability Commit]\n    Durable --> Complete[Transaction Complete]\n    Rollback --> Failed[Transaction Failed]",
+    "lastUpdated": "2025-12-12T09:08:19.686Z"
   },
   {
     "id": "gh-67",
-    "question": "What is Database DevOps?",
-    "answer": "Database DevOps is the practice of applying DevOps principles to database development and management.",
-    "explanation": "Database DevOps is the practice of applying DevOps principles to database development and management.\n\nKey practices:\n1. **Version Control:**\n- Schema versioning\n- Code-first approach\n- Migration scripts\n\n2. **Automation:**\n```yaml\nContinuous Integration:\n- Automated testing\n- Schema validation\n- Data consistency checks\n\nContinuous Delivery:\n- Automated deployments\n- Rollback procedures\n- Data synchronization\n```",
+    "question": "What is Database DevOps and how does it integrate with CI/CD pipelines?",
+    "answer": "Database DevOps applies DevOps principles to database development, enabling automated schema management, testing, and deployment through CI/CD pipelines.",
+    "explanation": "Database DevOps is the practice of applying DevOps principles to database development and management, enabling teams to deliver database changes safely and efficiently.\n\n## Key Components:\n\n• **Version Control**: Schema versioning, migration scripts, and code-first approaches\n• **Automated Testing**: Schema validation, data consistency checks, and performance testing\n• **CI/CD Integration**: Automated deployments, rollback procedures, and environment synchronization\n• **Monitoring**: Database performance tracking, change impact analysis, and alerting\n\n## Benefits:\n\n• Faster, more reliable database deployments\n• Reduced manual errors and downtime\n• Better collaboration between development and operations teams\n• Consistent environments across development, staging, and production",
     "tags": [
       "db",
       "devops"
     ],
     "difficulty": "beginner",
     "channel": "database",
-    "subChannel": "fundamentals"
+    "subChannel": "fundamentals",
+    "lastUpdated": "2025-12-12T09:10:34.548Z",
+    "diagram": "graph TD\n    A[Developer Commits] --> B[Version Control]\n    B --> C[CI Pipeline]\n    C --> D[Schema Validation]\n    C --> E[Automated Tests]\n    D --> F[Build Artifacts]\n    E --> F\n    F --> G[CD Pipeline]\n    G --> H[Staging Deploy]\n    H --> I[Production Deploy]\n    I --> J[Monitoring]\n    J --> K[Rollback if Needed]\n    K --> G\n    \n    style A fill:#e1f5fe\n    style I fill:#c8e6c9\n    style K fill:#ffcdd2"
   },
   {
     "id": "da-125",
-    "question": "Explain database indexing and when to use it.",
-    "answer": "Indexes speed up data retrieval at the cost of write performance.",
-    "explanation": "**How Indexes Work**:\n- Create a sorted data structure (B-tree, Hash)\n- Points to actual data location\n- Trades write speed for read speed\n\n**When to Use**:\n- Frequently queried columns\n- WHERE clause columns\n- JOIN columns\n- ORDER BY columns\n\n**When NOT to Use**:\n- Small tables\n- Frequently updated columns\n- Low cardinality columns",
+    "question": "What are database indexes and when should you use them?",
+    "answer": "Database indexes are data structures that improve query performance by creating fast lookup paths, trading slower writes for faster reads.",
+    "explanation": "**How Indexes Work**:\n- Create sorted data structures (B-tree, hash, bitmap)\n- Store pointers to actual data locations\n- Enable O(log n) vs O(n) query performance\n\n**When to Use**:\n- Columns in WHERE clauses\n- JOIN operation columns\n- ORDER BY and GROUP BY columns\n- Large tables with selective queries\n\n**When NOT to Use**:\n- Small tables (<1000 rows)\n- High-write/low-read scenarios\n- Low cardinality columns\n- Frequently updated columns",
     "tags": [
       "sql",
       "indexing"
@@ -54,6 +58,37 @@
     "difficulty": "intermediate",
     "channel": "database",
     "subChannel": "sql",
-    "diagram": "graph LR\n    Query --> Index[(Index)]\n    Index --> Data[(Data)]\n    style Index fill:#4ade80"
+    "diagram": "graph TD\n    Query[SQL Query] --> Index[(Index Structure)]\n    Index --> Data[Data Pages]\n    Write[Write Operation] -->|Updates Index| Index\n    Read[Read Operation] -->|Uses Index| Index\n    style Index fill:#4ade80\n    style Data fill:#f3f4f6",
+    "lastUpdated": "2025-12-12T09:10:47.468Z"
+  },
+  {
+    "id": "da-128",
+    "question": "You have a banking system where users can transfer money between accounts. Design a transaction to handle a transfer of $500 from Account A (balance: $1000) to Account B (balance: $200). What happens if the system crashes after debiting Account A but before crediting Account B? How would you ensure data consistency?",
+    "answer": "Use database transactions with ACID properties. Wrap both operations in a single transaction that either commits both or rolls back both.",
+    "explanation": "## Database Transaction for Money Transfer\n\nThis scenario illustrates the critical importance of **ACID properties** in database transactions:\n\n### The Problem\nWithout proper transaction handling:\n1. Debit $500 from Account A (balance becomes $500)\n2. **System crashes here**\n3. Credit to Account B never happens\n4. **Result: $500 disappears from the system**\n\n### The Solution: ACID Transaction\n\n```sql\nBEGIN TRANSACTION;\n\n-- Check sufficient funds\nSELECT balance FROM accounts WHERE id = 'A' FOR UPDATE;\n\n-- Perform both operations atomically\nUPDATE accounts SET balance = balance - 500 WHERE id = 'A';\nUPDATE accounts SET balance = balance + 500 WHERE id = 'B';\n\nCOMMIT;\n```\n\n### ACID Properties Explained\n\n- **Atomicity**: Both operations succeed together or fail together\n- **Consistency**: Total money in system remains constant\n- **Isolation**: Other transactions can't see intermediate states\n- **Durability**: Once committed, changes survive system crashes\n\n### Additional Safeguards\n\n1. **Deadlock Prevention**: Always acquire locks in consistent order (e.g., by account ID)\n2. **Timeout Handling**: Set transaction timeouts to prevent indefinite locks\n3. **Retry Logic**: Implement exponential backoff for transient failures\n4. **Audit Trail**: Log all transaction attempts for reconciliation",
+    "tags": [
+      "acid",
+      "transactions"
+    ],
+    "difficulty": "intermediate",
+    "channel": "database",
+    "subChannel": "transactions",
+    "diagram": "graph TD\n    A[Start Transaction] --> B[Lock Account A]\n    B --> C[Check Balance >= $500]\n    C -->|Yes| D[Debit $500 from Account A]\n    C -->|No| E[Rollback - Insufficient Funds]\n    D --> F[Credit $500 to Account B]\n    F --> G[Commit Transaction]\n    G --> H[Release Locks]\n    \n    D -->|System Crash| I[Automatic Rollback]\n    F -->|System Crash| I\n    I --> J[Both Accounts Restored]\n    \n    E --> K[Transaction Failed]\n    \n    style A fill:#e1f5fe\n    style G fill:#c8e6c9\n    style I fill:#ffcdd2\n    style E fill:#ffcdd2",
+    "lastUpdated": "2025-12-12T09:07:04.186Z"
+  },
+  {
+    "id": "da-129",
+    "question": "What is the main difference between SQL and NoSQL databases in terms of data structure?",
+    "answer": "SQL uses structured tables with fixed schemas, NoSQL uses flexible document/key-value/graph structures without fixed schemas.",
+    "explanation": "## SQL vs NoSQL Data Structure\n\n**SQL Databases:**\n- Store data in **tables** with rows and columns\n- Require a **predefined schema** (structure must be defined before inserting data)\n- Data must conform to the schema (same columns for all rows)\n- Examples: MySQL, PostgreSQL, Oracle\n\n**NoSQL Databases:**\n- Store data in flexible formats:\n  - **Document stores** (JSON-like documents) - MongoDB, CouchDB\n  - **Key-value pairs** - Redis, DynamoDB\n  - **Column-family** - Cassandra, HBase\n  - **Graph databases** - Neo4j, Amazon Neptune\n- **Schema-less** or **schema-flexible**\n- Can store different structures in the same collection/table\n- Better for rapidly changing requirements\n\n**When to use NoSQL:**\n- Rapidly evolving data structures\n- Large scale applications requiring horizontal scaling\n- Semi-structured or unstructured data\n- Real-time applications",
+    "tags": [
+      "nosql",
+      "mongodb"
+    ],
+    "difficulty": "beginner",
+    "channel": "database",
+    "subChannel": "nosql",
+    "diagram": "graph TD\n    A[Database Types] --> B[SQL Databases]\n    A --> C[NoSQL Databases]\n    \n    B --> D[Fixed Schema]\n    B --> E[Tables with Rows/Columns]\n    B --> F[ACID Compliance]\n    \n    C --> G[Flexible Schema]\n    C --> H[Multiple Data Models]\n    \n    H --> I[Document Store]\n    H --> J[Key-Value]\n    H --> K[Column-Family]\n    H --> L[Graph]\n    \n    I --> M[MongoDB]\n    J --> N[Redis]\n    K --> O[Cassandra]\n    L --> P[Neo4j]",
+    "lastUpdated": "2025-12-12T09:07:04.186Z"
   }
 ]

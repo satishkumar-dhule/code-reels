@@ -136,8 +136,10 @@ function updateIndexFile() {
 async function main() {
   console.log('=== Question Improvement Bot (OpenCode Free Tier) ===\n');
 
+  const NUM_IMPROVEMENTS = 5;
   const allQuestions = loadAllQuestions();
-  console.log(`Loaded ${allQuestions.length} questions\n`);
+  console.log(`Loaded ${allQuestions.length} questions`);
+  console.log(`Target: Improve ${NUM_IMPROVEMENTS} questions\n`);
 
   if (allQuestions.length === 0) {
     console.log('No questions found. Exiting.');
@@ -156,64 +158,116 @@ async function main() {
     process.exit(0);
   }
 
-  // Pick a random question to improve
-  const target = questionsWithIssues[Math.floor(Math.random() * questionsWithIssues.length)];
-  const q = target.question;
+  // Sort by lastUpdated (oldest first) to prioritize older questions
+  const sortedByAge = questionsWithIssues.sort((a, b) => {
+    const dateA = new Date(a.question.lastUpdated || new Date()).getTime();
+    const dateB = new Date(b.question.lastUpdated || new Date()).getTime();
+    return dateA - dateB;
+  });
 
-  console.log(`Selected question: ${q.id}`);
-  console.log(`Issues: ${target.issues.join(', ')}`);
-  console.log(`Current question: ${q.question.substring(0, 80)}...`);
+  console.log(`Prioritizing oldest questions for review...\n`);
 
-  const prompt = `Improve this technical interview question. Fix these issues: ${target.issues.join(', ')}. Current: Question="${q.question}" Answer="${q.answer}" Explanation="${q.explanation}" Diagram="${q.diagram || 'MISSING'}". Return ONLY valid JSON: {"question":"improved question ending with ?","answer":"concise answer 50-150 chars","explanation":"markdown explanation with bullets","diagram":"mermaid graph TD with 3+ nodes"}`;
+  const improvedQuestions = [];
+  const failedAttempts = [];
+  const numToImprove = Math.min(NUM_IMPROVEMENTS, sortedByAge.length);
 
-  const response = await runWithRetries(prompt);
+  for (let i = 0; i < numToImprove; i++) {
+    console.log(`\n--- Improvement ${i + 1}/${numToImprove} ---`);
+    
+    // Pick from oldest questions first
+    const target = sortedByAge[i];
+    const q = target.question;
+    const lastUpdatedDate = new Date(q.lastUpdated || new Date());
+    const daysSinceUpdate = Math.floor((Date.now() - lastUpdatedDate.getTime()) / (1000 * 60 * 60 * 24));
 
-  if (!response) {
-    console.log('\n❌ OpenCode failed. No improvements made.');
-    process.exit(0);
+    console.log(`Question ID: ${q.id}`);
+    console.log(`Last Updated: ${daysSinceUpdate} days ago`);
+    console.log(`Issues: ${target.issues.join(', ')}`);
+    console.log(`Current: ${q.question.substring(0, 70)}...`);
+
+    const prompt = `Improve this technical interview question. Fix these issues: ${target.issues.join(', ')}. Current: Question="${q.question}" Answer="${q.answer}" Explanation="${q.explanation}" Diagram="${q.diagram || 'MISSING'}". Return ONLY valid JSON: {"question":"improved question ending with ?","answer":"concise answer 50-150 chars","explanation":"markdown explanation with bullets","diagram":"mermaid graph TD with 3+ nodes"}`;
+
+    const response = await runWithRetries(prompt);
+
+    if (!response) {
+      console.log('❌ OpenCode failed after retries.');
+      failedAttempts.push({ id: q.id, reason: 'OpenCode timeout' });
+      continue;
+    }
+
+    const improved = parseJson(response);
+
+    if (!improved || !improved.question || !improved.answer || !improved.explanation) {
+      console.log('❌ Invalid response format.');
+      failedAttempts.push({ id: q.id, reason: 'Invalid JSON format' });
+      continue;
+    }
+
+    // Update the question in its file
+    const filePath = `${QUESTIONS_DIR}/${q._file}`;
+    const fileQuestions = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const idx = fileQuestions.findIndex(fq => fq.id === q.id);
+
+    if (idx === -1) {
+      console.log('❌ Could not find question in file.');
+      failedAttempts.push({ id: q.id, reason: 'Question not found in file' });
+      continue;
+    }
+
+    // Apply improvements
+    fileQuestions[idx] = {
+      ...fileQuestions[idx],
+      question: improved.question || fileQuestions[idx].question,
+      answer: (improved.answer || fileQuestions[idx].answer).substring(0, 200),
+      explanation: improved.explanation || fileQuestions[idx].explanation,
+      diagram: improved.diagram || fileQuestions[idx].diagram || 'graph TD\n    A[Concept] --> B[Implementation]',
+      lastUpdated: new Date().toISOString()
+    };
+
+    fs.writeFileSync(filePath, JSON.stringify(fileQuestions, null, 2));
+    updateIndexFile();
+
+    improvedQuestions.push({
+      id: q.id,
+      file: q._file,
+      issues: target.issues,
+      question: improved.question,
+      daysSinceLastUpdate: daysSinceUpdate
+    });
+
+    console.log(`✅ Improved: ${q.id}`);
+    console.log(`Fixed: ${target.issues.join(', ')}`);
   }
 
-  console.log('\nResponse length:', response.length);
+  // Print summary
+  console.log('\n\n=== SUMMARY ===');
+  console.log(`Total Questions Improved: ${improvedQuestions.length}/${numToImprove}`);
   
-  const improved = parseJson(response);
-
-  if (!improved || !improved.question || !improved.answer || !improved.explanation) {
-    console.log('\n❌ Invalid response format. No improvements made.');
-    console.log('Response preview:', response.substring(0, 500));
-    process.exit(0);
+  if (improvedQuestions.length > 0) {
+    console.log('\n✅ Successfully Improved Questions:');
+    improvedQuestions.forEach((q, idx) => {
+      console.log(`  ${idx + 1}. [${q.id}] (${q.file}) - Last updated ${q.daysSinceLastUpdate} days ago`);
+      console.log(`     Issues Fixed: ${q.issues.join(', ')}`);
+      console.log(`     New Q: ${q.question.substring(0, 70)}${q.question.length > 70 ? '...' : ''}`);
+    });
   }
 
-  // Update the question in its file
-  const filePath = `${QUESTIONS_DIR}/${q._file}`;
-  const fileQuestions = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  const idx = fileQuestions.findIndex(fq => fq.id === q.id);
-
-  if (idx === -1) {
-    console.log('\n❌ Could not find question in file. No improvements made.');
-    process.exit(0);
+  if (failedAttempts.length > 0) {
+    console.log(`\n❌ Failed Attempts: ${failedAttempts.length}`);
+    failedAttempts.forEach(f => {
+      console.log(`  - [${f.id}]: ${f.reason}`);
+    });
   }
 
-  // Apply improvements
-  fileQuestions[idx] = {
-    ...fileQuestions[idx],
-    question: improved.question || fileQuestions[idx].question,
-    answer: (improved.answer || fileQuestions[idx].answer).substring(0, 200),
-    explanation: improved.explanation || fileQuestions[idx].explanation,
-    diagram: improved.diagram || fileQuestions[idx].diagram || 'graph TD\n    A[Concept] --> B[Implementation]'
-  };
-
-  fs.writeFileSync(filePath, JSON.stringify(fileQuestions, null, 2));
-  updateIndexFile();
-
-  console.log('\n✅ Question improved!');
-  console.log(`ID: ${q.id}`);
-  console.log(`File: ${q._file}`);
-  console.log(`Fixed issues: ${target.issues.join(', ')}`);
+  console.log(`\nQuestions Available for Improvement: ${questionsWithIssues.length}`);
+  console.log('=== END SUMMARY ===\n');
 
   const out = process.env.GITHUB_OUTPUT;
   if (out) {
-    fs.appendFileSync(out, `improved_id=${q.id}\n`);
-    fs.appendFileSync(out, `improved_file=${q._file}\n`);
+    fs.appendFileSync(out, `improved_count=${improvedQuestions.length}\n`);
+    fs.appendFileSync(out, `failed_count=${failedAttempts.length}\n`);
+    fs.appendFileSync(out, `available_count=${questionsWithIssues.length}\n`);
+    fs.appendFileSync(out, `improved_ids=${improvedQuestions.map(q => q.id).join(',')}\n`);
   }
 }
 

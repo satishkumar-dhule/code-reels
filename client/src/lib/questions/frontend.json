@@ -12,7 +12,8 @@
     "difficulty": "intermediate",
     "channel": "frontend",
     "subChannel": "react",
-    "diagram": "\nflowchart LR\n    State --> VDOM_New\n    VDOM_Old --> Diff\n    VDOM_New --> Diff{Diffing}\n    Diff --> Patch[Update Real DOM]\n"
+    "diagram": "\nflowchart LR\n    State --> VDOM_New\n    VDOM_Old --> Diff\n    VDOM_New --> Diff{Diffing}\n    Diff --> Patch[Update Real DOM]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "fe-2",
@@ -27,7 +28,8 @@
     "difficulty": "beginner",
     "channel": "frontend",
     "subChannel": "javascript",
-    "diagram": "\ngraph TD\n    Stack[Call Stack] -->|Empty?| CheckMicro{Microtasks?}\n    CheckMicro -->|Yes| RunMicro[Run All Microtasks]\n    RunMicro --> CheckMicro\n    CheckMicro -->|No| Render[Render UI]\n    Render --> RunMacro[Run One Macrotask]\n    RunMacro --> Stack\n"
+    "diagram": "\ngraph TD\n    Stack[Call Stack] -->|Empty?| CheckMicro{Microtasks?}\n    CheckMicro -->|Yes| RunMicro[Run All Microtasks]\n    RunMicro --> CheckMicro\n    CheckMicro -->|No| Render[Render UI]\n    Render --> RunMacro[Run One Macrotask]\n    RunMacro --> Stack\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "fe-3",
@@ -42,6 +44,7 @@
     "difficulty": "intermediate",
     "channel": "frontend",
     "subChannel": "javascript",
-    "diagram": "\ngraph TD\n    Outer[Outer Function] --> Var[count = 0]\n    Outer --> Inner[Inner Function]\n    Inner -.->|Remembers| Var\n"
+    "diagram": "\ngraph TD\n    Outer[Outer Function] --> Var[count = 0]\n    Outer --> Inner[Inner Function]\n    Inner -.->|Remembers| Var\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   }
 ]

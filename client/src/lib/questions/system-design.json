@@ -12,7 +12,8 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "infrastructure",
-    "diagram": "graph LR\n    User --> LB[Load Balancer]\n    LB -->|Layer 4| S1[\"Server 1<br/>IP:Port\"]\n    LB -->|Layer 7| S2[\"Server 2<br/>/api\"]\n    style LB fill:#fff,stroke:#000,color:#000"
+    "diagram": "graph LR\n    User --> LB[Load Balancer]\n    LB -->|Layer 4| S1[\"Server 1<br/>IP:Port\"]\n    LB -->|Layer 7| S2[\"Server 2<br/>/api\"]\n    style LB fill:#fff,stroke:#000,color:#000",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "sd-2",
@@ -27,7 +28,8 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "distributed-systems",
-    "diagram": "\ngraph TD\n    subgraph Hash Ring\n    N1((Node 1)) --- N2((Node 2))\n    N2 --- N3((Node 3))\n    N3 --- N1\n    end\n    Key[Key K] -.->|Clockwise| N2\n    style N2 fill:#f00,stroke:#fff,color:#fff\n"
+    "diagram": "\ngraph TD\n    subgraph Hash Ring\n    N1((Node 1)) --- N2((Node 2))\n    N2 --- N3((Node 3))\n    N3 --- N1\n    end\n    Key[Key K] -.->|Clockwise| N2\n    style N2 fill:#f00,stroke:#fff,color:#fff\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "sd-3",
@@ -42,7 +44,8 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "distributed-systems",
-    "diagram": "graph TD\n    CAP[CAP Theorem]\n    CAP --> C[Consistency]\n    CAP --> A[Availability]\n    CAP --> P[Partition Tolerance]\n    Note[Pick 2 of 3]\n    style Note fill:#f59e0b,stroke:#fff,color:#000"
+    "diagram": "graph TD\n    CAP[CAP Theorem]\n    CAP --> C[Consistency]\n    CAP --> A[Availability]\n    CAP --> P[Partition Tolerance]\n    Note[Pick 2 of 3]\n    style Note fill:#f59e0b,stroke:#fff,color:#000",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "sd-4",
@@ -57,7 +60,8 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "database",
-    "diagram": "\ngraph TD\n    App --> Router\n    Router -->|ID < 100| S1[(Shard 1)]\n    Router -->|ID > 100| S2[(Shard 2)]\n"
+    "diagram": "\ngraph TD\n    App --> Router\n    Router -->|ID < 100| S1[(Shard 1)]\n    Router -->|ID > 100| S2[(Shard 2)]\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "sd-5",
@@ -72,7 +76,8 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "api-design",
-    "diagram": "\ngraph LR\n    Req[Request] --> Check{Buckets Full?}\n    Check -->|No| Process[Process]\n    Check -->|Yes| Drop[429 Too Many Requests]\n"
+    "diagram": "\ngraph LR\n    Req[Request] --> Check{Buckets Full?}\n    Check -->|No| Process[Process]\n    Check -->|Yes| Drop[429 Too Many Requests]\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-31",
@@ -86,7 +91,8 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "infrastructure",
-    "diagram": "\ngraph TD\n    subgraph Vertical\n    S1[Small] --> S2[Large]\n    end\n    subgraph Horizontal\n    H1[Server] --- H2[Server] --- H3[Server]\n    end\n"
+    "diagram": "\ngraph TD\n    subgraph Vertical\n    S1[Small] --> S2[Large]\n    end\n    subgraph Horizontal\n    H1[Server] --- H2[Server] --- H3[Server]\n    end\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-32",
@@ -100,7 +106,8 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "infrastructure",
-    "diagram": "\ngraph TD\n    LB[Load Balancer] --> S1[Server 1]\n    LB --> S2[Server 2]\n    S1 -.->|Failover| S2\n"
+    "diagram": "\ngraph TD\n    LB[Load Balancer] --> S1[Server 1]\n    LB --> S2[Server 2]\n    S1 -.->|Failover| S2\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-33",
@@ -113,7 +120,8 @@
     ],
     "difficulty": "advanced",
     "channel": "system-design",
-    "subChannel": "infrastructure"
+    "subChannel": "infrastructure",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   },
   {
     "id": "gh-34",
@@ -127,6 +135,22 @@
     "difficulty": "advanced",
     "channel": "system-design",
     "subChannel": "infrastructure",
-    "diagram": "\ngraph LR\n    Metrics[Metrics] --> ASG[Auto Scaling]\n    ASG -->|Scale Out| Add[Add Instances]\n    ASG -->|Scale In| Remove[Remove Instances]\n"
+    "diagram": "\ngraph LR\n    Metrics[Metrics] --> ASG[Auto Scaling]\n    ASG -->|Scale Out| Add[Add Instances]\n    ASG -->|Scale In| Remove[Remove Instances]\n",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
+  },
+  {
+    "id": "sy-132",
+    "question": "Design a distributed rate limiting system that can handle 1M+ requests per second across multiple data centers while maintaining consistency and low latency. How would you handle burst traffic, different rate limiting algorithms (token bucket, sliding window), and ensure fair distribution across users?",
+    "answer": "Use distributed token bucket with Redis Cluster, consistent hashing for user distribution, and local caching with periodic sync for low latency.",
+    "explanation": "## Distributed Rate Limiting System Design\n\n### Core Components\n\n**1. Rate Limiting Algorithms**\n- **Token Bucket**: Best for burst handling, allows temporary spikes\n- **Sliding Window**: More accurate but computationally expensive\n- **Fixed Window**: Simple but can cause boundary issues\n\n**2. Architecture Overview**\n- **API Gateway Layer**: First line of defense with local rate limiting\n- **Distributed Cache**: Redis Cluster for shared state across regions\n- **Rate Limit Service**: Dedicated microservice for complex logic\n- **Configuration Service**: Dynamic rule updates without deployment\n\n### Implementation Strategy\n\n**Local + Distributed Hybrid Approach:**\n```\n1. Local cache (99% of requests) - sub-millisecond latency\n2. Periodic sync with distributed store (every 100ms)\n3. Fallback to distributed check for edge cases\n```\n\n**Data Distribution:**\n- Consistent hashing for user → shard mapping\n- Replication factor of 3 for high availability\n- Cross-region replication with eventual consistency\n\n**Handling Scale:**\n- Partition by user ID hash\n- Use Lua scripts in Redis for atomic operations\n- Implement circuit breakers for Redis failures\n- Local rate limiting as fallback\n\n### Advanced Features\n\n**Burst Handling:**\n- Token bucket with configurable burst capacity\n- Adaptive rate limiting based on system load\n- Priority queues for different user tiers\n\n**Fairness & Anti-Gaming:**\n- Per-user quotas with spillover pools\n- Detect and penalize abusive patterns\n- Implement jitter to prevent thundering herd\n\n**Monitoring & Observability:**\n- Real-time metrics on rate limit hits\n- Distributed tracing for debugging\n- Alerting on unusual traffic patterns",
+    "tags": [
+      "api",
+      "rest"
+    ],
+    "difficulty": "advanced",
+    "channel": "system-design",
+    "subChannel": "api-design",
+    "diagram": "graph TD\n    A[Client Requests] --> B[Load Balancer]\n    B --> C[API Gateway Cluster]\n    C --> D[Local Rate Limiter]\n    D --> E{Within Local Limit?}\n    E -->|Yes| F[Process Request]\n    E -->|No| G[Check Distributed Store]\n    G --> H[Redis Cluster]\n    H --> I[Rate Limit Service]\n    I --> J{Within Global Limit?}\n    J -->|Yes| K[Update Counters]\n    J -->|No| L[Reject Request]\n    K --> F\n    L --> M[Return 429]\n    \n    N[Config Service] --> O[Rate Limit Rules]\n    O --> C\n    O --> I\n    \n    P[Monitoring] --> Q[Metrics Collection]\n    Q --> R[Alerting]\n    \n    H --> S[Cross-Region Sync]\n    S --> T[Other Data Centers]",
+    "lastUpdated": "2025-12-12T09:07:04.188Z"
   }
 ]

@@ -12,13 +12,14 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "kubernetes",
-    "diagram": "\ngraph LR\n    Docker[Docker] --> C1[Container]\n    Docker --> C2[Container]\n    K8s[Kubernetes] --> N1[Node]\n    K8s --> N2[Node]\n    N1 --> C1\n    N2 --> C2\n"
+    "diagram": "\ngraph LR\n    Docker[Docker] --> C1[Container]\n    Docker --> C2[Container]\n    K8s[Kubernetes] --> N1[Node]\n    K8s --> N2[Node]\n    N1 --> C1\n    N2 --> C2\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "do-2",
-    "question": "Explain Blue/Green vs Canary Deployments.",
-    "answer": "Strategies to reduce deployment risk.",
-    "explanation": "**Blue/Green**:\n- Two identical envs (Blue=Live, Green=Staging).\n- Deploy v2 to Green. Test.\n- Switch Router 100% to Green.\n- Fast rollback, but requires 2x resources.\n\n**Canary**:\n- Gradual rollout.\n- Route 5% traffic to v2. Monitor metrics.\n- Increment to 25%, 50%, 100%.\n- Lower risk, lower resource cost, but slower rollout.",
+    "question": "What are the key differences between Blue/Green and Canary deployment strategies?",
+    "answer": "Blue/Green enables instant switching between environments, while Canary gradually shifts traffic for safer rollouts.",
+    "explanation": "**Blue/Green Deployment:**\n- Maintains two identical production environments (Blue=current, Green=new)\n- Deploy new version to Green environment and test thoroughly\n- Switch load balancer to route 100% traffic to Green instantly\n- Enables immediate rollback but requires double infrastructure resources\n\n**Canary Deployment:**\n- Gradually routes small percentage of traffic to new version\n- Start with 5% traffic to new version, monitor metrics and errors\n- Incrementally increase to 25%, 50%, then 100% based on performance\n- Lower risk and resource usage but slower deployment process",
     "tags": [
       "deployment",
       "strategy",
@@ -28,7 +29,8 @@
     "difficulty": "intermediate",
     "channel": "devops",
     "subChannel": "cicd",
-    "diagram": "\ngraph LR\n    LB[Load Balancer] -->|100%| Blue[Blue v1]\n    LB -.->|Switch| Green[Green v2]\n    subgraph Canary\n    LB2[LB] -->|95%| V1[v1]\n    LB2 -->|5%| V2[v2]\n    end\n"
+    "diagram": "graph TD\n    A[Users] --> B[Load Balancer]\n    B -->|100%| C[Blue Environment v1]\n    B -.->|Switch| D[Green Environment v2]\n    \n    E[Users] --> F[Load Balancer]\n    F -->|95%| G[Version 1]\n    F -->|5%| H[Version 2 Canary]",
+    "lastUpdated": "2025-12-12T09:10:00.382Z"
   },
   {
     "id": "do-3",
@@ -43,20 +45,22 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "terraform",
-    "diagram": "\ngraph LR\n    Code[IaC Code] --> Git[Git Repo]\n    Git --> TF[Terraform]\n    TF --> Cloud[Cloud Infra]\n"
+    "diagram": "\ngraph LR\n    Code[IaC Code] --> Git[Git Repo]\n    Git --> TF[Terraform]\n    TF --> Cloud[Cloud Infra]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-1",
-    "question": "What is DevOps?",
-    "answer": "DevOps is a set of practices that combines software development (Dev) and IT operations (Ops). It aims to shorten the systems development life cycle a...",
-    "explanation": "DevOps is a set of practices that combines software development (Dev) and IT operations (Ops). It aims to shorten the systems development life cycle and provide continuous delivery with high software quality. DevOps is complementary with Agile software development; several DevOps aspects came from Agile methodology.",
+    "question": "What are the core principles and practices of DevOps, and how does it bridge the gap between development and operations teams?",
+    "answer": "DevOps combines development and operations through automation, continuous integration/delivery, and shared responsibility for the entire software lifecycle.",
+    "explanation": "DevOps is a cultural and technical movement that breaks down silos between development and operations teams. Key principles include:\n\n• **Automation**: Automating build, test, deployment, and infrastructure provisioning processes\n• **Continuous Integration/Continuous Delivery (CI/CD)**: Frequent code integration and automated deployment pipelines\n• **Infrastructure as Code (IaC)**: Managing infrastructure through version-controlled code\n• **Monitoring and Observability**: Real-time monitoring of applications and infrastructure\n• **Collaboration**: Shared ownership and responsibility across the entire software lifecycle\n• **Feedback Loops**: Quick feedback from production back to development teams\n\nDevOps practices enable faster delivery, improved quality, reduced deployment risks, and better alignment between business objectives and technical implementation.",
     "tags": [
       "basics"
     ],
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph LR\n    Dev[Development] --> CI[CI/CD]\n    CI --> Ops[Operations]\n    Ops --> Monitor[Monitor]\n    Monitor --> Dev\n"
+    "diagram": "graph TD\n    A[Code Commit] --> B[Build & Test]\n    B --> C[Deploy to Staging]\n    C --> D[Automated Testing]\n    D --> E[Deploy to Production]\n    E --> F[Monitor & Log]\n    F --> G[Feedback]\n    G --> A\n    H[Infrastructure as Code] --> C\n    I[Security Scanning] --> D",
+    "lastUpdated": "2025-12-12T09:10:12.989Z"
   },
   {
     "id": "gh-2",
@@ -69,7 +73,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph TD\n    DevOps --> Speed[Faster Delivery]\n    DevOps --> Stable[Stability]\n    DevOps --> Collab[Collaboration]\n    DevOps --> MTTR[Lower MTTR]\n"
+    "diagram": "\ngraph TD\n    DevOps --> Speed[Faster Delivery]\n    DevOps --> Stable[Stability]\n    DevOps --> Collab[Collaboration]\n    DevOps --> MTTR[Lower MTTR]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-3",
@@ -82,7 +87,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph LR\n    Code[Code] --> Commit[Commit]\n    Commit --> Build[Build]\n    Build --> Test[Test]\n    Test --> Merge[Merge]\n"
+    "diagram": "\ngraph LR\n    Code[Code] --> Commit[Commit]\n    Commit --> Build[Build]\n    Build --> Test[Test]\n    Test --> Merge[Merge]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-4",
@@ -96,7 +102,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "containers",
-    "diagram": "\ngraph TD\n    App[Application] --> Libs[Libraries]\n    Libs --> Deps[Dependencies]\n    Deps --> Container[Container]\n"
+    "diagram": "\ngraph TD\n    App[Application] --> Libs[Libraries]\n    Libs --> Deps[Dependencies]\n    Deps --> Container[Container]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-5",
@@ -110,13 +117,14 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "containers",
-    "diagram": "graph TD\n    A[Dockerfile] --> B[Docker Image]\n    B --> C[Container 1]\n    B --> D[Container 2]\n    B --> E[Container 3]\n    F[Registry] --> B\n    C --> G[Running Process]\n    D --> H[Running Process]\n    E --> I[Running Process]"
+    "diagram": "graph TD\n    A[Dockerfile] --> B[Docker Image]\n    B --> C[Container 1]\n    B --> D[Container 2]\n    B --> E[Container 3]\n    F[Registry] --> B\n    C --> G[Running Process]\n    D --> H[Running Process]\n    E --> I[Running Process]",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-6",
-    "question": "What is Dockerfile?",
-    "answer": "A Dockerfile is a text document that contains all the commands a user could call on the command line to assemble an image. Using `docker build`, users...",
-    "explanation": "A Dockerfile is a text document that contains all the commands a user could call on the command line to assemble an image. Using `docker build`, users can create an automated build that executes several command-line instructions in succession.\n\nExample of a simple Dockerfile:\n```dockerfile\nFROM node:14\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD [\"npm\", \"start\"]\n```",
+    "question": "What is a Dockerfile and how does it enable containerized application deployment?",
+    "answer": "A Dockerfile is a text file containing instructions to build Docker images, defining the environment, dependencies, and commands needed to run an application in a container.",
+    "explanation": "A Dockerfile is a declarative text document that automates Docker image creation through a series of instructions:\n\n• **Base Image**: Starts with a foundation OS or runtime using `FROM`\n• **Environment Setup**: Configures working directories, environment variables, and system dependencies\n• **Application Code**: Copies source files and installs application-specific dependencies\n• **Runtime Configuration**: Exposes ports and defines the default command to execute\n• **Layer Caching**: Each instruction creates a new layer, enabling efficient builds and updates\n• **Reproducibility**: Ensures consistent environments across development, testing, and production\n\n**Common Dockerfile Instructions:**\n```dockerfile\nFROM node:18-alpine          # Base image\nWORKDIR /usr/src/app         # Set working directory\nCOPY package*.json ./        # Copy dependency files\nRUN npm ci --only=production # Install dependencies\nCOPY . .                     # Copy application code\nEXPOSE 3000                  # Document port usage\nUSER node                    # Run as non-root user\nCMD [\"npm\", \"start\"]         # Default command\n```\n\n**Best Practices:**\n• Use multi-stage builds to reduce image size\n• Leverage .dockerignore to exclude unnecessary files\n• Run containers as non-root users for security\n• Minimize layers by combining RUN commands\n• Use specific base image tags for consistency",
     "tags": [
       "docker",
       "containers"
@@ -124,7 +132,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "containers",
-    "diagram": "\ngraph TD\n    FROM[FROM base] --> COPY[COPY files]\n    COPY --> RUN[RUN commands]\n    RUN --> CMD[CMD entrypoint]\n"
+    "diagram": "graph TD\n    A[FROM base:tag] --> B[WORKDIR /app]\n    B --> C[COPY package.json]\n    C --> D[RUN install deps]\n    D --> E[COPY source code]\n    E --> F[EXPOSE ports]\n    F --> G[USER non-root]\n    G --> H[CMD start app]\n    \n    I[Build Context] --> C\n    I --> E\n    \n    H --> J[Container Runtime]\n    \n    style A fill:#e1f5fe\n    style H fill:#c8e6c9\n    style J fill:#fff3e0",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-7",
@@ -138,7 +147,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "kubernetes",
-    "diagram": "\ngraph TD\n    K8s[Kubernetes] --> Deploy[Auto Deploy]\n    K8s --> Scale[Auto Scale]\n    K8s --> Heal[Self Heal]\n"
+    "diagram": "\ngraph TD\n    K8s[Kubernetes] --> Deploy[Auto Deploy]\n    K8s --> Scale[Auto Scale]\n    K8s --> Heal[Self Heal]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-8",
@@ -152,7 +162,8 @@
     "difficulty": "intermediate",
     "channel": "devops",
     "subChannel": "kubernetes",
-    "diagram": "\ngraph TD\n    Master[Master Node] --> API[API Server]\n    Master --> etcd[(etcd)]\n    Worker[Worker Node] --> Kubelet\n    Worker --> Runtime[Container Runtime]\n"
+    "diagram": "\ngraph TD\n    Master[Master Node] --> API[API Server]\n    Master --> etcd[(etcd)]\n    Worker[Worker Node] --> Kubelet\n    Worker --> Runtime[Container Runtime]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-9",
@@ -166,7 +177,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "kubernetes",
-    "diagram": "\ngraph LR\n    Pod[Pod] --> C1[Container 1]\n    Pod --> C2[Container 2]\n    Pod --> Vol[(Shared Volume)]\n"
+    "diagram": "\ngraph LR\n    Pod[Pod] --> C1[Container 1]\n    Pod --> C2[Container 2]\n    Pod --> Vol[(Shared Volume)]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-10",
@@ -180,7 +192,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "cicd",
-    "diagram": "\ngraph LR\n    Build[Build] --> Test[Test]\n    Test --> Stage[Staging]\n    Stage --> Prod[Production]\n"
+    "diagram": "\ngraph LR\n    Build[Build] --> Test[Test]\n    Test --> Stage[Staging]\n    Stage --> Prod[Production]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-11",
@@ -194,13 +207,14 @@
     "difficulty": "advanced",
     "channel": "devops",
     "subChannel": "cicd",
-    "diagram": "\ngraph TD\n    Jenkins[Jenkins Master] --> A1[Agent 1]\n    Jenkins --> A2[Agent 2]\n    A1 --> Build[Build Jobs]\n    A2 --> Test[Test Jobs]\n"
+    "diagram": "\ngraph TD\n    Jenkins[Jenkins Master] --> A1[Agent 1]\n    Jenkins --> A2[Agent 2]\n    A1 --> Build[Build Jobs]\n    A2 --> Test[Test Jobs]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-12",
-    "question": "What is Cloud Computing?",
-    "answer": "Cloud computing is the delivery of computing services—including servers, storage, databases, networking, software, analytics, and intelligence—over th...",
-    "explanation": "Cloud computing is the delivery of computing services—including servers, storage, databases, networking, software, analytics, and intelligence—over the Internet (\"the cloud\") to offer faster innovation, flexible resources, and economies of scale.",
+    "question": "What is cloud computing and what are its key service models?",
+    "answer": "Cloud computing delivers computing services over the internet, offering on-demand access to servers, storage, databases, and software.",
+    "explanation": "Cloud computing is the delivery of computing services—including servers, storage, databases, networking, software, analytics, and intelligence—over the Internet (\"the cloud\") to offer faster innovation, flexible resources, and economies of scale.\n\n**Key Benefits:**\n• **Cost Efficiency** - Pay only for what you use, no upfront infrastructure costs\n• **Scalability** - Easily scale resources up or down based on demand\n• **Accessibility** - Access services from anywhere with internet connection\n• **Reliability** - Built-in redundancy and disaster recovery\n\n**Service Models:**\n• **IaaS** (Infrastructure as a Service) - Virtual machines, storage, networks\n• **PaaS** (Platform as a Service) - Development platforms and tools\n• **SaaS** (Software as a Service) - Ready-to-use applications",
     "tags": [
       "cloud",
       "aws",
@@ -210,7 +224,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "aws",
-    "diagram": "\ngraph TD\n    Cloud[Cloud] --> Compute[Compute]\n    Cloud --> Storage[(Storage)]\n    Cloud --> DB[(Database)]\n    Cloud --> Net[Network]\n"
+    "diagram": "graph TD\n    Cloud[Cloud Computing] --> IaaS[Infrastructure as a Service]\n    Cloud --> PaaS[Platform as a Service]\n    Cloud --> SaaS[Software as a Service]\n    IaaS --> VM[Virtual Machines]\n    IaaS --> Storage[(Storage)]\n    IaaS --> Network[Networking]\n    PaaS --> DevTools[Development Tools]\n    PaaS --> Runtime[Runtime Environment]\n    SaaS --> Email[Email Services]\n    SaaS --> CRM[CRM Applications]",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-13",
@@ -226,13 +241,14 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "aws",
-    "diagram": "\ngraph TD\n    AWS --> EC2[EC2 Compute]\n    AWS --> S3[(S3 Storage)]\n    AWS --> RDS[(RDS Database)]\n    AWS --> Lambda[Lambda]\n"
+    "diagram": "\ngraph TD\n    AWS --> EC2[EC2 Compute]\n    AWS --> S3[(S3 Storage)]\n    AWS --> RDS[(RDS Database)]\n    AWS --> Lambda[Lambda]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-14",
-    "question": "What is Azure?",
-    "answer": "Azure is Microsoft's cloud computing platform that provides a wide variety of services including:",
-    "explanation": "Azure is Microsoft's cloud computing platform that provides a wide variety of services including:\n\n1. **Compute Services:**\n- Virtual Machines\n- App Services\n- Azure Functions\n\n2. **Storage Services:**\n- Blob Storage\n- File Storage\n- Queue Storage\n\n3. **Network Services:**\n- Virtual Network\n- Load Balancer\n- Application Gateway",
+    "question": "What are the core service categories in Microsoft Azure and how do they work together to support cloud applications?",
+    "answer": "Azure provides compute, storage, networking, and database services that integrate to build scalable cloud solutions.",
+    "explanation": "Microsoft Azure is a comprehensive cloud computing platform offering multiple service categories:\n\n**Compute Services:**\n- Virtual Machines - IaaS for custom OS environments\n- App Service - PaaS for web applications\n- Azure Functions - Serverless compute for event-driven workloads\n- Container Instances - Containerized application hosting\n\n**Storage Services:**\n- Blob Storage - Object storage for unstructured data\n- File Storage - Managed file shares\n- Queue Storage - Message queuing service\n- Table Storage - NoSQL key-value store\n\n**Networking Services:**\n- Virtual Network - Isolated network environments\n- Load Balancer - Traffic distribution\n- Application Gateway - Web traffic load balancer with SSL termination\n- VPN Gateway - Secure connections to on-premises\n\n**Database Services:**\n- SQL Database - Managed relational database\n- Cosmos DB - Multi-model NoSQL database\n- Redis Cache - In-memory data store\n\nThese services integrate seamlessly, allowing applications to scale horizontally across regions while maintaining security and performance.",
     "tags": [
       "cloud",
       "aws",
@@ -242,7 +258,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "aws",
-    "diagram": "\ngraph TD\n    Azure --> VM[Virtual Machines]\n    Azure --> Blob[(Blob Storage)]\n    Azure --> Func[Functions]\n    Azure --> VNet[Virtual Network]\n"
+    "diagram": "graph TD\n    Azure[Microsoft Azure]\n    Azure --> Compute[Compute Services]\n    Azure --> Storage[Storage Services]\n    Azure --> Network[Networking]\n    Azure --> Database[Database Services]\n    \n    Compute --> VM[Virtual Machines]\n    Compute --> AppSvc[App Service]\n    Compute --> Functions[Azure Functions]\n    \n    Storage --> Blob[Blob Storage]\n    Storage --> Files[File Storage]\n    Storage --> Queue[Queue Storage]\n    \n    Network --> VNet[Virtual Network]\n    Network --> LB[Load Balancer]\n    Network --> Gateway[App Gateway]\n    \n    Database --> SQL[SQL Database]\n    Database --> Cosmos[Cosmos DB]\n    Database --> Redis[Redis Cache]",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-15",
@@ -258,7 +275,8 @@
     "difficulty": "intermediate",
     "channel": "devops",
     "subChannel": "aws",
-    "diagram": "\ngraph TD\n    IaaS[IaaS - Infra] --> PaaS[PaaS - Platform]\n    PaaS --> SaaS[SaaS - Software]\n    FaaS[FaaS - Serverless]\n"
+    "diagram": "\ngraph TD\n    IaaS[IaaS - Infra] --> PaaS[PaaS - Platform]\n    PaaS --> SaaS[SaaS - Software]\n    FaaS[FaaS - Serverless]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-16",
@@ -273,7 +291,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "terraform",
-    "diagram": "\ngraph LR\n    Code[Code Files] --> VCS[Version Control]\n    VCS --> Apply[Apply Changes]\n    Apply --> Infra[Infrastructure]\n"
+    "diagram": "\ngraph LR\n    Code[Code Files] --> VCS[Version Control]\n    VCS --> Apply[Apply Changes]\n    Apply --> Infra[Infrastructure]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-17",
@@ -288,13 +307,14 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "terraform",
-    "diagram": "\ngraph LR\n    HCL[.tf Files] --> Plan[terraform plan]\n    Plan --> Apply[terraform apply]\n    Apply --> Cloud[Cloud Resources]\n"
+    "diagram": "\ngraph LR\n    HCL[.tf Files] --> Plan[terraform plan]\n    Plan --> Apply[terraform apply]\n    Apply --> Cloud[Cloud Resources]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-18",
-    "question": "What is Ansible?",
-    "answer": "Ansible is an open-source automation tool that automates software provisioning, configuration management, and application deployment. It uses YAML syn...",
-    "explanation": "Ansible is an open-source automation tool that automates software provisioning, configuration management, and application deployment. It uses YAML syntax for expressing automation jobs.\n\nExample of an Ansible playbook:\n```yaml\n---\n- name: Install and configure web server\nhosts: webservers\nbecome: yes\n\ntasks:\n- name: Install nginx\napt:\nname: nginx\nstate: present\n\n- name: Start nginx service\nservice:\nname: nginx\nstate: started\n```",
+    "question": "What is Ansible and how does it work for infrastructure automation?",
+    "answer": "Ansible is an agentless automation tool that uses SSH and YAML playbooks to manage infrastructure configuration and deployment.",
+    "explanation": "Ansible is a powerful open-source automation platform that simplifies IT infrastructure management through several key features:\n\n• **Agentless Architecture**: No need to install agents on target machines - uses SSH for Linux/Unix and WinRM for Windows\n• **YAML Playbooks**: Human-readable automation scripts that define desired system states\n• **Idempotent Operations**: Running the same playbook multiple times produces consistent results\n• **Inventory Management**: Organizes and groups target hosts for efficient automation\n• **Module System**: Extensive library of pre-built modules for common tasks\n\n**Key Use Cases:**\n• Configuration management and system setup\n• Application deployment and updates\n• Infrastructure provisioning\n• Security compliance and patching\n• Orchestration of complex multi-tier applications\n\n**Example Ansible Playbook:**\n```yaml\n---\n- name: Configure web servers\n  hosts: webservers\n  become: yes\n  tasks:\n    - name: Install nginx\n      apt:\n        name: nginx\n        state: present\n        update_cache: yes\n    \n    - name: Start and enable nginx\n      systemd:\n        name: nginx\n        state: started\n        enabled: yes\n    \n    - name: Deploy website content\n      copy:\n        src: /local/website/\n        dest: /var/www/html/\n        owner: www-data\n        group: www-data\n```\n\n**Advantages:**\n• Simple learning curve with YAML syntax\n• No additional infrastructure required\n• Strong community and enterprise support\n• Integration with cloud platforms and CI/CD pipelines",
     "tags": [
       "iac",
       "terraform",
@@ -303,7 +323,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "terraform",
-    "diagram": "\ngraph LR\n    Playbook[Playbook] --> Inventory[Inventory]\n    Inventory --> SSH[SSH]\n    SSH --> Servers[Servers]\n"
+    "diagram": "graph TD\n    A[Control Node] --> B[Inventory File]\n    A --> C[Playbook YAML]\n    B --> D[Target Hosts]\n    C --> E[Tasks & Modules]\n    A --> F[SSH Connection]\n    F --> D\n    E --> G[Idempotent Execution]\n    G --> H[Desired State]\n    D --> H",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-19",
@@ -318,7 +339,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "observability",
-    "diagram": "\ngraph TD\n    App[Application] --> Metrics[Metrics]\n    Infra[Infrastructure] --> Metrics\n    Metrics --> Dashboard[Dashboard]\n    Dashboard --> Alerts[Alerts]\n"
+    "diagram": "\ngraph TD\n    App[Application] --> Metrics[Metrics]\n    Infra[Infrastructure] --> Metrics\n    Metrics --> Dashboard[Dashboard]\n    Dashboard --> Alerts[Alerts]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-20",
@@ -333,7 +355,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "observability",
-    "diagram": "\ngraph LR\n    Logs[Logs] --> Logstash[Logstash]\n    Logstash --> ES[(Elasticsearch)]\n    ES --> Kibana[Kibana]\n"
+    "diagram": "\ngraph LR\n    Logs[Logs] --> Logstash[Logstash]\n    Logstash --> ES[(Elasticsearch)]\n    ES --> Kibana[Kibana]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-21",
@@ -348,7 +371,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "observability",
-    "diagram": "\ngraph LR\n    Targets[Targets] --> Prom[Prometheus]\n    Prom --> TSDB[(Time Series DB)]\n    Prom --> Alert[Alertmanager]\n"
+    "diagram": "\ngraph LR\n    Targets[Targets] --> Prom[Prometheus]\n    Prom --> TSDB[(Time Series DB)]\n    Prom --> Alert[Alertmanager]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-22",
@@ -363,7 +387,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "observability",
-    "diagram": "\ngraph LR\n    DS1[(Prometheus)] --> Grafana\n    DS2[(InfluxDB)] --> Grafana\n    Grafana --> Dash[Dashboards]\n"
+    "diagram": "\ngraph LR\n    DS1[(Prometheus)] --> Grafana\n    DS2[(InfluxDB)] --> Grafana\n    Grafana --> Dash[Dashboards]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-23",
@@ -378,7 +403,8 @@
     "difficulty": "intermediate",
     "channel": "devops",
     "subChannel": "observability",
-    "diagram": "\ngraph TD\n    subgraph Monitoring\n    M[Metrics] --> Dash[Dashboard]\n    end\n    subgraph Logging\n    L[Logs] --> Search[Search/Analyze]\n    end\n"
+    "diagram": "\ngraph TD\n    subgraph Monitoring\n    M[Metrics] --> Dash[Dashboard]\n    end\n    subgraph Logging\n    L[Logs] --> Search[Search/Analyze]\n    end\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-24",
@@ -392,7 +418,8 @@
     "difficulty": "advanced",
     "channel": "devops",
     "subChannel": "security",
-    "diagram": "\ngraph LR\n    Dev --> Sec[Security]\n    Sec --> Ops\n    Ops --> Dev\n"
+    "diagram": "\ngraph LR\n    Dev --> Sec[Security]\n    Sec --> Ops\n    Ops --> Dev\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-25",
@@ -406,7 +433,8 @@
     "difficulty": "advanced",
     "channel": "devops",
     "subChannel": "security",
-    "diagram": "\ngraph TD\n    Infra[Infrastructure] --> Net[Network Security]\n    Infra --> Cloud[Cloud Security]\n    Infra --> Host[Host Security]\n"
+    "diagram": "\ngraph TD\n    Infra[Infrastructure] --> Net[Network Security]\n    Infra --> Cloud[Cloud Security]\n    Infra --> Host[Host Security]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-26",
@@ -420,7 +448,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "linux",
-    "diagram": "\ngraph TD\n    Linux --> Files[File Ops: ls, cp, mv]\n    Linux --> Sys[System: top, df, ps]\n    Linux --> Text[Text: grep, awk, sed]\n"
+    "diagram": "\ngraph TD\n    Linux --> Files[File Ops: ls, cp, mv]\n    Linux --> Sys[System: top, df, ps]\n    Linux --> Text[Text: grep, awk, sed]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-27",
@@ -434,7 +463,8 @@
     "difficulty": "advanced",
     "channel": "devops",
     "subChannel": "git",
-    "diagram": "\ngraph LR\n    Local[Local Repo] --> Push[Push]\n    Push --> Remote[Remote Repo]\n    Remote --> Pull[Pull]\n    Pull --> Local\n"
+    "diagram": "\ngraph LR\n    Local[Local Repo] --> Push[Push]\n    Push --> Remote[Remote Repo]\n    Remote --> Pull[Pull]\n    Pull --> Local\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-28",
@@ -448,7 +478,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "git",
-    "diagram": "\ngraph LR\n    Main[main] --> Dev[develop]\n    Dev --> Feat[feature]\n    Feat --> Dev\n    Dev --> Main\n"
+    "diagram": "\ngraph LR\n    Main[main] --> Dev[develop]\n    Dev --> Feat[feature]\n    Feat --> Dev\n    Dev --> Main\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-29",
@@ -463,7 +494,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "ansible",
-    "diagram": "\ngraph LR\n    Config[Config Code] --> Tool[CM Tool]\n    Tool --> S1[Server 1]\n    Tool --> S2[Server 2]\n"
+    "diagram": "\ngraph LR\n    Config[Config Code] --> Tool[CM Tool]\n    Tool --> S1[Server 1]\n    Tool --> S2[Server 2]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-30",
@@ -477,7 +509,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "ansible"
+    "subChannel": "ansible",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-35",
@@ -490,7 +523,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-36",
@@ -503,7 +537,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-37",
@@ -517,7 +552,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph TD\n    Cloud[Cloud Native] --> Containers\n    Cloud --> Microservices\n    Cloud --> K8s[Orchestration]\n    Cloud --> CI[CI/CD]\n"
+    "diagram": "\ngraph TD\n    Cloud[Cloud Native] --> Containers\n    Cloud --> Microservices\n    Cloud --> K8s[Orchestration]\n    Cloud --> CI[CI/CD]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-38",
@@ -531,7 +567,8 @@
     "difficulty": "intermediate",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph LR\n    API[API Gateway] --> User[User Service]\n    API --> Order[Order Service]\n    API --> Pay[Payment Service]\n"
+    "diagram": "\ngraph LR\n    API[API Gateway] --> User[User Service]\n    API --> Order[Order Service]\n    API --> Pay[Payment Service]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-39",
@@ -545,7 +582,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph TD\n    CP[Control Plane] --> DP[Data Plane]\n    DP --> S1[Sidecar] --> Svc1[Service 1]\n    DP --> S2[Sidecar] --> Svc2[Service 2]\n"
+    "diagram": "\ngraph TD\n    CP[Control Plane] --> DP[Data Plane]\n    DP --> S1[Sidecar] --> Svc1[Service 1]\n    DP --> S2[Sidecar] --> Svc2[Service 2]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-40",
@@ -558,20 +596,23 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-41",
-    "question": "What are different types of Performance Tests?",
-    "answer": "Common types of performance tests include:",
-    "explanation": "Common types of performance tests include:\n\n1. **Load Testing:**\n- Tests system behavior under specific load\n- Validates system performance under expected conditions\n\n2. **Stress Testing:**\n- Tests system behavior under peak load\n- Identifies breaking points\n\n3. **Endurance Testing:**\n- Tests system behavior over extended periods\n- Identifies memory leaks and resource issues\n\nExample of JMeter test plan:\n```xml\n<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<jmeterTestPlan version=\"1.2\">\n<hashTree>\n<TestPlan>\n<elementProp name=\"TestPlan.user_defined_variables\">\n<collectionProp name=\"Arguments.arguments\"/>\n</elementProp>\n<stringProp name=\"TestPlan.comments\"></stringProp>\n<boolProp name=\"TestPlan.functional_mode\">false</boolProp>\n<boolProp name=\"TestPlan.serialize_threadgroups\">false</boolProp>\n</TestPlan>\n</hashTree>\n</jmeterTestPlan>\n```",
+    "question": "What are the different types of performance testing and when would you use each?",
+    "answer": "Load, stress, spike, volume, endurance, and scalability testing - each validates different performance aspects under varying conditions.",
+    "explanation": "Performance testing encompasses several specialized types:\n\n• **Load Testing** - Validates system behavior under expected user load to ensure it meets performance requirements\n• **Stress Testing** - Pushes system beyond normal capacity to identify breaking points and failure modes\n• **Spike Testing** - Tests sudden load increases to verify system handles traffic spikes gracefully\n• **Volume Testing** - Validates performance with large amounts of data to identify database bottlenecks\n• **Endurance Testing** - Runs extended tests to detect memory leaks and resource degradation over time\n• **Scalability Testing** - Determines system's ability to scale up/down with varying loads\n\nExample JMeter configuration:\n```xml\n<ThreadGroup>\n  <stringProp name=\"ThreadGroup.num_threads\">100</stringProp>\n  <stringProp name=\"ThreadGroup.ramp_time\">60</stringProp>\n  <stringProp name=\"ThreadGroup.duration\">300</stringProp>\n</ThreadGroup>\n```",
     "tags": [
       "perf",
       "testing"
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "diagram": "graph TD\n    A[Performance Testing] --> B[Load Testing]\n    A --> C[Stress Testing]\n    A --> D[Spike Testing]\n    A --> E[Volume Testing]\n    A --> F[Endurance Testing]\n    A --> G[Scalability Testing]\n    B --> H[Expected Load]\n    C --> I[Peak Load]\n    D --> J[Sudden Spikes]\n    E --> K[Large Data Sets]\n    F --> L[Extended Duration]\n    G --> M[Variable Capacity]",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-42",
@@ -585,20 +626,23 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph LR\n    Client --> GW[API Gateway]\n    GW --> Auth[Auth Service]\n    GW --> User[User Service]\n    GW --> Data[Data Service]\n"
+    "diagram": "\ngraph LR\n    Client --> GW[API Gateway]\n    GW --> Auth[Auth Service]\n    GW --> User[User Service]\n    GW --> Data[Data Service]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-43",
-    "question": "What are the benefits of using API Gateway?",
-    "answer": "Key benefits include:",
-    "explanation": "Key benefits include:\n\n1. **Security:**\n- Centralized authentication\n- Authorization\n- SSL/TLS termination\n\n2. **Performance:**\n- Caching\n- Request/Response transformation\n- Load balancing\n\n3. **Monitoring:**\n- Analytics\n- Logging\n- Rate limiting",
+    "question": "What are the key benefits of implementing an API Gateway in a microservices architecture, and how does it address common distributed system challenges?",
+    "answer": "API Gateway provides centralized security, traffic management, monitoring, and service abstraction for microservices.",
+    "explanation": "Key benefits include:\n\n**Security & Access Control:**\n- Centralized authentication and authorization\n- SSL/TLS termination and certificate management\n- API key management and validation\n- Protection against common attacks (DDoS, injection)\n\n**Traffic Management:**\n- Load balancing across service instances\n- Rate limiting and throttling\n- Request/response transformation and validation\n- Circuit breaker patterns for fault tolerance\n\n**Monitoring & Analytics:**\n- Centralized logging and metrics collection\n- Real-time API usage analytics\n- Performance monitoring and alerting\n- Request tracing across services\n\n**Developer Experience:**\n- Single entry point for all APIs\n- API versioning and backward compatibility\n- Documentation and testing interfaces\n- Simplified client integration",
     "tags": [
       "api",
       "service-mesh"
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "diagram": "graph TD\n    A[Client Applications] --> B[API Gateway]\n    B --> C[Authentication Service]\n    B --> D[User Service]\n    B --> E[Order Service]\n    B --> F[Payment Service]\n    B --> G[Notification Service]\n    H[Load Balancer] --> B\n    B --> I[Rate Limiter]\n    B --> J[Cache Layer]\n    B --> K[Monitoring & Logs]\n    L[Admin Dashboard] --> K",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-44",
@@ -611,20 +655,23 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-45",
-    "question": "What is Rate Limiting?",
-    "answer": "Rate Limiting is a technique used to control the rate at which requests are processed or transmitted.",
-    "explanation": "Rate Limiting is a technique used to control the rate at which requests are processed or transmitted.\n\nKey concepts:\n1. **Token Bucket Algorithm:**\n- Fixed number of tokens\n- Tokens are replenished at a fixed rate\n- Tokens are consumed at a variable rate\n\n2. **Leaky Bucket Algorithm:**\n- Fixed size bucket\n- Water leaks out at a fixed rate\n- Water is added at a variable rate\n\nExample of Nginx Rate Limiting configuration:\n```nginx\nhttp {\nlimit_req_zone $binary_remote_addr zone=one:10m rate=1r/s;\n\nserver {\nlocation / {\nlimit_req burst=5 nodelay;\n}\n}\n}\n```",
+    "question": "How do rate limiting algorithms like Token Bucket and Leaky Bucket control API request flow?",
+    "answer": "Rate limiting controls request processing speed using algorithms like Token Bucket (burst allowed) and Leaky Bucket (smooth flow).",
+    "explanation": "Rate limiting prevents system overload by controlling request processing rates using different algorithms:\n\n**Token Bucket Algorithm:**\n- Bucket holds fixed number of tokens\n- Tokens replenish at constant rate\n- Each request consumes one token\n- Allows burst traffic when tokens available\n\n**Leaky Bucket Algorithm:**\n- Requests enter bucket at variable rate\n- Processed at fixed rate (leak)\n- Smooths out traffic spikes\n- Drops requests when bucket full\n\n**Implementation Example (Nginx):**\n```nginx\nhttp {\n  limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;\n  \n  server {\n    location /api/ {\n      limit_req zone=api burst=20 nodelay;\n    }\n  }\n}\n```\n\n**Use Cases:**\n- API throttling\n- DDoS protection\n- Resource management\n- Fair usage enforcement",
     "tags": [
       "api",
       "service-mesh"
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "diagram": "graph TD\n    A[Incoming Requests] --> B{Rate Limiter}\n    B -->|Within Limit| C[Process Request]\n    B -->|Exceeds Limit| D[Reject/Queue Request]\n    C --> E[Response]\n    F[Token Bucket] --> B\n    G[Leaky Bucket] --> B\n    H[Configuration Rules] --> B",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-46",
@@ -637,7 +684,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-47",
@@ -650,7 +698,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "kubernetes"
+    "subChannel": "kubernetes",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-48",
@@ -663,7 +712,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "kubernetes"
+    "subChannel": "kubernetes",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-49",
@@ -677,7 +727,8 @@
     "difficulty": "advanced",
     "channel": "devops",
     "subChannel": "kubernetes",
-    "diagram": "\ngraph LR\n    Chart[Helm Chart] --> Helm[Helm CLI]\n    Helm --> K8s[Kubernetes]\n    K8s --> App[Application]\n"
+    "diagram": "\ngraph LR\n    Chart[Helm Chart] --> Helm[Helm CLI]\n    Helm --> K8s[Kubernetes]\n    K8s --> App[Application]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-50",
@@ -690,7 +741,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "kubernetes"
+    "subChannel": "kubernetes",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-51",
@@ -703,7 +755,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "kubernetes"
+    "subChannel": "kubernetes",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-52",
@@ -716,7 +769,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-53",
@@ -730,7 +784,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph LR\n    Git[Git Repo] --> Operator[GitOps Operator]\n    Operator --> K8s[Kubernetes]\n    K8s --> App[Application]\n"
+    "diagram": "\ngraph LR\n    Git[Git Repo] --> Operator[GitOps Operator]\n    Operator --> K8s[Kubernetes]\n    K8s --> App[Application]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-54",
@@ -744,7 +799,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "\ngraph LR\n    Git[Git] --> Argo[ArgoCD]\n    Argo --> Sync[Sync]\n    Sync --> K8s[Kubernetes]\n"
+    "diagram": "\ngraph LR\n    Git[Git] --> Argo[ArgoCD]\n    Argo --> Sync[Sync]\n    Sync --> K8s[Kubernetes]\n",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-55",
@@ -758,7 +814,8 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "graph TD\n    A[Pipeline YAML] --> B[Tekton Controller]\n    B --> C[Task 1 Container]\n    B --> D[Task 2 Container]\n    B --> E[Task 3 Container]\n    C --> F[Results/Artifacts]\n    D --> F\n    E --> F\n    G[Kubernetes API] --> B\n    B --> G"
+    "diagram": "graph TD\n    A[Pipeline YAML] --> B[Tekton Controller]\n    B --> C[Task 1 Container]\n    B --> D[Task 2 Container]\n    B --> E[Task 3 Container]\n    C --> F[Results/Artifacts]\n    D --> F\n    E --> F\n    G[Kubernetes API] --> B\n    B --> G",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-56",
@@ -771,7 +828,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-57",
@@ -785,20 +843,23 @@
     "difficulty": "beginner",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "graph TD\n    A[Cloud Cost Optimization] --> B[Resource Optimization]\n    A --> C[Pricing Optimization]\n    A --> D[Monitoring & Governance]\n    \n    B --> E[Right-sizing]\n    B --> F[Eliminate Waste]\n    B --> G[Auto-scaling]\n    \n    C --> H[Reserved Instances]\n    C --> I[Spot Instances]\n    C --> J[Savings Plans]\n    \n    D --> K[Cost Monitoring]\n    D --> L[Budget Alerts]\n    D --> M[Regular Reviews]"
+    "diagram": "graph TD\n    A[Cloud Cost Optimization] --> B[Resource Optimization]\n    A --> C[Pricing Optimization]\n    A --> D[Monitoring & Governance]\n    \n    B --> E[Right-sizing]\n    B --> F[Eliminate Waste]\n    B --> G[Auto-scaling]\n    \n    C --> H[Reserved Instances]\n    C --> I[Spot Instances]\n    C --> J[Savings Plans]\n    \n    D --> K[Cost Monitoring]\n    D --> L[Budget Alerts]\n    D --> M[Regular Reviews]",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-58",
-    "question": "What are Reserved Instances?",
-    "answer": "Reserved Instances (RIs) provide a significant discount compared to On-Demand pricing in exchange for a commitment to use a specific instance configur...",
-    "explanation": "Reserved Instances (RIs) provide a significant discount compared to On-Demand pricing in exchange for a commitment to use a specific instance configuration for a one or three-year term.\n\nTypes of RIs:\n```yaml\nStandard RIs:\n- Highest discount (up to 75%)\n- Least flexibility\n- Best for steady-state workloads\n\nConvertible RIs:\n- Lower discount (up to 54%)\n- More flexibility\n- Can change instance family, OS, tenancy\n\nScheduled RIs:\n- For predictable recurring schedules\n- Match capacity reservation to usage pattern\n```",
+    "question": "What are AWS Reserved Instances and how do they compare to On-Demand pricing?",
+    "answer": "Reserved Instances provide up to 75% discount vs On-Demand pricing in exchange for 1-3 year commitment to specific instance configuration.",
+    "explanation": "Reserved Instances (RIs) provide significant cost savings compared to On-Demand pricing in exchange for a commitment to use a specific instance configuration for a one or three-year term.\n\n## Types of Reserved Instances:\n\n**Standard RIs:**\n- Highest discount (up to 75%)\n- Least flexibility - cannot change instance attributes\n- Best for steady-state workloads with predictable usage\n- Can be sold in RI Marketplace\n\n**Convertible RIs:**\n- Lower discount (up to 54%)\n- More flexibility - can exchange for different instance families, OS, tenancy\n- Good for workloads that may change over time\n- Cannot be sold in RI Marketplace\n\n**Scheduled RIs:**\n- For predictable recurring schedules (daily, weekly, monthly)\n- Match capacity reservation to specific usage patterns\n- Available in limited regions and instance types\n\n## Payment Options:\n- **All Upfront:** Highest discount, pay entire term upfront\n- **Partial Upfront:** Medium discount, pay portion upfront + monthly\n- **No Upfront:** Lowest discount, pay monthly only\n\n## Key Benefits:\n- Significant cost reduction for predictable workloads\n- Capacity reservation in specific AZ\n- Can be shared across accounts in organization",
     "tags": [
       "finops",
       "cost"
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "diagram": "graph TD\n    A[AWS EC2 Pricing] --> B[On-Demand]\n    A --> C[Reserved Instances]\n    A --> D[Spot Instances]\n    \n    C --> E[Standard RI<br/>Up to 75% discount]\n    C --> F[Convertible RI<br/>Up to 54% discount]\n    C --> G[Scheduled RI<br/>Recurring patterns]\n    \n    E --> H[All Upfront]\n    E --> I[Partial Upfront]\n    E --> J[No Upfront]\n    \n    F --> K[Can Exchange<br/>Instance Types]\n    G --> L[Time-based<br/>Reservations]",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-64",
@@ -811,7 +872,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-65",
@@ -824,7 +886,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-66",
@@ -837,7 +900,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "aws"
+    "subChannel": "aws",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-68",
@@ -850,7 +914,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "networking"
+    "subChannel": "networking",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-69",
@@ -863,7 +928,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "networking"
+    "subChannel": "networking",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-70",
@@ -876,7 +942,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "networking"
+    "subChannel": "networking",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-71",
@@ -889,7 +956,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "networking"
+    "subChannel": "networking",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-72",
@@ -902,7 +970,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "networking"
+    "subChannel": "networking",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-74",
@@ -915,7 +984,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-75",
@@ -929,7 +999,8 @@
     "difficulty": "intermediate",
     "channel": "devops",
     "subChannel": "general",
-    "diagram": "graph TD\n    A[Development Team] --> B[Version Control]\n    B --> C[CI/CD Pipeline]\n    C --> D[Automated Testing]\n    D --> E[Staging Environment]\n    E --> F[Production Deployment]\n    F --> G[Monitoring & Alerts]\n    G --> H[Operations Team]\n    H --> I[Incident Response]\n    I --> A\n    J[Infrastructure as Code] --> E\n    J --> F\n    K[Configuration Management] --> E\n    K --> F"
+    "diagram": "graph TD\n    A[Development Team] --> B[Version Control]\n    B --> C[CI/CD Pipeline]\n    C --> D[Automated Testing]\n    D --> E[Staging Environment]\n    E --> F[Production Deployment]\n    F --> G[Monitoring & Alerts]\n    G --> H[Operations Team]\n    H --> I[Incident Response]\n    I --> A\n    J[Infrastructure as Code] --> E\n    J --> F\n    K[Configuration Management] --> E\n    K --> F",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-81",
@@ -942,7 +1013,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-82",
@@ -955,7 +1027,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-83",
@@ -968,7 +1041,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-84",
@@ -981,7 +1055,8 @@
     ],
     "difficulty": "beginner",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-85",
@@ -994,7 +1069,8 @@
     ],
     "difficulty": "intermediate",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-86",
@@ -1007,7 +1083,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-87",
@@ -1020,7 +1097,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-88",
@@ -1033,7 +1111,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-89",
@@ -1046,7 +1125,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-90",
@@ -1059,7 +1139,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-91",
@@ -1072,7 +1153,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-92",
@@ -1085,7 +1167,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-93",
@@ -1098,7 +1181,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-94",
@@ -1111,7 +1195,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-95",
@@ -1124,7 +1209,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-96",
@@ -1137,7 +1223,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-97",
@@ -1150,7 +1237,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-98",
@@ -1163,7 +1251,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-99",
@@ -1176,7 +1265,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-100",
@@ -1189,7 +1279,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-101",
@@ -1202,7 +1293,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-102",
@@ -1215,7 +1307,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-103",
@@ -1228,7 +1321,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-104",
@@ -1241,7 +1335,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "gh-105",
@@ -1254,7 +1349,8 @@
     ],
     "difficulty": "advanced",
     "channel": "devops",
-    "subChannel": "general"
+    "subChannel": "general",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   },
   {
     "id": "de-127",
@@ -1268,6 +1364,7 @@
     "difficulty": "advanced",
     "channel": "devops",
     "subChannel": "docker",
-    "diagram": "graph TD\n    A[Source Code] --> B[Builder Stage]\n    B --> C[Compile with Debug]\n    C --> D[Optimized Binary]\n    D --> E[Runtime Stage]\n    E --> F[Minimal Image]\n    F --> G[Production Container]\n    B -.-> H[Debug Image]\n    H --> I[Debug Symbols]"
+    "diagram": "graph TD\n    A[Source Code] --> B[Builder Stage]\n    B --> C[Compile with Debug]\n    C --> D[Optimized Binary]\n    D --> E[Runtime Stage]\n    E --> F[Minimal Image]\n    F --> G[Production Container]\n    B -.-> H[Debug Image]\n    H --> I[Debug Symbols]",
+    "lastUpdated": "2025-12-12T09:07:04.187Z"
   }
 ]

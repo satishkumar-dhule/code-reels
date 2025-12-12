@@ -174,68 +174,110 @@ async function main() {
 
   const inputChannel = process.env.INPUT_CHANNEL || 'random';
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
-
-  const filteredCats = inputChannel === 'random' ? categories : categories.filter(c => c.channel === inputChannel);
-  const category = filteredCats[Math.floor(Math.random() * filteredCats.length)] || categories[0];
-
-  const difficulty = inputDifficulty === 'random'
-    ? difficulties[Math.floor(Math.random() * difficulties.length)]
-    : inputDifficulty;
+  const NUM_QUESTIONS = 5;
 
   const allQuestions = loadAllQuestions();
   console.log(`Loaded ${allQuestions.length} existing questions`);
-  console.log(`Category: ${category.channel}/${category.subChannel}`);
-  console.log(`Difficulty: ${difficulty}`);
+  console.log(`Target: Generate ${NUM_QUESTIONS} questions\n`);
 
-  const prompt = `Generate a unique technical interview question for ${category.channel} (${category.subChannel}). Difficulty: ${difficulty}. Return ONLY valid JSON with no other text: {"question": "the question text", "answer": "brief answer under 150 chars", "explanation": "detailed markdown explanation", "diagram": "mermaid diagram starting with graph TD or LR"}`;
+  const addedQuestions = [];
+  const failedAttempts = [];
 
-  const response = await runWithRetries(prompt);
+  for (let i = 0; i < NUM_QUESTIONS; i++) {
+    console.log(`\n--- Question ${i + 1}/${NUM_QUESTIONS} ---`);
+    
+    const filteredCats = inputChannel === 'random' ? categories : categories.filter(c => c.channel === inputChannel);
+    const category = filteredCats[Math.floor(Math.random() * filteredCats.length)] || categories[0];
+
+    const difficulty = inputDifficulty === 'random'
+      ? difficulties[Math.floor(Math.random() * difficulties.length)]
+      : inputDifficulty;
+
+    console.log(`Category: ${category.channel}/${category.subChannel}`);
+    console.log(`Difficulty: ${difficulty}`);
+
+    const prompt = `Generate a unique technical interview question for ${category.channel} (${category.subChannel}). Difficulty: ${difficulty}. Return ONLY valid JSON with no other text: {"question": "the question text", "answer": "brief answer under 150 chars", "explanation": "detailed markdown explanation", "diagram": "mermaid diagram starting with graph TD or LR"}`;
+
+    const response = await runWithRetries(prompt);
+    
+    if (!response) {
+      console.log('❌ OpenCode failed after all retries.');
+      failedAttempts.push({ index: i + 1, reason: 'OpenCode timeout' });
+      continue;
+    }
+
+    const data = parseJson(response);
+    
+    if (!validateQuestion(data)) {
+      console.log('❌ Invalid response format.');
+      failedAttempts.push({ index: i + 1, reason: 'Invalid JSON format' });
+      continue;
+    }
+
+    if (isDuplicate(data.question, allQuestions)) {
+      console.log('❌ Duplicate question detected.');
+      failedAttempts.push({ index: i + 1, reason: 'Duplicate detected' });
+      continue;
+    }
+
+    const channelFile = getQuestionsFile(category.channel);
+    let channelQuestions = [];
+    try { channelQuestions = JSON.parse(fs.readFileSync(channelFile, 'utf8')); } catch(e) {}
+
+    const newQuestion = {
+      id: generateUniqueId(allQuestions, category.channel),
+      question: data.question,
+      answer: data.answer.substring(0, 200),
+      explanation: data.explanation,
+      tags: category.tags,
+      difficulty: difficulty,
+      channel: category.channel,
+      subChannel: category.subChannel,
+      diagram: data.diagram || 'graph TD\n    A[Concept] --> B[Implementation]',
+      lastUpdated: new Date().toISOString()
+    };
+
+    channelQuestions.push(newQuestion);
+    fs.mkdirSync(QUESTIONS_DIR, { recursive: true });
+    fs.writeFileSync(channelFile, JSON.stringify(channelQuestions, null, 2));
+    updateIndexFile();
+    
+    allQuestions.push(newQuestion);
+    addedQuestions.push(newQuestion);
+
+    console.log(`✅ Added: ${newQuestion.id}`);
+    console.log(`Q: ${newQuestion.question.substring(0, 60)}...`);
+  }
+
+  // Print summary
+  console.log('\n\n=== SUMMARY ===');
+  console.log(`Total Questions Added: ${addedQuestions.length}/${NUM_QUESTIONS}`);
   
-  if (!response) {
-    console.log('\n❌ OpenCode failed after all retries. No question added.');
-    process.exit(0);
+  if (addedQuestions.length > 0) {
+    console.log('\n✅ Successfully Added Questions:');
+    addedQuestions.forEach((q, idx) => {
+      console.log(`  ${idx + 1}. [${q.id}] ${q.channel}/${q.subChannel} (${q.difficulty})`);
+      console.log(`     Q: ${q.question.substring(0, 70)}${q.question.length > 70 ? '...' : ''}`);
+    });
   }
 
-  const data = parseJson(response);
-  
-  if (!validateQuestion(data)) {
-    console.log('\n❌ Invalid response format. No question added.');
-    console.log('Response preview:', response.substring(0, 300));
-    process.exit(0);
+  if (failedAttempts.length > 0) {
+    console.log(`\n❌ Failed Attempts: ${failedAttempts.length}`);
+    failedAttempts.forEach(f => {
+      console.log(`  - Question ${f.index}: ${f.reason}`);
+    });
   }
 
-  if (isDuplicate(data.question, allQuestions)) {
-    console.log('\n❌ Duplicate question detected. No question added.');
-    process.exit(0);
-  }
-
-  const channelFile = getQuestionsFile(category.channel);
-  let channelQuestions = [];
-  try { channelQuestions = JSON.parse(fs.readFileSync(channelFile, 'utf8')); } catch(e) {}
-
-  const newQuestion = {
-    id: generateUniqueId(allQuestions, category.channel),
-    question: data.question,
-    answer: data.answer.substring(0, 200),
-    explanation: data.explanation,
-    tags: category.tags,
-    difficulty: difficulty,
-    channel: category.channel,
-    subChannel: category.subChannel,
-    diagram: data.diagram || 'graph TD\n    A[Concept] --> B[Implementation]'
-  };
-
-  channelQuestions.push(newQuestion);
-  fs.mkdirSync(QUESTIONS_DIR, { recursive: true });
-  fs.writeFileSync(channelFile, JSON.stringify(channelQuestions, null, 2));
-  updateIndexFile();
-
-  console.log('\n✅ Success!');
-  console.log(`ID: ${newQuestion.id}`);
-  console.log(`Question: ${newQuestion.question}`);
+  console.log(`\nTotal Questions in Database: ${allQuestions.length}`);
+  console.log('=== END SUMMARY ===\n');
 
   const out = process.env.GITHUB_OUTPUT;
-  if (out) fs.appendFileSync(out, `new_question=${JSON.stringify(newQuestion).replace(/\n/g,'\\n')}\n`);
+  if (out) {
+    fs.appendFileSync(out, `added_count=${addedQuestions.length}\n`);
+    fs.appendFileSync(out, `failed_count=${failedAttempts.length}\n`);
+    fs.appendFileSync(out, `total_questions=${allQuestions.length}\n`);
+    fs.appendFileSync(out, `added_ids=${addedQuestions.map(q => q.id).join(',')}\n`);
+  }
 }
 
 main().catch(e => { console.error('Fatal:', e); process.exit(1); });

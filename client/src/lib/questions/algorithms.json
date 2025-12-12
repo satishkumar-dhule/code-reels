@@ -12,7 +12,8 @@
     "difficulty": "beginner",
     "channel": "algorithms",
     "subChannel": "data-structures",
-    "diagram": "\ngraph LR\n    subgraph Array\n    A1[0] --- A2[1] --- A3[2] --- A4[3]\n    end\n    subgraph LinkedList\n    L1[Node] --> L2[Node] --> L3[Node]\n    end\n"
+    "diagram": "\ngraph LR\n    subgraph Array\n    A1[0] --- A2[1] --- A3[2] --- A4[3]\n    end\n    subgraph LinkedList\n    L1[Node] --> L2[Node] --> L3[Node]\n    end\n",
+    "lastUpdated": "2025-12-12T09:07:04.185Z"
   },
   {
     "id": "al-2",
@@ -27,7 +28,8 @@
     "difficulty": "intermediate",
     "channel": "algorithms",
     "subChannel": "sorting",
-    "diagram": "\ngraph TD\n    A[Array] --> P{Pick Pivot}\n    P --> L[Left < Pivot]\n    P --> R[Right > Pivot]\n    L --> Sort1[Recurse]\n    R --> Sort2[Recurse]\n"
+    "diagram": "\ngraph TD\n    A[Array] --> P{Pick Pivot}\n    P --> L[Left < Pivot]\n    P --> R[Right > Pivot]\n    L --> Sort1[Recurse]\n    R --> Sort2[Recurse]\n",
+    "lastUpdated": "2025-12-12T09:07:04.185Z"
   },
   {
     "id": "al-3",
@@ -42,6 +44,7 @@
     "difficulty": "advanced",
     "channel": "algorithms",
     "subChannel": "dynamic-programming",
-    "diagram": "\ngraph TD\n    P[Problem] --> S1[Subproblem 1]\n    P --> S2[Subproblem 2]\n    S1 --> C[(Cache)]\n    S2 --> C\n    C --> R[Result]\n"
+    "diagram": "\ngraph TD\n    P[Problem] --> S1[Subproblem 1]\n    P --> S2[Subproblem 2]\n    S1 --> C[(Cache)]\n    S2 --> C\n    C --> R[Result]\n",
+    "lastUpdated": "2025-12-12T09:07:04.185Z"
   }
 ]
