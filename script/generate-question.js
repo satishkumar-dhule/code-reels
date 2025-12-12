@@ -1,10 +1,11 @@
 import fs from 'fs';
-import { execSync } from 'child_process';
+import { spawn } from 'child_process';
 
 const QUESTIONS_DIR = 'client/src/lib/questions';
 const getQuestionsFile = (ch) => `${QUESTIONS_DIR}/${ch}.json`;
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 10000;
+const RETRY_DELAY_MS = 10000;
+const TIMEOUT_MS = 120000; // 2 minutes
 
 const categories = [
   { channel: 'system-design', subChannel: 'infrastructure', tags: ['infra', 'scale'] },
@@ -37,10 +38,6 @@ const categories = [
 
 const difficulties = ['beginner', 'intermediate', 'advanced'];
 
-function sleep(ms) {
-  execSync(`sleep ${ms / 1000}`);
-}
-
 function loadAllQuestions() {
   const all = [];
   try {
@@ -68,36 +65,92 @@ function isDuplicate(q, existing) {
   return existing.some(e => normalizeText(e.question) === norm);
 }
 
-function runOpenCode(prompt, attempt = 1) {
-  console.log(`\n[Attempt ${attempt}/${MAX_RETRIES}] Calling OpenCode...`);
-  try {
-    const escaped = prompt.replace(/'/g, "'\\''").replace(/"/g, '\\"');
-    // Use 'opencode run' which is the non-interactive mode
-    const result = execSync(`opencode run "${escaped}"`, {
-      encoding: 'utf8',
-      timeout: 120000, // 2 minutes
-      maxBuffer: 10 * 1024 * 1024,
-      env: { ...process.env, CI: 'true' }
+
+function runOpenCode(prompt) {
+  return new Promise((resolve) => {
+    let output = '';
+    let resolved = false;
+    
+    // Use spawn with direct arguments (no shell)
+    const proc = spawn('opencode', ['run', '--format', 'json', prompt], {
+      timeout: TIMEOUT_MS,
+      stdio: ['ignore', 'pipe', 'pipe']
     });
-    return result;
-  } catch (err) {
-    const errMsg = err.message?.split('\n')[0] || 'Unknown error';
-    console.log(`Failed: ${errMsg}`);
+    
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        proc.kill('SIGTERM');
+        resolve(null);
+      }
+    }, TIMEOUT_MS);
+    
+    proc.stdout.on('data', (data) => { output += data.toString(); });
+    proc.stderr.on('data', (data) => { output += data.toString(); });
+    
+    proc.on('close', () => {
+      clearTimeout(timeout);
+      if (!resolved) {
+        resolved = true;
+        resolve(output || null);
+      }
+    });
+    
+    proc.on('error', (err) => {
+      clearTimeout(timeout);
+      if (!resolved) {
+        resolved = true;
+        console.log(`Process error: ${err.message}`);
+        resolve(null);
+      }
+    });
+  });
+}
+
+async function runWithRetries(prompt) {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    console.log(`\n[Attempt ${attempt}/${MAX_RETRIES}] Calling OpenCode CLI...`);
+    const result = await runOpenCode(prompt);
+    if (result) return result;
+    
     if (attempt < MAX_RETRIES) {
-      console.log(`Waiting ${RETRY_DELAY/1000}s before retry...`);
-      sleep(RETRY_DELAY);
-      return runOpenCode(prompt, attempt + 1);
+      console.log(`Failed. Waiting ${RETRY_DELAY_MS/1000}s before retry...`);
+      await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
     }
-    return null;
   }
+  return null;
+}
+
+function extractTextFromJsonEvents(output) {
+  if (!output) return null;
+  
+  // Parse JSON events and extract text parts
+  const lines = output.split('\n').filter(l => l.trim());
+  let fullText = '';
+  
+  for (const line of lines) {
+    try {
+      const event = JSON.parse(line);
+      if (event.type === 'text' && event.part?.text) {
+        fullText += event.part.text;
+      }
+    } catch(e) {}
+  }
+  
+  return fullText || output;
 }
 
 function parseJson(response) {
   if (!response) return null;
-  try { return JSON.parse(response.trim()); } catch(e) {}
+  
+  // First extract text from JSON events if needed
+  const text = extractTextFromJsonEvents(response);
+  
+  try { return JSON.parse(text.trim()); } catch(e) {}
+  
   const patterns = [/```json\s*([\s\S]*?)\s*```/, /```\s*([\s\S]*?)\s*```/, /(\{[\s\S]*\})/];
   for (const p of patterns) {
-    const m = response.match(p);
+    const m = text.match(p);
     if (m) { try { return JSON.parse(m[1].trim()); } catch(e) {} }
   }
   return null;
@@ -115,21 +168,9 @@ function updateIndexFile() {
   fs.writeFileSync(`${QUESTIONS_DIR}/index.ts`, `${imports}\n\nexport const questionsByChannel: Record<string, any[]> = {\n${exports}\n};\n\nexport const allQuestions = Object.values(questionsByChannel).flat();\n`);
 }
 
-async function main() {
-  console.log('=== Daily Question Generator (OpenCode Only) ===\n');
 
-  // Check for API keys
-  const hasOpenAI = !!process.env.OPENAI_API_KEY;
-  const hasAnthropic = !!process.env.ANTHROPIC_API_KEY;
-  
-  if (!hasOpenAI && !hasAnthropic) {
-    console.log('⚠️  No API keys found (OPENAI_API_KEY or ANTHROPIC_API_KEY)');
-    console.log('Please add API keys as repository secrets to enable question generation.');
-    console.log('Exiting gracefully - no question added.\n');
-    process.exit(0);
-  }
-  
-  console.log(`API Keys: OpenAI=${hasOpenAI ? '✓' : '✗'}, Anthropic=${hasAnthropic ? '✓' : '✗'}`);
+async function main() {
+  console.log('=== Daily Question Generator (OpenCode Free Tier) ===\n');
 
   const inputChannel = process.env.INPUT_CHANNEL || 'random';
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
@@ -146,13 +187,9 @@ async function main() {
   console.log(`Category: ${category.channel}/${category.subChannel}`);
   console.log(`Difficulty: ${difficulty}`);
 
-  const prompt = `Generate a unique technical interview question for ${category.channel} (${category.subChannel}). Difficulty: ${difficulty}.
+  const prompt = `Generate a unique technical interview question for ${category.channel} (${category.subChannel}). Difficulty: ${difficulty}. Return ONLY valid JSON with no other text: {"question": "the question text", "answer": "brief answer under 150 chars", "explanation": "detailed markdown explanation", "diagram": "mermaid diagram starting with graph TD or LR"}`;
 
-Return ONLY valid JSON: {"question": "...", "answer": "brief answer under 150 chars", "explanation": "detailed markdown explanation", "diagram": "mermaid diagram starting with graph TD or LR"}
-
-Requirements: practical interview question, comprehensive explanation, visualizing diagram.`;
-
-  const response = runOpenCode(prompt);
+  const response = await runWithRetries(prompt);
   
   if (!response) {
     console.log('\n❌ OpenCode failed after all retries. No question added.');
@@ -163,7 +200,7 @@ Requirements: practical interview question, comprehensive explanation, visualizi
   
   if (!validateQuestion(data)) {
     console.log('\n❌ Invalid response format. No question added.');
-    console.log('Response preview:', response.substring(0, 200));
+    console.log('Response preview:', response.substring(0, 300));
     process.exit(0);
   }
 
