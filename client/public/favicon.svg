@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Black background -->
+  <rect width="128" height="128" fill="#000000"/>
+  
+  <!-- Film reel (outer circle) -->
+  <circle cx="64" cy="64" r="55" fill="none" stroke="#00ff00" stroke-width="4"/>
+  
+  <!-- Film reel (inner circle) -->
+  <circle cx="64" cy="64" r="35" fill="none" stroke="#00ff00" stroke-width="3"/>
+  
+  <!-- Play button (triangle) -->
+  <polygon points="48,40 48,88 90,64" fill="#00ff00"/>
+  
+  <!-- Terminal prompt indicator -->
+  <text x="20" y="115" font-family="monospace" font-size="14" font-weight="bold" fill="#00ff00">&gt;</text>
+</svg>
