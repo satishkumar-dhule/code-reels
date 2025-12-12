@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Terminal, Cpu, Database, Layout, BarChart2, Palette, Activity, GitBranch, Star, AlertCircle, Sparkles } from 'lucide-react';
 import { useProgress } from '../hooks/use-progress';
 import { useTheme } from '../context/ThemeContext';
+import { SEOHead } from '../components/SEOHead';
 
 export default function Home() {
   const [_, setLocation] = useLocation();
@@ -31,7 +32,14 @@ export default function Home() {
   }, [selectedIndex, setLocation, cycleTheme]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col p-3 sm:p-4 md:p-12 font-mono transition-colors duration-300 overflow-x-hidden">
+    <>
+      <SEOHead
+        title="Code Reels - Master Technical Interviews with Bite-Sized Learning"
+        description="Interactive platform for practicing system design, algorithms, frontend, database, DevOps, and SRE interview questions. Learn with bite-sized modules and track your progress."
+        keywords="interview prep, technical interviews, system design, algorithms, frontend, database, DevOps, SRE, learning platform, code practice"
+        canonical="https://reel-interview.github.io/"
+      />
+      <div className="min-h-screen bg-background text-foreground flex flex-col p-3 sm:p-4 md:p-12 font-mono transition-colors duration-300 overflow-x-hidden">
       <header className="mb-6 sm:mb-12 border-b border-border pb-4 sm:pb-6 flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
           <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold tracking-tighter uppercase mb-1 sm:mb-2">
@@ -193,6 +201,7 @@ export default function Home() {
           </a>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

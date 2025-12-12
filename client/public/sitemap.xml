@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Home Page -->
+  <url>
+    <loc>https://reel-interview.github.io/</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://reel-interview.github.io/opengraph.jpg</image:loc>
+      <image:title>Code Reels - Master Technical Interviews</image:title>
+    </image:image>
+  </url>
+
+  <!-- About Page -->
+  <url>
+    <loc>https://reel-interview.github.io/about</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Stats Page -->
+  <url>
+    <loc>https://reel-interview.github.io/stats</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- System Design Channel -->
+  <url>
+    <loc>https://reel-interview.github.io/channel/system-design</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Algorithms Channel -->
+  <url>
+    <loc>https://reel-interview.github.io/channel/algorithms</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Frontend Channel -->
+  <url>
+    <loc>https://reel-interview.github.io/channel/frontend</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Database Channel -->
+  <url>
+    <loc>https://reel-interview.github.io/channel/database</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- DevOps Channel -->
+  <url>
+    <loc>https://reel-interview.github.io/channel/devops</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- SRE Channel -->
+  <url>
+    <loc>https://reel-interview.github.io/channel/sre</loc>
+    <lastmod>2025-12-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>

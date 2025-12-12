@@ -3,6 +3,7 @@ import { useLocation, useRoute } from 'wouter';
 import { getQuestions, getChannel } from '../lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mermaid } from '../components/Mermaid';
+import { SEOHead } from '../components/SEOHead';
 import { ArrowLeft, ArrowRight, Share2, Terminal, ChevronRight, Hash, ChevronDown, Check, Timer, List, Flag, Bookmark, Grid3X3, LayoutList, Zap, Target, Flame, Star, AlertCircle } from 'lucide-react';
 import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
@@ -388,7 +389,14 @@ export default function Reels() {
   };
 
   return (
-    <div className="h-screen w-full bg-black text-white overflow-hidden flex font-mono">
+    <>
+      <SEOHead
+        title={`${currentQuestion?.question || 'Question'} - Code Reels Interview Prep`}
+        description={`Practice ${currentQuestion?.channel || 'technical'} interview questions on Code Reels. Difficulty: ${currentQuestion?.difficulty || 'intermediate'}`}
+        keywords={`${currentQuestion?.channel}, ${currentQuestion?.subChannel}, interview prep, ${currentQuestion?.tags?.join(', ') || 'technical interviews'}`}
+        canonical={`https://reel-interview.github.io/channel/${channelId}`}
+      />
+      <div className="h-screen w-full bg-black text-white overflow-hidden flex font-mono">
       {/* Top Navigation Bar */}
       <div className="absolute top-0 left-0 w-full h-11 sm:h-14 px-2 sm:px-4 z-50 flex justify-between items-center border-b border-white/10 bg-black/80 backdrop-blur-md">
         <div className="flex items-center gap-2 sm:gap-6 min-w-0 flex-1">
@@ -1022,6 +1030,7 @@ export default function Reels() {
             <span>v2.4</span>
          </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

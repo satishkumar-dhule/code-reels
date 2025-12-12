@@ -1,0 +1,19 @@
+# Code Reels - SEO Robots Configuration
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+Disallow: /test/
+
+# Specific rules for Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Specific rules for Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://reel-interview.github.io/sitemap.xml

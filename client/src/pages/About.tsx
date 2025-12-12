@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Brain, Code, Target, Flame, Lock, Unlock, Volume2, VolumeX } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SEOHead } from '../components/SEOHead';
 
 export default function About() {
   const [_, setLocation] = useLocation();
@@ -64,7 +65,14 @@ export default function About() {
   }, [setLocation]);
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col p-2 sm:p-3 font-mono overflow-hidden">
+    <>
+      <SEOHead
+        title="About Code Reels - Master Technical Interviews"
+        description="Learn about Code Reels, an interactive platform for practicing technical interview questions with bite-sized learning modules."
+        keywords="about, technical interviews, learning platform, interview prep"
+        canonical="https://reel-interview.github.io/about"
+      />
+      <div className="h-screen bg-background text-foreground flex flex-col p-2 sm:p-3 font-mono overflow-hidden">
       {/* Header */}
       <header className="border-b border-border pb-2 flex justify-between items-start mb-2 flex-shrink-0">
         <div className="flex-1 min-w-0">
@@ -248,6 +256,7 @@ export default function About() {
       <footer className="border-t border-border pt-1 text-center text-[7px] text-muted-foreground flex-shrink-0 mt-1">
         <p>Made with ❤️ • Open Source • MIT License</p>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

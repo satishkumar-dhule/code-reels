@@ -4,6 +4,7 @@ import { useGlobalStats } from "../hooks/use-progress";
 import { channels, getQuestions, getAllQuestions, getQuestionDifficulty } from "../lib/data";
 import { ArrowLeft, Trophy, Flame, Calendar, Zap, Star, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { SEOHead } from "../components/SEOHead";
 
 // Generate activity data for a given number of days
 function generateActivityData(stats: { date: string; count: number }[], days: number) {
@@ -97,7 +98,14 @@ export default function Stats() {
   };
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col p-3 sm:p-4 font-mono overflow-hidden">
+    <>
+      <SEOHead
+        title="Your Stats - Code Reels Interview Prep Progress"
+        description="Track your technical interview preparation progress with detailed statistics and activity metrics."
+        keywords="stats, progress, interview prep, learning analytics"
+        canonical="https://reel-interview.github.io/stats"
+      />
+      <div className="h-screen bg-background text-foreground flex flex-col p-3 sm:p-4 font-mono overflow-hidden">
       {/* Header */}
       <header className="flex items-center justify-between border-b border-border pb-2 mb-3">
         <button onClick={() => setLocation('/')} className="flex items-center gap-1 hover:text-primary text-[10px] uppercase tracking-widest font-bold">
@@ -258,6 +266,7 @@ export default function Stats() {
           </div>
         </motion.div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
