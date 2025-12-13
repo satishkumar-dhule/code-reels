@@ -1,21 +1,5 @@
 [
   {
-    "id": "do-1",
-    "question": "What is the difference between Docker and Kubernetes?",
-    "answer": "Docker creates the container (Runtime/Format). Kubernetes orchestrates them (Management).",
-    "explanation": "**Docker**: Like a shipping container. Packages app + libs + OS deps into a portable image.\n\n**Kubernetes (K8s)**: Like the shipping crane/port authority. Manages loading containers onto ships (nodes), replacing broken ones (healing), and routing traffic.\n\n*You can use Docker without K8s, but K8s needs a container runtime (like Docker/containerd).*",
-    "tags": [
-      "k8s",
-      "docker",
-      "concepts"
-    ],
-    "difficulty": "beginner",
-    "channel": "devops",
-    "subChannel": "kubernetes",
-    "diagram": "\ngraph LR\n    Docker[Docker] --> C1[Container]\n    Docker --> C2[Container]\n    K8s[Kubernetes] --> N1[Node]\n    K8s --> N2[Node]\n    N1 --> C1\n    N2 --> C2\n",
-    "lastUpdated": "2025-12-12T09:07:04.187Z"
-  },
-  {
     "id": "do-2",
     "question": "What are the key differences between Blue/Green and Canary deployment strategies?",
     "answer": "Blue/Green enables instant switching between environments, while Canary gradually shifts traffic for safer rollouts.",
