@@ -76,5 +76,50 @@
     "subChannel": "javascript",
     "diagram": "graph TD\n    A[Variable Declaration] --> B[var]\n    A --> C[let]\n    A --> D[const]\n    B --> E[Function Scoped]\n    B --> F[Hoisted with undefined]\n    B --> G[Can Redeclare]\n    C --> H[Block Scoped]\n    C --> I[Temporal Dead Zone]\n    C --> J[Can Reassign]\n    D --> K[Block Scoped]\n    D --> L[Temporal Dead Zone]\n    D --> M[Cannot Reassign]\n    D --> N[Object Properties Mutable]",
     "lastUpdated": "2025-12-13T01:09:09.317Z"
+  },
+  {
+    "id": "fr-161",
+    "question": "How would you implement a React hook that tracks component render count and warns when it exceeds a threshold, while avoiding infinite render loops?",
+    "answer": "Use useRef to persist count across renders and useEffect with no deps to increment. Check threshold and warn without triggering re-render.",
+    "explanation": "## Implementation Strategy\n\n```javascript\nfunction useRenderCount(threshold = 50) {\n  const renderCount = useRef(0);\n  const hasWarned = useRef(false);\n  \n  renderCount.current += 1;\n  \n  if (renderCount.current > threshold && !hasWarned.current) {\n    console.warn(`Component rendered ${renderCount.current} times`);\n    hasWarned.current = true;\n  }\n  \n  return renderCount.current;\n}\n```\n\n## Key Concepts\n\n**Why useRef instead of useState?**\n- `useRef` doesn't trigger re-renders when updated\n- `useState` would cause infinite loop since updating state triggers render\n- Perfect for tracking values across renders without side effects\n\n**Avoiding Infinite Loops**\n- Never call `setState` directly in render body\n- Use `useRef` for mutable values that don't affect UI\n- `hasWarned` ref prevents repeated console warnings\n\n**When to Use**\n- Performance debugging in development\n- Detecting unnecessary re-renders\n- Monitoring component optimization effectiveness\n\n**Advanced Considerations**\n- Reset count on unmount with cleanup function\n- Add dev-only checks with `process.env.NODE_ENV`\n- Track render reasons with additional metadata",
+    "tags": [
+      "react",
+      "perf"
+    ],
+    "difficulty": "advanced",
+    "channel": "frontend",
+    "subChannel": "react",
+    "diagram": "graph TD\n    A[Component Renders] --> B[useRenderCount Hook Called]\n    B --> C[Increment renderCount.current]\n    C --> D{Count > Threshold?}\n    D -->|No| E[Return Count]\n    D -->|Yes| F{Already Warned?}\n    F -->|No| G[Log Warning]\n    F -->|Yes| E\n    G --> H[Set hasWarned = true]\n    H --> E\n    E --> I[Component Continues Rendering]\n    I -.->|Next Render| A\n    \n    style B fill:#61dafb\n    style C fill:#ffd700\n    style G fill:#ff6b6b",
+    "lastUpdated": "2025-12-13T03:02:58.720Z"
+  },
+  {
+    "id": "fr-162",
+    "question": "Explain how JavaScript's event loop handles microtasks vs macrotasks. What happens when a Promise resolves inside a setTimeout callback?",
+    "answer": "Microtasks (Promises) execute before macrotasks (setTimeout). Promise in setTimeout runs after that setTimeout completes, before next macrotask.",
+    "explanation": "## Event Loop: Microtasks vs Macrotasks\n\n### Task Queue Types\n\n**Macrotasks (Task Queue):**\n- `setTimeout`, `setInterval`\n- `setImmediate` (Node.js)\n- I/O operations\n- UI rendering\n\n**Microtasks (Job Queue):**\n- `Promise.then/catch/finally`\n- `queueMicrotask()`\n- `MutationObserver`\n- `process.nextTick` (Node.js - highest priority)\n\n### Execution Order\n\n1. Execute synchronous code\n2. Execute ALL microtasks in queue\n3. Execute ONE macrotask\n4. Execute ALL microtasks again\n5. Render (if needed)\n6. Repeat from step 3\n\n### Example Analysis\n\n```javascript\nconsole.log('1');\n\nsetTimeout(() => {\n  console.log('2');\n  Promise.resolve().then(() => console.log('3'));\n}, 0);\n\nPromise.resolve().then(() => {\n  console.log('4');\n  setTimeout(() => console.log('5'), 0);\n});\n\nconsole.log('6');\n```\n\n**Output:** 1, 6, 4, 2, 3, 5\n\n**Why:**\n- `1`, `6`: Synchronous code runs first\n- `4`: Microtask queue empties before any macrotask\n- `2`: First macrotask (setTimeout) executes\n- `3`: Microtasks from that macrotask run immediately\n- `5`: Next macrotask (setTimeout queued from Promise)\n\n### Key Insight\n\nWhen a Promise resolves inside setTimeout, it creates a microtask that executes **after** the current macrotask completes but **before** the next macrotask. This prevents macrotask starvation and ensures Promise handlers run promptly.",
+    "tags": [
+      "js",
+      "core"
+    ],
+    "difficulty": "advanced",
+    "channel": "frontend",
+    "subChannel": "javascript",
+    "diagram": "graph TD\n    A[Call Stack] --> B{Stack Empty?}\n    B -->|Yes| C[Check Microtask Queue]\n    C -->|Has Microtasks| D[Execute ALL Microtasks]\n    D --> C\n    C -->|Empty| E[Check Macrotask Queue]\n    E -->|Has Macrotasks| F[Execute ONE Macrotask]\n    F --> B\n    E -->|Empty| G[Wait for Tasks]\n    G --> B\n    B -->|No| H[Execute Current Function]\n    H --> B\n    \n    style C fill:#90EE90\n    style D fill:#90EE90\n    style E fill:#FFB6C1\n    style F fill:#FFB6C1",
+    "lastUpdated": "2025-12-13T03:03:14.094Z"
+  },
+  {
+    "id": "fr-163",
+    "question": "You have a React app rendering a list of 10,000 items. Each item has a complex component with multiple child components. The list scrolls slowly and feels janky. Describe three different optimization strategies you would apply, explaining when to use each approach and their trade-offs.",
+    "answer": "Use virtualization (react-window), memoization (React.memo/useMemo), and code splitting. Each targets different bottlenecks.",
+    "explanation": "## Three Core Optimization Strategies\n\n### 1. Virtualization (react-window/react-virtual)\n\n**When to use:** Large lists where only a few items are visible at once\n\n**How it works:**\n- Only renders items currently in viewport + small buffer\n- Dynamically mounts/unmounts components as user scrolls\n- Reduces DOM nodes from 10,000 to ~20-30\n\n```javascript\nimport { FixedSizeList } from 'react-window';\n\nconst VirtualList = () => (\n  <FixedSizeList\n    height={600}\n    itemCount={10000}\n    itemSize={50}\n    width=\"100%\"\n  >\n    {({ index, style }) => (\n      <div style={style}>Item {index}</div>\n    )}\n  </FixedSizeList>\n);\n```\n\n**Trade-offs:**\n- ✅ Massive performance gain for long lists\n- ✅ Constant memory usage regardless of list size\n- ❌ Requires fixed/estimated item heights\n- ❌ Breaks native browser features (find-in-page, accessibility)\n\n### 2. Memoization (React.memo, useMemo, useCallback)\n\n**When to use:** Components re-rendering unnecessarily with same props\n\n**How it works:**\n- `React.memo`: Prevents re-render if props haven't changed\n- `useMemo`: Caches expensive computations\n- `useCallback`: Stabilizes function references\n\n```javascript\nconst ListItem = React.memo(({ item, onDelete }) => {\n  const formattedData = useMemo(\n    () => expensiveFormat(item.data),\n    [item.data]\n  );\n  \n  return <div onClick={onDelete}>{formattedData}</div>;\n});\n\nconst List = () => {\n  const handleDelete = useCallback((id) => {\n    deleteItem(id);\n  }, []);\n  \n  return items.map(item => (\n    <ListItem key={item.id} item={item} onDelete={handleDelete} />\n  ));\n};\n```\n\n**Trade-offs:**\n- ✅ Prevents wasted renders\n- ✅ Easy to implement incrementally\n- ❌ Adds memory overhead for memoization\n- ❌ Shallow comparison can miss deep object changes\n- ❌ Overuse can hurt performance (comparison cost)\n\n### 3. Code Splitting & Lazy Loading\n\n**When to use:** Heavy components not immediately needed\n\n**How it works:**\n- Split bundle into chunks\n- Load components on-demand\n- Reduce initial JavaScript payload\n\n```javascript\nconst HeavyChart = lazy(() => import('./HeavyChart'));\n\nconst ListItem = ({ item }) => (\n  <div>\n    <h3>{item.title}</h3>\n    <Suspense fallback={<Spinner />}>\n      {item.showChart && <HeavyChart data={item.data} />}\n    </Suspense>\n  </div>\n);\n```\n\n**Trade-offs:**\n- ✅ Faster initial load\n- ✅ Reduces main bundle size\n- ❌ Network delay when loading chunks\n- ❌ Requires loading states\n- ❌ Can cause layout shifts\n\n## Decision Matrix\n\n| Scenario | Best Strategy |\n|----------|---------------|\n| 10k+ simple items | Virtualization |\n| Complex items, frequent parent updates | Memoization |\n| Heavy dependencies per item | Code splitting |\n| All of the above | Combine all three |\n\n## Measuring Impact\n\nUse React DevTools Profiler to identify:\n- **Render duration**: How long each component takes\n- **Render frequency**: How often components re-render\n- **Wasted renders**: Components rendering with same props",
+    "tags": [
+      "perf",
+      "optimization"
+    ],
+    "difficulty": "advanced",
+    "channel": "frontend",
+    "subChannel": "performance",
+    "diagram": "graph TD\n    A[10k Items List Problem] --> B{Identify Bottleneck}\n    B --> C[Too Many DOM Nodes]\n    B --> D[Unnecessary Re-renders]\n    B --> E[Large Bundle Size]\n    \n    C --> F[Virtualization]\n    F --> F1[Render only visible items]\n    F1 --> F2[~30 DOM nodes vs 10k]\n    \n    D --> G[Memoization]\n    G --> G1[React.memo on ListItem]\n    G1 --> G2[useMemo for computations]\n    G2 --> G3[useCallback for handlers]\n    \n    E --> H[Code Splitting]\n    H --> H1[Lazy load heavy components]\n    H1 --> H2[Reduce initial bundle]\n    \n    F2 --> I[Optimized App]\n    G3 --> I\n    H2 --> I\n    \n    style C fill:#ff6b6b\n    style D fill:#ffd93d\n    style E fill:#6bcf7f\n    style I fill:#4ecdc4",
+    "lastUpdated": "2025-12-13T03:04:11.191Z"
   }
 ]
