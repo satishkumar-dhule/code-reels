@@ -67,7 +67,7 @@ async function main() {
 
   const improvedQuestions = [];
   const failedAttempts = [];
-  const NUM_TO_IMPROVE = 5;
+  const NUM_TO_IMPROVE = 20;
 
   for (let i = 0; i < Math.min(NUM_TO_IMPROVE, improvableQuestions.length); i++) {
     const question = improvableQuestions[i];

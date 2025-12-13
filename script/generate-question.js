@@ -70,7 +70,7 @@ async function main() {
 
   const inputChannel = process.env.INPUT_CHANNEL || 'random';
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
-  const NUM_QUESTIONS = 5;
+  const NUM_QUESTIONS = 20;
 
   const allQuestions = loadAllQuestions();
   console.log(`Loaded ${allQuestions.length} existing questions`);
