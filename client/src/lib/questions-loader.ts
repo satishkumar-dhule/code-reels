@@ -1,12 +1,8 @@
-// Static question loader - loads questions directly from JSON files
+// Static question loader - loads questions from unified storage
 // This works for GitHub Pages static hosting (no backend required)
 
-import algorithmsData from './questions/algorithms.json';
-import databaseData from './questions/database.json';
-import devopsData from './questions/devops.json';
-import frontendData from './questions/frontend.json';
-import sreData from './questions/sre.json';
-import systemDesignData from './questions/system-design.json';
+import allQuestionsData from './questions/all-questions.json';
+import channelMappingsData from './questions/channel-mappings.json';
 
 export interface Question {
   id: string;
@@ -20,15 +16,51 @@ export interface Question {
   subChannel: string;
 }
 
-// All questions by channel
-const questionsByChannel: Record<string, Question[]> = {
-  'algorithms': algorithmsData as Question[],
-  'database': databaseData as Question[],
-  'devops': devopsData as Question[],
-  'frontend': frontendData as Question[],
-  'sre': sreData as Question[],
-  'system-design': systemDesignData as Question[]
-};
+// Questions by ID from unified storage
+const questionsById: Record<string, Question> = (allQuestionsData as any).questions || {};
+
+// Channel mappings from unified storage
+const channelMappings: Record<string, { subChannels: Record<string, string[]> }> = 
+  (channelMappingsData as any).channels || {};
+
+// Build questions by channel from mappings
+function buildQuestionsByChannel(): Record<string, Question[]> {
+  const result: Record<string, Question[]> = {};
+  
+  Object.entries(channelMappings).forEach(([channelId, mapping]) => {
+    const questionIds = new Set<string>();
+    
+    // Collect all question IDs for this channel
+    Object.values(mapping.subChannels || {}).forEach(ids => {
+      ids.forEach(id => questionIds.add(id));
+    });
+    
+    // Map IDs to questions, adding channel/subChannel info
+    const channelQuestions: Question[] = [];
+    
+    Array.from(questionIds).forEach(id => {
+      const q = questionsById[id];
+      if (!q) return;
+      
+      // Find which subChannel this question belongs to in this channel
+      let subChannel = 'general';
+      for (const [sc, ids] of Object.entries(mapping.subChannels || {})) {
+        if (ids.includes(id)) {
+          subChannel = sc;
+          break;
+        }
+      }
+      
+      channelQuestions.push({ ...q, channel: channelId, subChannel });
+    });
+    
+    result[channelId] = channelQuestions;
+  });
+  
+  return result;
+}
+
+const questionsByChannel = buildQuestionsByChannel();
 
 // Get all questions
 export function getAllQuestions(): Question[] {

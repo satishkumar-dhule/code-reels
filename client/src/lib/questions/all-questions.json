@@ -632,19 +632,6 @@
       ],
       "lastUpdated": "2025-12-12T10:04:46.787Z"
     },
-    "gh-25": {
-      "id": "gh-25",
-      "question": "What is Infrastructure Security?",
-      "answer": "Infrastructure Security involves securing all infrastructure components including:",
-      "explanation": "Infrastructure Security involves securing all infrastructure components including:\n\n1. **Network Security:**\n- Firewalls\n- VPNs\n- Network segmentation\n- DDoS protection\n\n2. **Cloud Security:**\n- Identity and Access Management (IAM)\n- Encryption\n- Security groups\n- Network ACLs\n\n3. **Host Security:**\n- OS hardening\n- Patch management\n- Antivirus\n- Host-based firewalls",
-      "diagram": "\ngraph TD\n    Infra[Infrastructure] --> Net[Network Security]\n    Infra --> Cloud[Cloud Security]\n    Infra --> Host[Host Security]\n",
-      "difficulty": "advanced",
-      "tags": [
-        "security",
-        "devsecops"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.187Z"
-    },
     "gh-26": {
       "id": "gh-26",
       "question": "What are the basic Linux commands every DevOps engineer should know?",
@@ -867,18 +854,6 @@
       ],
       "lastUpdated": "2025-12-12T09:07:04.187Z"
     },
-    "gh-47": {
-      "id": "gh-47",
-      "question": "What are StatefulSets in Kubernetes?",
-      "answer": "StatefulSets are used to manage stateful applications, providing guarantees about the ordering and uniqueness of Pods.",
-      "explanation": "StatefulSets are used to manage stateful applications, providing guarantees about the ordering and uniqueness of Pods.\n\nKey features:\n1. **Stable Network Identity:**\n- Predictable Pod names\n- Stable hostnames\n\n2. **Ordered Deployment:**\n- Sequential creation\n- Sequential scaling\n- Sequential deletion\n\nExample of StatefulSet:\n```yaml\napiVersion: apps/v1\nkind: StatefulSet\nmetadata:\nname: web\nspec:\nserviceName: \"nginx\"\nreplicas: 3\nselector:\nmatchLabels:\napp: nginx\ntemplate:\nmetadata:\nlabels:\napp: nginx\nspec:\ncontainers:\n- name: nginx\nimage: nginx:1.14.2\nports:\n- containerPort: 80\nvolumeMounts:\n- name: www\nmountPath: /usr/share/nginx/html\nvolumeClaimTemplates:\n- metadata:\nname: www\nspec:\naccessModes: [ \"ReadWriteOnce\" ]\nresources:\nrequests:\nstorage: 1Gi\n```",
-      "difficulty": "advanced",
-      "tags": [
-        "k8s",
-        "advanced"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.187Z"
-    },
     "gh-48": {
       "id": "gh-48",
       "question": "What are DaemonSets in Kubernetes?",
@@ -925,18 +900,6 @@
       "tags": [
         "k8s",
         "advanced"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.187Z"
-    },
-    "gh-52": {
-      "id": "gh-52",
-      "question": "What is Infrastructure Automation?",
-      "answer": "Infrastructure Automation is the process of scripting environments - from installing an operating system, to installing and configuring servers on ins...",
-      "explanation": "Infrastructure Automation is the process of scripting environments - from installing an operating system, to installing and configuring servers on instances, to configuring how the instances and software communicate with one another.\n\nKey components:\n1. **Provisioning:**\n- Resource creation\n- Configuration management\n- Application deployment\n\n2. **Orchestration:**\n- Workflow automation\n- Service coordination\n- Resource scheduling",
-      "difficulty": "beginner",
-      "tags": [
-        "automation",
-        "tools"
       ],
       "lastUpdated": "2025-12-12T09:07:04.187Z"
     },
@@ -1138,30 +1101,6 @@
       ],
       "lastUpdated": "2025-12-12T09:07:04.187Z"
     },
-    "gh-81": {
-      "id": "gh-81",
-      "question": "What is Cloud Migration?",
-      "answer": "Cloud Migration is the process of moving digital assets — applications, data, IT resources — from on-premises infrastructure to cloud infrastructure.",
-      "explanation": "Cloud Migration is the process of moving digital assets — applications, data, IT resources — from on-premises infrastructure to cloud infrastructure.\n\nKey aspects:\n1. **Planning:**\n- Assessment\n- Strategy development\n- Resource planning\n\n2. **Execution:**\n```yaml\nMigration Steps:\n- Data migration\n- Application migration\n- Testing\n- Validation\n- Cutover\n```",
-      "difficulty": "beginner",
-      "tags": [
-        "migration",
-        "cloud"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.187Z"
-    },
-    "gh-82": {
-      "id": "gh-82",
-      "question": "What are Cloud Migration Strategies?",
-      "answer": "Common cloud migration strategies (6 R's):",
-      "explanation": "Common cloud migration strategies (6 R's):\n\n1. **Rehosting (Lift and Shift):**\n- Moving applications without changes\n- Quickest migration method\n- Minimal optimization\n\n2. **Replatforming (Lift, Tinker and Shift):**\n- Minor optimizations\n- Cloud-specific improvements\n- Maintaining core architecture\n\n3. **Refactoring/Re-architecting:**\n```yaml\nBenefits:\n- Better cloud-native features\n- Improved scalability\n- Enhanced performance\nChallenges:\n- More time-consuming\n- Higher initial costs\n- Required expertise\n```",
-      "difficulty": "intermediate",
-      "tags": [
-        "migration",
-        "cloud"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.187Z"
-    },
     "gh-83": {
       "id": "gh-83",
       "question": "What is Cloud Assessment?",
@@ -1194,18 +1133,6 @@
       "difficulty": "intermediate",
       "tags": [
         "migration",
-        "cloud"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.187Z"
-    },
-    "gh-86": {
-      "id": "gh-86",
-      "question": "What is Platform Engineering?",
-      "answer": "Platform Engineering is the discipline of designing, building, and maintaining an Internal Developer Platform (IDP). An IDP provides a self-service la...",
-      "explanation": "Platform Engineering is the discipline of designing, building, and maintaining an Internal Developer Platform (IDP). An IDP provides a self-service layer that enables development teams to autonomously manage the lifecycle of their applications without needing deep expertise in underlying infrastructure, CI/CD, or operational tooling. The goal is to enhance developer experience, productivity, and velocity while ensuring standardization, compliance, and operational excellence.\n\n**Key Aspects of Platform Engineering:**\n1.  **Internal Developer Platform (IDP):** The core product created by a platform engineering team. It typically includes:\n*   **Self-Service Capabilities:** Developers can provision infrastructure, set up CI/CD pipelines, deploy applications, and access monitoring/logging tools through a user-friendly interface or API.\n*   **Golden Paths:** Pre-configured, validated workflows and toolchains for common tasks (e.g., creating a new microservice, deploying to Kubernetes).\n*   **Abstraction:** Hides the complexity of underlying tools and infrastructure.\n*   **Standardization:** Enforces best practices, security policies, and compliance across teams.\n2.  **Developer Experience (DevEx):** A primary focus is to reduce cognitive load on developers and streamline their workflows.\n3.  **Automation:** Automating as much of the application lifecycle as possible.\n4.  **Collaboration:** Platform teams work closely with development teams to understand their needs and gather feedback.\n5.  **Product Mindset:** Treating the IDP as a product with users (developers), requiring continuous iteration and improvement.\n\n**Benefits:**\n*   **Increased Developer Velocity & Productivity:** Developers spend less time on infrastructure and operational tasks.\n*   **Improved Reliability & Stability:** Standardized and automated processes reduce human error.\n*   **Enhanced Security & Compliance:** Policies are embedded into the platform.\n*   **Faster Time to Market:** Streamlined workflows accelerate the delivery of new features.\n*   **Scalability:** Enables organizations to scale their development efforts more effectively.\n\n**Example IDP Components:**\n```mermaid\ngraph TD\nsubgraph IDP [Internal Developer Platform]\nA[Developer Portal/CLI] --> B{Self-Service APIs}\nB --> C[Service Catalog]\nB --> D[CI/CD Automation]\nB --> E[Infrastructure Provisioning]\nB --> F[Monitoring & Observability Tools]\nB --> G[Security & Compliance Policies]\nend\nDev[Developer] --> A\nD --> H[Deployment Targets e.g., Kubernetes]\nE --> I[Cloud Providers/On-prem Infra]\nF --> J[Logging & Metrics Systems]\nG --> D\nG --> E\n```",
-      "difficulty": "advanced",
-      "tags": [
-        "advanced",
         "cloud"
       ],
       "lastUpdated": "2025-12-12T09:07:04.187Z"
@@ -1709,31 +1636,6 @@
       "tags": [
         "sre",
         "reliability"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.188Z"
-    },
-    "gh-73": {
-      "id": "gh-73",
-      "question": "What is Incident Management?",
-      "answer": "Incident Management is the process of responding to and resolving IT service disruptions.",
-      "explanation": "Incident Management is the process of responding to and resolving IT service disruptions.\n\nKey components:\n1. **Detection:**\n- Monitoring alerts\n- User reports\n- Automated detection\n\n2. **Response:**\n```yaml\nInitial Response:\n- Acknowledge incident\n- Assess severity\n- Notify stakeholders\n\nResolution:\n- Investigate root cause\n- Apply fix\n- Verify solution\n```",
-      "diagram": "\ngraph LR\n    Detect[Detect] --> Respond[Respond]\n    Respond --> Resolve[Resolve]\n    Resolve --> Review[Post-Mortem]\n",
-      "difficulty": "beginner",
-      "tags": [
-        "incident",
-        "on-call"
-      ],
-      "lastUpdated": "2025-12-12T09:07:04.188Z"
-    },
-    "gh-76": {
-      "id": "gh-76",
-      "question": "What is Infrastructure Monitoring?",
-      "answer": "Infrastructure Monitoring is the process of collecting and analyzing data from IT infrastructure components to ensure optimal performance and availabi...",
-      "explanation": "Infrastructure Monitoring is the process of collecting and analyzing data from IT infrastructure components to ensure optimal performance and availability.\n\nKey components:\n1. **Metrics Collection:**\n- System metrics\n- Network metrics\n- Application metrics\n\n2. **Analysis:**\n```yaml\nMonitoring Areas:\n- Resource utilization\n- Performance metrics\n- Availability\n- Error rates\n- Response times\n```",
-      "difficulty": "beginner",
-      "tags": [
-        "monitoring",
-        "infra"
       ],
       "lastUpdated": "2025-12-12T09:07:04.188Z"
     },
@@ -2249,5 +2151,5 @@
       "lastUpdated": "2025-12-14T01:17:45.908Z"
     }
   },
-  "lastUpdated": "2025-12-14T10:08:54.380Z"
+  "lastUpdated": "2025-12-14T10:13:04.939Z"
 }

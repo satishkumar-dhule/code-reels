@@ -1,0 +1,147 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button "ESC Home" [ref=e6]:
+          - generic [ref=e7]: ESC
+          - generic [ref=e8]: Home
+        - generic [ref=e10]:
+          - generic [ref=e11]: System.Design
+          - generic [ref=e12]: ›
+          - button "All Topics" [ref=e13]:
+            - generic [ref=e14]: All Topics
+            - img [ref=e15]
+          - button "All" [ref=e18]:
+            - img [ref=e19]
+            - generic [ref=e23]: All
+            - img [ref=e24]
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - link "Report Issue" [ref=e28] [cursor=pointer]:
+            - /url: https://github.com/satishkumar-dhule/code-reels/issues/new
+            - img [ref=e29]
+          - link "Star on GitHub" [ref=e31] [cursor=pointer]:
+            - /url: https://github.com/satishkumar-dhule/code-reels
+            - img [ref=e32]
+          - button "Previous" [disabled] [ref=e34]:
+            - img [ref=e35]
+          - button "Next" [ref=e37]:
+            - img [ref=e38]
+        - button "01 / 20" [ref=e40]:
+          - img [ref=e41]
+          - generic [ref=e42]: 01 / 20
+        - button "59s" [ref=e43]:
+          - img [ref=e44]
+          - generic [ref=e47]: 59s
+        - button "Share" [ref=e48]:
+          - img [ref=e49]
+    - generic [ref=e56]:
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - img [ref=e61]
+            - generic [ref=e64]: sd-1
+          - generic [ref=e66]: 1 / 20
+          - generic [ref=e67]:
+            - img [ref=e68]
+            - generic [ref=e70]: Advanced
+          - generic [ref=e71]: infrastructure
+          - button "Bookmark this question" [ref=e72]:
+            - img [ref=e73]
+        - generic [ref=e75]:
+          - heading "Can you explain the Load Balancer strategy? When would you use Layer 4 vs Layer 7 load balancing?" [level=1] [ref=e76]
+          - generic [ref=e77]:
+            - generic [ref=e78]: "#infra"
+            - generic [ref=e79]: "#scale"
+            - generic [ref=e80]: "#networking"
+          - generic [ref=e81]:
+            - img [ref=e82]
+            - generic [ref=e85]:
+              - generic [ref=e86]: Time Left
+              - generic [ref=e87]: 00:59
+      - generic [ref=e90]:
+        - generic [ref=e91]:
+          - heading "Diagram" [level=2] [ref=e94]
+          - generic [ref=e96]:
+            - document [ref=e99] [cursor=pointer]:
+              - generic [ref=e101]:
+                - generic [ref=e105]:
+                  - paragraph [ref=e111]: Layer 4
+                  - paragraph [ref=e117]: Layer 7
+                - generic [ref=e118]:
+                  - paragraph [ref=e125]: User
+                  - paragraph [ref=e132]: Load Balancer
+                  - paragraph [ref=e139]:
+                    - text: Server 1
+                    - text: IP:Port
+                  - paragraph [ref=e146]:
+                    - text: Server 2
+                    - text: /api
+            - button "Expand diagram (click anywhere)" [ref=e147]:
+              - img [ref=e148]
+        - generic [ref=e153]:
+          - generic [ref=e154]:
+            - img [ref=e155]
+            - heading "Quick Answer" [level=2] [ref=e157]
+          - paragraph [ref=e158]: Load Balancing distributes traffic across multiple servers to ensure reliability and scalability.
+        - generic [ref=e159]:
+          - generic [ref=e160]:
+            - img [ref=e161]
+            - heading "Explanation" [level=2] [ref=e163]
+          - generic [ref=e164]:
+            - paragraph [ref=e165]: A Load Balancer (LB) acts as a reverse proxy.
+            - paragraph [ref=e166]:
+              - strong [ref=e167]: Layer 4 (Transport Layer)
+              - text: ": Distributes based on IP/Port. Fast, low overhead, but no context of content. Good for simple packet distribution."
+            - paragraph [ref=e168]:
+              - strong [ref=e169]: Layer 7 (Application Layer)
+              - text: ": Inspects HTTP headers/content. Can route based on URL/cookies (e.g., /api to Service A, /static to Service B). More expensive but smarter."
+            - paragraph [ref=e170]:
+              - strong [ref=e171]: Common Algorithms
+              - text: ":"
+            - list [ref=e172]:
+              - listitem [ref=e173]:
+                - generic [ref=e174]: •
+                - generic [ref=e175]:
+                  - strong [ref=e176]: Round Robin
+                  - text: ": Sequential."
+              - listitem [ref=e177]:
+                - generic [ref=e178]: •
+                - generic [ref=e179]:
+                  - strong [ref=e180]: Least Connections
+                  - text: ": Sends to server with fewest active connections."
+              - listitem [ref=e181]:
+                - generic [ref=e182]: •
+                - generic [ref=e183]:
+                  - strong [ref=e184]: IP Hash
+                  - text: ": Ensures a user always goes to the same server (sticky sessions)."
+        - generic [ref=e185]:
+          - img [ref=e187]
+          - generic [ref=e189]:
+            - generic [ref=e190]: Completed
+            - generic [ref=e191]: You've reviewed this question
+        - generic [ref=e193]:
+          - generic [ref=e194]: "#infra"
+          - generic [ref=e195]: "#scale"
+          - generic [ref=e196]: "#networking"
+    - generic [ref=e197]:
+      - generic [ref=e198]:
+        - generic [ref=e199]:
+          - generic [ref=e200]: ↑
+          - text: PREV
+        - generic [ref=e201]:
+          - generic [ref=e202]: ↓
+          - text: NEXT
+        - generic [ref=e203]:
+          - generic [ref=e204]: →
+          - text: REVEAL
+      - generic [ref=e205]:
+        - generic [ref=e207]: 19 LEFT
+        - generic [ref=e208]: "|"
+        - generic [ref=e209]: v3.0
+```

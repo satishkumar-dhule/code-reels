@@ -5,19 +5,6 @@ on:
     - cron: '0 0 * * *'  # Daily at 00:00 UTC
   workflow_dispatch:
     inputs:
-      channel:
-        description: 'Category channel'
-        required: false
-        type: choice
-        default: 'random'
-        options:
-          - random
-          - system-design
-          - algorithms
-          - frontend
-          - database
-          - devops
-          - sre
       difficulty:
         description: 'Question difficulty'
         required: false
@@ -54,7 +41,6 @@ jobs:
         id: generate
         run: node script/generate-question.js
         env:
-          INPUT_CHANNEL: ${{ inputs.channel || 'random' }}
           INPUT_DIFFICULTY: ${{ inputs.difficulty || 'random' }}
 
       - name: Check for changes

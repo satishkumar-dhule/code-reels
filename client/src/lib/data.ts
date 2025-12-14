@@ -10,7 +10,7 @@ export {
   type Question 
 } from './questions-loader';
 
-// Channel metadata for display
+// Channel metadata for display - matches channels-config.ts
 const channelMeta: Record<string, { image: string; color: string; icon: string; description: string }> = {
   'system-design': {
     image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
@@ -26,9 +26,15 @@ const channelMeta: Record<string, { image: string; color: string; icon: string; 
   },
   'frontend': {
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-    color: 'text-magenta-500',
+    color: 'text-purple-500',
     icon: 'layout',
     description: 'UI/UX Engineering'
+  },
+  'backend': {
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
+    color: 'text-blue-500',
+    icon: 'server',
+    description: 'APIs & Server Architecture'
   },
   'database': {
     image: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400&h=300&fit=crop',
@@ -36,17 +42,95 @@ const channelMeta: Record<string, { image: string; color: string; icon: string; 
     icon: 'database',
     description: 'Storage Engines'
   },
-  'sre': {
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
-    color: 'text-blue-400',
-    icon: 'activity',
-    description: 'Reliability Engineering'
-  },
   'devops': {
     image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=400&h=300&fit=crop',
     color: 'text-orange-500',
     icon: 'infinity',
     description: 'CI/CD & Automation'
+  },
+  'sre': {
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
+    color: 'text-red-500',
+    icon: 'activity',
+    description: 'Reliability Engineering'
+  },
+  'kubernetes': {
+    image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=400&h=300&fit=crop',
+    color: 'text-blue-400',
+    icon: 'box',
+    description: 'Container Orchestration'
+  },
+  'aws': {
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
+    color: 'text-orange-400',
+    icon: 'cloud',
+    description: 'Cloud Architecture'
+  },
+  'terraform': {
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
+    color: 'text-purple-400',
+    icon: 'layers',
+    description: 'Infrastructure as Code'
+  },
+  'data-engineering': {
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
+    color: 'text-teal-500',
+    icon: 'workflow',
+    description: 'Data Pipelines & ETL'
+  },
+  'machine-learning': {
+    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop',
+    color: 'text-pink-500',
+    icon: 'brain',
+    description: 'ML & AI'
+  },
+  'python': {
+    image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=300&fit=crop',
+    color: 'text-yellow-400',
+    icon: 'code',
+    description: 'Python Programming'
+  },
+  'security': {
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
+    color: 'text-red-400',
+    icon: 'shield',
+    description: 'Application Security'
+  },
+  'networking': {
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop',
+    color: 'text-indigo-500',
+    icon: 'network',
+    description: 'Network Engineering'
+  },
+  'ios': {
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+    color: 'text-gray-400',
+    icon: 'smartphone',
+    description: 'iOS Development'
+  },
+  'android': {
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+    color: 'text-green-400',
+    icon: 'smartphone',
+    description: 'Android Development'
+  },
+  'react-native': {
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+    color: 'text-cyan-400',
+    icon: 'smartphone',
+    description: 'Cross-platform Mobile'
+  },
+  'engineering-management': {
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
+    color: 'text-amber-500',
+    icon: 'users',
+    description: 'Team Leadership'
+  },
+  'behavioral': {
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
+    color: 'text-emerald-500',
+    icon: 'message-circle',
+    description: 'Soft Skills & STAR'
   }
 };
 
@@ -74,8 +158,8 @@ export interface Channel {
   subChannels: SubChannel[];
 }
 
-// Channel IDs
-export const channelIds: string[] = ['system-design', 'algorithms', 'frontend', 'database', 'sre', 'devops'];
+// Channel IDs - all available channels from metadata
+export const channelIds: string[] = Object.keys(channelMeta);
 
 // Format channel ID to display name
 function formatChannelName(id: string): string {
