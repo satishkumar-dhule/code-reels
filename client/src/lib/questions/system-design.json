@@ -13,7 +13,49 @@
     "channel": "system-design",
     "subChannel": "infrastructure",
     "diagram": "graph LR\n    User --> LB[Load Balancer]\n    LB -->|Layer 4| S1[\"Server 1<br/>IP:Port\"]\n    LB -->|Layer 7| S2[\"Server 2<br/>/api\"]\n    style LB fill:#fff,stroke:#000,color:#000",
-    "lastUpdated": "2025-12-12T09:07:04.188Z"
+    "diagramType": "google-sankey",
+    "diagramData": [
+      [
+        "User",
+        "Load Balancer",
+        10
+      ],
+      [
+        "Load Balancer",
+        "Layer 4 (Transport)",
+        5
+      ],
+      [
+        "Load Balancer",
+        "Layer 7 (Application)",
+        5
+      ],
+      [
+        "Layer 4 (Transport)",
+        "Server 1 (IP:Port)",
+        2
+      ],
+      [
+        "Layer 4 (Transport)",
+        "Server 2 (IP:Port)",
+        3
+      ],
+      [
+        "Layer 7 (Application)",
+        "API Service (/api)",
+        3
+      ],
+      [
+        "Layer 7 (Application)",
+        "Static Service (/static)",
+        2
+      ]
+    ],
+    "diagramConfig": {
+      "width": 800,
+      "height": 600
+    },
+    "lastUpdated": "2025-12-14T08:53:11.536Z"
   },
   {
     "id": "sd-2",
@@ -29,7 +71,64 @@
     "channel": "system-design",
     "subChannel": "distributed-systems",
     "diagram": "\ngraph TD\n    subgraph Hash Ring\n    N1((Node 1)) --- N2((Node 2))\n    N2 --- N3((Node 3))\n    N3 --- N1\n    end\n    Key[Key K] -.->|Clockwise| N2\n    style N2 fill:#f00,stroke:#fff,color:#fff\n",
-    "lastUpdated": "2025-12-12T09:07:04.188Z"
+    "lastUpdated": "2025-12-14T08:53:28.761Z",
+    "diagramType": "google-sankey",
+    "diagramData": [
+      [
+        "From",
+        "To",
+        "Weight"
+      ],
+      [
+        "Standard Hashing",
+        "All Keys Remap",
+        100
+      ],
+      [
+        "All Keys Remap",
+        "Cache Stampede",
+        100
+      ],
+      [
+        "Consistent Hashing",
+        "Hash Ring",
+        100
+      ],
+      [
+        "Hash Ring",
+        "Node 1",
+        33
+      ],
+      [
+        "Hash Ring",
+        "Node 2",
+        33
+      ],
+      [
+        "Hash Ring",
+        "Node 3",
+        34
+      ],
+      [
+        "Node 2",
+        "Key K",
+        10
+      ],
+      [
+        "Add Node",
+        "Node 3",
+        5
+      ],
+      [
+        "Remove Node",
+        "Node 1",
+        5
+      ]
+    ],
+    "diagramConfig": {
+      "width": 800,
+      "height": 600
+    }
   },
   {
     "id": "sd-3",
@@ -45,7 +144,59 @@
     "channel": "system-design",
     "subChannel": "distributed-systems",
     "diagram": "graph TD\n    CAP[CAP Theorem]\n    CAP --> C[Consistency]\n    CAP --> A[Availability]\n    CAP --> P[Partition Tolerance]\n    Note[Pick 2 of 3]\n    style Note fill:#f59e0b,stroke:#fff,color:#000",
-    "lastUpdated": "2025-12-12T09:07:04.188Z"
+    "lastUpdated": "2025-12-14T08:53:33.845Z",
+    "diagramType": "google-sankey",
+    "diagramData": [
+      [
+        "CAP Theorem",
+        "Consistency",
+        1
+      ],
+      [
+        "CAP Theorem",
+        "Availability",
+        1
+      ],
+      [
+        "CAP Theorem",
+        "Partition Tolerance",
+        1
+      ],
+      [
+        "Partition Tolerance",
+        "Network Failure",
+        1
+      ],
+      [
+        "Consistency",
+        "CP Systems",
+        1
+      ],
+      [
+        "Availability",
+        "AP Systems",
+        1
+      ],
+      [
+        "CP Systems",
+        "Banking Example",
+        1
+      ],
+      [
+        "AP Systems",
+        "Facebook Feed Example",
+        1
+      ],
+      [
+        "PACELC Theorem",
+        "Latency vs Consistency",
+        1
+      ]
+    ],
+    "diagramConfig": {
+      "width": 800,
+      "height": 600
+    }
   },
   {
     "id": "sd-4",
@@ -61,7 +212,54 @@
     "channel": "system-design",
     "subChannel": "database",
     "diagram": "\ngraph TD\n    App --> Router\n    Router -->|ID < 100| S1[(Shard 1)]\n    Router -->|ID > 100| S2[(Shard 2)]\n",
-    "lastUpdated": "2025-12-12T09:07:04.188Z"
+    "lastUpdated": "2025-12-14T08:53:45.926Z",
+    "diagramType": "google-sankey",
+    "diagramData": [
+      [
+        "From",
+        "To",
+        "Weight"
+      ],
+      [
+        "Application",
+        "Shard Router",
+        100
+      ],
+      [
+        "Shard Router",
+        "Shard 1 (ID < 100)",
+        45
+      ],
+      [
+        "Shard Router",
+        "Shard 2 (ID 100-200)",
+        35
+      ],
+      [
+        "Shard Router",
+        "Shard 3 (ID > 200)",
+        20
+      ],
+      [
+        "Shard 1 (ID < 100)",
+        "Hotspot Risk",
+        15
+      ],
+      [
+        "Cross-Shard Join Issue",
+        "Performance Impact",
+        25
+      ],
+      [
+        "Resharding Challenge",
+        "Data Migration",
+        30
+      ]
+    ],
+    "diagramConfig": {
+      "width": 800,
+      "height": 600
+    }
   },
   {
     "id": "sd-5",
@@ -77,7 +275,94 @@
     "channel": "system-design",
     "subChannel": "api-design",
     "diagram": "\ngraph LR\n    Req[Request] --> Check{Buckets Full?}\n    Check -->|No| Process[Process]\n    Check -->|Yes| Drop[429 Too Many Requests]\n",
-    "lastUpdated": "2025-12-12T09:07:04.188Z"
+    "lastUpdated": "2025-12-14T08:53:51.145Z",
+    "diagramType": "google-sankey",
+    "diagramData": [
+      [
+        "From",
+        "To",
+        "Weight"
+      ],
+      [
+        "Client Requests",
+        "Rate Limiter",
+        100
+      ],
+      [
+        "Rate Limiter",
+        "Token Bucket",
+        25
+      ],
+      [
+        "Rate Limiter",
+        "Leaky Bucket",
+        25
+      ],
+      [
+        "Rate Limiter",
+        "Fixed Window",
+        25
+      ],
+      [
+        "Rate Limiter",
+        "Sliding Window Log",
+        25
+      ],
+      [
+        "Token Bucket",
+        "Process Request",
+        20
+      ],
+      [
+        "Token Bucket",
+        "429 Too Many Requests",
+        5
+      ],
+      [
+        "Leaky Bucket",
+        "Process Request",
+        20
+      ],
+      [
+        "Leaky Bucket",
+        "429 Too Many Requests",
+        5
+      ],
+      [
+        "Fixed Window",
+        "Process Request",
+        20
+      ],
+      [
+        "Fixed Window",
+        "429 Too Many Requests",
+        5
+      ],
+      [
+        "Sliding Window Log",
+        "Process Request",
+        20
+      ],
+      [
+        "Sliding Window Log",
+        "429 Too Many Requests",
+        5
+      ],
+      [
+        "Process Request",
+        "API Service",
+        80
+      ],
+      [
+        "429 Too Many Requests",
+        "Client",
+        20
+      ]
+    ],
+    "diagramConfig": {
+      "width": 900,
+      "height": 600
+    }
   },
   {
     "id": "gh-31",

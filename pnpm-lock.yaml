@@ -113,6 +113,9 @@ importers:
       connect-pg-simple:
         specifier: ^10.0.0
         version: 10.0.0
+      d3:
+        specifier: ^7.9.0
+        version: 7.9.0
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -225,6 +228,9 @@ importers:
       '@types/connect-pg-simple':
         specifier: ^7.0.3
         version: 7.0.3
+      '@types/d3':
+        specifier: ^7.4.3
+        version: 7.4.3
       '@types/express':
         specifier: 4.17.21
         version: 4.17.21

@@ -302,20 +302,5 @@
     "subChannel": "infrastructure",
     "diagram": "graph TD\n    A[Client Request] --> B[Global Load Balancer]\n    B --> C[Regional Router]\n    C --> D[Consensus Leader]\n    D --> E[Write-Ahead Log]\n    E --> F[Replication Manager]\n    F --> G[Region 1 Primary]\n    F --> H[Region 2 Primary]\n    F --> I[Region 3 Primary]\n    G --> J[Region 1 Replicas]\n    H --> K[Region 2 Replicas]\n    I --> L[Region 3 Replicas]\n    C --> M[Read Cache Layer]\n    M --> N[Edge Cache]\n    M --> O[Regional Cache]\n    D --> P[Health Monitor]\n    P --> Q[Failover Controller]\n    Q --> R[Automatic Leader Election]\n    G --> S[Storage Engine]\n    H --> T[Storage Engine]\n    I --> U[Storage Engine]\n    S --> V[Compaction Service]\n    T --> W[Compaction Service]\n    U --> X[Compaction Service]",
     "lastUpdated": "2025-12-14T01:17:45.908Z"
-  },
-  {
-    "id": "sy-171",
-    "question": "Design a simple monitoring dashboard for a web application that shows real-time metrics like CPU usage, memory consumption, and request response times. What components would you need and how would they work together?",
-    "answer": "Metrics collectors, time-series database, dashboard UI, and real-time data streaming.",
-    "explanation": "# Simple Monitoring Dashboard Design\n\n## Core Components\n\n1. **Metrics Collectors**: Agents on servers that collect system metrics (CPU, memory, disk) and application metrics (response times, error rates)\n2. **Time-Series Database**: Storage optimized for timestamped data like InfluxDB or Prometheus\n3. **API Gateway**: Exposes metrics data via REST endpoints for the frontend\n4. **Dashboard UI**: Web interface that displays charts and graphs in real-time\n5. **WebSocket/Server-Sent Events**: For real-time data streaming to the dashboard\n\n## Data Flow\n\n1. Metrics collectors gather data every few seconds\n2. Data sent to time-series database with timestamps\n3. Dashboard queries latest data via API\n4. Real-time updates pushed through WebSockets\n5. Charts refresh automatically showing current system state\n\n## Key Considerations\n\n- Use efficient data compression for storage\n- Implement data retention policies (keep detailed data for 24h, aggregated for longer)\n- Add alerting thresholds for critical metrics\n- Consider caching for frequently accessed data",
-    "tags": [
-      "infra",
-      "scale"
-    ],
-    "difficulty": "beginner",
-    "channel": "system-design",
-    "subChannel": "infrastructure",
-    "diagram": "graph TD\n    A[Web Servers] --> B[Metrics Collectors]\n    B --> C[Time-Series DB]\n    C --> D[API Gateway]\n    D --> E[Dashboard UI]\n    D --> F[WebSocket Server]\n    F --> E\n    G[Alert Manager] --> C\n    H[Data Retention] --> C",
-    "lastUpdated": "2025-12-14T01:18:54.878Z"
   }
 ]

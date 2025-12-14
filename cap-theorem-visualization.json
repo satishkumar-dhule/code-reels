@@ -1,0 +1,21 @@
+{
+  "type": "d3-force",
+  "data": {
+    "nodes": [
+      {"id": "cap", "group": 1, "label": "CAP Theorem"},
+      {"id": "consistency", "group": 2, "label": "Consistency"},
+      {"id": "availability", "group": 2, "label": "Availability"},
+      {"id": "partition", "group": 2, "label": "Partition Tolerance"},
+      {"id": "note", "group": 3, "label": "Pick 2 of 3"}
+    ],
+    "links": [
+      {"source": "cap", "target": "consistency", "value": 2, "label": "C"},
+      {"source": "cap", "target": "availability", "value": 2, "label": "A"},
+      {"source": "cap", "target": "partition", "value": 2, "label": "P"},
+      {"source": "consistency", "target": "availability", "value": 1, "label": "CA"},
+      {"source": "consistency", "target": "partition", "value": 1, "label": "CP"},
+      {"source": "availability", "target": "partition", "value": 1, "label": "AP"}
+    ]
+  },
+  "config": {"width": 800, "height": 600, "chargeStrength": -400, "linkDistance": 150}
+}

@@ -1,0 +1,18 @@
+{
+  "type": "d3-force",
+  "data": {
+    "nodes": [
+      {"id": "node1", "group": 1, "label": "Node 1"},
+      {"id": "node2", "group": 2, "label": "Node 2"},
+      {"id": "node3", "group": 1, "label": "Node 3"},
+      {"id": "key", "group": 3, "label": "Key K"}
+    ],
+    "links": [
+      {"source": "node1", "target": "node2", "value": 1, "label": "Ring Connection"},
+      {"source": "node2", "target": "node3", "value": 1, "label": "Ring Connection"},
+      {"source": "node3", "target": "node1", "value": 1, "label": "Ring Connection"},
+      {"source": "key", "target": "node2", "value": 2, "label": "Clockwise Mapping"}
+    ]
+  },
+  "config": {"width": 800, "height": 600, "chargeStrength": -300, "linkDistance": 150}
+}

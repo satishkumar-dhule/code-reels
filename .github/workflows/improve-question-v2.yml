@@ -1,0 +1,84 @@
+name: Question Improvement Bot V2 (Enhanced)
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  improve-question:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install OpenCode CLI
+        run: npm install -g opencode-ai
+
+      - name: Improve question to interview-style
+        id: improve
+        run: node script/improve-question-v2.js
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet client/src/lib/questions/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add client/src/lib/questions/
+          git commit -m "✨ Improve to interview-style $(date +%Y-%m-%d)"
+          
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && exit 0
+            echo "Push failed, retry $i..."
+            sleep 5
+          done
+          exit 1
+
+      - name: Trigger deploy
+        if: steps.check.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-pages.yml',
+              ref: 'main'
+            });
+            console.log('Triggered deploy workflow');
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Question Improvement Bot V2 (Enhanced)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
+            echo "### ✅ Questions Improved to Interview-Style" >> $GITHUB_STEP_SUMMARY
+            echo "Deploy workflow has been triggered!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ℹ️ No Changes" >> $GITHUB_STEP_SUMMARY
+            echo "No improvements made (OpenCode failed, invalid format, or all questions are good)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

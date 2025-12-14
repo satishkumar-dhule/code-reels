@@ -1,0 +1,156 @@
+[
+  {
+    "id": "test-d3-force",
+    "question": "How does a microservices architecture communicate between services?",
+    "answer": "Microservices communicate through APIs, message queues, and service mesh.",
+    "explanation": "## Microservices Communication\n\nMicroservices use several patterns:\n\n1. **Synchronous**: REST APIs, gRPC\n2. **Asynchronous**: Message queues (RabbitMQ, Kafka)\n3. **Service Mesh**: Istio, Linkerd for service-to-service communication\n\n### Example Architecture\n- API Gateway routes requests\n- Services communicate via HTTP/gRPC\n- Message broker for async events\n- Service discovery for dynamic routing",
+    "tags": ["architecture", "microservices"],
+    "difficulty": "intermediate",
+    "channel": "system-design",
+    "subChannel": "distributed-systems",
+    "diagram": "graph TD\n    API[API Gateway] --> Auth[Auth Service]\n    API --> User[User Service]\n    API --> Order[Order Service]",
+    "diagramType": "d3-force",
+    "diagramData": {
+      "nodes": [
+        {"id": "api", "group": 1, "label": "API Gateway"},
+        {"id": "auth", "group": 2, "label": "Auth Service"},
+        {"id": "user", "group": 2, "label": "User Service"},
+        {"id": "order", "group": 2, "label": "Order Service"},
+        {"id": "db1", "group": 3, "label": "Auth DB"},
+        {"id": "db2", "group": 3, "label": "User DB"},
+        {"id": "db3", "group": 3, "label": "Order DB"}
+      ],
+      "links": [
+        {"source": "api", "target": "auth", "value": 2, "label": "authenticate"},
+        {"source": "api", "target": "user", "value": 2, "label": "get user"},
+        {"source": "api", "target": "order", "value": 2, "label": "create order"},
+        {"source": "auth", "target": "db1", "value": 1, "label": "query"},
+        {"source": "user", "target": "db2", "value": 1, "label": "query"},
+        {"source": "order", "target": "db3", "value": 1, "label": "query"}
+      ]
+    },
+    "diagramConfig": {
+      "width": 800,
+      "height": 600,
+      "chargeStrength": -400,
+      "linkDistance": 150
+    },
+    "lastUpdated": "2024-12-14T10:00:00.000Z"
+  },
+  {
+    "id": "test-d3-hierarchy",
+    "question": "What is the request processing flow in a web application?",
+    "answer": "Request flows through validation, authentication, business logic, and response formatting.",
+    "explanation": "## Request Processing Pipeline\n\nA typical web request goes through multiple stages:\n\n1. **Validation**: Check request format and parameters\n2. **Authentication**: Verify user identity\n3. **Authorization**: Check permissions\n4. **Business Logic**: Process the request\n5. **Data Access**: Query database\n6. **Response**: Format and return result\n\n### Example Flow\n```javascript\napp.post('/api/order', \n  validateRequest,\n  authenticate,\n  authorize,\n  processOrder,\n  formatResponse\n);\n```",
+    "tags": ["api", "architecture"],
+    "difficulty": "beginner",
+    "channel": "system-design",
+    "subChannel": "api-design",
+    "diagram": "graph TD\n    Start --> Validate\n    Validate --> Auth\n    Auth --> Process",
+    "diagramType": "d3-hierarchy",
+    "diagramData": {
+      "name": "Request Processing",
+      "children": [
+        {
+          "name": "Validation",
+          "children": [
+            {"name": "Schema Check"},
+            {"name": "Parameter Validation"}
+          ]
+        },
+        {
+          "name": "Security",
+          "children": [
+            {"name": "Authentication"},
+            {"name": "Authorization"}
+          ]
+        },
+        {
+          "name": "Processing",
+          "children": [
+            {"name": "Business Logic"},
+            {"name": "Data Access"},
+            {"name": "Response Formatting"}
+          ]
+        }
+      ]
+    },
+    "diagramConfig": {
+      "width": 800,
+      "height": 600,
+      "nodeRadius": 6,
+      "linkColor": "#22c55e"
+    },
+    "lastUpdated": "2024-12-14T10:00:00.000Z"
+  },
+  {
+    "id": "test-d3-timeline",
+    "question": "How does OAuth 2.0 authentication flow work?",
+    "answer": "OAuth 2.0 uses authorization code flow with client, authorization server, and resource server.",
+    "explanation": "## OAuth 2.0 Authorization Code Flow\n\nThe flow involves multiple parties:\n\n1. **Client**: Your application\n2. **Authorization Server**: Issues tokens (e.g., Auth0, Okta)\n3. **Resource Server**: API with protected resources\n4. **User**: Resource owner\n\n### Flow Steps\n1. Client redirects user to authorization server\n2. User authenticates and grants permission\n3. Authorization server returns authorization code\n4. Client exchanges code for access token\n5. Client uses token to access protected resources\n\n### Example\n```javascript\n// Step 1: Redirect to auth server\nwindow.location = 'https://auth.example.com/authorize?client_id=abc&redirect_uri=...';\n\n// Step 4: Exchange code for token\nconst response = await fetch('https://auth.example.com/token', {\n  method: 'POST',\n  body: JSON.stringify({ code, client_id, client_secret })\n});\n```",
+    "tags": ["security", "api", "oauth"],
+    "difficulty": "intermediate",
+    "channel": "system-design",
+    "subChannel": "api-design",
+    "diagram": "sequenceDiagram\n    Client->>Auth: Request\n    Auth->>Client: Code\n    Client->>Auth: Exchange",
+    "diagramType": "d3-timeline",
+    "diagramData": {
+      "actors": ["Client", "User", "Auth Server", "Resource Server"],
+      "messages": [
+        {"from": "Client", "to": "Auth Server", "label": "1. Authorization Request", "time": 0},
+        {"from": "Auth Server", "to": "User", "label": "2. Login & Consent", "time": 1},
+        {"from": "User", "to": "Auth Server", "label": "3. Grant Permission", "time": 2},
+        {"from": "Auth Server", "to": "Client", "label": "4. Authorization Code", "time": 3},
+        {"from": "Client", "to": "Auth Server", "label": "5. Exchange Code", "time": 4},
+        {"from": "Auth Server", "to": "Client", "label": "6. Access Token", "time": 5},
+        {"from": "Client", "to": "Resource Server", "label": "7. API Request + Token", "time": 6},
+        {"from": "Resource Server", "to": "Client", "label": "8. Protected Resource", "time": 7}
+      ]
+    },
+    "diagramConfig": {
+      "width": 900,
+      "height": 500,
+      "actorSpacing": 220
+    },
+    "lastUpdated": "2024-12-14T10:00:00.000Z"
+  },
+  {
+    "id": "test-google-charts",
+    "question": "How do you measure API performance and latency?",
+    "answer": "Track response time, throughput, error rate, and percentiles (p50, p95, p99).",
+    "explanation": "## API Performance Metrics\n\nKey metrics to monitor:\n\n1. **Response Time**: How long requests take\n2. **Throughput**: Requests per second\n3. **Error Rate**: Percentage of failed requests\n4. **Percentiles**: p50 (median), p95, p99\n\n### Why Percentiles Matter\n- **p50 (median)**: Typical user experience\n- **p95**: 95% of users see this or better\n- **p99**: Catches outliers and issues\n\n### Example Monitoring\n```javascript\nconst start = Date.now();\ntry {\n  const result = await apiCall();\n  metrics.recordLatency(Date.now() - start);\n  metrics.incrementSuccess();\n} catch (error) {\n  metrics.incrementError();\n}\n```\n\n### Tools\n- Prometheus + Grafana\n- DataDog\n- New Relic\n- CloudWatch",
+    "tags": ["monitoring", "performance", "sre"],
+    "difficulty": "intermediate",
+    "channel": "sre",
+    "subChannel": "observability",
+    "diagram": "graph TD\n    Time --> Latency\n    Time --> Throughput",
+    "diagramType": "google-charts-line",
+    "diagramData": {
+      "cols": [
+        {"label": "Time", "type": "string"},
+        {"label": "p50 Latency (ms)", "type": "number"},
+        {"label": "p95 Latency (ms)", "type": "number"},
+        {"label": "p99 Latency (ms)", "type": "number"}
+      ],
+      "rows": [
+        {"c": [{"v": "00:00"}, {"v": 45}, {"v": 120}, {"v": 250}]},
+        {"c": [{"v": "00:05"}, {"v": 50}, {"v": 130}, {"v": 280}]},
+        {"c": [{"v": "00:10"}, {"v": 48}, {"v": 125}, {"v": 260}]},
+        {"c": [{"v": "00:15"}, {"v": 52}, {"v": 135}, {"v": 290}]},
+        {"c": [{"v": "00:20"}, {"v": 47}, {"v": 122}, {"v": 255}]},
+        {"c": [{"v": "00:25"}, {"v": 49}, {"v": 128}, {"v": 270}]},
+        {"c": [{"v": "00:30"}, {"v": 51}, {"v": 132}, {"v": 285}]},
+        {"c": [{"v": "00:35"}, {"v": 46}, {"v": 118}, {"v": 245}]},
+        {"c": [{"v": "00:40"}, {"v": 53}, {"v": 138}, {"v": 295}]},
+        {"c": [{"v": "00:45"}, {"v": 48}, {"v": 126}, {"v": 265}]}
+      ]
+    },
+    "diagramConfig": {
+      "title": "API Latency Percentiles Over Time",
+      "width": 900,
+      "height": 450,
+      "curveType": "function"
+    },
+    "lastUpdated": "2024-12-14T10:00:00.000Z"
+  }
+]

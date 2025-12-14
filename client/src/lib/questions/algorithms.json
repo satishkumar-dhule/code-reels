@@ -13,7 +13,57 @@
     "channel": "algorithms",
     "subChannel": "data-structures",
     "diagram": "\ngraph LR\n    subgraph Array\n    A1[0] --- A2[1] --- A3[2] --- A4[3]\n    end\n    subgraph LinkedList\n    L1[Node] --> L2[Node] --> L3[Node]\n    end\n",
-    "lastUpdated": "2025-12-12T09:07:04.185Z"
+    "lastUpdated": "2025-12-14T04:49:42.555Z",
+    "diagramType": "d3-hierarchy",
+    "diagramData": {
+      "name": "Data Structures",
+      "children": [
+        {
+          "name": "Array",
+          "children": [
+            {
+              "name": "0",
+              "children": []
+            },
+            {
+              "name": "1",
+              "children": []
+            },
+            {
+              "name": "2",
+              "children": []
+            },
+            {
+              "name": "3",
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "LinkedList",
+          "children": [
+            {
+              "name": "Node",
+              "children": []
+            },
+            {
+              "name": "Node",
+              "children": []
+            },
+            {
+              "return": "Node",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "diagramConfig": {
+      "width": 800,
+      "height": 600,
+      "nodeRadius": 5,
+      "linkColor": "#22c55e"
+    }
   },
   {
     "id": "al-2",
@@ -45,7 +95,47 @@
     "channel": "algorithms",
     "subChannel": "dynamic-programming",
     "diagram": "\ngraph TD\n    P[Problem] --> S1[Subproblem 1]\n    P --> S2[Subproblem 2]\n    S1 --> C[(Cache)]\n    S2 --> C\n    C --> R[Result]\n",
-    "lastUpdated": "2025-12-12T09:07:04.185Z"
+    "lastUpdated": "2025-12-14T04:49:52.045Z",
+    "diagramType": "d3-hierarchy",
+    "diagramData": {
+      "name": "Problem",
+      "children": [
+        {
+          "name": "Subproblem 1",
+          "children": [
+            {
+              "name": "Cache",
+              "children": [
+                {
+                  "name": "Result",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Subproblem 2",
+          "children": [
+            {
+              "name": "Cache",
+              "children": [
+                {
+                  "name": "Result",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "diagramConfig": {
+      "width": 800,
+      "hierarchy": 600,
+      "nodeRadius": 5,
+      "linkColor": "#22c55e"
+    }
   },
   {
     "id": "al-152",

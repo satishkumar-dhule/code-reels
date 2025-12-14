@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { EnhancedMermaid } from './EnhancedMermaid';
+import { UnifiedDiagram } from './UnifiedDiagram';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
@@ -143,10 +144,17 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
           <div className="w-full mb-6 sm:mb-8 clear-both">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-4 sm:h-5 bg-primary" />
-              <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/70">Diagram</h2>
+              <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/70">
+                Diagram
+                {(question as any).diagramType && (question as any).diagramType !== 'mermaid' && (
+                  <span className="ml-2 text-[9px] text-primary/70">
+                    ({(question as any).diagramType})
+                  </span>
+                )}
+              </h2>
             </div>
             <div className="w-full mb-6">
-              <EnhancedMermaid chart={question.diagram} />
+              <UnifiedDiagram question={question} />
             </div>
           </div>
         )}

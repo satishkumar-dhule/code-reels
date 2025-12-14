@@ -1,0 +1,35 @@
+{
+  "type": "d3-timeline",
+  "data": {
+    "steps": [
+      {
+        "id": 1,
+        "label": "Request",
+        "description": "Incoming request arrives",
+        "duration": 100
+      },
+      {
+        "id": 2,
+        "label": "Check Bucket",
+        "description": "Check if rate limit buckets are full",
+        "duration": 150
+      },
+      {
+        "id": 3,
+        "label": "Process Request",
+        "description": "Request processed normally",
+        "duration": 200
+      },
+      {
+        "id": 4,
+        "label": "Rate Limited",
+        "description": "Return 429 Too Many Requests",
+        "duration": 100
+      }
+    ]
+  },
+  "config": {
+    "width": 800,
+    "height": 400
+  }
+}

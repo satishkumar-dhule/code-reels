@@ -1,0 +1,111 @@
+name: Daily Question Generator V2 (Enhanced)
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily at 00:00 UTC
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Category channel'
+        required: false
+        type: choice
+        default: 'random'
+        options:
+          - random
+          - system-design
+          - algorithms
+          - frontend
+          - database
+          - devops
+          - sre
+      difficulty:
+        description: 'Question difficulty'
+        required: false
+        type: choice
+        default: 'random'
+        options:
+          - random
+          - beginner
+          - intermediate
+          - advanced
+
+jobs:
+  add-question:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install OpenCode CLI
+        run: npm install -g opencode-ai
+
+      - name: Generate interview-style question
+        id: generate
+        run: node script/generate-question-v2.js
+        env:
+          INPUT_CHANNEL: ${{ inputs.channel || 'random' }}
+          INPUT_DIFFICULTY: ${{ inputs.difficulty || 'random' }}
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet client/src/lib/questions/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add client/src/lib/questions/
+          git commit -m "🎯 Add interview-style question $(date +%Y-%m-%d)"
+          
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && exit 0
+            echo "Push failed, retry $i..."
+            sleep 5
+          done
+          exit 1
+
+      - name: Trigger deploy
+        if: steps.check.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-pages.yml',
+              ref: 'main'
+            });
+            console.log('Triggered deploy workflow');
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Daily Question Generator V2 (Enhanced)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
+            echo "### ✅ Interview-Style Questions Added" >> $GITHUB_STEP_SUMMARY
+            echo "Deploy workflow has been triggered!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ℹ️ No Changes" >> $GITHUB_STEP_SUMMARY
+            echo "No questions were added (OpenCode failed, duplicates, or invalid format)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

@@ -157,10 +157,24 @@ export function extractTextFromJsonEvents(output) {
   for (const line of lines) {
     try {
       const event = JSON.parse(line);
+      
+      // Handle different event formats from OpenCode CLI
       if (event.type === 'text' && event.part?.text) {
         fullText += event.part.text;
+      } else if (event.type === 'content' && event.content) {
+        fullText += event.content;
+      } else if (event.text) {
+        fullText += event.text;
+      } else if (event.message) {
+        fullText += event.message;
       }
-    } catch(e) {}
+    } catch(e) {
+      // If line is not JSON, it might be plain text output
+      if (line.startsWith('{') || line.startsWith('[')) {
+        // Skip malformed JSON
+        continue;
+      }
+    }
   }
   
   return fullText || output;
@@ -170,11 +184,14 @@ export function parseJson(response) {
   if (!response) return null;
   
   const text = extractTextFromJsonEvents(response);
+  if (!text) return null;
   
+  // Try parsing the full text first
   try {
     return JSON.parse(text.trim());
   } catch(e) {}
   
+  // Try extracting JSON from markdown code blocks or mixed content
   const patterns = [
     /```json\s*([\s\S]*?)\s*```/,
     /```\s*([\s\S]*?)\s*```/,
@@ -185,9 +202,19 @@ export function parseJson(response) {
     const m = text.match(p);
     if (m) {
       try {
-        return JSON.parse(m[1].trim());
+        const cleaned = m[1].trim();
+        return JSON.parse(cleaned);
       } catch(e) {}
     }
+  }
+  
+  // Last resort: try to find the first complete JSON object
+  const jsonStart = text.indexOf('{');
+  const jsonEnd = text.lastIndexOf('}');
+  if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+    try {
+      return JSON.parse(text.substring(jsonStart, jsonEnd + 1));
+    } catch(e) {}
   }
   
   return null;

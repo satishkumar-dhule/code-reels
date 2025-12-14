@@ -37,7 +37,14 @@
     "deploy:pages": "tsx script/deploy-pages.ts",
     "preview": "pnpm run build:client && pnpm exec serve dist/public -s -p 3333",
     "validate:questions": "node script/validate-questions.js",
-    "fix:duplicates": "node script/fix-duplicate-questions.js"
+    "fix:duplicates": "node script/fix-duplicate-questions.js",
+    "generate:v1": "node script/generate-question.js",
+    "generate:v2": "node script/generate-question-v2.js",
+    "improve:v1": "node script/improve-question.js",
+    "improve:v2": "node script/improve-question-v2.js",
+    "convert:diagrams": "node script/convert-diagrams.js",
+    "convert:smart": "node script/convert-question-smart.js",
+    "convert:batch": "node script/batch-convert.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -75,6 +82,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "connect-pg-simple": "^10.0.0",
+    "d3": "^7.9.0",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "^0.7.0",
@@ -114,6 +122,7 @@
     "@replit/vite-plugin-runtime-error-modal": "^0.0.4",
     "@tailwindcss/vite": "^4.1.14",
     "@types/connect-pg-simple": "^7.0.3",
+    "@types/d3": "^7.4.3",
     "@types/express": "4.17.21",
     "@types/express-session": "^1.18.0",
     "@types/node": "^20.19.0",
