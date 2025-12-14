@@ -27,15 +27,18 @@
   "homepage": "https://reel-interview.github.io/",
   "type": "module",
   "scripts": {
-    "dev:client": "vite dev --port 5000",
-    "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "tsx script/build.ts",
-    "build:client": "vite build",
+    "dev": "vite dev --port 5001",
+    "dev:server": "NODE_ENV=development tsx server/index.ts",
+    "build": "vite build",
+    "build:server": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "deploy:pages": "tsx script/deploy-pages.ts",
-    "preview": "pnpm run build:client && pnpm exec serve dist/public -s -p 3333",
+    "preview": "pnpm run build && pnpm exec serve dist/public -s -p 3333",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
     "validate:questions": "node script/validate-questions.js",
     "fix:duplicates": "node script/fix-duplicate-questions.js"
   },
@@ -109,6 +112,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@replit/vite-plugin-cartographer": "^0.4.4",
     "@replit/vite-plugin-dev-banner": "^0.1.1",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.4",

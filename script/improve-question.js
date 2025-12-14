@@ -28,6 +28,27 @@ function loadAllQuestionsWithFile() {
   return all;
 }
 
+// Get all available channels from the questions directory
+function getAllChannels() {
+  try {
+    return fs.readdirSync(QUESTIONS_DIR)
+      .filter(f => f.endsWith('.json') && f !== 'index.ts')
+      .map(f => f.replace('.json', ''));
+  } catch (e) {
+    return [];
+  }
+}
+
+// Group questions by channel
+function groupQuestionsByChannel(questions) {
+  const byChannel = {};
+  questions.forEach(q => {
+    if (!byChannel[q.channel]) byChannel[q.channel] = [];
+    byChannel[q.channel].push(q);
+  });
+  return byChannel;
+}
+
 function needsImprovement(q) {
   const issues = [];
   if (!q.answer || q.answer.length < 20) issues.push('short_answer');
@@ -41,10 +62,14 @@ function needsImprovement(q) {
 
 async function main() {
   console.log('=== Question Improvement Bot (OpenCode Free Tier) ===\n');
+  console.log('Mode: 1 question per channel\n');
 
   const allQuestions = loadAllQuestionsWithFile();
-  console.log(`Loaded ${allQuestions.length} questions`);
+  const channels = getAllChannels();
+  
+  console.log(`Loaded ${allQuestions.length} questions from ${channels.length} channels`);
 
+  // Find improvable questions and group by channel
   const improvableQuestions = allQuestions.filter(q => needsImprovement(q).length > 0);
   console.log(`Found ${improvableQuestions.length} questions needing improvement\n`);
 
@@ -58,22 +83,39 @@ async function main() {
     return;
   }
 
-  // Sort by lastUpdated (oldest first) to prioritize old questions
-  improvableQuestions.sort((a, b) => {
-    const dateA = new Date(a.lastUpdated || 0).getTime();
-    const dateB = new Date(b.lastUpdated || 0).getTime();
-    return dateA - dateB;
+  // Group improvable questions by channel
+  const byChannel = groupQuestionsByChannel(improvableQuestions);
+  
+  // Sort each channel's questions by lastUpdated (oldest first)
+  Object.keys(byChannel).forEach(channel => {
+    byChannel[channel].sort((a, b) => {
+      const dateA = new Date(a.lastUpdated || 0).getTime();
+      const dateB = new Date(b.lastUpdated || 0).getTime();
+      return dateA - dateB;
+    });
   });
 
   const improvedQuestions = [];
   const failedAttempts = [];
-  const NUM_TO_IMPROVE = 5;
+  const skippedChannels = [];
 
-  for (let i = 0; i < Math.min(NUM_TO_IMPROVE, improvableQuestions.length); i++) {
-    const question = improvableQuestions[i];
+  // Process 1 question per channel
+  for (let i = 0; i < channels.length; i++) {
+    const channel = channels[i];
+    const channelImprovable = byChannel[channel];
+    
+    console.log(`\n--- Channel ${i + 1}/${channels.length}: ${channel} ---`);
+    
+    if (!channelImprovable || channelImprovable.length === 0) {
+      console.log('✅ No questions need improvement in this channel');
+      skippedChannels.push(channel);
+      continue;
+    }
+
+    // Pick the oldest question that needs improvement
+    const question = channelImprovable[0];
     const issues = needsImprovement(question);
     
-    console.log(`\n--- Question ${i + 1}/${Math.min(NUM_TO_IMPROVE, improvableQuestions.length)} ---`);
     console.log(`ID: ${question.id}`);
     console.log(`Issues: ${issues.join(', ')}`);
     console.log(`Current Q: ${question.question.substring(0, 60)}...`);
@@ -84,7 +126,7 @@ async function main() {
     
     if (!response) {
       console.log('❌ OpenCode failed after retries.');
-      failedAttempts.push({ id: question.id, reason: 'OpenCode timeout' });
+      failedAttempts.push({ id: question.id, channel, reason: 'OpenCode timeout' });
       continue;
     }
 
@@ -92,18 +134,17 @@ async function main() {
     
     if (!validateQuestion(data)) {
       console.log('❌ Invalid response format.');
-      failedAttempts.push({ id: question.id, reason: 'Invalid JSON' });
+      failedAttempts.push({ id: question.id, channel, reason: 'Invalid JSON' });
       continue;
     }
 
     // Load channel questions and find the question to update
-    const channelFile = getQuestionsFile(question.channel);
     const channelQuestions = loadChannelQuestions(question.channel);
     
     const qIndex = channelQuestions.findIndex(q => q.id === question.id);
     if (qIndex === -1) {
       console.log('❌ Question not found in channel file.');
-      failedAttempts.push({ id: question.id, reason: 'Not found in file' });
+      failedAttempts.push({ id: question.id, channel, reason: 'Not found in file' });
       continue;
     }
 
@@ -125,23 +166,27 @@ async function main() {
   }
 
   // Print summary
+  const processedChannels = channels.length - skippedChannels.length;
   console.log('\n\n=== SUMMARY ===');
-  console.log(`Total Questions Improved: ${improvedQuestions.length}/${Math.min(NUM_TO_IMPROVE, improvableQuestions.length)}`);
+  console.log(`Channels Processed: ${processedChannels}/${channels.length}`);
+  console.log(`Total Questions Improved: ${improvedQuestions.length}/${processedChannels}`);
+  
+  if (skippedChannels.length > 0) {
+    console.log(`\n⏭️ Skipped Channels (no improvements needed): ${skippedChannels.join(', ')}`);
+  }
   
   if (improvedQuestions.length > 0) {
     console.log('\n✅ Successfully Improved Questions:');
     improvedQuestions.forEach((q, idx) => {
-      const daysAgo = Math.floor((Date.now() - new Date(q.lastUpdated).getTime()) / (1000 * 60 * 60 * 24));
       console.log(`  ${idx + 1}. [${q.id}] ${q.channel}/${q.subChannel}`);
       console.log(`     Q: ${q.question.substring(0, 70)}${q.question.length > 70 ? '...' : ''}`);
-      console.log(`     Last Updated: ${daysAgo} days ago`);
     });
   }
 
   if (failedAttempts.length > 0) {
     console.log(`\n❌ Failed Attempts: ${failedAttempts.length}`);
     failedAttempts.forEach(f => {
-      console.log(`  - ${f.id}: ${f.reason}`);
+      console.log(`  - [${f.channel}] ${f.id}: ${f.reason}`);
     });
   }
 
@@ -151,6 +196,7 @@ async function main() {
   writeGitHubOutput({
     improved_count: improvedQuestions.length,
     failed_count: failedAttempts.length,
+    skipped_channels: skippedChannels.length,
     total_questions: allQuestions.length,
     improved_ids: improvedQuestions.map(q => q.id).join(',')
   });

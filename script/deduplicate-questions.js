@@ -46,6 +46,7 @@ function findDuplicates(questions, threshold = SIMILARITY_THRESHOLD) {
 
 async function main() {
   console.log('=== Question Deduplication Bot ===\n');
+  console.log('Mode: 1 duplicate removal per channel\n');
 
   const channels = getAllChannels();
   console.log(`Found ${channels.length} channels\n`);
@@ -55,58 +56,91 @@ async function main() {
     return;
   }
 
-  // Select random channel
-  const selectedChannel = channels[Math.floor(Math.random() * channels.length)];
-  console.log(`Analyzing channel: ${selectedChannel}\n`);
+  const removedQuestions = [];
+  const skippedChannels = [];
+  let totalQuestionsRemaining = 0;
 
-  const questions = loadChannelQuestions(selectedChannel);
-  console.log(`Loaded ${questions.length} questions from ${selectedChannel}`);
+  // Process each channel
+  for (let i = 0; i < channels.length; i++) {
+    const channel = channels[i];
+    console.log(`\n--- Channel ${i + 1}/${channels.length}: ${channel} ---`);
 
-  const duplicates = findDuplicates(questions);
-  console.log(`Found ${duplicates.length} duplicate pairs\n`);
+    const questions = loadChannelQuestions(channel);
+    console.log(`Loaded ${questions.length} questions`);
 
-  if (duplicates.length === 0) {
-    console.log('✅ No duplicates found!');
-    writeGitHubOutput({
-      removed_count: 0,
-      total_questions: questions.length,
-      channel: selectedChannel
+    const duplicates = findDuplicates(questions);
+    
+    if (duplicates.length === 0) {
+      console.log('✅ No duplicates found');
+      skippedChannels.push(channel);
+      totalQuestionsRemaining += questions.length;
+      continue;
+    }
+
+    console.log(`Found ${duplicates.length} duplicate pairs`);
+
+    // Remove at most 1 duplicate per channel
+    const toRemove = duplicates[0];
+    
+    console.log('Duplicate Pair:');
+    console.log(`  Q1 [${toRemove.q1.id}]: ${toRemove.q1.question.substring(0, 50)}...`);
+    console.log(`  Q2 [${toRemove.q2.id}]: ${toRemove.q2.question.substring(0, 50)}...`);
+    console.log(`  Similarity: ${toRemove.similarity}`);
+
+    // Keep older question, remove newer one
+    const q1Date = new Date(toRemove.q1.lastUpdated || 0).getTime();
+    const q2Date = new Date(toRemove.q2.lastUpdated || 0).getTime();
+    
+    const toRemoveId = q1Date < q2Date ? toRemove.q2.id : toRemove.q1.id;
+    const toKeepId = q1Date < q2Date ? toRemove.q1.id : toRemove.q2.id;
+
+    console.log(`Keeping: ${toKeepId} | Removing: ${toRemoveId}`);
+
+    // Remove the duplicate
+    const filtered = questions.filter(q => q.id !== toRemoveId);
+    saveChannelQuestions(channel, filtered);
+    
+    removedQuestions.push({
+      channel,
+      removedId: toRemoveId,
+      keptId: toKeepId,
+      similarity: toRemove.similarity
     });
-    return;
+    
+    totalQuestionsRemaining += filtered.length;
+    console.log(`✅ Removed 1 duplicate (${filtered.length} remaining)`);
   }
 
-  // Remove at most 1 duplicate per run
-  const toRemove = duplicates[0];
-  
-  console.log('Duplicate Pair Found:');
-  console.log(`  Q1 [${toRemove.q1.id}]: ${toRemove.q1.question.substring(0, 60)}...`);
-  console.log(`  Q2 [${toRemove.q2.id}]: ${toRemove.q2.question.substring(0, 60)}...`);
-  console.log(`  Similarity: ${toRemove.similarity}`);
-
-  // Keep older question, remove newer one
-  const q1Date = new Date(toRemove.q1.lastUpdated || 0).getTime();
-  const q2Date = new Date(toRemove.q2.lastUpdated || 0).getTime();
-  
-  const toRemoveId = q1Date < q2Date ? toRemove.q2.id : toRemove.q1.id;
-  const toKeepId = q1Date < q2Date ? toRemove.q1.id : toRemove.q2.id;
-
-  console.log(`\nKeeping: ${toKeepId} (older)`);
-  console.log(`Removing: ${toRemoveId} (newer)`);
-
-  // Remove the duplicate
-  const filtered = questions.filter(q => q.id !== toRemoveId);
-  saveChannelQuestions(selectedChannel, filtered);
+  // Update index file once at the end
   updateIndexFile();
 
-  console.log(`\n✅ Removed 1 duplicate from ${selectedChannel}`);
-  console.log(`Questions remaining: ${filtered.length}/${questions.length}`);
+  // Print summary
+  console.log('\n\n=== SUMMARY ===');
+  console.log(`Channels Processed: ${channels.length}`);
+  console.log(`Channels with Duplicates: ${removedQuestions.length}`);
+  console.log(`Channels Clean: ${skippedChannels.length}`);
+  console.log(`Total Duplicates Removed: ${removedQuestions.length}`);
+  
+  if (removedQuestions.length > 0) {
+    console.log('\n🗑️ Removed Duplicates:');
+    removedQuestions.forEach((r, idx) => {
+      console.log(`  ${idx + 1}. [${r.channel}] Removed ${r.removedId}, kept ${r.keptId} (${r.similarity} similar)`);
+    });
+  }
+
+  if (skippedChannels.length > 0) {
+    console.log(`\n✅ Clean Channels: ${skippedChannels.join(', ')}`);
+  }
+
+  console.log(`\nTotal Questions Remaining: ${totalQuestionsRemaining}`);
+  console.log('=== END SUMMARY ===\n');
 
   writeGitHubOutput({
-    removed_count: 1,
-    removed_id: toRemoveId,
-    kept_id: toKeepId,
-    total_questions: filtered.length,
-    channel: selectedChannel
+    removed_count: removedQuestions.length,
+    channels_processed: channels.length,
+    channels_clean: skippedChannels.length,
+    total_questions: totalQuestionsRemaining,
+    removed_ids: removedQuestions.map(r => r.removedId).join(',')
   });
 }
 

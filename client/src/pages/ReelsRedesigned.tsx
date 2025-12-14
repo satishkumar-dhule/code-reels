@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { getQuestions, getChannel } from '../lib/data';
+import { getChannel } from '../lib/data';
+import { useQuestionsWithPrefetch, useSubChannels } from '../hooks/use-questions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SEOHead } from '../components/SEOHead';
 import { QuestionPanel } from '../components/QuestionPanel';
@@ -56,16 +57,35 @@ export default function ReelsRedesigned() {
   const hasIndexInUrl = params?.index !== undefined && params?.index !== '';
   const paramIndex = hasIndexInUrl ? parseInt(params.index || '0') : null;
   
-  const channel = getChannel(channelId || '');
+  const staticChannel = getChannel(channelId || '');
+  const { subChannels: apiSubChannels } = useSubChannels(channelId || '');
+  
+  // Build channel object with dynamic subchannels
+  const channel = staticChannel ? {
+    ...staticChannel,
+    subChannels: [
+      { id: 'all', name: 'All Topics' },
+      ...apiSubChannels.map(sc => ({ 
+        id: sc, 
+        name: sc.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      }))
+    ]
+  } : null;
   
   const [selectedSubChannel, setSelectedSubChannel] = useState('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-  const channelQuestions = getQuestions(channelId || '', selectedSubChannel, selectedDifficulty);
+  const [currentIndex, setCurrentIndex] = useState(paramIndex ?? 0);
+  
+  // Use the new API-based hook
+  const { question: currentQuestion, questionIds, totalQuestions, loading, error } = useQuestionsWithPrefetch(
+    channelId || '',
+    currentIndex,
+    selectedSubChannel,
+    selectedDifficulty
+  );
   
   const { completed, markCompleted, lastVisitedIndex, saveLastVisitedIndex } = useProgress(channelId || '');
   const { toast } = useToast();
-
-  const [currentIndex, setCurrentIndex] = useState(paramIndex ?? 0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerDuration, setTimerDuration] = useState(60);
@@ -88,7 +108,6 @@ export default function ReelsRedesigned() {
     });
   };
 
-  const totalQuestions = channelQuestions.length;
   const remainingQuestions = totalQuestions - currentIndex - 1;
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const progressPercent = totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
@@ -116,32 +135,32 @@ export default function ReelsRedesigned() {
 
   // Sync with URL
   useEffect(() => {
-    if (channelQuestions.length === 0) return;
+    if (totalQuestions === 0) return;
     if (hasIndexInUrl && paramIndex !== null) {
-      if (paramIndex >= channelQuestions.length) {
+      if (paramIndex >= totalQuestions) {
         setCurrentIndex(0);
       } else if (paramIndex >= 0) {
         setCurrentIndex(paramIndex);
       }
     } else {
-      if (lastVisitedIndex > 0 && lastVisitedIndex < channelQuestions.length) {
+      if (lastVisitedIndex > 0 && lastVisitedIndex < totalQuestions) {
         setCurrentIndex(lastVisitedIndex);
         setLocation(`/channel/${channelId}/${lastVisitedIndex}`, { replace: true });
       } else {
         setCurrentIndex(0);
       }
     }
-  }, [hasIndexInUrl, paramIndex, channelQuestions.length, lastVisitedIndex, channelId]);
+  }, [hasIndexInUrl, paramIndex, totalQuestions, lastVisitedIndex, channelId]);
 
   useEffect(() => {
-    if (channelId && channelQuestions.length > 0) {
+    if (channelId && totalQuestions > 0) {
       const urlIndex = hasIndexInUrl ? paramIndex : null;
       if (currentIndex !== urlIndex) {
         setLocation(`/channel/${channelId}/${currentIndex}`, { replace: true });
       }
       saveLastVisitedIndex(currentIndex);
     }
-  }, [currentIndex, channelId, channelQuestions.length]);
+  }, [currentIndex, channelId, totalQuestions]);
 
   // Timer logic
   useEffect(() => {
@@ -191,10 +210,10 @@ export default function ReelsRedesigned() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, showAnswer, channelQuestions.length]);
+  }, [currentIndex, showAnswer, totalQuestions]);
 
   const nextQuestion = () => {
-    if (currentIndex < channelQuestions.length - 1) {
+    if (currentIndex < totalQuestions - 1) {
       setCurrentIndex(prev => prev + 1);
     }
   };
@@ -215,7 +234,7 @@ export default function ReelsRedesigned() {
 
   const handleSwipeLeft = useCallback(() => {
     nextQuestion();
-  }, [currentIndex, channelQuestions.length]);
+  }, [currentIndex, totalQuestions]);
 
   const handleSwipeRight = useCallback(() => {
     prevQuestion();
@@ -229,7 +248,51 @@ export default function ReelsRedesigned() {
     </div>
   );
 
-  const currentQuestion = channelQuestions[currentIndex];
+  // currentQuestion is now provided by the useQuestionsWithPrefetch hook
+  
+  // Show loading state
+  if (loading && !currentQuestion) {
+    return (
+      <div className="h-screen w-full bg-black text-white flex flex-col font-mono">
+        <div className="p-4 border-b border-white/10 flex justify-between items-center">
+          <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:text-primary">
+            <span className="border border-white/20 p-1 px-2">ESC</span> Home
+          </button>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-white/50">
+            <div className="animate-pulse text-xl mb-2">LOADING...</div>
+            <div className="text-xs">Fetching question data</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="h-screen w-full bg-black text-white flex flex-col font-mono">
+        <div className="p-4 border-b border-white/10 flex justify-between items-center">
+          <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:text-primary">
+            <span className="border border-white/20 p-1 px-2">ESC</span> Home
+          </button>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-white/50">
+            <div className="text-xl mb-2 text-red-400">ERROR</div>
+            <div className="text-xs">{error}</div>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-4 px-4 py-2 bg-primary text-black text-xs font-bold rounded hover:bg-primary/90"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   if (!currentQuestion) {
     return (
@@ -347,7 +410,7 @@ export default function ReelsRedesigned() {
               <button onClick={prevQuestion} disabled={currentIndex === 0} className="p-1.5 hover:bg-white/10 border border-white/10 rounded disabled:opacity-30 transition-colors" title="Previous">
                 <ArrowLeft className="w-4 h-4" />
               </button>
-              <button onClick={nextQuestion} disabled={currentIndex === channelQuestions.length - 1} className="p-1.5 hover:bg-white/10 border border-white/10 rounded disabled:opacity-30 transition-colors" title="Next">
+              <button onClick={nextQuestion} disabled={currentIndex === totalQuestions - 1} className="p-1.5 hover:bg-white/10 border border-white/10 rounded disabled:opacity-30 transition-colors" title="Next">
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -406,10 +469,10 @@ export default function ReelsRedesigned() {
 
                       {seatMapView ? (
                         <div className="grid grid-cols-10 gap-1 max-h-[40vh] overflow-y-auto custom-scrollbar p-1">
-                          {channelQuestions.map((q, idx) => {
+                          {questionIds.map((qId, idx) => {
                             const isCurrent = idx === currentIndex;
-                            const isMarked = markedQuestions.includes(q.id);
-                            const isCompletedQ = completed.includes(q.id);
+                            const isMarked = markedQuestions.includes(qId);
+                            const isCompletedQ = completed.includes(qId);
                             
                             let bgClass = 'bg-white/10 border-white/20 hover:bg-white/20';
                             if (isCurrent) bgClass = 'bg-primary border-primary text-black';
@@ -418,10 +481,10 @@ export default function ReelsRedesigned() {
                             
                             return (
                               <button
-                                key={q.id}
+                                key={qId}
                                 onClick={() => { setCurrentIndex(idx); setShowQuestionPicker(false); }}
                                 className={`w-8 h-8 rounded border text-[10px] font-mono font-bold transition-all ${bgClass} relative`}
-                                title={q.question.substring(0, 50) + '...'}
+                                title={`Question ${idx + 1}`}
                               >
                                 {idx + 1}
                                 {isMarked && !isCurrent && (
@@ -433,10 +496,10 @@ export default function ReelsRedesigned() {
                         </div>
                       ) : (
                         <div className="max-h-[40vh] overflow-y-auto custom-scrollbar space-y-1">
-                          {channelQuestions.map((q, idx) => {
+                          {questionIds.map((qId, idx) => {
                             const isCurrent = idx === currentIndex;
-                            const isMarked = markedQuestions.includes(q.id);
-                            const isCompletedQ = completed.includes(q.id);
+                            const isMarked = markedQuestions.includes(qId);
+                            const isCompletedQ = completed.includes(qId);
                             
                             let borderClass = 'hover:bg-white/10 text-white/70';
                             if (isCurrent) borderClass = 'bg-primary/20 text-primary border border-primary/30';
@@ -445,12 +508,12 @@ export default function ReelsRedesigned() {
                             
                             return (
                               <button
-                                key={q.id}
+                                key={qId}
                                 onClick={() => { setCurrentIndex(idx); setShowQuestionPicker(false); }}
                                 className={`w-full text-left p-2 text-xs rounded transition-colors flex items-start gap-2 ${borderClass}`}
                               >
                                 <span className="font-mono text-[10px] opacity-50 shrink-0 w-6">{String(idx + 1).padStart(2, '0')}</span>
-                                <span className="line-clamp-2 flex-1">{q.question}</span>
+                                <span className="line-clamp-2 flex-1">Question {idx + 1}</span>
                                 <div className="flex gap-1 shrink-0">
                                   {isMarked && <Bookmark className="w-3 h-3 text-blue-400 fill-blue-400" />}
                                   {isCompletedQ && <Check className="w-3 h-3 text-green-500" />}
