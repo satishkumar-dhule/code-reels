@@ -32,14 +32,14 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             
             if (language === 'mermaid') {
               return (
-                <div className="my-4 sm:my-6 w-full clear-both">
+                <div className="my-6 sm:my-8 w-full clear-both mb-8">
                   <EnhancedMermaid chart={codeContent} />
                 </div>
               );
             }
             
             return (
-              <div className="my-4 sm:my-6 w-full rounded-lg overflow-hidden border border-white/10 shadow-lg clear-both">
+              <div className="my-6 sm:my-8 w-full rounded-lg overflow-hidden border border-white/10 shadow-lg clear-both mb-6">
                 <div className="flex items-center justify-between px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <Code2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary shrink-0" />
@@ -137,15 +137,15 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
       transition={{ duration: 0.3 }}
       className="w-full h-full overflow-y-auto custom-scrollbar"
     >
-      <div className="max-w-4xl mx-auto px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 space-y-3 sm:space-y-4 md:space-y-6">
+      <div className="max-w-4xl mx-auto px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 space-y-4 sm:space-y-5 md:space-y-7">
         {/* Diagram Section - Full width, clear spacing */}
         {question.diagram && (
-          <div className="w-full">
+          <div className="w-full mb-6 sm:mb-8 clear-both">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-4 sm:h-5 bg-primary" />
               <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/70">Diagram</h2>
             </div>
-            <div className="w-full mb-4">
+            <div className="w-full mb-6">
               <EnhancedMermaid chart={question.diagram} />
             </div>
           </div>
@@ -153,7 +153,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
 
         {/* Quick Answer Section - Clear separation */}
         {question.answer && question.answer !== question.explanation && (
-          <div className="w-full p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-lg">
+          <div className="w-full p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-lg mb-6 sm:mb-8 clear-both">
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
               <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-primary">Quick Answer</h2>
@@ -165,7 +165,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
         )}
 
         {/* Detailed Explanation - Clear spacing */}
-        <div className="w-full">
+        <div className="w-full mb-6 sm:mb-8 clear-both">
           <div className="flex items-center gap-2 mb-3">
             <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/70 shrink-0" />
             <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/70">Explanation</h2>

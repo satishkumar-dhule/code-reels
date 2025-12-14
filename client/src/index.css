@@ -153,6 +153,8 @@
   background: rgba(0, 0, 0, 0.2);
   border-radius: 0.5rem;
   isolation: isolate; /* Create stacking context */
+  display: block;
+  clear: both;
 }
 
 .mermaid-container svg {
@@ -169,9 +171,10 @@
   visibility: visible !important;
 }
 
-/* Clear space after diagrams */
+/* Clear space after diagrams - CRITICAL for preventing overlaps */
 .mermaid-container + * {
-  margin-top: 1.5rem;
+  margin-top: 1.5rem !important;
+  clear: both;
 }
 
 /* Mermaid Fullscreen - ensure SVG is visible */
@@ -309,26 +312,26 @@
   }
   
   .prose p {
-    margin-top: 0.75rem !important;
-    margin-bottom: 0.75rem !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
     clear: both;
   }
   
   .prose ul, .prose ol {
-    margin-top: 0.75rem !important;
-    margin-bottom: 0.75rem !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
     padding-left: 1.25rem !important;
     clear: both;
   }
   
   .prose li {
-    margin-top: 0.375rem !important;
-    margin-bottom: 0.375rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
   }
   
   .prose h1, .prose h2, .prose h3 {
-    margin-top: 1.25rem !important;
-    margin-bottom: 0.75rem !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1rem !important;
     clear: both;
   }
   
@@ -346,8 +349,8 @@
   
   /* Compact code blocks on mobile */
   .prose pre {
-    margin-top: 1rem !important;
-    margin-bottom: 1rem !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
     padding: 0.75rem !important;
     font-size: 0.7rem !important;
     overflow-x: auto !important;
@@ -361,9 +364,15 @@
   
   /* Ensure blockquotes don't overlap */
   .prose blockquote {
-    margin-top: 1rem !important;
-    margin-bottom: 1rem !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
     clear: both;
+  }
+  
+  /* Extra spacing for diagram containers on mobile */
+  .mermaid-container {
+    margin-top: 1.5rem !important;
+    margin-bottom: 2rem !important;
   }
 }
 
@@ -375,7 +384,7 @@
   }
   
   /* Larger touch targets for important buttons */
-  button:not(.p-1):not(.p-1.5):not(.p-2) {
+  button:not([class*="p-"]) {
     padding: 0.5rem 0.75rem;
   }
 }
