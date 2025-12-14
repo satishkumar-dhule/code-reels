@@ -1,7 +1,12 @@
-import { test, expect, devices } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
-// Use iPhone 12 viewport for all mobile tests
-test.use({ ...devices['iPhone 12'] });
+// Use mobile viewport for all mobile tests (Chromium with mobile dimensions)
+// We don't use devices['iPhone 12'] because it requires WebKit which isn't installed in CI
+test.use({
+  viewport: { width: 390, height: 844 },
+  isMobile: true,
+  hasTouch: true,
+});
 
 test.describe('Mobile Experience', () => {
   test.beforeEach(async ({ page }) => {
