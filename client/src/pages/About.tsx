@@ -103,6 +103,28 @@ export default function About() {
     cyberpunk: '#ff00ff',
     dracula: '#bd93f9',
     light: '#000000',
+    matrix: '#00ff00',
+    'blade-runner': '#ff8c00',
+    tron: '#00d4ff',
+    fallout: '#9acd32',
+    witcher: '#ffd700',
+    dune: '#00bfff',
+    solarized: '#2aa198',
+    nord: '#88c0d0',
+    monokai: '#a6e22e',
+    synthwave: '#ff6ad5',
+    gruvbox: '#fe8019',
+    catppuccin: '#cba6f7',
+    hacker: '#00ff00',
+    midnight: '#3b82f6',
+    // Apple themes
+    'macos-light': '#007aff',
+    'macos-dark': '#0a84ff',
+    'ios-light': '#007aff',
+    'ios-dark': '#0a84ff',
+    'visionos': '#64d2ff',
+    'aqua': '#0066cc',
+    'graphite': '#8e8e93',
   };
 
   return (

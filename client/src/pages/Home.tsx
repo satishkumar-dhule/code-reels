@@ -14,6 +14,7 @@ import { useProgress } from '../hooks/use-progress';
 import { useTheme } from '../context/ThemeContext';
 import { SEOHead } from '../components/SEOHead';
 import { trackChannelSelect, trackGitHubClick, trackThemeChange } from '../hooks/use-analytics';
+import { WhatsNewBanner } from '../components/WhatsNewBanner';
 
 // Icon mapping
 const iconMap: Record<string, React.ReactNode> = {
@@ -189,6 +190,7 @@ export default function Home() {
         keywords="interview prep, technical interviews, system design, algorithms, frontend, database, DevOps, SRE, learning platform, code practice"
         canonical="https://reel-interview.github.io/"
       />
+      <WhatsNewBanner />
       <div className="min-h-screen bg-background text-foreground flex flex-col p-3 sm:p-4 md:p-12 font-mono transition-colors duration-300 overflow-x-hidden">
       <header className="mb-6 sm:mb-12 border-b border-border pb-4 sm:pb-6 flex flex-col sm:flex-row justify-between sm:items-end gap-4">
         <div>
