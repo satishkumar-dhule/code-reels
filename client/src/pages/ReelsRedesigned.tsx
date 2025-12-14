@@ -19,24 +19,54 @@ import * as Popover from '@radix-ui/react-popover';
 import * as Switch from '@radix-ui/react-switch';
 import * as Slider from '@radix-ui/react-slider';
 
-// Swipe detection hook
+// Swipe detection hook - only horizontal swipes, ignores vertical
 function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
   const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
+  const touchEndY = useRef<number | null>(null);
   const minSwipeDistance = 50;
+  const maxVerticalDistance = 100; // Ignore if vertical movement is too large
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchEndX.current = null;
+    touchEndY.current = null;
     touchStartX.current = e.targetTouches[0].clientX;
+    touchStartY.current = e.targetTouches[0].clientY;
   }, []);
 
   const onTouchMove = useCallback((e: React.TouchEvent) => {
     touchEndX.current = e.targetTouches[0].clientX;
+    touchEndY.current = e.targetTouches[0].clientY;
   }, []);
 
   const onTouchEnd = useCallback(() => {
-    if (!touchStartX.current || !touchEndX.current) return;
+    if (!touchStartX.current || !touchEndX.current || !touchStartY.current || !touchEndY.current) return;
+    
     const distanceX = touchStartX.current - touchEndX.current;
+    const distanceY = Math.abs(touchStartY.current - touchEndY.current);
+    
+    // Only trigger horizontal swipe if vertical movement is minimal
+    // This prevents swipe up/down from changing questions
+    if (distanceY > maxVerticalDistance) {
+      // Vertical swipe detected - ignore
+      touchStartX.current = null;
+      touchStartY.current = null;
+      touchEndX.current = null;
+      touchEndY.current = null;
+      return;
+    }
+    
+    // Check if horizontal movement is dominant (more horizontal than vertical)
+    if (Math.abs(distanceX) < distanceY) {
+      // Vertical movement is dominant - ignore
+      touchStartX.current = null;
+      touchStartY.current = null;
+      touchEndX.current = null;
+      touchEndY.current = null;
+      return;
+    }
+    
     const isLeftSwipe = distanceX > minSwipeDistance;
     const isRightSwipe = distanceX < -minSwipeDistance;
     
@@ -44,7 +74,9 @@ function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
     else if (isRightSwipe) onSwipeRight();
     
     touchStartX.current = null;
+    touchStartY.current = null;
     touchEndX.current = null;
+    touchEndY.current = null;
   }, [onSwipeLeft, onSwipeRight]);
 
   return { onTouchStart, onTouchMove, onTouchEnd };

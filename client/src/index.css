@@ -549,30 +549,32 @@
     overflow-x: auto;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
-    padding: 0.5rem 0;
-    margin: 0.5rem 0;
-    min-height: 150px;
+    padding: 0.75rem;
+    margin: 0.75rem 0;
+    min-height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 0.5rem;
+    touch-action: pan-x pan-y pinch-zoom;
   }
   
   .mermaid-container svg {
-    max-width: none !important;
+    max-width: 100% !important;
     width: auto !important;
     height: auto !important;
-    min-width: 100%;
-    transform: scale(0.7);
-    transform-origin: center center;
+    max-height: 250px;
     display: block !important;
     margin: 0 auto;
+    /* Remove aggressive scaling - let SVG scale naturally */
   }
   
   .mermaid-container .nodeLabel,
   .mermaid-container .label,
   .mermaid-container text {
-    font-size: 9px !important;
-    font-weight: 600 !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
   }
   
   /* Ensure diagram is visible and has proper spacing */
@@ -584,6 +586,16 @@
   /* Add clear space after diagram */
   .mermaid-container + * {
     margin-top: 1rem !important;
+  }
+  
+  /* Better scrollbar for horizontal scroll */
+  .mermaid-container::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .mermaid-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
   }
 }
 

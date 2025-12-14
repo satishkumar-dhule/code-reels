@@ -64,6 +64,10 @@ export function EnhancedMermaid({ chart, compact = false }: EnhancedMermaidProps
   });
   const [showThemePicker, setShowThemePicker] = useState(false);
   const renderIdRef = useRef(0);
+  
+  // Mobile pinch-to-zoom state for inline view - must be declared at top level
+  const [inlineZoom, setInlineZoom] = useState(1);
+  const inlineTouchRef = useRef({ dist: 0, initialZoom: 1 });
 
   // Persist theme selection to localStorage
   const handleThemeChange = (theme: MermaidTheme | null) => {
@@ -290,21 +294,77 @@ export function EnhancedMermaid({ chart, compact = false }: EnhancedMermaidProps
     );
   }
 
+  const handleInlineTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      inlineTouchRef.current = { dist, initialZoom: inlineZoom };
+    }
+  };
+  
+  const handleInlineTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const scale = dist / inlineTouchRef.current.dist;
+      const newZoom = Math.max(0.5, Math.min(inlineTouchRef.current.initialZoom * scale, 3));
+      setInlineZoom(newZoom);
+    }
+  };
+  
+  const handleInlineDoubleTap = () => {
+    // Reset zoom on double tap
+    setInlineZoom(1);
+  };
+  
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+
   return (
     <div ref={containerRef} className="relative group">
       <div 
-        className={`w-full flex justify-center overflow-hidden rounded-lg border border-white/10 bg-black/20 ${compact ? 'p-2' : 'p-4'} ${!compact ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''}`}
-        onClick={() => !compact && setIsExpanded(true)}
+        className={`w-full flex justify-center overflow-auto rounded-lg border border-white/10 bg-black/20 ${compact ? 'p-2' : 'p-3 sm:p-4'} ${!compact ? 'cursor-pointer hover:border-primary/50 transition-colors' : ''}`}
+        onClick={() => !compact && !isMobile && setIsExpanded(true)}
+        onTouchStart={handleInlineTouchStart}
+        onTouchMove={handleInlineTouchMove}
+        onDoubleClick={handleInlineDoubleTap}
+        style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
       >
-        <div className="mermaid-container" dangerouslySetInnerHTML={{ __html: svgContent }} />
+        <div 
+          className="mermaid-container transition-transform duration-150" 
+          style={{ transform: `scale(${inlineZoom})`, transformOrigin: 'center center' }}
+          dangerouslySetInnerHTML={{ __html: svgContent }} 
+        />
       </div>
       
+      {/* Zoom indicator on mobile */}
+      {isMobile && inlineZoom !== 1 && (
+        <div className="absolute top-2 left-2 px-2 py-1 bg-black/80 rounded text-[10px] text-white/70">
+          {Math.round(inlineZoom * 100)}%
+        </div>
+      )}
+      
+      {/* Expand button - always visible on mobile, hover on desktop */}
       {!compact && (
-        <button onClick={(e) => { e.stopPropagation(); setIsExpanded(true); }}
-          className="absolute top-2 right-2 p-2 bg-black/80 hover:bg-primary/90 rounded border border-white/20 opacity-0 group-hover:opacity-100 transition-all"
-          title="Expand diagram">
+        <button 
+          onClick={(e) => { e.stopPropagation(); setIsExpanded(true); }}
+          className={`absolute top-2 right-2 p-2 bg-black/80 hover:bg-primary/90 rounded border border-white/20 transition-all ${isMobile ? 'opacity-70' : 'opacity-0 group-hover:opacity-100'}`}
+          title="Expand diagram"
+        >
           <Maximize2 className="w-3.5 h-3.5 text-white" />
         </button>
+      )}
+      
+      {/* Mobile hint */}
+      {isMobile && !compact && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/60 rounded text-[9px] text-white/40 opacity-0 group-active:opacity-100 transition-opacity">
+          Pinch to zoom • Tap expand for full view
+        </div>
       )}
     </div>
   );
