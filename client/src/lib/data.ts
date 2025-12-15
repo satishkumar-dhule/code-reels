@@ -7,6 +7,10 @@ export {
   getChannelStats,
   getAvailableChannelIds,
   channelHasQuestions,
+  getAllCompanies,
+  getCompaniesForChannel,
+  getCompaniesWithCounts,
+  POPULAR_COMPANIES,
   type Question 
 } from './questions-loader';
 

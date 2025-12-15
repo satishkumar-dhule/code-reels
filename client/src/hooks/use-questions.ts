@@ -1,30 +1,65 @@
 import { useState, useEffect, useMemo } from 'react';
-import { 
-  getQuestions, 
-  getQuestionById, 
+import {
+  getQuestions,
+  getQuestionById,
   getSubChannels,
-  Question 
+  getCompaniesForChannel,
+  getCompaniesWithCounts,
+  Question,
 } from '../lib/questions-loader';
 
 // Hook to get questions for a channel with filters
 export function useQuestions(
   channelId: string,
   subChannel: string = 'all',
-  difficulty: string = 'all'
+  difficulty: string = 'all',
+  company: string = 'all'
 ) {
   const questions = useMemo(() => {
     if (!channelId) return [];
-    return getQuestions(channelId, subChannel, difficulty);
-  }, [channelId, subChannel, difficulty]);
+    return getQuestions(channelId, subChannel, difficulty, company);
+  }, [channelId, subChannel, difficulty, company]);
 
   const questionIds = useMemo(() => questions.map(q => q.id), [questions]);
 
-  return { 
-    questions, 
-    questionIds, 
+  return {
+    questions,
+    questionIds,
     totalQuestions: questions.length,
-    loading: false, 
-    error: null 
+    loading: false,
+    error: null,
+  };
+}
+
+// Hook to get companies for a channel (simple list)
+export function useCompanies(channelId: string) {
+  const companies = useMemo(() => {
+    if (!channelId) return [];
+    return getCompaniesForChannel(channelId);
+  }, [channelId]);
+
+  return {
+    companies,
+    loading: false,
+    error: null,
+  };
+}
+
+// Hook to get companies with counts (respects current filters)
+export function useCompaniesWithCounts(
+  channelId: string,
+  subChannel: string = 'all',
+  difficulty: string = 'all'
+) {
+  const companiesWithCounts = useMemo(() => {
+    if (!channelId) return [];
+    return getCompaniesWithCounts(channelId, subChannel, difficulty);
+  }, [channelId, subChannel, difficulty]);
+
+  return {
+    companiesWithCounts,
+    loading: false,
+    error: null,
   };
 }
 
@@ -47,12 +82,14 @@ export function useQuestionsWithPrefetch(
   channelId: string,
   currentIndex: number,
   subChannel: string = 'all',
-  difficulty: string = 'all'
+  difficulty: string = 'all',
+  company: string = 'all'
 ) {
   const { questions, questionIds, totalQuestions } = useQuestions(
     channelId,
     subChannel,
-    difficulty
+    difficulty,
+    company
   );
 
   const currentQuestion = useMemo(() => {

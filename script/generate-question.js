@@ -8,7 +8,9 @@ import {
   validateQuestion,
   updateUnifiedIndexFile,
   writeGitHubOutput,
-  logQuestionsAdded
+  logQuestionsAdded,
+  validateYouTubeVideos,
+  normalizeCompanies
 } from './utils.js';
 
 // Complete channel configurations matching channels-config.ts
@@ -289,7 +291,13 @@ Return ONLY valid JSON:
   "answer": "concise technical answer under 150 chars",
   "explanation": "detailed markdown with ## headers, code blocks, and bullet points",
   "diagram": "mermaid diagram code starting with graph TD or flowchart LR",
-  "relatedChannels": ["channel-id-1", "channel-id-2"]
+  "relatedChannels": ["channel-id-1", "channel-id-2"],
+  "sourceUrl": "URL to a real interview resource, blog post, or documentation where this question topic is discussed (e.g., LeetCode, HackerRank, company engineering blog, official docs)",
+  "videos": {
+    "shortVideo": "YouTube Shorts URL (under 60 seconds) explaining this concept quickly - must be a real, existing video",
+    "longVideo": "YouTube video URL (5-20 minutes) with in-depth explanation - must be a real, existing video from channels like Fireship, Traversy Media, Tech With Tim, NeetCode, etc."
+  },
+  "companies": ["Company names where this question has been asked in interviews - e.g., Google, Amazon, Meta, Microsoft, Apple, Netflix, Uber, Airbnb, etc."]
 }`;
 
     const response = await runWithRetries(prompt);
@@ -314,6 +322,10 @@ Return ONLY valid JSON:
       continue;
     }
 
+    // Validate YouTube videos if provided
+    console.log('🎬 Validating YouTube videos...');
+    const validatedVideos = await validateYouTubeVideos(data.videos);
+
     const newQuestion = {
       id: generateUnifiedId(),
       question: data.question,
@@ -322,6 +334,12 @@ Return ONLY valid JSON:
       tags: subChannelConfig.tags,
       difficulty: difficulty,
       diagram: data.diagram || 'graph TD\n    A[Concept] --> B[Implementation]',
+      sourceUrl: data.sourceUrl || null,
+      videos: {
+        shortVideo: validatedVideos.shortVideo,
+        longVideo: validatedVideos.longVideo
+      },
+      companies: normalizeCompanies(data.companies),
       lastUpdated: new Date().toISOString()
     };
 

@@ -1,11 +1,173 @@
 import fs from 'fs';
 import { spawn } from 'child_process';
+import https from 'https';
 
 // Constants
 export const QUESTIONS_DIR = 'client/src/lib/questions';
 export const MAX_RETRIES = 3;
 export const RETRY_DELAY_MS = 10000;
 export const TIMEOUT_MS = 120000;
+
+// ============================================
+// YOUTUBE VIDEO VALIDATION
+// ============================================
+
+// Extract YouTube video ID from various URL formats
+export function extractYouTubeVideoId(url) {
+  if (!url) return null;
+  
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/ // Just the ID
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+// Validate if a YouTube video exists using oEmbed API (no API key needed)
+export async function validateYouTubeVideo(url) {
+  const videoId = extractYouTubeVideoId(url);
+  if (!videoId) return { valid: false, reason: 'Invalid YouTube URL format' };
+  
+  return new Promise((resolve) => {
+    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+    
+    const req = https.get(oembedUrl, { timeout: 5000 }, (res) => {
+      if (res.statusCode === 200) {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          try {
+            const info = JSON.parse(data);
+            resolve({ 
+              valid: true, 
+              videoId,
+              title: info.title,
+              author: info.author_name
+            });
+          } catch {
+            resolve({ valid: true, videoId });
+          }
+        });
+      } else if (res.statusCode === 404 || res.statusCode === 401) {
+        resolve({ valid: false, reason: 'Video not found or private' });
+      } else {
+        resolve({ valid: false, reason: `HTTP ${res.statusCode}` });
+      }
+    });
+    
+    req.on('error', () => resolve({ valid: false, reason: 'Network error' }));
+    req.on('timeout', () => {
+      req.destroy();
+      resolve({ valid: false, reason: 'Timeout' });
+    });
+  });
+}
+
+// Validate multiple YouTube URLs and return only valid ones
+export async function validateYouTubeVideos(videos) {
+  if (!videos) return { shortVideo: null, longVideo: null };
+  
+  const result = { shortVideo: null, longVideo: null };
+  
+  if (videos.shortVideo) {
+    const validation = await validateYouTubeVideo(videos.shortVideo);
+    if (validation.valid) {
+      result.shortVideo = videos.shortVideo;
+      console.log(`  ✓ Short video valid: ${validation.title || videos.shortVideo}`);
+    } else {
+      console.log(`  ✗ Short video invalid: ${validation.reason}`);
+    }
+  }
+  
+  if (videos.longVideo) {
+    const validation = await validateYouTubeVideo(videos.longVideo);
+    if (validation.valid) {
+      result.longVideo = videos.longVideo;
+      console.log(`  ✓ Long video valid: ${validation.title || videos.longVideo}`);
+    } else {
+      console.log(`  ✗ Long video invalid: ${validation.reason}`);
+    }
+  }
+  
+  return result;
+}
+
+// ============================================
+// COMPANY VALIDATION & NORMALIZATION
+// ============================================
+
+// Known tech companies for validation
+const KNOWN_COMPANIES = new Set([
+  'Google', 'Amazon', 'Meta', 'Microsoft', 'Apple', 'Netflix', 'Uber', 'Airbnb',
+  'LinkedIn', 'Twitter', 'Stripe', 'Salesforce', 'Adobe', 'Oracle', 'IBM',
+  'Spotify', 'Snap', 'Pinterest', 'Dropbox', 'Slack', 'Zoom', 'Shopify',
+  'Square', 'PayPal', 'Intuit', 'VMware', 'Cisco', 'Intel', 'AMD', 'NVIDIA',
+  'Tesla', 'SpaceX', 'Palantir', 'Databricks', 'Snowflake', 'MongoDB',
+  'Coinbase', 'Robinhood', 'DoorDash', 'Instacart', 'Lyft', 'Reddit',
+  'TikTok', 'ByteDance', 'Alibaba', 'Tencent', 'Baidu', 'Samsung',
+  'Goldman Sachs', 'Morgan Stanley', 'JPMorgan', 'Bloomberg', 'Citadel',
+  'Two Sigma', 'Jane Street', 'DE Shaw', 'Bridgewater', 'Visa', 'Mastercard'
+]);
+
+// Company name aliases for normalization
+const COMPANY_ALIASES = {
+  'facebook': 'Meta',
+  'fb': 'Meta',
+  'aws': 'Amazon',
+  'msft': 'Microsoft',
+  'goog': 'Google',
+  'alphabet': 'Google',
+  'x': 'Twitter',
+  'x.com': 'Twitter',
+  'openai': 'OpenAI',
+  'github': 'GitHub',
+};
+
+// Normalize and validate company names
+export function normalizeCompanies(companies) {
+  if (!companies || !Array.isArray(companies)) return [];
+  
+  const normalized = new Set();
+  
+  companies.forEach(company => {
+    if (!company || typeof company !== 'string') return;
+    
+    const trimmed = company.trim();
+    const lower = trimmed.toLowerCase();
+    
+    // Check aliases first
+    if (COMPANY_ALIASES[lower]) {
+      normalized.add(COMPANY_ALIASES[lower]);
+      return;
+    }
+    
+    // Check if it's a known company (case-insensitive)
+    for (const known of KNOWN_COMPANIES) {
+      if (known.toLowerCase() === lower) {
+        normalized.add(known);
+        return;
+      }
+    }
+    
+    // If not known, capitalize first letter of each word
+    const capitalized = trimmed
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    // Only add if it looks like a company name (2+ chars, no weird characters)
+    if (capitalized.length >= 2 && /^[A-Za-z0-9\s&.-]+$/.test(capitalized)) {
+      normalized.add(capitalized);
+    }
+  });
+  
+  return Array.from(normalized).sort();
+}
 
 // File operations
 export const getQuestionsFile = (ch) => `${QUESTIONS_DIR}/${ch}.json`;

@@ -14,6 +14,12 @@ export interface Question {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   channel: string;
   subChannel: string;
+  sourceUrl?: string;
+  videos?: {
+    shortVideo?: string;
+    longVideo?: string;
+  };
+  companies?: string[];
 }
 
 // Questions by ID from unified storage
@@ -71,7 +77,8 @@ export function getAllQuestions(): Question[] {
 export function getQuestions(
   channelId: string,
   subChannel?: string,
-  difficulty?: string
+  difficulty?: string,
+  company?: string
 ): Question[] {
   let questions = questionsByChannel[channelId] || [];
 
@@ -81,6 +88,10 @@ export function getQuestions(
 
   if (difficulty && difficulty !== 'all') {
     questions = questions.filter(q => q.difficulty === difficulty);
+  }
+
+  if (company && company !== 'all') {
+    questions = questions.filter(q => q.companies?.includes(company));
   }
 
   return questions;
@@ -136,3 +147,82 @@ export function getAvailableChannelIds(): string[] {
 export function channelHasQuestions(channelId: string): boolean {
   return (questionsByChannel[channelId]?.length || 0) > 0;
 }
+
+// Normalize company name for consistency
+function normalizeCompanyName(name: string): string {
+  const normalized = name.trim();
+  // Common variations mapping
+  const aliases: Record<string, string> = {
+    'facebook': 'Meta',
+    'fb': 'Meta',
+    'aws': 'Amazon',
+    'msft': 'Microsoft',
+    'goog': 'Google',
+    'alphabet': 'Google',
+  };
+  const lower = normalized.toLowerCase();
+  return aliases[lower] || normalized;
+}
+
+// Get all unique companies across all questions
+export function getAllCompanies(): string[] {
+  const companies = new Set<string>();
+  Object.values(questionsByChannel).flat().forEach(q => {
+    if (q.companies) {
+      q.companies.forEach(c => companies.add(normalizeCompanyName(c)));
+    }
+  });
+  return Array.from(companies).sort();
+}
+
+// Get companies for a specific channel with question counts
+export function getCompaniesForChannel(channelId: string): string[] {
+  const questions = questionsByChannel[channelId] || [];
+  const companies = new Set<string>();
+  questions.forEach(q => {
+    if (q.companies) {
+      q.companies.forEach(c => companies.add(normalizeCompanyName(c)));
+    }
+  });
+  return Array.from(companies).sort();
+}
+
+// Get companies with counts for a channel (respects current filters)
+export function getCompaniesWithCounts(
+  channelId: string,
+  subChannel?: string,
+  difficulty?: string
+): { name: string; count: number }[] {
+  let questions = questionsByChannel[channelId] || [];
+  
+  // Apply current filters to get relevant questions
+  if (subChannel && subChannel !== 'all') {
+    questions = questions.filter(q => q.subChannel === subChannel);
+  }
+  if (difficulty && difficulty !== 'all') {
+    questions = questions.filter(q => q.difficulty === difficulty);
+  }
+  
+  // Count questions per company
+  const companyCounts = new Map<string, number>();
+  questions.forEach(q => {
+    if (q.companies) {
+      q.companies.forEach(c => {
+        const normalized = normalizeCompanyName(c);
+        companyCounts.set(normalized, (companyCounts.get(normalized) || 0) + 1);
+      });
+    }
+  });
+  
+  // Sort by count (descending), then alphabetically
+  return Array.from(companyCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+// Popular tech companies for prioritization in UI
+export const POPULAR_COMPANIES = [
+  'Google', 'Amazon', 'Meta', 'Microsoft', 'Apple', 
+  'Netflix', 'Uber', 'Airbnb', 'LinkedIn', 'Twitter',
+  'Stripe', 'Salesforce', 'Adobe', 'Oracle', 'IBM'
+];

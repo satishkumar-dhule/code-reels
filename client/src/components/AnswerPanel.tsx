@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { EnhancedMermaid } from './EnhancedMermaid';
+import { YouTubePlayer } from './YouTubePlayer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
-import { Check, BookOpen, Code2, Lightbulb } from 'lucide-react';
+import { Check, BookOpen, Code2, Lightbulb, ExternalLink, Building2 } from 'lucide-react';
 import type { Question } from '../lib/data';
 
 interface AnswerPanelProps {
@@ -138,6 +139,34 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
       className="w-full h-full overflow-y-auto custom-scrollbar"
     >
       <div className="max-w-4xl mx-auto px-3 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 space-y-4 sm:space-y-5 md:space-y-7">
+        {/* Companies Section */}
+        {question.companies && question.companies.length > 0 && (
+          <div className="w-full mb-4 sm:mb-6 clear-both">
+            <div className="flex items-center gap-2 p-2 sm:p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <Building2 className="w-4 h-4 text-blue-400 shrink-0" />
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span className="text-[10px] sm:text-xs text-blue-400/70 uppercase tracking-wider">Asked at:</span>
+                {question.companies.map((company, idx) => (
+                  <span 
+                    key={idx}
+                    className="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-[10px] sm:text-xs font-medium rounded-full border border-blue-500/30"
+                  >
+                    {company}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Video Explanations */}
+        {(question.videos?.shortVideo || question.videos?.longVideo) && (
+          <YouTubePlayer 
+            shortVideo={question.videos.shortVideo} 
+            longVideo={question.videos.longVideo} 
+          />
+        )}
+
         {/* Diagram Section - Full width, clear spacing */}
         {question.diagram && (
           <div className="w-full mb-6 sm:mb-8 clear-both">
@@ -205,6 +234,23 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
                 </span>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Source Link */}
+        {question.sourceUrl && (
+          <div className="w-full pt-4 sm:pt-6 border-t border-white/10">
+            <a
+              href={question.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors group"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-white/50 group-hover:text-primary transition-colors" />
+              <span className="text-xs sm:text-sm text-white/70 group-hover:text-white transition-colors">
+                View Source / Learn More
+              </span>
+            </a>
           </div>
         )}
       </div>

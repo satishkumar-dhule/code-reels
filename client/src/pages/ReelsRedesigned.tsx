@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useRoute } from 'wouter';
 import { getChannel } from '../lib/data';
-import { useQuestionsWithPrefetch, useSubChannels } from '../hooks/use-questions';
+import { useQuestionsWithPrefetch, useSubChannels, useCompaniesWithCounts } from '../hooks/use-questions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SEOHead } from '../components/SEOHead';
 import { QuestionPanel } from '../components/QuestionPanel';
@@ -10,7 +10,7 @@ import { trackQuestionView, trackAnswerRevealed } from '../hooks/use-analytics';
 import { 
   ArrowLeft, ArrowRight, Share2, ChevronDown, Check, Timer, List, 
   Flag, Grid3X3, LayoutList, Zap, Target, Flame, Star, AlertCircle, 
-  Terminal, Bookmark, X, Settings
+  Terminal, Bookmark, X, Settings, Building2
 } from 'lucide-react';
 import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
@@ -106,14 +106,23 @@ export default function ReelsRedesigned() {
   
   const [selectedSubChannel, setSelectedSubChannel] = useState('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
+  const [selectedCompany, setSelectedCompany] = useState('all');
   const [currentIndex, setCurrentIndex] = useState(paramIndex ?? 0);
+  
+  // Get companies for this channel (dynamically based on current filters)
+  const { companiesWithCounts } = useCompaniesWithCounts(
+    channelId || '',
+    selectedSubChannel,
+    selectedDifficulty
+  );
   
   // Use the new API-based hook
   const { question: currentQuestion, questionIds, totalQuestions, loading, error } = useQuestionsWithPrefetch(
     channelId || '',
     currentIndex,
     selectedSubChannel,
-    selectedDifficulty
+    selectedDifficulty,
+    selectedCompany
   );
 
   // Reset index when filters change and ensure it's within bounds
@@ -134,6 +143,13 @@ export default function ReelsRedesigned() {
   const handleDifficultyChange = (newDifficulty: string) => {
     setCurrentIndex(0);
     setSelectedDifficulty(newDifficulty);
+    setShowAnswer(false);
+  };
+
+  // Handler for company change - ensures clean state transition
+  const handleCompanyChange = (newCompany: string) => {
+    setCurrentIndex(0);
+    setSelectedCompany(newCompany);
     setShowAnswer(false);
   };
   
@@ -399,7 +415,7 @@ export default function ReelsRedesigned() {
             <div className="text-xs mb-4">No questions available for this channel or filter</div>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <button 
-                onClick={() => { setSelectedSubChannel('all'); setSelectedDifficulty('all'); setCurrentIndex(0); }}
+                onClick={() => { setSelectedSubChannel('all'); setSelectedDifficulty('all'); setSelectedCompany('all'); setCurrentIndex(0); }}
                 className="px-4 py-2 bg-white/10 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/20 transition-colors border border-white/20"
               >
                 Reset Filters
@@ -503,6 +519,54 @@ export default function ReelsRedesigned() {
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
+
+              {/* Company filter dropdown - dynamically shows companies with question counts */}
+              {companiesWithCounts.length > 0 && (
+                <>
+                  <div className="h-4 w-px bg-white/20 hidden sm:block shrink-0" />
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest hover:text-white text-white/70 outline-none p-1">
+                      <Building2 className="w-3 h-3 text-blue-400 shrink-0" />
+                      <span className="hidden sm:inline truncate max-w-[80px]">
+                        {selectedCompany === 'all' ? 'Company' : selectedCompany}
+                      </span>
+                      {selectedCompany !== 'all' && (
+                        <span className="text-[9px] bg-blue-500/30 text-blue-300 px-1 rounded">
+                          {companiesWithCounts.find(c => c.name === selectedCompany)?.count || 0}
+                        </span>
+                      )}
+                      <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content className="bg-black border border-white/20 p-1 z-[100] min-w-[200px] max-h-[300px] overflow-y-auto shadow-xl custom-scrollbar" align="start">
+                      <DropdownMenu.Item 
+                        className="text-xs text-white p-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 outline-none" 
+                        onSelect={() => handleCompanyChange('all')}
+                      >
+                        <Building2 className="w-3 h-3" /> All Companies
+                        <span className="text-[10px] text-white/40 ml-auto mr-2">
+                          {companiesWithCounts.reduce((sum, c) => sum + c.count, 0)} Q
+                        </span>
+                        {selectedCompany === 'all' && <Check className="w-3 h-3 text-primary" />}
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator className="h-px bg-white/10 my-1" />
+                      {companiesWithCounts.map(({ name, count }) => (
+                        <DropdownMenu.Item 
+                          key={name}
+                          className="text-xs text-white p-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 outline-none" 
+                          onSelect={() => handleCompanyChange(name)}
+                        >
+                          <span className="w-4 h-4 flex items-center justify-center text-[10px] bg-blue-500/20 text-blue-400 rounded font-bold">
+                            {name.charAt(0)}
+                          </span>
+                          <span className="flex-1">{name}</span>
+                          <span className="text-[10px] text-white/40 tabular-nums">{count}</span>
+                          {selectedCompany === name && <Check className="w-3 h-3 text-primary ml-1" />}
+                        </DropdownMenu.Item>
+                      ))}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                </>
+              )}
             </div>
           </div>
 

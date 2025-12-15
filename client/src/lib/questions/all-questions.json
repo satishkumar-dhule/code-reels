@@ -12,6 +12,12 @@
         "comparison",
         "basics"
       ],
+      "sourceUrl": "https://leetcode.com/explore/learn/card/linked-list/",
+      "videos": {
+        "shortVideo": "https://www.youtube.com/shorts/WwfhLC16bis",
+        "longVideo": "https://www.youtube.com/watch?v=odW9FU8jPRQ"
+      },
+      "companies": ["Google", "Amazon", "Meta", "Microsoft", "Apple"],
       "lastUpdated": "2025-12-12T09:07:04.185Z"
     },
     "al-2": {

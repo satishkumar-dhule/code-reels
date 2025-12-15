@@ -8,7 +8,9 @@ import {
   validateQuestion,
   updateUnifiedIndexFile,
   writeGitHubOutput,
-  logQuestionsImproved
+  logQuestionsImproved,
+  validateYouTubeVideos,
+  normalizeCompanies
 } from './utils.js';
 
 // Get all channels from mappings
@@ -43,6 +45,10 @@ function needsImprovement(q) {
   if (!q.diagram || q.diagram.length < 10) issues.push('no_diagram');
   if (q.explanation && q.explanation.includes('[truncated')) issues.push('truncated');
   if (!q.question.endsWith('?')) issues.push('no_question_mark');
+  if (!q.sourceUrl) issues.push('no_source_url');
+  if (!q.videos?.shortVideo) issues.push('no_short_video');
+  if (!q.videos?.longVideo) issues.push('no_long_video');
+  if (!q.companies || q.companies.length === 0) issues.push('no_companies');
   return issues;
 }
 
@@ -127,7 +133,13 @@ Return ONLY valid JSON:
   "question": "improved specific technical question ending with ?",
   "answer": "concise technical answer under 150 chars",
   "explanation": "detailed markdown with ## headers, \`\`\`code blocks\`\`\`, and bullet points",
-  "diagram": "mermaid diagram code starting with graph TD or flowchart LR"
+  "diagram": "mermaid diagram code starting with graph TD or flowchart LR",
+  "sourceUrl": "URL to a real interview resource, blog post, or documentation where this question topic is discussed (e.g., LeetCode, HackerRank, company engineering blog, official docs)",
+  "videos": {
+    "shortVideo": "YouTube Shorts URL (under 60 seconds) explaining this concept quickly - must be a real, existing video",
+    "longVideo": "YouTube video URL (5-20 minutes) with in-depth explanation - must be a real, existing video from channels like Fireship, Traversy Media, Tech With Tim, NeetCode, etc."
+  },
+  "companies": ["Company names where this question has been asked in interviews - e.g., Google, Amazon, Meta, Microsoft, Apple, Netflix, Uber, Airbnb, etc."]
 }`;
 
     const response = await runWithRetries(prompt);
@@ -155,12 +167,26 @@ Return ONLY valid JSON:
       continue;
     }
 
+    // Validate YouTube videos if provided
+    console.log('🎬 Validating YouTube videos...');
+    const validatedVideos = await validateYouTubeVideos(data.videos);
+    const existingVideos = questions[question.id].videos || {};
+
+    const existingCompanies = questions[question.id].companies || [];
+    const newCompanies = normalizeCompanies(data.companies);
+
     questions[question.id] = {
       ...questions[question.id],
       question: data.question,
       answer: data.answer.substring(0, 200),
       explanation: data.explanation,
       diagram: data.diagram || questions[question.id].diagram,
+      sourceUrl: data.sourceUrl || questions[question.id].sourceUrl || null,
+      videos: {
+        shortVideo: validatedVideos.shortVideo || existingVideos.shortVideo || null,
+        longVideo: validatedVideos.longVideo || existingVideos.longVideo || null
+      },
+      companies: newCompanies.length > 0 ? newCompanies : existingCompanies,
       lastUpdated: new Date().toISOString()
     };
 
