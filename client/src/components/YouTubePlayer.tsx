@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Play, X, Youtube, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface YouTubePlayerProps {
   shortVideo?: string;
@@ -30,6 +31,8 @@ function isYouTubeShort(url: string): boolean {
 
 export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
   const [activeVideo, setActiveVideo] = useState<'short' | 'long' | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const isMobile = useIsMobile();
   
   const shortVideoId = shortVideo ? extractVideoId(shortVideo) : null;
   const longVideoId = longVideo ? extractVideoId(longVideo) : null;
@@ -37,6 +40,25 @@ export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
   if (!shortVideoId && !longVideoId) return null;
 
   const closePlayer = () => setActiveVideo(null);
+  
+  // Request fullscreen on mobile when video opens
+  useEffect(() => {
+    if (activeVideo && isMobile && iframeRef.current) {
+      // Small delay to ensure iframe is rendered
+      const timer = setTimeout(() => {
+        const iframe = iframeRef.current;
+        if (iframe) {
+          // Try to request fullscreen on the iframe
+          if (iframe.requestFullscreen) {
+            iframe.requestFullscreen().catch(() => {});
+          } else if ((iframe as HTMLIFrameElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen) {
+            (iframe as HTMLIFrameElement & { webkitRequestFullscreen: () => void }).webkitRequestFullscreen();
+          }
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [activeVideo, isMobile]);
 
   // Handle Escape key to close video modal
   useEffect(() => {
@@ -92,55 +114,64 @@ export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
         </div>
       </div>
 
-      {/* Video Modal */}
+      {/* Video Modal - Fullscreen on mobile */}
       <AnimatePresence>
         {activeVideo && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+            className={`fixed inset-0 z-[100] bg-black flex items-center justify-center ${
+              isMobile ? 'p-0' : 'p-4 bg-black/90 backdrop-blur-sm'
+            }`}
             onClick={closePlayer}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl"
+              className={`relative ${isMobile ? 'w-full h-full' : 'w-full max-w-4xl'}`}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
+              {/* Close Button - Always visible on mobile */}
               <button
                 onClick={closePlayer}
-                className="absolute -top-12 right-0 p-2 text-white/70 hover:text-white transition-colors"
+                className={`absolute z-10 p-2 text-white/70 hover:text-white transition-colors bg-black/50 rounded-full ${
+                  isMobile ? 'top-4 right-4' : '-top-12 right-0 bg-transparent'
+                }`}
               >
                 <X className="w-6 h-6" />
                 <span className="sr-only">Close</span>
               </button>
 
-              {/* Video Container */}
-              <div className={`relative w-full ${
-                activeVideo === 'short' && isYouTubeShort(shortVideo || '')
-                  ? 'max-w-sm mx-auto aspect-[9/16]' // Vertical for shorts
-                  : 'aspect-video' // 16:9 for regular videos
-              } bg-black rounded-lg overflow-hidden border border-white/20`}>
+              {/* Video Container - Full screen on mobile */}
+              <div className={`relative bg-black overflow-hidden ${
+                isMobile 
+                  ? 'w-full h-full' // Full screen on mobile
+                  : activeVideo === 'short' && isYouTubeShort(shortVideo || '')
+                    ? 'max-w-sm mx-auto aspect-[9/16] rounded-lg border border-white/20' // Vertical for shorts on desktop
+                    : 'aspect-video rounded-lg border border-white/20' // 16:9 for regular videos on desktop
+              }`}>
                 <iframe
+                  ref={iframeRef}
                   src={`https://www.youtube.com/embed/${
                     activeVideo === 'short' ? shortVideoId : longVideoId
-                  }?autoplay=1&rel=0`}
+                  }?autoplay=1&rel=0&playsinline=0`}
                   title={activeVideo === 'short' ? 'Quick Explanation' : 'Deep Dive Video'}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                   allowFullScreen
                   className="absolute inset-0 w-full h-full"
                 />
               </div>
 
-              {/* Video Type Label */}
-              <div className="mt-4 text-center">
-                <span className="text-xs font-bold uppercase tracking-widest text-white/50">
-                  {activeVideo === 'short' ? '⚡ Quick Explanation' : '📚 Deep Dive'}
-                </span>
-              </div>
+              {/* Video Type Label - Hidden on mobile fullscreen */}
+              {!isMobile && (
+                <div className="mt-4 text-center">
+                  <span className="text-xs font-bold uppercase tracking-widest text-white/50">
+                    {activeVideo === 'short' ? '⚡ Quick Explanation' : '📚 Deep Dive'}
+                  </span>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
