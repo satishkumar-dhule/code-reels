@@ -38,11 +38,20 @@ export const themes = [
   { id: "synthwave", name: "Synthwave", category: "aesthetic", description: "80s retro wave" },
   { id: "hacker", name: "Hacker", category: "aesthetic", description: "Classic green terminal" },
   { id: "midnight", name: "Midnight", category: "aesthetic", description: "Deep blue night" },
+  
+  // Modern
+  { id: "glassmorphism", name: "Glass", category: "modern", description: "Frosted glass UI" },
+  { id: "neumorphism", name: "Soft UI", category: "modern", description: "Soft shadows & depth" },
+  { id: "aurora", name: "Aurora", category: "modern", description: "Northern lights gradient" },
+  { id: "minimal", name: "Minimal", category: "modern", description: "Ultra-clean design" },
+  { id: "neon", name: "Neon", category: "modern", description: "Bright neon glow" },
+  { id: "sunset", name: "Sunset", category: "modern", description: "Warm gradient vibes" },
 ] as const;
 
 export type Theme = typeof themes[number]["id"];
 
 export const themeCategories = [
+  { id: "modern", name: "Modern" },
   { id: "classic", name: "Classic" },
   { id: "apple", name: "Apple Glass" },
   { id: "movies", name: "Movies & TV" },

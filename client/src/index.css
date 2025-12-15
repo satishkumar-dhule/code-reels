@@ -915,3 +915,239 @@ html {
   );
   background-attachment: fixed;
 }
+
+/* ===== MODERN THEMES ===== */
+
+/* Glassmorphism - Frosted glass modern UI */
+[data-theme='glassmorphism'] {
+  --background: hsla(230 25% 12% / 0.95);
+  --foreground: hsl(0 0% 98%);
+  --card: hsla(230 30% 20% / 0.4);
+  --card-foreground: hsl(0 0% 98%);
+  --primary: hsl(260 100% 70%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsla(230 25% 25% / 0.3);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsla(230 20% 30% / 0.25);
+  --muted-foreground: hsl(0 0% 70%);
+  --border: hsla(260 100% 70% / 0.2);
+  --ring: hsl(260 100% 70%);
+  --radius: 16px;
+  --glass-blur: 24px;
+  background-image: linear-gradient(135deg, 
+    hsl(260 40% 15%) 0%, 
+    hsl(230 35% 12%) 50%, 
+    hsl(280 30% 10%) 100%
+  );
+  background-attachment: fixed;
+}
+
+[data-theme='glassmorphism'] .bg-card,
+[data-theme='glassmorphism'] .bg-background {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid hsla(260 100% 70% / 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Neumorphism - Soft UI with depth */
+[data-theme='neumorphism'] {
+  --background: hsl(220 15% 92%);
+  --foreground: hsl(220 20% 25%);
+  --card: hsl(220 15% 92%);
+  --card-foreground: hsl(220 20% 25%);
+  --primary: hsl(220 90% 55%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(220 15% 88%);
+  --secondary-foreground: hsl(220 20% 25%);
+  --muted: hsl(220 15% 85%);
+  --muted-foreground: hsl(220 15% 50%);
+  --border: transparent;
+  --ring: hsl(220 90% 55%);
+  --radius: 20px;
+}
+
+[data-theme='neumorphism'] .bg-card {
+  box-shadow: 
+    8px 8px 16px hsl(220 15% 82%),
+    -8px -8px 16px hsl(0 0% 100%);
+  border: none;
+}
+
+[data-theme='neumorphism'] button,
+[data-theme='neumorphism'] .border {
+  box-shadow: 
+    4px 4px 8px hsl(220 15% 82%),
+    -4px -4px 8px hsl(0 0% 100%);
+  border: none !important;
+}
+
+[data-theme='neumorphism'] button:active {
+  box-shadow: 
+    inset 4px 4px 8px hsl(220 15% 82%),
+    inset -4px -4px 8px hsl(0 0% 100%);
+}
+
+/* Aurora - Northern lights gradient theme */
+[data-theme='aurora'] {
+  --background: hsl(230 30% 8%);
+  --foreground: hsl(180 50% 95%);
+  --card: hsla(230 35% 15% / 0.6);
+  --card-foreground: hsl(180 50% 95%);
+  --primary: hsl(160 100% 50%);
+  --primary-foreground: hsl(230 30% 8%);
+  --secondary: hsla(280 50% 20% / 0.4);
+  --secondary-foreground: hsl(180 50% 95%);
+  --muted: hsla(230 25% 25% / 0.3);
+  --muted-foreground: hsl(180 30% 60%);
+  --border: hsla(160 100% 50% / 0.2);
+  --ring: hsl(280 100% 65%);
+  --radius: 12px;
+  background: linear-gradient(135deg, 
+    hsl(230 40% 8%) 0%,
+    hsl(260 35% 12%) 25%,
+    hsl(200 40% 10%) 50%,
+    hsl(280 30% 10%) 75%,
+    hsl(230 40% 8%) 100%
+  );
+  background-attachment: fixed;
+}
+
+[data-theme='aurora']::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, hsla(160 100% 50% / 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, hsla(280 100% 60% / 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, hsla(200 100% 50% / 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Minimal - Ultra-clean design */
+[data-theme='minimal'] {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(0 0% 15%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 15%);
+  --primary: hsl(0 0% 15%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 97%);
+  --secondary-foreground: hsl(0 0% 15%);
+  --muted: hsl(0 0% 95%);
+  --muted-foreground: hsl(0 0% 50%);
+  --border: hsl(0 0% 90%);
+  --ring: hsl(0 0% 15%);
+  --radius: 8px;
+}
+
+[data-theme='minimal'] .bg-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='minimal'] * {
+  font-weight: 400 !important;
+}
+
+[data-theme='minimal'] h1, 
+[data-theme='minimal'] h2, 
+[data-theme='minimal'] h3,
+[data-theme='minimal'] .font-bold {
+  font-weight: 500 !important;
+}
+
+/* Neon - Bright neon glow effects */
+[data-theme='neon'] {
+  --background: hsl(260 50% 5%);
+  --foreground: hsl(0 0% 100%);
+  --card: hsla(260 50% 10% / 0.8);
+  --card-foreground: hsl(0 0% 100%);
+  --primary: hsl(320 100% 55%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsla(260 40% 15% / 0.6);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsla(260 30% 20% / 0.5);
+  --muted-foreground: hsl(320 50% 70%);
+  --border: hsl(180 100% 50%);
+  --ring: hsl(320 100% 55%);
+  --radius: 4px;
+}
+
+[data-theme='neon'] .text-primary,
+[data-theme='neon'] .bg-primary {
+  text-shadow: 0 0 10px hsl(320 100% 55%), 0 0 20px hsl(320 100% 55%), 0 0 40px hsl(320 100% 55%);
+}
+
+[data-theme='neon'] .border {
+  box-shadow: 0 0 5px hsl(180 100% 50%), 0 0 10px hsl(180 100% 50%);
+}
+
+[data-theme='neon'] button:hover {
+  box-shadow: 0 0 15px hsl(320 100% 55%), 0 0 30px hsl(320 100% 55%);
+}
+
+/* Sunset - Warm gradient vibes */
+[data-theme='sunset'] {
+  --background: hsl(20 30% 8%);
+  --foreground: hsl(40 80% 95%);
+  --card: hsla(20 35% 15% / 0.7);
+  --card-foreground: hsl(40 80% 95%);
+  --primary: hsl(35 100% 55%);
+  --primary-foreground: hsl(20 30% 8%);
+  --secondary: hsla(350 40% 20% / 0.5);
+  --secondary-foreground: hsl(40 80% 95%);
+  --muted: hsla(20 25% 25% / 0.4);
+  --muted-foreground: hsl(40 50% 65%);
+  --border: hsla(35 100% 55% / 0.25);
+  --ring: hsl(350 100% 60%);
+  --radius: 12px;
+  background: linear-gradient(135deg, 
+    hsl(350 40% 12%) 0%,
+    hsl(20 35% 10%) 30%,
+    hsl(35 30% 8%) 60%,
+    hsl(280 25% 10%) 100%
+  );
+  background-attachment: fixed;
+}
+
+[data-theme='sunset']::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: radial-gradient(ellipse at 50% 0%, hsla(35 100% 55% / 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Apply glass effect to modern themes */
+[data-theme='glassmorphism'] .bg-card,
+[data-theme='aurora'] .bg-card,
+[data-theme='sunset'] .bg-card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Rounded corners for modern themes */
+[data-theme='glassmorphism'] .rounded-lg,
+[data-theme='neumorphism'] .rounded-lg,
+[data-theme='aurora'] .rounded-lg,
+[data-theme='minimal'] .rounded-lg,
+[data-theme='neon'] .rounded-lg,
+[data-theme='sunset'] .rounded-lg {
+  border-radius: var(--radius) !important;
+}
+
+[data-theme='glassmorphism'] .border,
+[data-theme='neumorphism'] .border,
+[data-theme='aurora'] .border,
+[data-theme='minimal'] .border,
+[data-theme='sunset'] .border {
+  border-radius: var(--radius);
+}
