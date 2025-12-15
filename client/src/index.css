@@ -486,6 +486,28 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Hide Mermaid Error Elements - CRITICAL: prevents error messages from showing */
+[id^="mermaid-"] .error-icon,
+[id^="mermaid-"] .error-text,
+[id^="d"] .error-icon,
+[id^="d"] .error-text,
+.mermaid .error-icon,
+.mermaid .error-text,
+.error-icon,
+.error-text,
+svg[id^="mermaid-"] text.error-text,
+svg[id^="mermaid-"] g.error-icon,
+/* Hide the entire SVG if it contains error elements */
+svg:has(.error-icon),
+svg:has(.error-text) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+}
+
 /* Mermaid Container */
 .mermaid-container {
   max-width: 100%;
@@ -500,6 +522,14 @@
   isolation: isolate; /* Create stacking context */
   display: block;
   clear: both;
+}
+
+/* Hide mermaid containers that have error SVGs */
+.mermaid-container:has(svg:has(.error-icon)),
+.mermaid-container:has(svg:has(.error-text)),
+.mermaid-container:has(.error-icon),
+.mermaid-container:has(.error-text) {
+  display: none !important;
 }
 
 .mermaid-container svg {
