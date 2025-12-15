@@ -318,6 +318,12 @@ async function main() {
 Q: "${question.question}"
 A: "${question.answer}"
 ${needsContent ? `Explanation: "${question.explanation?.substring(0, 300) || 'None'}"` : ''}
+${needsMeta ? `
+CRITICAL VIDEO RULES:
+- Videos MUST be real educational content about "${topicHint}"
+- NEVER use placeholder/meme videos (dQw4w9WgXcQ is BLOCKED)
+- If unsure about a real video, set to null
+- Only use: Fireship, NeetCode, ByteByteGo, Traversy Media, freeCodeCamp, Web Dev Simplified` : ''}
 
 Return JSON:
 {
@@ -325,10 +331,10 @@ Return JSON:
   "answer": "concise answer under 150 chars",
   "explanation": "markdown with ## Concept, ## Implementation (code), ## Trade-offs, ## Pitfalls",
   "diagram": "mermaid flowchart visualizing the concept"${needsMeta ? `,
-  "sourceUrl": "real URL: official docs, MDN, or tech blog discussing this topic",
+  "sourceUrl": "real URL: official docs, MDN, AWS docs, or reputable tech blog",
   "videos": {
-    "shortVideo": "YouTube Shorts URL (<60s) - search: '${topicHint} explained shorts'",
-    "longVideo": "YouTube URL (5-15min) - channels: Fireship, NeetCode, Traversy Media, Tech With Tim"
+    "shortVideo": null,
+    "longVideo": null
   },
   "companies": ["2-4 FAANG companies known to ask this type of question"]` : ''}
 }`;

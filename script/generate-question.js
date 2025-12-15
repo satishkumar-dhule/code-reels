@@ -281,17 +281,23 @@ async function main() {
 Focus: ${difficultyHint[difficulty]}
 Tags: ${subChannelConfig.tags.join(', ')}
 
+CRITICAL VIDEO RULES:
+- Videos MUST be real educational content about "${topicHint}"
+- NEVER use placeholder/meme videos (dQw4w9WgXcQ is BLOCKED)
+- If unsure, leave video fields as null
+- Only use videos from: Fireship, NeetCode, ByteByteGo, Traversy Media, freeCodeCamp, Web Dev Simplified
+
 Return JSON:
 {
   "question": "specific technical question ending with ?",
   "answer": "concise answer under 150 chars",
   "explanation": "markdown: ## Concept, ## Implementation (code), ## Trade-offs, ## Pitfalls",
   "diagram": "mermaid flowchart visualizing the concept",
-  "relatedChannels": ["1-2 related channel IDs from: system-design, algorithms, frontend, backend, database, devops, sre, kubernetes, aws, terraform, security, networking"],
-  "sourceUrl": "real URL: official docs (MDN, AWS, K8s), tech blog, or tutorial site",
+  "relatedChannels": ["1-2 related channel IDs"],
+  "sourceUrl": "real URL: official docs, MDN, AWS docs, or reputable tech blog",
   "videos": {
-    "shortVideo": "YouTube Shorts URL - search: '${topicHint} explained shorts'",
-    "longVideo": "YouTube URL (5-15min) - channels: Fireship, NeetCode, Traversy Media, ByteByteGo"
+    "shortVideo": null,
+    "longVideo": null
   },
   "companies": ["2-4 companies: Google, Amazon, Meta, Microsoft, Apple, Netflix, Uber, Stripe"]
 }`;

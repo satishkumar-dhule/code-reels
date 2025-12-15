@@ -28,10 +28,34 @@ export function extractYouTubeVideoId(url) {
   return null;
 }
 
+// Blocklist of known fake/meme/placeholder video IDs that AI commonly generates
+const BLOCKED_VIDEO_IDS = [
+  'dQw4w9WgXcQ', // Rickroll - Never Gonna Give You Up
+  'oHg5SJYRHA0', // Another Rickroll variant
+  'xvFZjo5PgG0', // Rickroll
+  'DLzxrzFCyOs', // Rickroll
+  'kJQP7kiw5Fk', // Despacito (often used as placeholder)
+  '9bZkp7q19f0', // Gangnam Style (often used as placeholder)
+  'jNQXAC9IVRw', // "Me at the zoo" - first YouTube video
+  'AAAAAAAAAA', // Obvious placeholder
+  'BBBBBBBBBBB', // Obvious placeholder
+  'CCCCCCCCCCC', // Obvious placeholder
+  'xxxxxxxxxxx', // Obvious placeholder
+  'yyyyyyyyyyy', // Obvious placeholder
+  'zzzzzzzzzzz', // Obvious placeholder
+  '12345678901', // Obvious placeholder
+  'abcdefghijk', // Obvious placeholder
+];
+
 // Validate if a YouTube video exists using oEmbed API (no API key needed)
 export async function validateYouTubeVideo(url) {
   const videoId = extractYouTubeVideoId(url);
   if (!videoId) return { valid: false, reason: 'Invalid YouTube URL format' };
+  
+  // Check blocklist first
+  if (BLOCKED_VIDEO_IDS.includes(videoId)) {
+    return { valid: false, reason: 'Blocked: Known placeholder/meme video' };
+  }
   
   return new Promise((resolve) => {
     const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
@@ -68,6 +92,37 @@ export async function validateYouTubeVideo(url) {
   });
 }
 
+// Check if video title seems relevant (not a music video, meme, etc.)
+function isVideoTitleRelevant(title) {
+  if (!title) return true; // Can't check, assume valid
+  
+  const lowerTitle = title.toLowerCase();
+  
+  // Blocklist patterns for non-educational content
+  const blockedPatterns = [
+    /official\s*(music\s*)?video/i,
+    /\(official\)/i,
+    /music\s*video/i,
+    /lyric\s*video/i,
+    /lyrics/i,
+    /ft\.|feat\./i,
+    /rick\s*astley/i,
+    /never\s*gonna\s*give/i,
+    /despacito/i,
+    /gangnam/i,
+    /baby\s*shark/i,
+    /vevo$/i,
+  ];
+  
+  for (const pattern of blockedPatterns) {
+    if (pattern.test(lowerTitle)) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
 // Validate multiple YouTube URLs and return only valid ones
 export async function validateYouTubeVideos(videos) {
   if (!videos) return { shortVideo: null, longVideo: null };
@@ -77,8 +132,13 @@ export async function validateYouTubeVideos(videos) {
   if (videos.shortVideo) {
     const validation = await validateYouTubeVideo(videos.shortVideo);
     if (validation.valid) {
-      result.shortVideo = videos.shortVideo;
-      console.log(`  ✓ Short video valid: ${validation.title || videos.shortVideo}`);
+      // Additional check: is the title relevant?
+      if (isVideoTitleRelevant(validation.title)) {
+        result.shortVideo = videos.shortVideo;
+        console.log(`  ✓ Short video valid: ${validation.title || videos.shortVideo}`);
+      } else {
+        console.log(`  ✗ Short video rejected: Non-educational content "${validation.title}"`);
+      }
     } else {
       console.log(`  ✗ Short video invalid: ${validation.reason}`);
     }
@@ -87,8 +147,13 @@ export async function validateYouTubeVideos(videos) {
   if (videos.longVideo) {
     const validation = await validateYouTubeVideo(videos.longVideo);
     if (validation.valid) {
-      result.longVideo = videos.longVideo;
-      console.log(`  ✓ Long video valid: ${validation.title || videos.longVideo}`);
+      // Additional check: is the title relevant?
+      if (isVideoTitleRelevant(validation.title)) {
+        result.longVideo = videos.longVideo;
+        console.log(`  ✓ Long video valid: ${validation.title || videos.longVideo}`);
+      } else {
+        console.log(`  ✗ Long video rejected: Non-educational content "${validation.title}"`);
+      }
     } else {
       console.log(`  ✗ Long video invalid: ${validation.reason}`);
     }
