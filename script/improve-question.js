@@ -53,6 +53,18 @@ function getAllChannels() {
   return Object.keys(mappings);
 }
 
+// Find current channel and subchannel for a question ID
+function findQuestionLocation(questionId, mappings) {
+  for (const [channel, channelData] of Object.entries(mappings)) {
+    for (const [subChannel, ids] of Object.entries(channelData.subChannels || {})) {
+      if (ids.includes(questionId)) {
+        return { channel, subChannel };
+      }
+    }
+  }
+  return { channel: 'unknown', subChannel: 'general' };
+}
+
 // Get questions that belong to a specific channel
 function getQuestionsForChannel(channel) {
   const questions = loadUnifiedQuestions();
@@ -92,6 +104,7 @@ async function remapQuestionsWithAI(questionsToRemap, mappings) {
   
   const remappedQuestions = [];
   const failedRemaps = [];
+  const checkedIds = []; // Track all questions we checked (for lastRemapped update)
   
   // Build channel structure string for prompt
   const channelStructureStr = Object.entries(CHANNEL_STRUCTURE)
@@ -100,8 +113,12 @@ async function remapQuestionsWithAI(questionsToRemap, mappings) {
   
   for (let i = 0; i < questionsToRemap.length; i++) {
     const question = questionsToRemap[i];
+    
+    // Look up current channel/subchannel from mappings
+    const currentLocation = findQuestionLocation(question.id, mappings);
+    
     console.log(`\nRemapping ${i + 1}/${questionsToRemap.length}: ${question.id}`);
-    console.log(`  Current: ${question.channel}/${question.subChannel}`);
+    console.log(`  Current: ${currentLocation.channel}/${currentLocation.subChannel}`);
     console.log(`  Q: ${question.question.substring(0, 60)}...`);
     
     const prompt = `You are a technical interview question categorizer. Analyze this question and determine the BEST channel and subchannel for it.
@@ -110,8 +127,8 @@ Question ID: ${question.id}
 Question: "${question.question}"
 Answer: "${question.answer}"
 Tags: ${(question.tags || []).join(', ')}
-Current Channel: ${question.channel}
-Current SubChannel: ${question.subChannel}
+Current Channel: ${currentLocation.channel}
+Current SubChannel: ${currentLocation.subChannel}
 
 Available Channels and SubChannels:
 ${channelStructureStr}
@@ -153,11 +170,14 @@ Return ONLY valid JSON (no markdown, no explanation):
       data.subChannel = 'general';
     }
     
-    const changed = data.channel !== question.channel || data.subChannel !== question.subChannel;
+    // Track that we checked this question
+    checkedIds.push(question.id);
+    
+    const changed = data.channel !== currentLocation.channel || data.subChannel !== currentLocation.subChannel;
     
     if (changed) {
       // Remove from old location
-      const oldChannel = mappings[question.channel];
+      const oldChannel = mappings[currentLocation.channel];
       if (oldChannel?.subChannels) {
         for (const ids of Object.values(oldChannel.subChannels)) {
           const idx = ids.indexOf(question.id);
@@ -181,19 +201,19 @@ Return ONLY valid JSON (no markdown, no explanation):
       
       remappedQuestions.push({
         id: question.id,
-        from: `${question.channel}/${question.subChannel}`,
+        from: `${currentLocation.channel}/${currentLocation.subChannel}`,
         to: `${data.channel}/${data.subChannel}`,
         reason: data.reason
       });
       
-      console.log(`  ✅ Remapped: ${question.channel}/${question.subChannel} → ${data.channel}/${data.subChannel}`);
+      console.log(`  ✅ Remapped: ${currentLocation.channel}/${currentLocation.subChannel} → ${data.channel}/${data.subChannel}`);
       console.log(`     Reason: ${data.reason}`);
     } else {
       console.log(`  ✓ Already optimal`);
     }
   }
   
-  return { remappedQuestions, failedRemaps };
+  return { remappedQuestions, failedRemaps, checkedIds };
 }
 
 async function main() {
@@ -209,10 +229,11 @@ async function main() {
   // ========== PHASE 1: AI-POWERED REMAPPING (20 questions) ==========
   console.log('\n========== PHASE 1: AI-POWERED REMAPPING ==========');
   
-  // Sort questions by lastUpdated to remap oldest first
+  // Sort questions by lastRemapped (oldest first) to ensure rotation
+  // Questions without lastRemapped are prioritized (never been checked)
   const sortedForRemap = [...allQuestions].sort((a, b) => {
-    const dateA = new Date(a.lastUpdated || 0).getTime();
-    const dateB = new Date(b.lastUpdated || 0).getTime();
+    const dateA = new Date(a.lastRemapped || 0).getTime();
+    const dateB = new Date(b.lastRemapped || 0).getTime();
     return dateA - dateB;
   });
   
@@ -220,12 +241,23 @@ async function main() {
   const questionsToRemap = sortedForRemap.slice(0, 20);
   console.log(`Selected ${questionsToRemap.length} questions for remapping check`);
   
-  const { remappedQuestions, failedRemaps } = await remapQuestionsWithAI(questionsToRemap, mappings);
+  const { remappedQuestions, failedRemaps, checkedIds } = await remapQuestionsWithAI(questionsToRemap, mappings);
+  
+  // Update lastRemapped timestamp for all checked questions (even if not remapped)
+  const questions = loadUnifiedQuestions();
+  const now = new Date().toISOString();
+  for (const id of checkedIds) {
+    if (questions[id]) {
+      questions[id].lastRemapped = now;
+    }
+  }
+  saveUnifiedQuestions(questions);
+  console.log(`📅 Updated lastRemapped for ${checkedIds.length} questions`);
   
   // Save updated mappings if any changes
   if (remappedQuestions.length > 0) {
     saveChannelMappings(mappings);
-    console.log(`\n📁 Saved ${remappedQuestions.length} remapping changes to channel-mappings.json`);
+    console.log(`📁 Saved ${remappedQuestions.length} remapping changes to channel-mappings.json`);
   }
   
   // ========== PHASE 2: QUESTION IMPROVEMENT ==========
