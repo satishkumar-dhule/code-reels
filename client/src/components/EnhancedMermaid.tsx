@@ -235,13 +235,10 @@ export function EnhancedMermaid({ chart, compact = false }: EnhancedMermaidProps
     { id: 'base', name: 'Base', color: '#f9a825' },
   ];
 
+  // Silently hide failed diagrams - don't show error to user
   if (error) {
-    return (
-      <div className="w-full p-3 sm:p-4 border border-red-500/30 bg-red-500/5 rounded text-red-400 text-xs">
-        <div className="mb-2 font-bold">Diagram Error</div>
-        <pre className="text-[10px] opacity-50 overflow-x-auto whitespace-pre-wrap max-h-32 overflow-y-auto">{chart}</pre>
-      </div>
-    );
+    console.warn('EnhancedMermaid diagram skipped due to error:', error);
+    return null;
   }
 
   if (isLoading) {

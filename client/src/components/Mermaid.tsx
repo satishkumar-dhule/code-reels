@@ -298,15 +298,11 @@ export function Mermaid({ chart, themeOverride }: MermaidProps) {
     { id: 'base', name: 'Base', color: '#f9a825' },
   ];
 
+  // Silently hide failed diagrams - don't show error to user
   if (error) {
-    return (
-      <div className="w-full p-3 sm:p-4 border border-red-500/50 bg-red-500/10 rounded text-red-400 text-xs font-mono">
-        <div className="mb-2">{error}</div>
-        <pre className="text-[9px] sm:text-[10px] opacity-50 overflow-x-auto whitespace-pre-wrap break-all max-h-32 overflow-y-auto">
-          {chart}
-        </pre>
-      </div>
-    );
+    // Log error for debugging but don't render anything
+    console.warn('Mermaid diagram skipped due to error:', error);
+    return null;
   }
 
   if (isLoading) {
