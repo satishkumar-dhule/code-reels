@@ -40,47 +40,42 @@ export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
 
   return (
     <>
-      {/* Video Buttons */}
-      <div className="w-full mb-6 sm:mb-8 clear-both">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-1 h-4 sm:h-5 bg-red-500" />
-          <h2 className="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/70">Video Explanations</h2>
-        </div>
-        
-        <div className="flex flex-wrap gap-2 sm:gap-3">
+      {/* Video Buttons - Compact on mobile */}
+      <div className="w-full clear-both">
+        <div className="flex flex-wrap gap-1.5 sm:gap-3">
           {shortVideoId && (
             <button
               onClick={() => setActiveVideo('short')}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-all group"
+              className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-all group"
             >
-              <Youtube className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+              <Youtube className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-500" />
               <div className="text-left">
-                <div className="text-xs sm:text-sm font-bold text-white group-hover:text-red-400 transition-colors">
-                  Quick Explanation
+                <div className="text-[10px] sm:text-sm font-bold text-white group-hover:text-red-400 transition-colors">
+                  Quick
                 </div>
-                <div className="text-[10px] sm:text-xs text-white/50 flex items-center gap-1">
+                <div className="text-[8px] sm:text-xs text-white/50 hidden sm:flex items-center gap-1">
                   <Clock className="w-3 h-3" /> Under 60s
                 </div>
               </div>
-              <Play className="w-4 h-4 text-red-500 ml-2" />
+              <Play className="w-3 h-3 sm:w-4 sm:h-4 text-red-500 ml-1 sm:ml-2" />
             </button>
           )}
           
           {longVideoId && (
             <button
               onClick={() => setActiveVideo('long')}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-all group"
+              className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg transition-all group"
             >
-              <Youtube className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
+              <Youtube className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-500" />
               <div className="text-left">
-                <div className="text-xs sm:text-sm font-bold text-white group-hover:text-red-400 transition-colors">
+                <div className="text-[10px] sm:text-sm font-bold text-white group-hover:text-red-400 transition-colors">
                   Deep Dive
                 </div>
-                <div className="text-[10px] sm:text-xs text-white/50 flex items-center gap-1">
+                <div className="text-[8px] sm:text-xs text-white/50 hidden sm:flex items-center gap-1">
                   <Clock className="w-3 h-3" /> 5-20 min
                 </div>
               </div>
-              <Play className="w-4 h-4 text-red-500 ml-2" />
+              <Play className="w-3 h-3 sm:w-4 sm:h-4 text-red-500 ml-1 sm:ml-2" />
             </button>
           )}
         </div>

@@ -62,32 +62,32 @@ export function QuestionPanel({
   const DifficultyIcon = difficultyConfig.icon;
 
   return (
-    <div className="w-full h-full flex flex-col justify-center px-3 sm:px-6 md:px-10 lg:px-16 py-4 sm:py-6 relative overflow-y-auto custom-scrollbar" data-testid="question-panel">
-      {/* Header badges */}
-      <div className="absolute top-2 sm:top-4 left-3 sm:left-6 md:left-10 lg:left-16 right-3 sm:right-4 flex flex-wrap items-center gap-1.5 sm:gap-2">
-        {/* Question ID */}
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded">
+    <div className="w-full h-full flex flex-col justify-center px-2 sm:px-6 md:px-10 lg:px-16 py-2 sm:py-6 relative overflow-y-auto custom-scrollbar" data-testid="question-panel">
+      {/* Header badges - Compact on mobile */}
+      <div className="absolute top-1.5 sm:top-4 left-2 sm:left-6 md:left-10 lg:left-16 right-2 sm:right-4 flex flex-wrap items-center gap-1 sm:gap-2">
+        {/* Question ID - Hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded">
           <Hash className="w-3 h-3 text-primary" />
           <span className="text-[10px] font-mono text-white/70">{question.id}</span>
         </div>
 
-        {/* Progress */}
-        <div className="px-2 py-1 bg-white/5 border border-white/10 rounded">
-          <span className="text-[10px] font-mono text-white/70">
-            {questionNumber} / {totalQuestions}
+        {/* Progress - Compact on mobile */}
+        <div className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white/5 border border-white/10 rounded">
+          <span className="text-[9px] sm:text-[10px] font-mono text-white/70">
+            {questionNumber}/{totalQuestions}
           </span>
         </div>
 
-        {/* Difficulty */}
-        <div className={`flex items-center gap-1.5 px-2 py-1 ${difficultyConfig.bg} border ${difficultyConfig.border} rounded`}>
+        {/* Difficulty - Icon only on mobile */}
+        <div className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 ${difficultyConfig.bg} border ${difficultyConfig.border} rounded`}>
           <DifficultyIcon className={`w-3 h-3 ${difficultyConfig.color}`} />
-          <span className={`text-[10px] font-bold uppercase tracking-wider ${difficultyConfig.color}`}>
+          <span className={`hidden sm:inline text-[10px] font-bold uppercase tracking-wider ${difficultyConfig.color}`}>
             {difficultyConfig.label}
           </span>
         </div>
 
-        {/* SubChannel */}
-        <div className="px-2 py-1 bg-white/5 border border-white/10 rounded">
+        {/* SubChannel - Hidden on mobile */}
+        <div className="hidden sm:block px-2 py-1 bg-white/5 border border-white/10 rounded">
           <span className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
             {question.subChannel}
           </span>
@@ -96,27 +96,27 @@ export function QuestionPanel({
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Bookmark */}
+        {/* Bookmark - Smaller on mobile */}
         <button
           onClick={onToggleMark}
-          className={`p-1.5 rounded transition-all ${
+          className={`p-1 sm:p-1.5 rounded transition-all ${
             isMarked
               ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
               : 'bg-white/5 text-white/30 hover:text-blue-400 hover:bg-blue-500/10 border border-white/10'
           }`}
           title={isMarked ? 'Remove bookmark' : 'Bookmark this question'}
         >
-          <Bookmark className={`w-4 h-4 ${isMarked ? 'fill-blue-400' : ''}`} />
+          <Bookmark className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isMarked ? 'fill-blue-400' : ''}`} />
         </button>
       </div>
 
-      {/* Main question content */}
+      {/* Main question content - Tighter spacing on mobile */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className={`max-w-3xl mx-auto w-full ${
-          question.question.length > 200 ? 'space-y-2 sm:space-y-3' : 'space-y-3 sm:space-y-6'
+        className={`max-w-3xl mx-auto w-full mt-6 sm:mt-0 ${
+          question.question.length > 200 ? 'space-y-1.5 sm:space-y-3' : 'space-y-2 sm:space-y-6'
         }`}
       >
         {/* Question text - Smart sizing based on length */}
@@ -132,9 +132,9 @@ export function QuestionPanel({
           {question.question}
         </h1>
 
-        {/* Tags - Fewer on mobile */}
+        {/* Tags - Hidden on mobile for compactness */}
         {question.tags && question.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          <div className="hidden sm:flex flex-wrap gap-1.5 sm:gap-2">
             {question.tags.slice(0, 4).map(tag => (
               <span 
                 key={tag} 
@@ -169,17 +169,16 @@ export function QuestionPanel({
         )}
       </motion.div>
 
-      {/* Bottom hint - Hidden on very small screens */}
-      <div className="absolute bottom-2 sm:bottom-4 left-3 sm:left-6 md:left-10 lg:left-16 right-3 sm:right-4 hidden xs:block">
+      {/* Bottom hint - Hidden on mobile for compactness */}
+      <div className="absolute bottom-2 sm:bottom-4 left-3 sm:left-6 md:left-10 lg:left-16 right-3 sm:right-4 hidden sm:block">
         <div className="text-[9px] sm:text-[10px] text-white/20 uppercase tracking-widest">
-          <span className="hidden sm:inline">Press → to reveal answer</span>
-          <span className="sm:hidden">Tap below to reveal</span>
+          Press → to reveal answer
         </div>
       </div>
 
       {/* Scroll indicator for long questions on mobile */}
-      {question.question.length > 150 && (
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/80 to-transparent pointer-events-none lg:hidden" />
+      {question.question.length > 200 && (
+        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-black/80 to-transparent pointer-events-none lg:hidden" />
       )}
     </div>
   );

@@ -445,8 +445,8 @@ export default function ReelsRedesigned() {
       />
       
       <div className="h-screen w-full bg-black text-white overflow-hidden flex flex-col font-mono">
-        {/* Top Navigation Bar */}
-        <div className="h-14 px-4 z-50 flex justify-between items-center border-b border-white/10 bg-black/90 backdrop-blur-md shrink-0">
+        {/* Top Navigation Bar - Compact on mobile */}
+        <div className="h-11 sm:h-14 px-2 sm:px-4 z-50 flex justify-between items-center border-b border-white/10 bg-black/90 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <button 
               onClick={goBack}
@@ -771,11 +771,11 @@ export default function ReelsRedesigned() {
               transition={{ duration: 0.2 }}
               className="w-full h-full flex flex-col lg:flex-row overflow-hidden"
             >
-              {/* Left: Question Panel - Smart height based on question length */}
+              {/* Left: Question Panel - Compact on mobile, smart height based on question length */}
               <div className={`w-full lg:w-[35%] h-auto ${
                 currentQuestion.question.length > 200 
-                  ? 'max-h-[40vh]' // More space for long questions
-                  : 'max-h-[30vh]' // Less space for short questions
+                  ? 'max-h-[35vh]' // More space for long questions (reduced from 40vh)
+                  : 'max-h-[25vh]' // Less space for short questions (reduced from 30vh)
               } lg:max-h-none lg:h-full border-b lg:border-b-0 lg:border-r border-white/10 bg-gradient-to-br from-black to-black/95 shrink-0 overflow-y-auto lg:overflow-y-visible custom-scrollbar`}>
                 <QuestionPanel
                   question={currentQuestion}
@@ -853,8 +853,8 @@ export default function ReelsRedesigned() {
           )}
         </AnimatePresence>
 
-        {/* Footer */}
-        <div className="h-10 px-4 border-t border-white/10 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-white/30 bg-black shrink-0">
+        {/* Footer - Compact on mobile */}
+        <div className="h-8 sm:h-10 px-2 sm:px-4 border-t border-white/10 flex justify-between items-center text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-white/30 bg-black shrink-0">
           <div className="flex gap-6">
             <span className="hidden sm:flex items-center gap-1"><span className="text-primary">↑</span> PREV</span>
             <span className="hidden sm:flex items-center gap-1"><span className="text-primary">↓</span> NEXT</span>
