@@ -7,7 +7,7 @@ test.use({
   hasTouch: true,
 });
 
-test.describe('Mobile Mermaid Diagrams', () => {
+test.describe('Mobile Mermaid Diagrams (Disabled)', () => {
   test.beforeEach(async ({ page }) => {
     // Skip onboarding
     await page.addInitScript(() => {
@@ -20,92 +20,34 @@ test.describe('Mobile Mermaid Diagrams', () => {
     });
   });
 
-  test('should render mermaid diagrams on mobile', async ({ page }) => {
+  test('should show placeholder instead of mermaid diagram on mobile', async ({ page }) => {
     await page.goto('/channel/system-design');
     await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
     
-    // Reveal answer to see diagram
+    // Reveal answer to see diagram area
     const revealButton = page.getByText(/Tap to Reveal|Reveal Answer/i);
     if (await revealButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await revealButton.click();
       await page.waitForTimeout(1000);
     }
     
-    // Check if mermaid container exists
+    // Check for mobile placeholder instead of actual diagram
+    const placeholder = page.getByTestId('mermaid-mobile-placeholder');
+    const hasPlaceholder = await placeholder.isVisible({ timeout: 5000 }).catch(() => false);
+    
+    if (hasPlaceholder) {
+      // Verify placeholder shows the expected message
+      await expect(placeholder).toContainText('Diagram');
+      await expect(placeholder).toContainText('desktop');
+    }
+    
+    // Mermaid container should NOT be visible on mobile
     const mermaidContainer = page.locator('.mermaid-container').first();
-    const hasDiagram = await mermaidContainer.isVisible({ timeout: 5000 }).catch(() => false);
-    
-    if (hasDiagram) {
-      // Verify SVG is rendered
-      const svg = mermaidContainer.locator('svg');
-      await expect(svg).toBeVisible();
-      
-      // Check SVG has reasonable dimensions
-      const box = await svg.boundingBox();
-      expect(box).not.toBeNull();
-      if (box) {
-        expect(box.width).toBeGreaterThan(50);
-        expect(box.height).toBeGreaterThan(50);
-      }
-    }
+    const hasDiagram = await mermaidContainer.isVisible({ timeout: 1000 }).catch(() => false);
+    expect(hasDiagram).toBeFalsy();
   });
 
-  test('should have expand button visible on mobile', async ({ page }) => {
-    await page.goto('/channel/system-design');
-    await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
-    
-    // Reveal answer
-    const revealButton = page.getByText(/Tap to Reveal|Reveal Answer/i);
-    if (await revealButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await revealButton.click();
-      await page.waitForTimeout(1000);
-    }
-    
-    // Check for expand button (should be visible on mobile)
-    const expandButton = page.locator('button[title="Expand diagram"]').first();
-    const hasExpandButton = await expandButton.isVisible({ timeout: 3000 }).catch(() => false);
-    
-    // Expand button should be visible or at least exist
-    if (hasExpandButton) {
-      expect(await expandButton.isVisible()).toBeTruthy();
-    }
-  });
-
-  test('should open fullscreen diagram view', async ({ page }) => {
-    await page.goto('/channel/system-design');
-    await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
-    
-    // Reveal answer
-    const revealButton = page.getByText(/Tap to Reveal|Reveal Answer/i);
-    if (await revealButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await revealButton.click();
-      await page.waitForTimeout(1000);
-    }
-    
-    // Find and click expand button
-    const expandButton = page.locator('button[title="Expand diagram"]').first();
-    if (await expandButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await expandButton.click();
-      await page.waitForTimeout(500);
-      
-      // Should show fullscreen view with controls
-      const zoomControls = page.locator('button[title="Zoom in"], button[title="Zoom out"]');
-      const hasZoomControls = await zoomControls.first().isVisible({ timeout: 2000 }).catch(() => false);
-      
-      if (hasZoomControls) {
-        expect(await zoomControls.first().isVisible()).toBeTruthy();
-      }
-      
-      // Close button should be visible
-      const closeButton = page.locator('button[title="Close"]');
-      if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await closeButton.click();
-        await page.waitForTimeout(300);
-      }
-    }
-  });
-
-  test('diagram should not overflow viewport', async ({ page }) => {
+  test('diagram placeholder should not overflow viewport', async ({ page }) => {
     await page.goto('/channel/system-design');
     await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
     
@@ -280,7 +222,7 @@ test.describe('Mobile Swipe Navigation', () => {
   });
 });
 
-test.describe('Mobile Mermaid Zoom Controls', () => {
+test.describe('Mobile Mermaid Disabled State', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('user-preferences', JSON.stringify({
@@ -292,35 +234,30 @@ test.describe('Mobile Mermaid Zoom Controls', () => {
     });
   });
 
-  test('should have zoom controls visible on mobile', async ({ page }) => {
+  test('should not have zoom controls on mobile (mermaid disabled)', async ({ page }) => {
     await page.goto('/channel/system-design');
     await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
     
-    // Reveal answer to see diagram
+    // Reveal answer to see diagram area
     const revealButton = page.getByText(/Tap to Reveal|Reveal Answer/i);
     if (await revealButton.isVisible({ timeout: 3000 }).catch(() => false)) {
       await revealButton.click();
       await page.waitForTimeout(1000);
     }
     
-    // Check if mermaid container exists
-    const mermaidContainer = page.locator('.mermaid-container').first();
-    const hasDiagram = await mermaidContainer.isVisible({ timeout: 5000 }).catch(() => false);
+    // Zoom controls should NOT be visible since mermaid is disabled on mobile
+    const zoomOutBtn = page.locator('button[title="Zoom out"]').first();
+    const zoomInBtn = page.locator('button[title="Zoom in"]').first();
     
-    if (hasDiagram) {
-      // Zoom controls should be visible on mobile
-      const zoomOutBtn = page.locator('button[title="Zoom out"]').first();
-      const zoomInBtn = page.locator('button[title="Zoom in"]').first();
-      
-      const hasZoomOut = await zoomOutBtn.isVisible({ timeout: 2000 }).catch(() => false);
-      const hasZoomIn = await zoomInBtn.isVisible({ timeout: 2000 }).catch(() => false);
-      
-      // At least one zoom control should be visible
-      expect(hasZoomOut || hasZoomIn).toBeTruthy();
-    }
+    const hasZoomOut = await zoomOutBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    const hasZoomIn = await zoomInBtn.isVisible({ timeout: 1000 }).catch(() => false);
+    
+    // Neither zoom control should be visible
+    expect(hasZoomOut).toBeFalsy();
+    expect(hasZoomIn).toBeFalsy();
   });
 
-  test('should be able to zoom in and out on mobile diagram', async ({ page }) => {
+  test('placeholder should be styled correctly', async ({ page }) => {
     await page.goto('/channel/system-design');
     await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
     
@@ -331,25 +268,14 @@ test.describe('Mobile Mermaid Zoom Controls', () => {
       await page.waitForTimeout(1000);
     }
     
-    // Check if mermaid container exists
-    const mermaidContainer = page.locator('.mermaid-container').first();
-    const hasDiagram = await mermaidContainer.isVisible({ timeout: 5000 }).catch(() => false);
+    // Check placeholder exists and has proper styling
+    const placeholder = page.getByTestId('mermaid-mobile-placeholder');
+    const hasPlaceholder = await placeholder.isVisible({ timeout: 3000 }).catch(() => false);
     
-    if (hasDiagram) {
-      // Click zoom in button
-      const zoomInBtn = page.locator('button[title="Zoom in"]').first();
-      if (await zoomInBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await zoomInBtn.click();
-        await page.waitForTimeout(300);
-        
-        // Check zoom indicator shows increased zoom
-        const zoomIndicator = page.locator('text=/\\d+%/').first();
-        const zoomText = await zoomIndicator.textContent().catch(() => '100%');
-        
-        // Zoom should be greater than 100%
-        const zoomValue = parseInt(zoomText?.replace('%', '') || '100');
-        expect(zoomValue).toBeGreaterThanOrEqual(100);
-      }
+    if (hasPlaceholder) {
+      // Verify it has the expected content
+      await expect(placeholder).toContainText('📊');
+      await expect(placeholder).toContainText('Diagram');
     }
   });
 });

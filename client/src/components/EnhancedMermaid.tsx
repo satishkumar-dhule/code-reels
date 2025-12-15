@@ -79,6 +79,24 @@ export function EnhancedMermaid({ chart, compact = false }: EnhancedMermaidProps
   const [inlineZoom, setInlineZoom] = useState(1);
   const [isPinching, setIsPinching] = useState(false);
   const inlineTouchRef = useRef({ dist: 0, initialZoom: 1 });
+  
+  // Detect mobile device
+  const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 640;
+  
+  // Disable mermaid on mobile - show placeholder instead
+  if (isMobileDevice) {
+    return (
+      <div 
+        className="w-full p-4 border border-white/10 bg-black/20 rounded-lg text-center"
+        data-testid="mermaid-mobile-placeholder"
+      >
+        <div className="text-white/50 text-sm mb-2">📊 Diagram</div>
+        <div className="text-white/30 text-xs">
+          Diagrams are best viewed on desktop for optimal experience
+        </div>
+      </div>
+    );
+  }
 
   // Persist theme selection to localStorage
   const handleThemeChange = (theme: MermaidTheme | null) => {
