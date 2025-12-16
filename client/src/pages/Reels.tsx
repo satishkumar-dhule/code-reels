@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { getQuestions, getChannel } from '../lib/data';
+import { getChannel } from '../lib/data';
+import { useQuestions } from '../hooks/use-questions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mermaid } from '../components/Mermaid';
 import { SEOHead } from '../components/SEOHead';
 import { trackQuestionView, trackAnswerRevealed, trackLinkedInShare, trackLinkedInDownload, trackGitHubClick, trackTimerUsage } from '../hooks/use-analytics';
-import { ArrowLeft, ArrowRight, Share2, Terminal, ChevronRight, Hash, ChevronDown, Check, Timer, List, Flag, Bookmark, Grid3X3, LayoutList, Zap, Target, Flame, Star, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Share2, Terminal, ChevronRight, Hash, ChevronDown, Check, Timer, List, Flag, Bookmark, Grid3X3, LayoutList, Zap, Target, Flame, Star, AlertCircle, Loader2 } from 'lucide-react';
 import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -66,7 +67,13 @@ export default function Reels() {
   
   const [selectedSubChannel, setSelectedSubChannel] = useState('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-  const channelQuestions = getQuestions(channelId || '', selectedSubChannel, selectedDifficulty);
+  
+  // Lazy load questions for this channel
+  const { questions: channelQuestions, loading: questionsLoading } = useQuestions(
+    channelId || '', 
+    selectedSubChannel, 
+    selectedDifficulty
+  );
   
   const { completed, markCompleted, lastVisitedIndex, saveLastVisitedIndex } = useProgress(channelId || '');
   const { toast } = useToast();
@@ -283,6 +290,16 @@ export default function Reels() {
       ERR: MODULE_NOT_FOUND
     </div>
   );
+
+  // Show loading state while questions are being lazy loaded
+  if (questionsLoading) {
+    return (
+      <div className="h-screen w-full bg-black text-white flex flex-col items-center justify-center font-mono">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+        <div className="text-xs uppercase tracking-widest text-white/50">Loading questions...</div>
+      </div>
+    );
+  }
 
   const currentQuestion = channelQuestions[currentIndex];
   // Handle case where filter returns no questions

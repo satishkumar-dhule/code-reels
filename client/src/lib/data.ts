@@ -1,18 +1,8 @@
-// Re-export from questions-loader for backwards compatibility
-export { 
-  getQuestions, 
-  getAllQuestions, 
-  getQuestionById,
-  getSubChannels,
-  getChannelStats,
-  getAvailableChannelIds,
-  channelHasQuestions,
-  getAllCompanies,
-  getCompaniesForChannel,
-  getCompaniesWithCounts,
-  POPULAR_COMPANIES,
-  type Question 
-} from './questions-loader';
+// Data layer - provides channel configuration and question access
+// Questions are now lazy-loaded via hooks for better performance
+
+// Re-export Question type for backwards compatibility
+export type { Question } from './questions-loader';
 
 // Import channel config as the single source of truth
 import { allChannelsConfig } from './channels-config';
@@ -95,3 +85,10 @@ export function getChannel(channelId: string): Channel | undefined {
 export function getQuestionDifficulty(question: { difficulty: Difficulty }): Difficulty {
   return question.difficulty;
 }
+
+// POPULAR_COMPANIES for UI prioritization
+export const POPULAR_COMPANIES = [
+  'Google', 'Amazon', 'Meta', 'Microsoft', 'Apple', 
+  'Netflix', 'Uber', 'Airbnb', 'LinkedIn', 'Twitter',
+  'Stripe', 'Salesforce', 'Adobe', 'Oracle', 'IBM'
+];

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useGlobalStats } from "../hooks/use-progress";
-import { channels, getQuestions, getAllQuestions, getQuestionDifficulty } from "../lib/data";
+import { channels, getQuestionDifficulty } from "../lib/data";
+import { useChannelStats, useAllQuestionMetadata } from "../hooks/use-questions";
 import { 
   ArrowLeft, Trophy, Flame, Zap, Star, AlertCircle, 
-  TrendingUp, Target, Activity, ChevronRight
+  TrendingUp, Target, Activity, ChevronRight, Loader2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { SEOHead } from "../components/SEOHead";
@@ -67,44 +68,57 @@ export default function Stats() {
   const activityData = generateActivityData(stats, days);
   const weeks = Math.ceil(days / 7);
 
-  const allQuestions = getAllQuestions();
+  // Use lightweight metadata (no full question loading needed for stats)
+  const { metadata: allQuestionMetadata } = useAllQuestionMetadata();
+  const { stats: channelStats } = useChannelStats();
+  
   const allCompletedIds = new Set<string>();
   channels.forEach(ch => {
     const stored = localStorage.getItem(`progress-${ch.id}`);
     if (stored) JSON.parse(stored).forEach((id: string) => allCompletedIds.add(id));
   });
 
-  // Module progress with difficulty breakdown
+  // Module progress with difficulty breakdown (using metadata - no full load)
   const moduleProgress = channels.map(ch => {
-    const questions = getQuestions(ch.id);
+    const chStats = channelStats.find(s => s.id === ch.id);
     const stored = localStorage.getItem(`progress-${ch.id}`);
     const completedIds = stored ? new Set(JSON.parse(stored)) : new Set();
     
-    const difficulty = { beginner: { total: 0, done: 0 }, intermediate: { total: 0, done: 0 }, advanced: { total: 0, done: 0 } };
-    questions.forEach(q => {
-      const d = getQuestionDifficulty(q);
-      difficulty[d].total++;
-      if (completedIds.has(q.id)) difficulty[d].done++;
-    });
+    // Get difficulty breakdown from channel stats
+    const difficulty = { 
+      beginner: { total: chStats?.beginner || 0, done: 0 }, 
+      intermediate: { total: chStats?.intermediate || 0, done: 0 }, 
+      advanced: { total: chStats?.advanced || 0, done: 0 } 
+    };
+    
+    // Count completed by difficulty using metadata
+    allQuestionMetadata
+      .filter(m => m.channel === ch.id && completedIds.has(m.id))
+      .forEach(m => {
+        const d = m.difficulty as 'beginner' | 'intermediate' | 'advanced';
+        if (difficulty[d]) difficulty[d].done++;
+      });
 
     return { 
       id: ch.id, name: ch.name.replace(/\./g, ''), 
-      completed: completedIds.size, total: questions.length, 
-      pct: questions.length > 0 ? Math.round((completedIds.size / questions.length) * 100) : 0,
+      completed: completedIds.size, total: chStats?.total || 0, 
+      pct: (chStats?.total || 0) > 0 ? Math.round((completedIds.size / (chStats?.total || 1)) * 100) : 0,
       difficulty
     };
   }).filter(m => m.total > 0).sort((a, b) => b.pct - a.pct);
 
   const totalCompleted = allCompletedIds.size;
-  const totalQuestions = allQuestions.length;
+  const totalQuestions = allQuestionMetadata.length;
   const overallPct = totalQuestions > 0 ? Math.round((totalCompleted / totalQuestions) * 100) : 0;
 
-  // Global difficulty stats
+  // Global difficulty stats (from metadata - lightweight)
   const globalDifficulty = { beginner: { total: 0, done: 0 }, intermediate: { total: 0, done: 0 }, advanced: { total: 0, done: 0 } };
-  allQuestions.forEach(q => {
-    const d = getQuestionDifficulty(q);
-    globalDifficulty[d].total++;
-    if (allCompletedIds.has(q.id)) globalDifficulty[d].done++;
+  allQuestionMetadata.forEach(m => {
+    const d = m.difficulty as 'beginner' | 'intermediate' | 'advanced';
+    if (globalDifficulty[d]) {
+      globalDifficulty[d].total++;
+      if (allCompletedIds.has(m.id)) globalDifficulty[d].done++;
+    }
   });
 
   const streak = (() => {

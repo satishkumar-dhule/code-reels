@@ -10,7 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SEOHead } from '../components/SEOHead';
 import { trackEasterEggUnlocked } from '../hooks/use-analytics';
 import { useTheme } from '../context/ThemeContext';
-import { getAllQuestions, channels } from '../lib/data';
+import { channels } from '../lib/data';
+import { useAllQuestionMetadata } from '../hooks/use-questions';
 
 export default function About() {
   const [_, setLocation] = useLocation();
@@ -21,7 +22,9 @@ export default function About() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [activeTab, setActiveTab] = useState<'features' | 'tech' | 'community' | 'developer'>('features');
 
-  const allQuestions = getAllQuestions();
+  // Use lightweight metadata instead of loading all questions
+  const { metadata: allQuestionMetadata } = useAllQuestionMetadata();
+  const allQuestions = allQuestionMetadata; // For count purposes
   const totalChannels = channels.length;
 
   const goBack = () => {

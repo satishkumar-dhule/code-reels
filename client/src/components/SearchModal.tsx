@@ -7,7 +7,6 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useToast } from '@/hooks/use-toast';
 import { allChannelsConfig } from '../lib/channels-config';
-import { getQuestions } from '../lib/data';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -80,13 +79,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       });
     }
     
-    // Find the index of this question in the channel
-    const channelQuestions = getQuestions(question.channel);
-    const questionIndex = channelQuestions.findIndex(q => q.id === question.id);
-    
-    // Navigate to the channel with the specific question index
-    const index = questionIndex >= 0 ? questionIndex : 0;
-    setLocation(`/channel/${question.channel}/${index}`);
+    // Navigate to channel - the question will be loaded lazily
+    // Use question ID in URL for direct navigation
+    setLocation(`/channel/${question.channel}?q=${question.id}`);
     onClose();
   };
   

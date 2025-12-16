@@ -1,5 +1,11 @@
 // Fuzzy search utility for finding questions
-import { getAllQuestions, type Question } from './questions-loader';
+// Uses lightweight metadata for search, loads full questions only for results
+import { 
+  getAllQuestionMetadata, 
+  loadQuestion,
+  type QuestionMetadata,
+  type Question 
+} from './questions-lazy-loader';
 
 // Simple fuzzy matching score - higher is better
 function fuzzyScore(query: string, text: string): number {
@@ -77,47 +83,36 @@ function fuzzyScore(query: string, text: string): number {
 export interface SearchResult {
   question: Question;
   score: number;
-  matchedIn: ('question' | 'answer' | 'tags' | 'channel')[];
+  matchedIn: ('question' | 'channel')[];
 }
 
-// Search questions with fuzzy matching
-export function searchQuestions(query: string, limit: number = 20): SearchResult[] {
+// Lightweight search result using metadata only
+interface MetadataSearchResult {
+  metadata: QuestionMetadata;
+  score: number;
+  matchedIn: ('question' | 'channel')[];
+}
+
+// Search questions using metadata (fast, no full load)
+function searchMetadata(query: string, limit: number = 20): MetadataSearchResult[] {
   if (!query || query.trim().length < 2) return [];
   
-  const allQuestions = getAllQuestions();
-  const resultsMap = new Map<string, SearchResult>(); // Dedupe by question ID
+  const allMetadata = getAllQuestionMetadata();
+  const results: MetadataSearchResult[] = [];
   
-  for (const question of allQuestions) {
-    // Skip if we already have a result for this question ID (keep highest score)
-    const existingResult = resultsMap.get(question.id);
-    
-    const matchedIn: ('question' | 'answer' | 'tags' | 'channel')[] = [];
+  for (const metadata of allMetadata) {
+    const matchedIn: ('question' | 'channel')[] = [];
     let totalScore = 0;
     
     // Search in question text (highest weight)
-    const questionScore = fuzzyScore(query, question.question);
+    const questionScore = fuzzyScore(query, metadata.question);
     if (questionScore > 0) {
       totalScore += questionScore * 3;
       matchedIn.push('question');
     }
     
-    // Search in answer
-    const answerScore = fuzzyScore(query, question.answer);
-    if (answerScore > 0) {
-      totalScore += answerScore * 1.5;
-      matchedIn.push('answer');
-    }
-    
-    // Search in tags
-    const tagsText = question.tags?.join(' ') || '';
-    const tagsScore = fuzzyScore(query, tagsText);
-    if (tagsScore > 0) {
-      totalScore += tagsScore * 2;
-      matchedIn.push('tags');
-    }
-    
-    // Search in channel/subchannel
-    const channelText = `${question.channel} ${question.subChannel}`.replace(/-/g, ' ');
+    // Search in channel
+    const channelText = metadata.channel.replace(/-/g, ' ');
     const channelScore = fuzzyScore(query, channelText);
     if (channelScore > 0) {
       totalScore += channelScore * 1.5;
@@ -125,18 +120,64 @@ export function searchQuestions(query: string, limit: number = 20): SearchResult
     }
     
     if (totalScore > 0) {
-      // Only add if no existing result or this one has higher score
-      if (!existingResult || totalScore > existingResult.score) {
-        resultsMap.set(question.id, { question, score: totalScore, matchedIn });
-      }
+      results.push({ metadata, score: totalScore, matchedIn });
     }
   }
   
-  // Convert map to array and sort by score descending
-  const results = Array.from(resultsMap.values());
+  // Sort by score descending
   results.sort((a, b) => b.score - a.score);
   
   return results.slice(0, limit);
+}
+
+// Search questions with fuzzy matching (async - loads full questions for results)
+export async function searchQuestionsAsync(query: string, limit: number = 20): Promise<SearchResult[]> {
+  // First search metadata (fast)
+  const metadataResults = searchMetadata(query, limit);
+  
+  // Then load full questions for top results
+  const results: SearchResult[] = [];
+  
+  for (const result of metadataResults) {
+    const question = await loadQuestion(result.metadata.id);
+    if (question) {
+      results.push({
+        question,
+        score: result.score,
+        matchedIn: result.matchedIn
+      });
+    }
+  }
+  
+  return results;
+}
+
+// Sync version for backwards compatibility (uses cached questions if available)
+// Note: This searches metadata only, which is faster but less comprehensive
+export function searchQuestions(query: string, limit: number = 20): SearchResult[] {
+  if (!query || query.trim().length < 2) return [];
+  
+  const metadataResults = searchMetadata(query, limit);
+  
+  // Return results with metadata as partial question objects
+  // The full question will be loaded when navigating
+  return metadataResults.map(result => ({
+    question: {
+      id: result.metadata.id,
+      question: result.metadata.question,
+      channel: result.metadata.channel,
+      difficulty: result.metadata.difficulty,
+      // Partial data - full question loaded on navigation
+      answer: '',
+      explanation: '',
+      tags: [] as string[],
+      subChannel: 'general',
+      hasVideo: result.metadata.hasVideo,
+      hasDiagram: result.metadata.hasDiagram,
+    } as Question,
+    score: result.score,
+    matchedIn: result.matchedIn
+  }));
 }
 
 // Highlight matching text in a string
