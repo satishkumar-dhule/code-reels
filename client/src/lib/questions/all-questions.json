@@ -3923,7 +3923,412 @@
         "Microsoft"
       ],
       "lastUpdated": "2025-12-15T14:02:17.822Z"
+    },
+    "q-266": {
+      "id": "q-266",
+      "question": "How would you design a message queue system that guarantees exactly-once delivery while maintaining high throughput for real-time event processing?",
+      "answer": "Use idempotent consumers with deduplication IDs and distributed transactions",
+      "explanation": "## Concept\nExactly-once delivery requires preventing duplicates while ensuring message processing. This combines idempotent operations, deduplication mechanisms, and atomic commit patterns to handle network failures and retries.\n\n## Implementation\n```python\n# Producer with deduplication\nclass Producer:\n    def send(self, message, deduplication_id):\n        msg = {\n            'id': deduplication_id,\n            'data': message,\n            'timestamp': time.time()\n        }\n        return queue.send(msg)\n\n# Idempotent consumer\nclass Consumer:\n    def __init__(self):\n        self.processed_ids = Redis()\n    \n    def process(self, message):\n        if self.processed_ids.exists(message['id']):\n            return  # Already processed\n        \n        # Process message\n        result = self.handle_message(message['data'])\n        \n        # Mark as processed\n        self.processed_ids.set(message['id'], '1', ex=3600)\n        return result\n```\n\n## Trade-offs\n- **Throughput vs Consistency**: Strong consistency reduces throughput\n- **Storage Overhead**: Deduplication stores increase memory usage\n- **Complexity**: Exactly-once requires careful error handling\n- **Latency**: Additional checks add processing time\n\n## Pitfalls\n- Network partitions causing message duplication\n- Consumer crashes after processing but before acknowledgment\n- Clock synchronization issues for time-based deduplication\n- Memory exhaustion from unbounded deduplication stores",
+      "tags": [
+        "kafka",
+        "rabbitmq",
+        "sqs",
+        "pubsub"
+      ],
+      "difficulty": "intermediate",
+      "diagram": "flowchart TD\n    A[Producer] --> B[Message Broker]\n    B --> C[Deduplication Layer]\n    C --> D[Consumer 1]\n    C --> E[Consumer 2]\n    C --> F[Consumer N]\n    \n    G[Processed IDs Store] --> C\n    D --> G\n    E --> G\n    F --> G\n    \n    H[Dead Letter Queue] --> B\n    D --> H\n    E --> H\n    F --> H\n    \n    subgraph \"Processing Flow\"\n        I[Receive Message] --> J{Dedup Check}\n        J -->|Not Seen| K[Process Message]\n        J -->|Already Seen| L[Skip]\n        K --> M[Mark Processed]\n        M --> N[Acknowledge]\n        K --> O[Error Handler]\n        O --> P[Send to DLQ]\n    end",
+      "sourceUrl": "https://docs.aws.amazon.com/prescriptive-guidance/latest/modernization-integrating-microservices/sqs.html",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Netflix",
+        "Uber"
+      ],
+      "lastUpdated": "2025-12-16T01:14:50.277Z"
+    },
+    "q-267": {
+      "id": "q-267",
+      "question": "What's the difference between REST, GraphQL, and gRPC in terms of protocol and data format?",
+      "answer": "REST uses HTTP/1.1 with JSON/XML, GraphQL uses HTTP with JSON, and gRPC uses HTTP/2 with Protocol Buffers.",
+      "explanation": "## Concept\nREST is an architectural style using standard HTTP methods for resource-based operations. GraphQL is a query language allowing flexible data retrieval from single endpoints. gRPC is a high-performance RPC framework using contract-first design.\n\n## Implementation\n```javascript\n// REST\nGET /users/123\n\n// GraphQL\nquery { user(id: 123) { name, email } }\n\n// gRPC (protobuf)\nrpc GetUser(GetUserRequest) returns (UserResponse)\n```\n\n## Trade-offs\nREST: Simple, cacheable, but over/under-fetches data. GraphQL: Flexible queries, but complex server implementation. gRPC: Fast, type-safe, but HTTP/2 required and less browser-friendly.\n\n## Pitfalls\nREST suffers from N+1 queries. GraphQL can cause deep query complexity issues. gRPC requires protobuf compilation and tooling.",
+      "tags": [
+        "rest",
+        "graphql",
+        "grpc",
+        "openapi"
+      ],
+      "difficulty": "beginner",
+      "diagram": "flowchart TD\n    A[Client Request] --> B{API Type}\n    B -->|REST| C[HTTP/1.1 + JSON]\n    B -->|GraphQL| D[HTTP + JSON Query]\n    B -->|gRPC| E[HTTP/2 + Protobuf]\n    C --> F[Resource-Based Endpoints]\n    D --> G[Single GraphQL Endpoint]\n    E --> H[Service Methods]\n    F --> I[Response]\n    G --> I\n    H --> I",
+      "sourceUrl": "https://developer.mozilla.org/en-US/docs/Glossary/REST",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Microsoft"
+      ],
+      "lastUpdated": "2025-12-16T01:16:49.435Z"
+    },
+    "q-268": {
+      "id": "q-268",
+      "question": "How would you optimize a time-series analytics query that scans 100M+ rows across multiple date partitions when the WHERE clause cannot be pruned effectively?",
+      "answer": "Use composite partitioning, materialized views, and columnar storage with query plan hints.",
+      "explanation": "## Concept\nThis scenario challenges the core assumption of partition pruning - when predicates don't align with partition keys, the optimizer must scan all partitions. The solution requires multiple optimization layers working together.\n\n## Implementation\n```sql\n-- Composite partitioning strategy\nCREATE TABLE events (\n  event_id BIGINT,\n  user_id INT,\n  event_time TIMESTAMP,\n  event_type VARCHAR(50),\n  metrics JSONB\n) PARTITION BY RANGE (event_time) SUBPARTITION BY HASH (user_id) SUBPARTITIONS 16;\n\n-- Materialized view for common aggregations\nCREATE MATERIALIZED VIEW daily_metrics AS\nSELECT \n  DATE(event_time) as date,\n  event_type,\n  COUNT(*) as count,\n  AVG(jsonb_extract_path_text(metrics, 'value')::numeric) as avg_value\nFROM events \nGROUP BY DATE(event_time), event_type;\n\n-- Query with optimizer hints\nSELECT /*+ PARALLEL(8) */ event_type, COUNT(*)\nFROM events \nWHERE event_time >= NOW() - INTERVAL '7 days'\n  AND user_id IN (SELECT user_id FROM active_users)\nGROUP BY event_type;\n```\n\n## Trade-offs\n- Storage overhead from materialized views (2-3x)\n- Complex ETL pipeline for view maintenance\n- Increased operational complexity\n- Columnar storage benefits OLAP but hurts OLTP\n\n## Pitfalls\n- Wrong partitioning key leads to hot partitions\n- Materialized view lag causes stale analytics\n- Parallel hints overwhelm small queries\n- Suboptimal join order in complex aggregations",
+      "tags": [
+        "explain",
+        "query-plan",
+        "partitioning"
+      ],
+      "difficulty": "advanced",
+      "diagram": "flowchart TD\n    A[Query Request] --> B{Partition Strategy}\n    B -->|Composite| C[Time + Hash Partitioning]\n    B -->|Single Key| D[Range Partitioning Only]\n    \n    C --> E{Query Pattern}\n    E -->|Analytical| F[Materialized Views]\n    E -->|Real-time| G[Direct Table Scan]\n    \n    D --> H[All Partitions Scanned]\n    H --> I[Performance Degradation]\n    \n    F --> J[Pre-computed Aggregations]\n    G --> K[Parallel Execution]\n    J --> L[Fast Analytics]\n    K --> L",
+      "sourceUrl": "https://dev.mysql.com/doc/mysql-partitioning-excerpt/5.7/en/partitioning-pruning.html",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:17:21.557Z"
+    },
+    "q-269": {
+      "id": "q-269",
+      "question": "What is the primary difference between Ansible, Puppet, and Chef in configuration management?",
+      "answer": "Ansible is agentless using SSH, while Puppet and Chef require agents on managed nodes.",
+      "explanation": "## Concept\nConfiguration management tools automate software deployment and server configuration. They ensure consistency across environments and enable infrastructure as code practices.\n\n## Implementation (code)\n**Ansible (agentless):**\n```yaml\n- hosts: webservers\n  tasks:\n    - name: Install nginx\n      apt: name=nginx state=present\n```\n\n**Puppet (agent-based):**\n```puppet\npackage { 'nginx':\n  ensure => installed,\n}\nservice { 'nginx':\n  ensure => running,\n  enable => true,\n}\n```\n\n**Chef (agent-based):**\n```ruby\npackage 'nginx' do\n  action :install\nend\n\nservice 'nginx' do\n  action [:start, :enable]\nend\n```\n\n## Trade-offs\n- **Ansible**: Simple setup, no agents, good for smaller environments\n- **Puppet**: Strong declarative language, better for large enterprises\n- **Chef**: Ruby-based, flexible, steeper learning curve\n\n## Pitfalls\n- Ansible: Can be slow for large-scale operations\n- Puppet: Requires certificate management between master and agents\n- Chef: Complex setup, Ruby dependencies can be challenging",
+      "tags": [
+        "ansible",
+        "puppet",
+        "chef"
+      ],
+      "difficulty": "beginner",
+      "diagram": "flowchart TD\n    A[Configuration Management Tool] --> B{Agent Required?}\n    \n    B -->|No| C[Ansible]\n    C --> D[SSH Connection]\n    C --> E[YAML Playbooks]\n    \n    B -->|Yes| F[Agent-Based Tools]\n    F --> G[Puppet]\n    F --> H[Chef]\n    \n    G --> I[Puppet DSL]\n    G --> J[Master-Agent Model]\n    \n    H --> K[Ruby Recipes]\n    H --> L[Chef Server]\n    \n    D --> M[Managed Nodes]\n    J --> M\n    L --> M",
+      "sourceUrl": "https://docs.ansible.com/ansible/latest/user_guide/getting_started.html",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Microsoft",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:17:35.187Z"
+    },
+    "q-270": {
+      "id": "q-270",
+      "question": "Your microservice has a 99.9% availability SLO over 30 days with a 1-hour burn rate alert threshold. If you experience a 10-minute outage at 10% traffic impact followed by a 5-minute outage at 100% traffic impact, what's your remaining error budget and should you trigger the burn rate alert?",
+      "answer": "28.8 minutes remaining. Burn rate: 2.4x threshold - should alert immediately.",
+      "explanation": "## Error Budget Calculation\n\n**Monthly Error Budget (99.9% SLO)**:\n- 30 days = 43,200 minutes\n- Error budget = 43,200 × 0.001 = 43.2 minutes\n\n**Outage Impact Calculation**:\n- Outage 1: 10 minutes × 10% traffic = 1 minute budget consumed\n- Outage 2: 5 minutes × 100% traffic = 5 minutes budget consumed\n- **Total consumed**: 6 minutes\n\n**Remaining error budget**: 43.2 - 6 = 37.2 minutes\n\n## Burn Rate Analysis\n\n**1-hour burn rate**:\n- Consumed: 6 minutes in 15 minutes = 40% of budget consumed\n- Sustained rate: 6 × 4 = 24 minutes/hour\n- **Burn rate**: 24/43.2 = 5.56x sustainable rate\n\n**Alert threshold comparison**:\n- Threshold: 1x (sustainable rate)\n- Current: 5.56x\n- **Result**: Alert should trigger\n\n## Implementation Patterns\n\n### SLO Definition\n```yaml\nslo:\n  name: \"api_availability\"\n  target: 0.999\n  window: 30d\n  \nsli:\n  metric: \"http_requests_total\"\n  success_criteria: \"status_code < 500\"\n```\n\n### Error Budget Calculation\n```promql\n# Available error budget\n(1 - slo_target) * window_duration\n\n# Consumed budget\nsum(increase(http_requests_total{status=~\"5..\"}[1h])) /\nsum(increase(http_requests_total[1h]))\n```\n\n### Burn Rate Alerting\n```yaml\nalerts:\n  - name: \"fast_burn\"\n    window: \"1h\"\n    threshold: 14.4  # 1 day of budget in 1 hour\n  - name: \"slow_burn\"\n    window: \"6h\"\n    threshold: 6     # 1 day of budget in 6 hours\n```\n\n## Trade-offs\n\n1. **Alert Sensitivity**: Too sensitive → alert fatigue\n2. **Measurement Windows**: Short windows catch issues faster but may be noisy\n3. **Traffic Weighting**: Simple outage time vs. traffic-impacted time\n4. **Multiple Burn Rates**: Fast and slow burn thresholds for different response times\n\n## Pitfalls\n\n- **Ignoring Traffic Impact**: 100% outage for 1 minute ≠ 1% outage for 100 minutes\n- **Single Metric SLOs**: Combine availability with latency/error rate SLOs\n- **Alert Fatigue**: Multiple consecutive alerts without clear escalation paths\n- **Budget Reset Timing**: End-of-month budget depletion vs. rolling windows",
+      "tags": [
+        "slo",
+        "sli",
+        "error-budget"
+      ],
+      "difficulty": "intermediate",
+      "diagram": "graph TD\n    A[30 Days] --> B[43,200 minutes]\n    B --> C[SLO: 99.9%]\n    C --> D[Error Budget: 43.2 min]\n    \n    E[Outage 1: 10min × 10%] --> F[1 min consumed]\n    G[Outage 2: 5min × 100%] --> H[5 min consumed]\n    \n    F --> I[Total: 6 min]\n    H --> I\n    \n    D --> J[Remaining: 37.2 min]\n    I --> J\n    \n    K[Burn Rate Calculation] --> L[6 min in 15 min]\n    L --> M[40% budget consumed]\n    M --> N[5.56x sustainable rate]\n    \n    O[Alert Threshold: 1x] --> P{5.56x > 1x?}\n    N --> P\n    P -->|Yes| Q[🚨 ALERT TRIGGERED]\n    P -->|No| R[✅ Normal Operations]\n    \n    style Q fill:#ff6b6b\n    style R fill:#51cf66\n    style J fill:#ffd43b",
+      "sourceUrl": "https://cloud.google.com/architecture/implementing-slos",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Microsoft",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:19:07.763Z"
+    },
+    "q-271": {
+      "id": "q-271",
+      "question": "How would you design a multi-container pod with init containers and sidecars to implement a zero-downtime database migration pattern?",
+      "answer": "Use init container for schema validation, sidecar for migration execution, and shared volumes for coordination.",
+      "explanation": "## Concept\nMulti-container pods enable sophisticated deployment patterns by separating concerns: init containers prepare the environment before main app startup, while sidecars provide auxiliary services throughout the pod lifecycle.\n\n## Implementation\n```yaml\napiVersion: v1\nkind: Pod\nmetadata:\n  name: app-with-migration\nspec:\n  initContainers:\n  - name: validate-schema\n    image: postgres:15\n    command: ['sh', '-c', 'psql $DB_URL -c \"SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1\"']\n  - name: backup-current\n    image: postgres:15\n    command: ['sh', '-c', 'pg_dump $DB_URL > /backup/pre-migration.sql']\n    volumeMounts:\n    - name: backup-volume\n      mountPath: /backup\n  containers:\n  - name: main-app\n    image: myapp:latest\n    env:\n    - name: DB_URL\n      valueFrom:\n        secretKeyRef:\n          name: db-creds\n          key: url\n  - name: migration-sidecar\n    image: migrator:latest\n    command: ['sh', '-c', 'while true; do /app/check-and-migrate.sh; sleep 30; done']\n    env:\n    - name: DB_URL\n      valueFrom:\n        secretKeyRef:\n          name: db-creds\n          key: url\n    volumeMounts:\n    - name: backup-volume\n      mountPath: /backup\n  volumes:\n  - name: backup-volume\n    emptyDir: {}\n```\n\n## Trade-offs\n**Benefits:**\n- Separation of concerns (setup vs runtime)\n- Atomic operations through init containers\n- Continuous monitoring via sidecar\n- Shared filesystem for coordination\n\n**Considerations:**\n- Increased pod resource usage\n- Complex error handling patterns\n- Longer startup times\n- Debugging multi-container issues\n\n## Pitfalls\n- Init containers blocking pod startup indefinitely\n- Sidecar resource starvation\n- Race conditions between containers\n- Over-reliance on shared filesystem state",
+      "tags": [
+        "containers",
+        "init-containers",
+        "sidecars"
+      ],
+      "difficulty": "intermediate",
+      "diagram": "flowchart TD\n    A[Pod Starts] --> B[Init Container 1<br/>Validate Schema]\n    B --> C{Schema OK?}\n    C -->|No| D[Init Container Fails<br/>Pod Restarts]\n    C -->|Yes| E[Init Container 2<br/>Backup Database]\n    E --> F[Main App Container Starts]\n    E --> G[Migration Sidecar Starts]\n    \n    F --> H[Application Running]\n    G --> I[Check Migrations<br/>Every 30s]\n    I --> J{New Migration?}\n    J -->|Yes| K[Execute Migration]\n    J -->|No| I\n    K --> I\n    \n    D --> A",
+      "sourceUrl": "https://kubernetes.io/docs/concepts/workloads/pods/init-containers/",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:19:41.548Z"
+    },
+    "q-272": {
+      "id": "q-272",
+      "question": "How would you implement a DRY Terraform configuration using Terragrunt and Atlantis for multi-environment deployments?",
+      "answer": "Use Terragrunt include blocks to inherit common configs, remote_state for backend, and Atlantis workflows for PR automation.",
+      "explanation": "## Concept\nTerragrunt eliminates code duplication by using hierarchical configurations with include blocks that inherit parent settings. Atlantis automates Terraform workflows through GitHub pull requests, providing plan/apply automation with policy enforcement.\n\n## Implementation\n```hcl\n# terragrunt.hcl (root)\nremote_state {\n  backend = \"s3\"\n  config = {\n    bucket         = \"company-terraform-state\"\n    key            = \"${path_relative_to_include()}/terraform.tfstate\"\n    region         = \"us-east-1\"\n    encrypt        = true\n    dynamodb_table = \"terraform-locks\"\n  }\n}\n\ngenerate \"provider\" {\n  path = \"provider.tf\"\n  if_exists = \"overwrite_terragrunt\"\n  contents = <<EOF\nprovider \"aws\" {\n  region = local.aws_region\n}\nEOF\n}\n\n# prod/app/terragrunt.hcl\ninclude {\n  path = find_in_parent_folders()\n}\n\nterraform {\n  source = \"../../../modules//app\"\n}\n\ninputs = {\n  environment = \"prod\"\n  instance_count = 3\n}\n```\n\n```yaml\n# atlantis.yaml\nworkflows:\n  terragrunt:\n    plan:\n      steps:\n        - env:\n            name: TERRAGRUNT_TFPATH\n            command: 'echo \"terraform${ATLANTIS_TERRAFORM_VERSION}\"'\n        - run: terragrunt run-all plan -input=false -out=$PLANFILE\n        - run: terragrunt run-all show -json $PLANFILE > $SHOWFILE\n    apply:\n      steps:\n        - run: terragrunt run-all apply -input=false $PLANFILE\n```\n\n## Trade-offs\n**Pros:** Eliminates code duplication, centralized state management, automated PR workflows, consistent configurations across environments.\n\n**Cons:** Added complexity with Terragrunt layer, learning curve for team members, additional dependency management.\n\n## Pitfalls\n- Circular dependencies in include chains\n- State locking conflicts without DynamoDB\n- Over-abstracting configurations making debugging difficult\n- Inconsistent Terragrunt versions across environments",
+      "tags": [
+        "dry",
+        "terragrunt",
+        "atlantis"
+      ],
+      "difficulty": "intermediate",
+      "diagram": "flowchart TD\n    A[GitHub PR] --> B[Atlantis Webhook]\n    B --> C[Generate Workflow]\n    C --> D[Terragrunt Init]\n    D --> E[Remote State S3 + DynamoDB]\n    E --> F[Include Parent Configs]\n    F --> G[Run Plan]\n    G --> H[Show JSON Output]\n    H --> I[Comment on PR]\n    I --> J{Merge?}\n    J -->|Yes| K[Run Apply]\n    J -->|No| L[Discard Plan]\n    K --> M[Update State]\n    M --> N[Deploy Resources]",
+      "sourceUrl": "https://www.gruntwork.io/blog/terragrunt-how-to-keep-your-terraform-code-dry-and-maintainable",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Netflix",
+        "Stripe"
+      ],
+      "lastUpdated": "2025-12-16T01:20:50.762Z"
+    },
+    "q-273": {
+      "id": "q-273",
+      "question": "What's the difference between hyperparameters and parameters in machine learning, and why is cross-validation important for selecting optimal hyperparameters?",
+      "answer": "Parameters are learned during training, hyperparameters are set before training. Cross-validation prevents overfitting by testing hyperparameters on multiple data splits.",
+      "explanation": "## Concept\n**Parameters**: Model weights learned from training data (like coefficients in linear regression). **Hyperparameters**: Configuration settings set before training (learning rate, regularization strength).\n\n## Implementation\n```python\nfrom sklearn.model_selection import GridSearchCV\nfrom sklearn.linear_model import Ridge\n\n# Hyperparameter tuning with cross-validation\nparam_grid = {'alpha': [0.1, 1.0, 10.0]}  # Regularization strength\nridge = Ridge()\ngrid_search = GridSearchCV(ridge, param_grid, cv=5)\ngrid_search.fit(X_train, y_train)\n```\n\n## Trade-offs\n- **More cross-validation folds**: More reliable estimates but slower training\n- **Larger hyperparameter space**: Better chance finding optimal values but exponential search time\n- **Regularization**: Reduces overfitting but may underfit if too strong\n\n## Pitfalls\n- Data leakage: Scaling before CV split contaminates validation\n- Overfitting to validation set with extensive hyperparameter search\n- Not using nested CV when comparing many hyperparameter combinations",
+      "tags": [
+        "hyperparameter",
+        "cross-validation",
+        "regularization"
+      ],
+      "difficulty": "beginner",
+      "diagram": "flowchart TD\n    A[Training Data] --> B[Split into K Folds]\n    B --> C[For Each Hyperparameter]\n    C --> D[For Each Fold]\n    D --> E[Train on K-1 Folds]\n    E --> F[Validate on 1 Fold]\n    F --> G[Record Performance]\n    G --> H{More Folds?}\n    H -->|Yes| D\n    H -->|No| I[Average Performance]\n    I --> J{More Hyperparameters?}\n    J -->|Yes| C\n    J -->|No| K[Select Best Hyperparameter]",
+      "sourceUrl": "https://scikit-learn.org/stable/modules/cross_validation.html",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Microsoft"
+      ],
+      "lastUpdated": "2025-12-16T01:21:50.022Z"
+    },
+    "q-274": {
+      "id": "q-274",
+      "question": "How would you implement a hybrid CNN architecture combining ResNet residual connections with EfficientNet compound scaling for production image classification?",
+      "answer": "Use ResNet blocks with channel attention, apply EfficientNet's compound scaling formula φ = α^β · γ^φ, and optimize with mixed precision.",
+      "explanation": "## Concept\nHybrid CNN combines ResNet's residual connections (identity shortcuts) with EfficientNet's compound scaling that balances network depth, width, and resolution using a fixed compound coefficient φ.\n\n## Implementation\n```python\n# Hybrid block with residual + efficient scaling\nclass HybridBlock(nn.Module):\n    def __init__(self, in_ch, out_ch, stride=1):\n        super().__init__()\n        # EfficientNet MBConv with residual\n        self.mbconv = MBConv(in_ch, out_ch, stride)\n        self.shortcut = nn.Identity() if stride == 1 else nn.Conv2d(in_ch, out_ch, 1)\n        \n    def forward(self, x):\n        return self.mbconv(x) + self.shortcut(x)\n\n# Compound scaling: depth=φ^1.2, width=φ^0.8, resolution=φ^0.2\n```\n\n## Trade-offs\n**Pros**: Better accuracy-efficiency balance, stable gradients from residuals, optimized FLOPs\n**Cons**: Complex implementation, higher memory than pure EfficientNet, tuning complexity\n\n## Pitfalls\n- Mismatched channel dimensions in residual connections\n- Over-scaling leads to overfitting on small datasets\n- Ignoring hardware-specific optimizations (TensorRT, ONNX)",
+      "tags": [
+        "cnn",
+        "resnet",
+        "efficientnet"
+      ],
+      "difficulty": "intermediate",
+      "diagram": "flowchart TD\n    A[Input Image] --> B[Stem Conv 3x3]\n    B --> C[Hybrid Block 1: MBConv + Residual]\n    C --> D[Hybrid Block 2: MBConv + Residual]\n    D --> E[SE Block: Channel Attention]\n    E --> F[Hybrid Block 3: Downsample]\n    F --> G[Global Average Pool]\n    G --> H[Fully Connected]\n    H --> I[Softmax]\n    \n    C --> C1[Identity Shortcut]\n    C1 --> C2[Add]\n    D --> C2\n    E --> C2",
+      "sourceUrl": "https://arxiv.org/abs/1905.11946",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Microsoft"
+      ],
+      "lastUpdated": "2025-12-16T01:29:37.362Z"
+    },
+    "q-275": {
+      "id": "q-275",
+      "question": "How does QUIC solve HTTP/2's head-of-line blocking issue over TCP, and what are the implementation trade-offs?",
+      "answer": "QUIC runs over UDP with independent streams, eliminating TCP-level blocking while implementing reliability at the application layer.",
+      "explanation": "## Concept\nHTTP/2 suffers from head-of-line blocking at TCP level - one lost packet blocks all streams. QUIC solves this by using UDP as transport and implementing reliability, congestion control, and stream multiplexing at the application layer.\n\n## Implementation\n```go\n// QUIC stream independence\nfor _, stream := range conn.Streams() {\n    go func(s quic.Stream) {\n        // Each stream processes independently\n        data, err := io.ReadAll(s)\n        // Lost packets only affect this stream\n        handleStreamData(s.ID(), data)\n    }(stream)\n}\n\n// Connection-level recovery\nconn.HandleLostPacket(packetID)\n// Other streams continue unaffected\n```\n\n## Trade-offs\n**Pros:**\n- No head-of-line blocking between streams\n- Faster connection establishment (0-RTT)\n- Better mobility support (connection migration)\n\n**Cons:**\n- Higher CPU usage (user-space reliability)\n- More complex implementation\n- Potential NAT/UDP blocking issues\n\n## Pitfalls\n- UDP may be blocked by corporate firewalls\n- Increased packet overhead vs TCP\n- Debugging complexity with custom reliability layer",
+      "tags": [
+        "tcp",
+        "udp",
+        "http2",
+        "quic"
+      ],
+      "difficulty": "intermediate",
+      "diagram": "flowchart TD\n    A[Client Request] --> B{Transport Layer}\n    B -->|HTTP/2| C[TCP]\n    B -->|QUIC| D[UDP]\n    C --> E[TCP Stream 1] --> F[TCP Stream 2] --> G[TCP Stream 3]\n    D --> H[QUIC Stream 1] --> I[QUIC Stream 2] --> J[QUIC Stream 3]\n    \n    K[Packet Loss] --> E\n    K --> F\n    K --> G\n    style E fill:#ffcccc\n    style F fill:#ffcccc\n    style G fill:#ffcccc\n    \n    L[Packet Loss] --> H\n    style H fill:#ffcccc\n    style I fill:#ccffcc\n    style J fill:#ccffcc\n    \n    M[TCP HOL Blocking] --> N[All Streams Blocked]\n    O[QUIC Independence] --> P[Only Affected Stream Blocked]",
+      "sourceUrl": "https://tools.ietf.org/html/rfc9000",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Microsoft"
+      ],
+      "lastUpdated": "2025-12-16T01:33:22.256Z"
+    },
+    "q-276": {
+      "id": "q-276",
+      "question": "In a production environment, how would you ensure systemd timers and cron jobs execute with proper isolation, prevent privilege escalation, and maintain auditability across 1000+ servers?",
+      "answer": "Use systemd timers with sandboxing, per-user service files, centralized logging, and regular permission audits.",
+      "explanation": "## Concept\nSystemd timers provide superior isolation and logging compared to traditional cron. Production environments need defense-in-depth scheduling with sandboxing, resource limits, and audit trails.\n\n## Implementation\n```bash\n# Create isolated systemd timer\n[Unit]\nDescription=Isolated backup service\nAfter=network.target\n\n[Service]\nType=oneshot\nUser=backup\nGroup=backup\nDynamicUser=yes\nProtectSystem=strict\nProtectHome=yes\nNoNewPrivileges=yes\nPrivateTmp=yes\nReadWritePaths=/var/backups\nExecStart=/usr/local/bin/backup.sh\n\n[Timer]\nOnCalendar=daily\nPersistent=true\n\n[Install]\nWantedBy=timers.target\n```\n\n```bash\n# Centralized monitoring\njournalctl -u backup.service --since \"1 day ago\"\nsystemctl list-timers --all\n\n# Permission audit\nfind /etc/systemd/system/ -type f -exec ls -la {} \\;\ngetent group backup\n```\n\n## Trade-offs\n- **Systemd timers**: Better isolation, logging, dependency management, but complex syntax\n- **Cron**: Simpler syntax, universal availability, but limited isolation and poor error handling\n- **Hybrid approach**: Use systemd for critical tasks, cron for simple user jobs\n\n## Pitfalls\n- Missing `Persistent=true` causes missed executions during downtime\n- Improper `ReadWritePaths` breaks sandboxed services\n- Forgetting `DynamicUser=yes` creates unnecessary privilege escalation vectors\n- Inconsistent logging across 1000+ servers makes debugging impossible\n- Cron job path injection vulnerabilities with unquoted variables",
+      "tags": [
+        "systemd",
+        "cron",
+        "users",
+        "permissions"
+      ],
+      "difficulty": "advanced",
+      "diagram": "flowchart TD\n    A[Schedule Trigger] --> B{Timer Type}\n    B -->|Systemd Timer| C[systemd Service Unit]\n    B -->|Cron Job| D[crond Daemon]\n    \n    C --> E[Security Sandbox]\n    E --> F[DynamicUser=yes]\n    E --> G[ProtectSystem=strict]\n    E --> H[NoNewPrivileges=yes]\n    \n    D --> I[Traditional Permissions]\n    I --> J[User Context]\n    I --> K[Environment Variables]\n    \n    F --> L[Audit Logging]\n    G --> L\n    H --> L\n    J --> M[Basic Logging]\n    K --> M\n    \n    L --> N[journald + syslog]\n    M --> N\n    \n    N --> O[Central Monitoring]\n    O --> P{Success?}\n    P -->|Yes| Q[Job Complete]\n    P -->|No| R[Alert & Retry]",
+      "sourceUrl": "https://man7.org/linux/man-pages/man5/systemd.timer.5.html",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Microsoft",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:34:18.251Z"
+    },
+    "q-277": {
+      "id": "q-277",
+      "question": "How would you efficiently process a 50GB log file to extract the top 10 most frequent IP addresses from millions of entries while handling memory constraints and special characters?",
+      "answer": "Use find + cut + sort + uniq pipeline with xargs for parallel processing and LC_ALL=C optimization",
+      "explanation": "## Concept\nProcessing massive log files requires memory-efficient pipelines that avoid loading entire datasets into RAM. Unix text processing tools create streaming data flows that handle files larger than available memory.\n\n## Implementation\n```bash\n# Basic approach\nfind /var/log -name '*.log' -type f | \\\n  xargs -P 4 -I {} sh -c 'cut -d\" \" -f1 {} | sort -S 1G -T /tmp' | \\\n  sort -nr | uniq -c | sort -nr | head -10\n\n# Optimized for production\nLC_ALL=C find /var/log -name '*.log' -type f -print0 | \\\n  xargs -0 -P 8 -I {} cut -d' ' -f1 {} | \\\n  sort -S 2G -T /tmp/sort-temp --buffer-size=1G | \\\n  uniq -c | sort -k1,1nr | head -10\n```\n\n## Trade-offs\n- **Memory**: Uses external sort with temporary files instead of in-memory sorting\n- **Performance**: Parallel processing (-P flag) speeds up multiple file handling\n- **Accuracy**: LC_ALL=C ensures consistent sorting across different locales\n- **Safety**: -print0 and -0 handle filenames with spaces/special characters\n\n## Pitfalls\n- Forgetting LC_ALL=C causes locale-dependent sort order inconsistencies\n- Insufficient temp space causes sort failures with large files\n- Not using -print0/-0 breaks on filenames with spaces or special chars\n- Too many parallel processes can overwhelm I/O bandwidth",
+      "tags": [
+        "find",
+        "xargs",
+        "cut",
+        "sort"
+      ],
+      "difficulty": "advanced",
+      "diagram": "flowchart TD\n    A[50GB Log Files] --> B[find -print0]\n    B --> C[xargs -0 -P 8]\n    C --> D[cut -d' ' -f1]\n    D --> E[sort -S 2G -T /tmp]\n    E --> F[uniq -c]\n    F --> G[sort -k1,1nr]\n    G --> H[head -10]\n    H --> I[Top 10 IPs]",
+      "sourceUrl": "https://man7.org/linux/man-pages/man1/sort.1.html",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:35:22.661Z"
+    },
+    "q-278": {
+      "id": "q-278",
+      "question": "How would you design a comprehensive testing strategy for a microservices architecture that scales to handle millions of requests per second while ensuring 99.99% availability?",
+      "answer": "Implement a hybrid testing pyramid with mutation testing, chaos engineering, and observability-driven testing across all service boundaries.",
+      "explanation": "## Concept\nA production-scale testing strategy combines traditional test pyramid principles with modern resilience testing. The approach focuses on edge cases, fault tolerance, and real-world scenarios that impact massive distributed systems.\n\n## Implementation\n```javascript\n// Mutation Testing Configuration\nconst mutationConfig = {\n  coverage: 'branch',\n  thresholds: { high: 80, low: 60 },\n  mutate: ['src/**/*.js'],\n  testCommand: 'npm run test:mutation'\n};\n\n// Chaos Engineering Integration\nconst chaosExperiments = [\n  'network-latency-injection',\n  'pod-termination-simulation',\n  'database-connection-throttling',\n  'memory-pressure-testing'\n];\n\n// Test Pyramid Ratios\nconst testDistribution = {\n  unit: 70,        // Fast, isolated tests\n  integration: 20, // Service boundaries\n  e2e: 5,          // Critical user journeys\n  chaos: 5         // Resilience validation\n};\n```\n\n## Trade-offs\n- **Coverage vs Performance**: Higher mutation testing increases CI/CD duration\n- **Realism vs Speed**: Chaos engineering adds complexity but catches production issues\n- **Automation vs Manual**: Critical path testing requires human validation\n- **Cost vs Quality**: Comprehensive testing increases infrastructure costs but prevents outages\n\n## Pitfalls\n- **False Confidence**: 100% coverage doesn't guarantee bug-free code\n- **Test Flakiness**: Distributed systems introduce timing issues\n- **Environment Parity**: Test environments must mirror production configurations\n- **Edge Case Blind Spots**: Focus on happy paths misses critical failure scenarios",
+      "tags": [
+        "test-pyramid",
+        "coverage",
+        "mutation-testing"
+      ],
+      "difficulty": "advanced",
+      "diagram": "flowchart TD\n    A[Production Testing Strategy] --> B[Unit Tests - 70%]\n    A --> C[Integration Tests - 20%]\n    A --> D[E2E Tests - 5%]\n    A --> E[Chaos Engineering - 5%]\n    \n    B --> B1[Fast Execution]\n    B --> B2[Isolated Components]\n    B --> B3[Mutation Testing]\n    \n    C --> C1[API Contracts]\n    C --> C2[Service Boundaries]\n    C --> C3[Database Integration]\n    \n    D --> D1[Critical User Journeys]\n    D --> D2[Cross-Service Flows]\n    D --> D3[Performance Validation]\n    \n    E --> E1[Network Failure Injection]\n    E --> E2[Resource Exhaustion]\n    E --> E3[Dependency Failures]\n    \n    B3 --> F[Mutation Score: 85%+]\n    C2 --> G[SLA Validation]\n    D3 --> H[Load Testing: 1M+ RPS]\n    E3 --> I[Availability: 99.99%]",
+      "sourceUrl": "https://blog.trailofbits.com/2025/09/18/use-mutation-testing-to-find-the-bugs-your-tests-dont-catch/",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:37:47.468Z"
+    },
+    "q-279": {
+      "id": "q-279",
+      "question": "What is the difference between getByRole() and getByText() selectors in Playwright testing?",
+      "answer": "getByRole() finds elements by accessibility role/name, while getByText() matches by visible text content.",
+      "explanation": "## Concept\nPlaywright provides user-centric locators that make tests more resilient to UI changes. getByRole() targets elements by their semantic meaning (button, link, etc.) while getByText() locates by visible text content.\n\n## Implementation\n```javascript\n// getByRole - preferred for accessible testing\nawait page.getByRole('button', { name: 'Submit' }).click();\n\n// getByText - for text-based selection\nawait page.getByText('Welcome to dashboard').isVisible();\n\n// Combining selectors\nawait page.getByRole('alert').getByText('Error occurred').isVisible();\n```\n\n## Trade-offs\n**getByRole()**: More stable, accessibility-focused, but requires proper semantic HTML\n**getByText()**: Direct but brittle to text changes, good for static content\n\n## Pitfalls\n- Avoid CSS selectors like $('.btn-primary') that break on style changes\n- Use getByTestId() only when user-facing attributes aren't available\n- getByRole() requires accessible markup to work effectively",
+      "tags": [
+        "playwright",
+        "browser-automation",
+        "selectors"
+      ],
+      "difficulty": "beginner",
+      "diagram": "flowchart TD\n    A[Start Test] --> B{Need Element?}\n    B -->|User Action| C[Use getByRole]\n    B -->|Text Content| D[Use getByText]\n    B -->|Form Input| E[Use getByLabel]\n    B -->|Last Resort| F[Use getByTestId]\n    \n    C --> G[Auto-wait & Retry]\n    D --> G\n    E --> G\n    F --> G\n    \n    G --> H[Perform Action]\n    H --> I[Assert Results]",
+      "sourceUrl": "https://playwright.dev/docs/locators",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Microsoft"
+      ],
+      "lastUpdated": "2025-12-16T01:38:30.047Z"
+    },
+    "q-280": {
+      "id": "q-280",
+      "question": "What is the difference between CPU profiling and memory profiling, and when would you use a flame graph?",
+      "answer": "CPU profiling measures time spent in functions, memory profiling tracks memory usage patterns, flame graphs visualize CPU bottlenecks.",
+      "explanation": "## Concept\nPerformance profiling analyzes runtime behavior to identify bottlenecks. CPU profiling shows where your application spends execution time, while memory profiling reveals memory allocation patterns, leaks, and usage patterns.\n\n## Implementation\n**CPU Profiling**: Tools collect stack traces periodically to build a profile\n```bash\n# Node.js example\nnode --prof app.js\nnode --prof-process isolate-*.log > processed.txt\n```\n\n**Memory Profiling**: Track heap allocations and garbage collection\n```javascript\n// Chrome DevTools\nconsole.profile('CPU-analysis');\nconsole.memory;\n```\n\n## Trade-offs\n- **CPU profiling**: Lower overhead but may miss short functions\n- **Memory profiling**: Higher overhead but essential for leak detection\n- **Flame graphs**: Excellent visualization but require sampling data\n\n## Pitfalls\n- Production profiling adds overhead\n- Sampling may miss rare events\n- Memory profilers can affect GC behavior",
+      "tags": [
+        "cpu-profiling",
+        "memory-profiling",
+        "flame-graphs"
+      ],
+      "difficulty": "beginner",
+      "diagram": "graph TD\n    A[Performance Issue] --> B{Type?}\n    B -->|Slow execution| C[CPU Profiling]\n    B -->|High memory usage| D[Memory Profiling]\n    C --> E[Collect Stack Traces]\n    D --> F[Heap Analysis]\n    E --> G[Flame Graph Visualization]\n    F --> H[Memory Maps]\n    G --> I[Identify Hot Functions]\n    H --> J[Find Leaks]",
+      "sourceUrl": "https://nodejs.dev/en/learn/diagnostics/flame-graphs",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Microsoft",
+        "Netflix"
+      ],
+      "lastUpdated": "2025-12-16T01:39:46.335Z"
+    },
+    "q-281": {
+      "id": "q-281",
+      "question": "How do you influence technical decisions when you're not the technical lead?",
+      "answer": "Build credibility through data, collaborate on solutions, and focus on shared goals.",
+      "explanation": "## Concept\nInfluence without authority requires building trust and demonstrating expertise through data-driven arguments and collaborative problem-solving.\n\n## Implementation\n1. **Research & Data**: Gather metrics, benchmarks, and evidence\n2. **Collaborative Discussion**: Frame as problem-solving, not prescription\n3. **Prototype/Demo**: Show tangible proof of concept\n4. **Stakeholder Alignment**: Connect solution to business goals\n5. **Iterative Approach**: Start small, demonstrate wins\n\n```typescript\n// Example: Proposing a new testing framework\nconst proposal = {\n  problem: 'Current test suite takes 45 minutes',\n  impact: 'Slows down deployments, blocks releases',\n  solution: 'Vitest for 3x faster test execution',\n  evidence: {\n    benchmark: 'Ran POC - 15min vs 45min',\n    cost: 'Minimal migration effort',\n    risk: 'Low - same API as Jest'\n  },\n  nextSteps: 'Pilot in one microservice'\n}\n```\n\n## Trade-offs\n**Collaborative approach**: Slower initially but builds long-term trust\n**Data-driven**: More convincing but requires preparation time\n**Small wins**: Builds momentum but may feel incremental\n\n## Pitfalls\n- Don't challenge authority directly in public\n- Avoid making it personal vs. the person\n- Don't ignore legitimate concerns about change\n- Don't overpromise on outcomes",
+      "tags": [
+        "communication",
+        "collaboration",
+        "influence"
+      ],
+      "difficulty": "intermediate",
+      "diagram": "graph TD\n    A[Identify Problem] --> B[Gather Data/Evidence]\n    B --> C[Build Solution]\n    C --> D[Find Champions]\n    D --> E[Pilot/Demo]\n    E --> F[Measure Results]\n    F --> G[Scale Solution]\n    G --> H[Document Learning]",
+      "sourceUrl": "https://hbr.org/2022/03/how-to-influence-people-without-formal-authority",
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Meta",
+        "Microsoft"
+      ],
+      "lastUpdated": "2025-12-16T01:41:21.501Z"
     }
   },
-  "lastUpdated": "2025-12-15T14:02:17.825Z"
+  "lastUpdated": "2025-12-16T01:41:21.504Z"
 }
