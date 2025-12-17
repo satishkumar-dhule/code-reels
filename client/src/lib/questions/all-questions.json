@@ -4390,7 +4390,31 @@
         "Meta"
       ],
       "lastUpdated": "2025-12-17T04:34:18.907Z"
+    },
+    "q-284": {
+      "id": "q-284",
+      "question": "How would you design and implement a production-grade Terraform setup for a multi-environment infrastructure?",
+      "answer": "Use modules, remote state, workspaces, IAM roles, and CI/CD pipelines with proper locking and validation.",
+      "explanation": "## Why Asked\nTests infrastructure automation skills and enterprise-grade deployment patterns\n## Key Concepts\nModule architecture, state management, security, CI/CD integration, environment separation\n## Code Example\n```\nmodule/web_app {\n  source = \"./modules/web-app\"\n  env    = terraform.workspace\n}\n```\n## Follow-up Questions\nHow do you handle secrets? What about drift detection?",
+      "tags": [
+        "infrastructure-as-code",
+        "automation",
+        "best-practices"
+      ],
+      "difficulty": "advanced",
+      "diagram": "flowchart TD\n  A[Dev Workspace] --> D[Remote State Backend]\n  B[Staging Workspace] --> D\n  C[Prod Workspace] --> D\n  D --> E[CI/CD Pipeline]\n  E --> F[Terraform Plan/Apply]",
+      "sourceUrl": null,
+      "videos": {
+        "shortVideo": null,
+        "longVideo": null
+      },
+      "companies": [
+        "Amazon",
+        "Google",
+        "Microsoft"
+      ],
+      "lastUpdated": "2025-12-17T04:54:23.754Z"
     }
   },
-  "lastUpdated": "2025-12-17T04:34:18.910Z"
+  "lastUpdated": "2025-12-17T04:54:23.759Z"
 }
