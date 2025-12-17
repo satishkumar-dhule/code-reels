@@ -200,6 +200,119 @@ export async function getQuestionsForChannel(channel) {
   return result.rows.map(parseQuestionRow);
 }
 
+// ============================================
+// PRIORITIZATION QUERIES
+// ============================================
+
+// Get questions that need improvement, sorted by priority
+export async function getQuestionsNeedingImprovement(limit = 10) {
+  // Query questions with issues, prioritizing:
+  // 1. Missing or short answers
+  // 2. Missing explanations
+  // 3. Missing diagrams
+  // 4. Oldest lastUpdated
+  const result = await dbClient.execute({
+    sql: `
+      SELECT *,
+        CASE 
+          WHEN answer IS NULL OR LENGTH(answer) < 20 THEN 5
+          WHEN LENGTH(answer) > 300 THEN 3
+          ELSE 0
+        END +
+        CASE 
+          WHEN explanation IS NULL OR LENGTH(explanation) < 50 THEN 4
+          WHEN explanation LIKE '%[truncated%' THEN 3
+          ELSE 0
+        END +
+        CASE 
+          WHEN diagram IS NULL OR LENGTH(diagram) < 20 THEN 3
+          ELSE 0
+        END +
+        CASE 
+          WHEN source_url IS NULL THEN 1
+          ELSE 0
+        END +
+        CASE 
+          WHEN videos IS NULL OR videos = '{}' OR videos = 'null' THEN 2
+          ELSE 0
+        END +
+        CASE 
+          WHEN companies IS NULL OR companies = '[]' OR companies = 'null' THEN 1
+          ELSE 0
+        END AS priority_score
+      FROM questions
+      WHERE 
+        (answer IS NULL OR LENGTH(answer) < 20 OR LENGTH(answer) > 300) OR
+        (explanation IS NULL OR LENGTH(explanation) < 50 OR explanation LIKE '%[truncated%') OR
+        (diagram IS NULL OR LENGTH(diagram) < 20) OR
+        (source_url IS NULL) OR
+        (videos IS NULL OR videos = '{}' OR videos = 'null') OR
+        (companies IS NULL OR companies = '[]' OR companies = 'null') OR
+        (question NOT LIKE '%?')
+      ORDER BY priority_score DESC, last_updated ASC
+      LIMIT ?
+    `,
+    args: [limit]
+  });
+  return result.rows.map(parseQuestionRow);
+}
+
+// Get questions needing diagrams, sorted by priority
+export async function getQuestionsNeedingDiagrams(limit = 10) {
+  const result = await dbClient.execute({
+    sql: `
+      SELECT *,
+        CASE 
+          WHEN diagram IS NULL OR LENGTH(diagram) < 20 THEN 3
+          WHEN diagram LIKE '%Concept%' AND diagram LIKE '%Implementation%' AND LENGTH(diagram) < 100 THEN 2
+          WHEN LENGTH(diagram) < 50 THEN 1
+          ELSE 0
+        END AS diagram_priority
+      FROM questions
+      WHERE 
+        diagram IS NULL OR 
+        LENGTH(diagram) < 20 OR
+        (diagram LIKE '%Concept%' AND diagram LIKE '%Implementation%' AND LENGTH(diagram) < 100)
+      ORDER BY diagram_priority DESC, last_updated ASC
+      LIMIT ?
+    `,
+    args: [limit]
+  });
+  return result.rows.map(parseQuestionRow);
+}
+
+// Get channel statistics for balancing question distribution
+export async function getChannelStats() {
+  const result = await dbClient.execute(`
+    SELECT 
+      channel,
+      COUNT(*) as question_count,
+      SUM(CASE WHEN diagram IS NULL OR LENGTH(diagram) < 20 THEN 1 ELSE 0 END) as missing_diagrams,
+      SUM(CASE WHEN explanation IS NULL OR LENGTH(explanation) < 50 THEN 1 ELSE 0 END) as missing_explanations,
+      SUM(CASE WHEN companies IS NULL OR companies = '[]' THEN 1 ELSE 0 END) as missing_companies,
+      MIN(last_updated) as oldest_update
+    FROM questions
+    GROUP BY channel
+    ORDER BY question_count ASC
+  `);
+  return result.rows;
+}
+
+// Get channels with fewest questions (for balancing new question additions)
+export async function getUnderservedChannels(minQuestions = 10) {
+  const result = await dbClient.execute({
+    sql: `
+      SELECT channel, COUNT(*) as count
+      FROM questions
+      GROUP BY channel
+      HAVING COUNT(*) < ?
+      ORDER BY count ASC
+    `,
+    args: [minQuestions]
+  });
+  return result.rows;
+}
+
 // Generate unique ID
 export async function generateUnifiedId(prefix = 'q') {
   const result = await dbClient.execute('SELECT id FROM questions');

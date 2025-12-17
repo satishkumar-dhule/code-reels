@@ -8,7 +8,9 @@ import {
   writeGitHubOutput,
   logQuestionsImproved,
   validateYouTubeVideos,
-  normalizeCompanies
+  normalizeCompanies,
+  getQuestionsNeedingImprovement,
+  getChannelStats
 } from './utils.js';
 
 const CHANNEL_STRUCTURE = {
@@ -66,22 +68,26 @@ async function main() {
   
   console.log(`Loaded ${allQuestions.length} questions from ${channels.length} channels`);
 
-  // Find improvable questions
-  const improvableQuestions = allQuestions.filter(q => needsImprovement(q).length > 0);
-  console.log(`Found ${improvableQuestions.length} questions needing improvement\n`);
+  // Show channel stats for context
+  console.log('\n📊 Channel Statistics:');
+  const channelStats = await getChannelStats();
+  channelStats.slice(0, 5).forEach(stat => {
+    console.log(`  ${stat.channel}: ${stat.question_count} questions, ${stat.missing_diagrams} missing diagrams, ${stat.missing_explanations} missing explanations`);
+  });
+
+  // Use database query to get prioritized questions needing improvement
+  console.log('\n🔍 Querying database for questions needing improvement...');
+  const prioritizedQuestions = await getQuestionsNeedingImprovement(improveLimit * 2);
+  
+  // Also check with local function for additional issues
+  const improvableQuestions = prioritizedQuestions.filter(q => needsImprovement(q).length > 0);
+  console.log(`Found ${improvableQuestions.length} questions needing improvement (prioritized by severity)\n`);
 
   if (improvableQuestions.length === 0) {
     console.log('✅ All questions are in good shape!');
     writeGitHubOutput({ improved_count: 0, failed_count: 0, total_questions: allQuestions.length });
     return;
   }
-
-  // Sort by lastUpdated (oldest first)
-  improvableQuestions.sort((a, b) => {
-    const dateA = new Date(a.lastUpdated || 0).getTime();
-    const dateB = new Date(b.lastUpdated || 0).getTime();
-    return dateA - dateB;
-  });
 
   const improvedQuestions = [];
   const failedAttempts = [];

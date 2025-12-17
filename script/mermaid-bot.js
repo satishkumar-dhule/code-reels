@@ -5,7 +5,8 @@ import {
   runWithRetries,
   parseJson,
   writeGitHubOutput,
-  dbClient
+  dbClient,
+  getQuestionsNeedingDiagrams
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
@@ -144,24 +145,39 @@ async function main() {
   console.log(`📅 Last run: ${state.lastRunDate || 'Never'}`);
   console.log(`⚙️ Batch size: ${BATCH_SIZE}\n`);
   
-  // Sort questions by ID for consistent ordering
-  const sortedQuestions = [...allQuestions].sort((a, b) => {
-    const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
-    const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
-    return numA - numB;
-  });
+  // Use database query to get prioritized questions needing diagrams
+  console.log('🔍 Querying database for questions needing diagrams...');
+  const prioritizedQuestions = await getQuestionsNeedingDiagrams(BATCH_SIZE * 3);
   
-  // Calculate start index (wrap around if needed)
+  // If we have prioritized questions, use those; otherwise fall back to sequential processing
+  let batch;
   let startIndex = state.lastProcessedIndex;
-  if (startIndex >= sortedQuestions.length) {
-    startIndex = 0;
-    console.log('🔄 Wrapped around to beginning\n');
+  let endIndex;
+  
+  if (prioritizedQuestions.length > 0) {
+    console.log(`✅ Found ${prioritizedQuestions.length} questions needing diagrams (prioritized)`);
+    batch = prioritizedQuestions.slice(0, BATCH_SIZE);
+    endIndex = startIndex + batch.length;
+    console.log(`📦 Processing ${batch.length} prioritized questions\n`);
+  } else {
+    // Fall back to sequential processing if no prioritized questions
+    console.log('ℹ️ No prioritized questions found, using sequential processing');
+    
+    const sortedQuestions = [...allQuestions].sort((a, b) => {
+      const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+      const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+      return numA - numB;
+    });
+    
+    if (startIndex >= sortedQuestions.length) {
+      startIndex = 0;
+      console.log('🔄 Wrapped around to beginning\n');
+    }
+    
+    endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
+    batch = sortedQuestions.slice(startIndex, endIndex);
+    console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
   }
-  
-  const endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
-  const batch = sortedQuestions.slice(startIndex, endIndex);
-  
-  console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
   
   const questions = await loadUnifiedQuestions();
   const results = {

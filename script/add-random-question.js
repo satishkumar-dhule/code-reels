@@ -9,7 +9,9 @@ import {
   writeGitHubOutput,
   logQuestionsAdded,
   validateYouTubeVideos,
-  normalizeCompanies
+  normalizeCompanies,
+  getChannelStats,
+  getUnderservedChannels
 } from './utils.js';
 
 // Channel structure for mapping
@@ -54,9 +56,31 @@ async function main() {
   const allQuestions = await getAllUnifiedQuestions();
   console.log(`📊 Current database: ${allQuestions.length} questions\n`);
   
+  // Show channel statistics to help with balancing
+  console.log('📊 Channel Statistics (questions per channel):');
+  const channelStats = await getChannelStats();
+  const statsMap = {};
+  channelStats.forEach(stat => {
+    statsMap[stat.channel] = stat.question_count;
+    console.log(`  ${stat.channel}: ${stat.question_count} questions`);
+  });
+  
+  // Identify underserved channels
+  const underserved = await getUnderservedChannels(15);
+  if (underserved.length > 0) {
+    console.log('\n⚠️ Underserved channels (< 15 questions):');
+    underserved.forEach(ch => console.log(`  ${ch.channel}: ${ch.count} questions`));
+  }
+  console.log('');
+  
   const channelList = Object.entries(CHANNEL_STRUCTURE)
-    .map(([ch, subs]) => `${ch}: [${subs.join(', ')}]`)
+    .map(([ch, subs]) => `${ch} (${statsMap[ch] || 0} questions): [${subs.join(', ')}]`)
     .join('\n');
+  
+  // Build priority hint for underserved channels
+  const priorityChannels = underserved.length > 0 
+    ? `\n\nPRIORITY: These channels need more questions: ${underserved.map(c => c.channel).join(', ')}`
+    : '';
   
   console.log('🔄 Mapping to channel and refining question...\n');
   
@@ -66,8 +90,8 @@ Analyze this interview question and map it to the best channel/subchannel, refin
 
 Input Question: "${inputQuestion}"
 
-Available channels and subchannels:
-${channelList}
+Available channels and subchannels (with current question counts):
+${channelList}${priorityChannels}
 
 Output this exact JSON structure:
 {"channel":"channel-id","subChannel":"subchannel-id","question":"refined professional interview question ending with ?","answer":"concise answer under 150 chars","explanation":"## Why Asked\\nInterview context\\n## Key Concepts\\nCore knowledge\\n## Code Example\\n\`\`\`\\nImplementation if applicable\\n\`\`\`\\n## Follow-up Questions\\nCommon follow-ups","diagram":"flowchart TD\\n  A[Start] --> B[End]","companies":["Google","Amazon","Meta"],"difficulty":"beginner|intermediate|advanced","tags":["tag1","tag2","tag3"],"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null},"relatedChannels":["other-channel-1","other-channel-2"]}
