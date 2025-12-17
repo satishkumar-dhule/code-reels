@@ -6,17 +6,14 @@ import {
   runWithRetries,
   parseJson,
   validateQuestion,
-  updateUnifiedIndexFile,
   writeGitHubOutput,
   logQuestionsAdded,
   validateYouTubeVideos,
   normalizeCompanies
 } from './utils.js';
 
-// Complete channel configurations matching channels-config.ts
-// Each channel has sub-channels and tags for question generation
+// Channel configurations
 const channelConfigs = {
-  // Engineering Channels
   'system-design': [
     { subChannel: 'infrastructure', tags: ['infra', 'scale', 'distributed'] },
     { subChannel: 'distributed-systems', tags: ['dist-sys', 'cap-theorem', 'consensus'] },
@@ -53,8 +50,6 @@ const channelConfigs = {
     { subChannel: 'transactions', tags: ['acid', 'isolation-levels', 'mvcc'] },
     { subChannel: 'query-optimization', tags: ['explain', 'query-plan', 'partitioning'] },
   ],
-
-  // DevOps & Cloud Channels
   'devops': [
     { subChannel: 'cicd', tags: ['github-actions', 'jenkins', 'gitlab-ci'] },
     { subChannel: 'docker', tags: ['dockerfile', 'compose', 'multi-stage'] },
@@ -82,19 +77,12 @@ const channelConfigs = {
     { subChannel: 'database', tags: ['rds', 'aurora', 'dynamodb', 'elasticache'] },
     { subChannel: 'networking', tags: ['vpc', 'route53', 'cloudfront', 'alb'] },
   ],
-  'terraform': [
-    { subChannel: 'basics', tags: ['hcl', 'resources', 'data-sources'] },
-    { subChannel: 'modules', tags: ['composition', 'versioning', 'registry'] },
-    { subChannel: 'state-management', tags: ['remote-state', 'locking', 'workspaces'] },
-    { subChannel: 'best-practices', tags: ['dry', 'terragrunt', 'atlantis'] },
-  ],
-
-  // Data & AI Channels
-  'data-engineering': [
-    { subChannel: 'etl', tags: ['spark', 'airflow', 'dbt'] },
-    { subChannel: 'data-pipelines', tags: ['dag', 'orchestration', 'scheduling'] },
-    { subChannel: 'warehousing', tags: ['snowflake', 'bigquery', 'redshift'] },
-    { subChannel: 'streaming', tags: ['kafka', 'flink', 'kinesis'] },
+  'generative-ai': [
+    { subChannel: 'llm-fundamentals', tags: ['transformer', 'attention', 'tokenization'] },
+    { subChannel: 'fine-tuning', tags: ['lora', 'qlora', 'peft', 'adapter'] },
+    { subChannel: 'rag', tags: ['retrieval', 'embeddings', 'vector-db', 'chunking'] },
+    { subChannel: 'agents', tags: ['langchain', 'autogen', 'tool-use', 'planning'] },
+    { subChannel: 'evaluation', tags: ['hallucination', 'faithfulness', 'relevance'] },
   ],
   'machine-learning': [
     { subChannel: 'algorithms', tags: ['regression', 'classification', 'clustering'] },
@@ -103,131 +91,17 @@ const channelConfigs = {
     { subChannel: 'deep-learning', tags: ['cnn', 'rnn', 'transformer', 'attention'] },
     { subChannel: 'evaluation', tags: ['precision', 'recall', 'auc-roc', 'f1'] },
   ],
-  'python': [
-    { subChannel: 'fundamentals', tags: ['generators', 'decorators', 'context-managers'] },
-    { subChannel: 'libraries', tags: ['pandas', 'numpy', 'scikit-learn'] },
-    { subChannel: 'best-practices', tags: ['pep8', 'typing', 'testing'] },
-    { subChannel: 'async', tags: ['asyncio', 'aiohttp', 'concurrency'] },
-  ],
-
-  // NEW: AI & GenAI Channels
-  'generative-ai': [
-    { subChannel: 'llm-fundamentals', tags: ['transformer', 'attention', 'tokenization'] },
-    { subChannel: 'fine-tuning', tags: ['lora', 'qlora', 'peft', 'adapter'] },
-    { subChannel: 'rag', tags: ['retrieval', 'embeddings', 'vector-db', 'chunking'] },
-    { subChannel: 'agents', tags: ['langchain', 'autogen', 'tool-use', 'planning'] },
-    { subChannel: 'evaluation', tags: ['hallucination', 'faithfulness', 'relevance'] },
-  ],
-  'prompt-engineering': [
-    { subChannel: 'techniques', tags: ['chain-of-thought', 'few-shot', 'zero-shot'] },
-    { subChannel: 'optimization', tags: ['prompt-tuning', 'dspy', 'automatic-prompting'] },
-    { subChannel: 'safety', tags: ['jailbreak', 'guardrails', 'content-filtering'] },
-    { subChannel: 'structured-output', tags: ['json-mode', 'function-calling', 'schema'] },
-  ],
-  'llm-ops': [
-    { subChannel: 'deployment', tags: ['vllm', 'tgi', 'triton', 'onnx'] },
-    { subChannel: 'optimization', tags: ['quantization', 'pruning', 'distillation'] },
-    { subChannel: 'monitoring', tags: ['latency', 'throughput', 'cost-tracking'] },
-    { subChannel: 'infrastructure', tags: ['gpu', 'tpu', 'inference-server'] },
-  ],
-  'computer-vision': [
-    { subChannel: 'image-classification', tags: ['cnn', 'resnet', 'efficientnet'] },
-    { subChannel: 'object-detection', tags: ['yolo', 'rcnn', 'detr'] },
-    { subChannel: 'segmentation', tags: ['unet', 'mask-rcnn', 'sam'] },
-    { subChannel: 'multimodal', tags: ['clip', 'blip', 'llava', 'vision-transformer'] },
-  ],
-  'nlp': [
-    { subChannel: 'text-processing', tags: ['tokenization', 'stemming', 'ner'] },
-    { subChannel: 'embeddings', tags: ['word2vec', 'bert', 'sentence-transformers'] },
-    { subChannel: 'sequence-models', tags: ['lstm', 'gru', 'seq2seq'] },
-    { subChannel: 'transformers', tags: ['bert', 'gpt', 't5', 'llama'] },
-  ],
-
-  // Security Channel
   'security': [
     { subChannel: 'application-security', tags: ['xss', 'csrf', 'sqli', 'ssrf'] },
     { subChannel: 'owasp', tags: ['top10', 'asvs', 'samm'] },
     { subChannel: 'encryption', tags: ['aes', 'rsa', 'tls', 'hashing'] },
     { subChannel: 'authentication', tags: ['mfa', 'passkeys', 'zero-trust'] },
   ],
-  'networking': [
-    { subChannel: 'tcp-ip', tags: ['tcp', 'udp', 'http2', 'quic'] },
-    { subChannel: 'dns', tags: ['resolution', 'caching', 'dnssec'] },
-    { subChannel: 'load-balancing', tags: ['l4', 'l7', 'consistent-hashing'] },
-    { subChannel: 'cdn', tags: ['edge', 'caching', 'purging'] },
-  ],
-  
-  // Operating Systems Channels
-  'operating-systems': [
-    { subChannel: 'processes', tags: ['process', 'threads', 'scheduling', 'context-switch'] },
-    { subChannel: 'memory', tags: ['virtual-memory', 'paging', 'segmentation', 'cache'] },
-    { subChannel: 'file-systems', tags: ['inodes', 'ext4', 'ntfs', 'journaling'] },
-    { subChannel: 'concurrency', tags: ['mutex', 'semaphore', 'deadlock', 'race-condition'] },
-  ],
-  'linux': [
-    { subChannel: 'administration', tags: ['systemd', 'cron', 'users', 'permissions'] },
-    { subChannel: 'shell-scripting', tags: ['bash', 'awk', 'sed', 'grep'] },
-    { subChannel: 'system-tools', tags: ['top', 'htop', 'strace', 'lsof'] },
-    { subChannel: 'networking', tags: ['iptables', 'netstat', 'ss', 'tcpdump'] },
-  ],
-  'unix': [
-    { subChannel: 'fundamentals', tags: ['posix', 'signals', 'pipes', 'sockets'] },
-    { subChannel: 'commands', tags: ['find', 'xargs', 'cut', 'sort'] },
-    { subChannel: 'system-programming', tags: ['fork', 'exec', 'ipc', 'shared-memory'] },
-  ],
-
-  // Mobile Channels
-  'ios': [
-    { subChannel: 'swift', tags: ['optionals', 'protocols', 'generics'] },
-    { subChannel: 'uikit', tags: ['autolayout', 'tableview', 'collectionview'] },
-    { subChannel: 'swiftui', tags: ['state', 'binding', 'environment'] },
-    { subChannel: 'architecture', tags: ['mvvm', 'viper', 'clean-architecture'] },
-  ],
-  'android': [
-    { subChannel: 'kotlin', tags: ['coroutines', 'flow', 'sealed-classes'] },
-    { subChannel: 'jetpack-compose', tags: ['composables', 'state', 'navigation'] },
-    { subChannel: 'architecture', tags: ['mvvm', 'mvi', 'clean-architecture'] },
-    { subChannel: 'lifecycle', tags: ['viewmodel', 'livedata', 'savedstate'] },
-  ],
-  'react-native': [
-    { subChannel: 'components', tags: ['flatlist', 'navigation', 'gestures'] },
-    { subChannel: 'native-modules', tags: ['turbo-modules', 'fabric', 'jsi'] },
-    { subChannel: 'performance', tags: ['hermes', 'reanimated', 'profiling'] },
-    { subChannel: 'architecture', tags: ['new-architecture', 'bridgeless'] },
-  ],
-
-  // Testing & QA Channels
   'testing': [
     { subChannel: 'unit-testing', tags: ['jest', 'mocha', 'pytest', 'junit'] },
     { subChannel: 'integration-testing', tags: ['api-testing', 'database-testing', 'mocking'] },
     { subChannel: 'tdd', tags: ['test-driven', 'red-green-refactor', 'test-first'] },
     { subChannel: 'test-strategies', tags: ['test-pyramid', 'coverage', 'mutation-testing'] },
-  ],
-  'e2e-testing': [
-    { subChannel: 'playwright', tags: ['playwright', 'browser-automation', 'selectors'] },
-    { subChannel: 'cypress', tags: ['cypress', 'component-testing', 'fixtures'] },
-    { subChannel: 'selenium', tags: ['selenium', 'webdriver', 'grid'] },
-    { subChannel: 'visual-testing', tags: ['screenshot', 'visual-regression', 'percy'] },
-  ],
-  'api-testing': [
-    { subChannel: 'rest-testing', tags: ['postman', 'rest-assured', 'supertest'] },
-    { subChannel: 'contract-testing', tags: ['pact', 'consumer-driven', 'schema-validation'] },
-    { subChannel: 'graphql-testing', tags: ['graphql', 'apollo', 'introspection'] },
-    { subChannel: 'mocking', tags: ['wiremock', 'mockserver', 'msw'] },
-  ],
-  'performance-testing': [
-    { subChannel: 'load-testing', tags: ['jmeter', 'k6', 'gatling', 'locust'] },
-    { subChannel: 'stress-testing', tags: ['spike-testing', 'soak-testing', 'breakpoint'] },
-    { subChannel: 'profiling', tags: ['cpu-profiling', 'memory-profiling', 'flame-graphs'] },
-    { subChannel: 'benchmarking', tags: ['latency', 'throughput', 'percentiles'] },
-  ],
-
-  // Management & Soft Skills Channels
-  'engineering-management': [
-    { subChannel: 'team-leadership', tags: ['delegation', 'mentoring', 'growth'] },
-    { subChannel: 'one-on-ones', tags: ['feedback', 'career-development', 'coaching'] },
-    { subChannel: 'hiring', tags: ['sourcing', 'interviewing', 'onboarding'] },
-    { subChannel: 'project-management', tags: ['agile', 'scrum', 'kanban', 'okrs'] },
   ],
   'behavioral': [
     { subChannel: 'star-method', tags: ['situation', 'task', 'action', 'result'] },
@@ -239,13 +113,10 @@ const channelConfigs = {
 
 const difficulties = ['beginner', 'intermediate', 'advanced'];
 
-// Get all channels from the config (source of truth)
-// This ensures we generate questions for all defined channels
 function getAllChannels() {
   return Object.keys(channelConfigs);
 }
 
-// Get a random sub-channel config for a given channel
 function getRandomSubChannel(channel) {
   const configs = channelConfigs[channel];
   if (!configs || configs.length === 0) {
@@ -255,28 +126,22 @@ function getRandomSubChannel(channel) {
 }
 
 async function main() {
-  console.log('=== Daily Question Generator (Unified Storage) ===\n');
-  console.log('Mode: 1 question per channel (can map to multiple channels)\n');
+  console.log('=== Daily Question Generator (Database Mode) ===\n');
 
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
-  // Limit number of questions to generate (0 = all channels)
   const inputLimit = parseInt(process.env.INPUT_LIMIT || '0', 10);
   
-  // Get all channels from config
   let channels = getAllChannels();
   
-  // Apply limit if specified
   if (inputLimit > 0) {
-    // Shuffle channels to get random selection
     channels = channels.sort(() => Math.random() - 0.5).slice(0, inputLimit);
     console.log(`Limited to ${inputLimit} channel(s): ${channels.join(', ')}\n`);
   } else {
-    console.log(`Found ${channels.length} channels: ${channels.join(', ')}\n`);
+    console.log(`Found ${channels.length} channels\n`);
   }
 
-  const allQuestions = getAllUnifiedQuestions();
-  console.log(`Loaded ${allQuestions.length} existing questions`);
-  console.log(`Target: Generate 1 question per channel (${channels.length} total)\n`);
+  const allQuestions = await getAllUnifiedQuestions();
+  console.log(`Loaded ${allQuestions.length} existing questions from database`);
 
   const addedQuestions = [];
   const failedAttempts = [];
@@ -294,7 +159,6 @@ async function main() {
     console.log(`Sub-channel: ${subChannelConfig.subChannel}`);
     console.log(`Difficulty: ${difficulty}`);
 
-    // Optimized prompt - concise but clear, with strict JSON-only instruction
     const prompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
 
 Generate ${difficulty} ${channel}/${subChannelConfig.subChannel} interview question.
@@ -305,7 +169,6 @@ Output this exact JSON structure:
 
 IMPORTANT: Return ONLY the JSON object. No other text.`;
 
-    // Log the prompt
     console.log('\n📝 PROMPT:');
     console.log('─'.repeat(50));
     console.log(prompt);
@@ -327,18 +190,17 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
       continue;
     }
 
-    if (isDuplicateUnified(data.question)) {
+    if (await isDuplicateUnified(data.question)) {
       console.log('❌ Duplicate question detected.');
       failedAttempts.push({ channel, reason: 'Duplicate detected' });
       continue;
     }
 
-    // Validate YouTube videos if provided
     console.log('🎬 Validating YouTube videos...');
     const validatedVideos = await validateYouTubeVideos(data.videos);
 
     const newQuestion = {
-      id: generateUnifiedId(),
+      id: await generateUnifiedId(),
       question: data.question,
       answer: data.answer.substring(0, 200),
       explanation: data.explanation,
@@ -354,70 +216,39 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
       lastUpdated: new Date().toISOString()
     };
 
-    // Build channel mappings - primary channel + any related channels
     const channelMappings = [{ channel, subChannel: subChannelConfig.subChannel }];
-    
-    // Add related channels if provided by AI and they exist in our config
-    if (data.relatedChannels && Array.isArray(data.relatedChannels)) {
-      data.relatedChannels.forEach(relatedChannel => {
-        if (channelConfigs[relatedChannel] && relatedChannel !== channel) {
-          // Pick a relevant subchannel for the related channel
-          const relatedSubChannel = getRandomSubChannel(relatedChannel);
-          channelMappings.push({ 
-            channel: relatedChannel, 
-            subChannel: relatedSubChannel.subChannel 
-          });
-        }
-      });
-    }
 
-    // Add question to unified storage with all channel mappings
-    addUnifiedQuestion(newQuestion, channelMappings);
-    updateUnifiedIndexFile();
+    await addUnifiedQuestion(newQuestion, channelMappings);
     
     addedQuestions.push({ ...newQuestion, mappedChannels: channelMappings });
 
     console.log(`✅ Added: ${newQuestion.id}`);
     console.log(`Q: ${newQuestion.question.substring(0, 60)}...`);
-    if (channelMappings.length > 1) {
-      console.log(`📎 Also mapped to: ${channelMappings.slice(1).map(m => m.channel).join(', ')}`);
-    }
   }
 
-  // Print summary
-  const totalQuestions = getAllUnifiedQuestions().length;
+  const totalQuestions = (await getAllUnifiedQuestions()).length;
   console.log('\n\n=== SUMMARY ===');
   console.log(`Total Questions Added: ${addedQuestions.length}/${channels.length}`);
   
   if (addedQuestions.length > 0) {
     console.log('\n✅ Successfully Added Questions:');
     addedQuestions.forEach((q, idx) => {
-      const channels = q.mappedChannels.map(m => `${m.channel}/${m.subChannel}`).join(', ');
       console.log(`  ${idx + 1}. [${q.id}] (${q.difficulty})`);
-      console.log(`     Q: ${q.question.substring(0, 70)}${q.question.length > 70 ? '...' : ''}`);
-      console.log(`     Channels: ${channels}`);
+      console.log(`     Q: ${q.question.substring(0, 70)}...`);
     });
   }
 
   if (failedAttempts.length > 0) {
     console.log(`\n❌ Failed Attempts: ${failedAttempts.length}`);
-    failedAttempts.forEach(f => {
-      console.log(`  - ${f.channel}: ${f.reason}`);
-    });
+    failedAttempts.forEach(f => console.log(`  - ${f.channel}: ${f.reason}`));
   }
 
   console.log(`\nTotal Questions in Database: ${totalQuestions}`);
   console.log('=== END SUMMARY ===\n');
 
-  // Log to changelog
   if (addedQuestions.length > 0) {
     const channelsAffected = addedQuestions.flatMap(q => q.mappedChannels.map(m => m.channel));
-    logQuestionsAdded(
-      addedQuestions.length,
-      channelsAffected,
-      addedQuestions.map(q => q.id)
-    );
-    console.log('📝 Changelog updated with new questions');
+    logQuestionsAdded(addedQuestions.length, channelsAffected, addedQuestions.map(q => q.id));
   }
 
   writeGitHubOutput({

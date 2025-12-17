@@ -2,9 +2,10 @@ import { test, expect } from '@playwright/test';
 
 test.describe('All Channels Page', () => {
   test.beforeEach(async ({ page }) => {
-    // Set up user preferences
+    // Set up user preferences and skip intro
     await page.goto('/');
     await page.evaluate(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms'],
@@ -12,6 +13,7 @@ test.describe('All Channels Page', () => {
         createdAt: new Date().toISOString()
       }));
     });
+    await page.reload();
   });
 
   test('should display all available channels', async ({ page }) => {

@@ -10,6 +10,9 @@ build/
 .next/
 out/
 
+# Generated data (fetched from Turso at build time)
+client/public/data/
+
 # Environment variables
 .env
 .env.local

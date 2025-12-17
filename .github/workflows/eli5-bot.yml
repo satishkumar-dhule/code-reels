@@ -35,31 +35,9 @@ jobs:
         id: eli5
         env:
           BATCH_SIZE: ${{ github.event.inputs.batch_size || '5' }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: node script/eli5-bot.js
-
-      - name: Check for changes
-        id: check
-        run: |
-          if git diff --quiet client/src/lib/questions/; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push
-        if: steps.check.outputs.changed == 'true'
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add client/src/lib/questions/
-          git commit -m "🧒 Add ELI5 explanations to questions"
-          
-          for i in 1 2 3; do
-            git pull --rebase origin main && git push origin main && exit 0
-            echo "Push failed, retry $i..."
-            sleep 5
-          done
-          exit 1
 
       - name: Trigger deploy
         if: steps.check.outputs.changed == 'true'

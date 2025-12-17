@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Collapsible Sections - Desktop', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['algorithms'],
@@ -125,6 +126,7 @@ test.describe('Collapsible Sections - Mobile', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['algorithms'],

@@ -37,60 +37,18 @@ jobs:
         run: node script/mermaid-bot.js
         env:
           BATCH_SIZE: ${{ inputs.batch_size || '5' }}
-
-      - name: Check for changes
-        id: check
-        run: |
-          if git diff --quiet client/src/lib/questions/; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push
-        if: steps.check.outputs.changed == 'true'
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add client/src/lib/questions/
-          git commit -m "📊 Mermaid Bot: Add/improve diagrams $(date +%Y-%m-%d)"
-          
-          for i in 1 2 3; do
-            git fetch origin main
-            git rebase origin/main
-            git push origin main && exit 0
-            echo "Push failed, retry $i..."
-            git rebase --abort 2>/dev/null || true
-            sleep 5
-          done
-          exit 1
-
-      - name: Trigger deploy
-        if: steps.check.outputs.changed == 'true'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GH_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'deploy-pages.yml',
-              ref: 'main'
-            });
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Summary
         if: always()
         run: |
           echo "## 📊 Mermaid Bot Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
-            echo "### ✅ Diagrams Updated" >> $GITHUB_STEP_SUMMARY
-            echo "- Validated existing diagrams" >> $GITHUB_STEP_SUMMARY
-            echo "- Generated new diagrams for questions missing them" >> $GITHUB_STEP_SUMMARY
-            echo "- Improved low-quality diagrams" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ℹ️ No Changes" >> $GITHUB_STEP_SUMMARY
-            echo "All diagrams in batch are valid" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "### ✅ Diagrams Updated" >> $GITHUB_STEP_SUMMARY
+          echo "- Validated existing diagrams" >> $GITHUB_STEP_SUMMARY
+          echo "- Generated new diagrams for questions missing them" >> $GITHUB_STEP_SUMMARY
+          echo "- Improved low-quality diagrams" >> $GITHUB_STEP_SUMMARY
+          echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

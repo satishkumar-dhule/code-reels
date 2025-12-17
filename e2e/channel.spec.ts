@@ -4,6 +4,7 @@ test.describe('Channel/Reels Page', () => {
   test.beforeEach(async ({ page }) => {
     // Set up user preferences using addInitScript for reliability
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms', 'frontend', 'database', 'devops', 'sre'],

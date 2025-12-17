@@ -1,38 +1,13 @@
 import {
-  loadUnifiedQuestions,
-  saveUnifiedQuestions,
   getAllUnifiedQuestions,
+  saveQuestion,
   runWithRetries,
   parseJson,
-  updateUnifiedIndexFile,
   writeGitHubOutput
 } from './utils.js';
-import fs from 'fs';
 
-// State tracking for resumable runs
-const STATE_FILE = 'client/src/lib/questions/eli5-bot-state.json';
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
 const RATE_LIMIT_MS = 2000;
-
-// Load bot state
-function loadState() {
-  try {
-    return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-  } catch (e) {
-    return {
-      lastProcessedIndex: 0,
-      lastRunDate: null,
-      totalProcessed: 0,
-      totalEli5Added: 0
-    };
-  }
-}
-
-// Save bot state
-function saveState(state) {
-  state.lastRunDate = new Date().toISOString();
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
-}
 
 // Check if question needs ELI5 explanation
 function needsEli5(question) {
@@ -82,20 +57,16 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
   return data.eli5;
 }
 
-// Rate limiting helper
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function main() {
-  console.log('=== ELI5 Bot - Explain Like I\'m 5 ===\n');
+  console.log('=== ELI5 Bot - Explain Like I\'m 5 (Database Mode) ===\n');
   
-  const state = loadState();
-  const allQuestions = getAllUnifiedQuestions();
+  const allQuestions = await getAllUnifiedQuestions();
   
   console.log(`📊 Database: ${allQuestions.length} questions`);
-  console.log(`📍 Last processed index: ${state.lastProcessedIndex}`);
-  console.log(`📅 Last run: ${state.lastRunDate || 'Never'}`);
   console.log(`⚙️ Batch size: ${BATCH_SIZE}\n`);
   
   // Sort questions by ID for consistent ordering
@@ -105,19 +76,12 @@ async function main() {
     return numA - numB;
   });
   
-  // Calculate start index (wrap around if needed)
-  let startIndex = state.lastProcessedIndex;
-  if (startIndex >= sortedQuestions.length) {
-    startIndex = 0;
-    console.log('🔄 Wrapped around to beginning\n');
-  }
+  // Find questions needing ELI5
+  const needingEli5 = sortedQuestions.filter(q => needsEli5(q).needs);
+  console.log(`📦 Questions needing ELI5: ${needingEli5.length}\n`);
   
-  const endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
-  const batch = sortedQuestions.slice(startIndex, endIndex);
+  const batch = needingEli5.slice(0, BATCH_SIZE);
   
-  console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
-  
-  const questions = loadUnifiedQuestions();
   const results = {
     processed: 0,
     eli5Added: 0,
@@ -127,30 +91,12 @@ async function main() {
   
   for (let i = 0; i < batch.length; i++) {
     const question = batch[i];
-    const globalIndex = startIndex + i + 1;
     
-    console.log(`\n--- [${globalIndex}/${sortedQuestions.length}] ${question.id} ---`);
+    console.log(`\n--- [${i + 1}/${batch.length}] ${question.id} ---`);
     console.log(`Q: ${question.question.substring(0, 60)}...`);
-    
-    const check = needsEli5(question);
-    console.log(`Status: ${check.reason}`);
-    
-    if (!check.needs) {
-      console.log('✅ ELI5 exists, skipping');
-      results.skipped++;
-      results.processed++;
-      
-      saveState({
-        ...state,
-        lastProcessedIndex: startIndex + i + 1,
-        totalProcessed: state.totalProcessed + results.processed
-      });
-      continue;
-    }
     
     console.log('🧒 Generating ELI5 explanation...');
     
-    // Rate limiting
     if (i > 0) await sleep(RATE_LIMIT_MS);
     
     const eli5 = await generateEli5(question);
@@ -159,68 +105,33 @@ async function main() {
       console.log('❌ Failed to generate ELI5');
       results.failed++;
       results.processed++;
-      
-      saveState({
-        ...state,
-        lastProcessedIndex: startIndex + i + 1,
-        totalProcessed: state.totalProcessed + results.processed
-      });
       continue;
     }
     
     console.log(`✅ Generated ELI5 (${eli5.length} chars)`);
     console.log(`   Preview: ${eli5.substring(0, 100)}...`);
     
-    // Update question
-    questions[question.id] = {
-      ...questions[question.id],
-      eli5: eli5,
-      lastEli5Update: new Date().toISOString()
-    };
-    
-    // Save immediately after each update
-    saveUnifiedQuestions(questions);
-    console.log('💾 Saved');
+    // Update question in database
+    question.eli5 = eli5;
+    question.lastUpdated = new Date().toISOString();
+    await saveQuestion(question);
+    console.log('💾 Saved to database');
     
     results.eli5Added++;
     results.processed++;
-    
-    // Update state after each question
-    saveState({
-      ...state,
-      lastProcessedIndex: startIndex + i + 1,
-      totalProcessed: state.totalProcessed + results.processed,
-      totalEli5Added: state.totalEli5Added + results.eli5Added
-    });
   }
-  
-  // Final updates
-  updateUnifiedIndexFile();
-  
-  const newState = {
-    lastProcessedIndex: endIndex >= sortedQuestions.length ? 0 : endIndex,
-    lastRunDate: new Date().toISOString(),
-    totalProcessed: state.totalProcessed + results.processed,
-    totalEli5Added: state.totalEli5Added + results.eli5Added
-  };
-  saveState(newState);
   
   // Summary
   console.log('\n\n=== SUMMARY ===');
   console.log(`Processed: ${results.processed}`);
   console.log(`ELI5 Added: ${results.eli5Added}`);
-  console.log(`Skipped (exists): ${results.skipped}`);
   console.log(`Failed: ${results.failed}`);
-  console.log(`\nNext run starts at: ${newState.lastProcessedIndex}`);
-  console.log(`All-time ELI5 added: ${newState.totalEli5Added}`);
   console.log('=== END ===\n');
   
   writeGitHubOutput({
     processed: results.processed,
     eli5_added: results.eli5Added,
-    skipped: results.skipped,
-    failed: results.failed,
-    next_index: newState.lastProcessedIndex
+    failed: results.failed
   });
 }
 

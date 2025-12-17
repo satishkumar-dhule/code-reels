@@ -5,7 +5,9 @@ import {
   getSubChannels,
   getCompaniesForChannel,
   getCompaniesWithCounts,
-  Question,
+  loadChannelQuestions,
+  api,
+  type Question,
 } from '../lib/questions-loader';
 
 // Hook to get questions for a channel with filters
@@ -15,9 +17,39 @@ export function useQuestions(
   difficulty: string = 'all',
   company: string = 'all'
 ) {
-  const questions = useMemo(() => {
-    if (!channelId) return [];
-    return getQuestions(channelId, subChannel, difficulty, company);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!channelId) {
+      setQuestions([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    // Try to get from cache first
+    let cached = getQuestions(channelId, subChannel, difficulty, company);
+    if (cached.length > 0) {
+      setQuestions(cached);
+      setLoading(false);
+      return;
+    }
+
+    // Load from API
+    loadChannelQuestions(channelId)
+      .then(() => {
+        const filtered = getQuestions(channelId, subChannel, difficulty, company);
+        setQuestions(filtered);
+      })
+      .catch(err => {
+        setError(err);
+        setQuestions([]);
+      })
+      .finally(() => setLoading(false));
   }, [channelId, subChannel, difficulty, company]);
 
   const questionIds = useMemo(() => questions.map(q => q.id), [questions]);
@@ -26,22 +58,46 @@ export function useQuestions(
     questions,
     questionIds,
     totalQuestions: questions.length,
-    loading: false,
-    error: null,
+    loading,
+    error,
   };
 }
 
 // Hook to get companies for a channel (simple list)
 export function useCompanies(channelId: string) {
-  const companies = useMemo(() => {
-    if (!channelId) return [];
-    return getCompaniesForChannel(channelId);
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!channelId) {
+      setCompanies([]);
+      setLoading(false);
+      return;
+    }
+
+    // Try cache first
+    const cached = getCompaniesForChannel(channelId);
+    if (cached.length > 0) {
+      setCompanies(cached);
+      setLoading(false);
+      return;
+    }
+
+    // Load from API
+    api.fetchCompanies(channelId)
+      .then(setCompanies)
+      .catch(err => {
+        setError(err);
+        setCompanies([]);
+      })
+      .finally(() => setLoading(false));
   }, [channelId]);
 
   return {
     companies,
-    loading: false,
-    error: null,
+    loading,
+    error,
   };
 }
 
@@ -65,15 +121,40 @@ export function useCompaniesWithCounts(
 
 // Hook to get a single question by ID
 export function useQuestion(questionId: string | undefined) {
-  const question = useMemo(() => {
-    if (!questionId) return null;
-    return getQuestionById(questionId) || null;
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!questionId) {
+      setQuestion(null);
+      setLoading(false);
+      return;
+    }
+
+    // Try cache first
+    const cached = getQuestionById(questionId);
+    if (cached) {
+      setQuestion(cached);
+      setLoading(false);
+      return;
+    }
+
+    // Load from API
+    setLoading(true);
+    api.fetchQuestion(questionId)
+      .then(setQuestion)
+      .catch(err => {
+        setError(err);
+        setQuestion(null);
+      })
+      .finally(() => setLoading(false));
   }, [questionId]);
 
   return { 
     question, 
-    loading: false, 
-    error: null 
+    loading, 
+    error 
   };
 }
 
@@ -85,7 +166,7 @@ export function useQuestionsWithPrefetch(
   difficulty: string = 'all',
   company: string = 'all'
 ) {
-  const { questions, questionIds, totalQuestions } = useQuestions(
+  const { questions, questionIds, totalQuestions, loading, error } = useQuestions(
     channelId,
     subChannel,
     difficulty,
@@ -103,21 +184,45 @@ export function useQuestionsWithPrefetch(
     question: currentQuestion,
     questionIds,
     totalQuestions,
-    loading: false,
-    error: null
+    loading,
+    error
   };
 }
 
 // Hook to get subchannels for a channel
 export function useSubChannels(channelId: string) {
-  const subChannels = useMemo(() => {
-    if (!channelId) return [];
-    return getSubChannels(channelId);
+  const [subChannels, setSubChannels] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!channelId) {
+      setSubChannels([]);
+      setLoading(false);
+      return;
+    }
+
+    // Try cache first
+    const cached = getSubChannels(channelId);
+    if (cached.length > 0) {
+      setSubChannels(cached);
+      setLoading(false);
+      return;
+    }
+
+    // Load from API
+    api.fetchSubChannels(channelId)
+      .then(setSubChannels)
+      .catch(err => {
+        setError(err);
+        setSubChannels([]);
+      })
+      .finally(() => setLoading(false));
   }, [channelId]);
 
   return { 
     subChannels, 
-    loading: false, 
-    error: null 
+    loading, 
+    error 
   };
 }

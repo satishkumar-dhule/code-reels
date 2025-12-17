@@ -4,6 +4,7 @@ test.describe('Company Filter', () => {
   test.beforeEach(async ({ page }) => {
     // Skip onboarding
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms', 'backend', 'frontend', 'devops', 'behavioral'],

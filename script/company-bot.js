@@ -1,17 +1,14 @@
 import {
   loadUnifiedQuestions,
-  saveUnifiedQuestions,
+  saveQuestion,
   getAllUnifiedQuestions,
   runWithRetries,
   parseJson,
-  updateUnifiedIndexFile,
   writeGitHubOutput,
-  normalizeCompanies
+  normalizeCompanies,
+  dbClient
 } from './utils.js';
-import fs from 'fs';
 
-// NFR: State tracking for resumable runs
-const STATE_FILE = 'client/src/lib/questions/company-bot-state.json';
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
 const RATE_LIMIT_MS = 2000; // NFR: Rate limiting between API calls
 const MIN_COMPANIES = 3; // Minimum companies per question
@@ -32,25 +29,46 @@ const KNOWN_COMPANIES = new Set([
   'Twilio', 'Okta', 'CrowdStrike', 'Datadog', 'Palo Alto Networks'
 ]);
 
-// Load bot state
-function loadState() {
+// Load bot state from database
+async function loadState() {
   try {
-    return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    const result = await dbClient.execute({
+      sql: "SELECT value FROM bot_state WHERE bot_name = ?",
+      args: ['company-bot']
+    });
+    if (result.rows.length > 0) {
+      return JSON.parse(result.rows[0].value);
+    }
   } catch (e) {
-    return {
-      lastProcessedIndex: 0,
-      lastRunDate: null,
-      totalProcessed: 0,
-      totalCompaniesAdded: 0,
-      questionsUpdated: 0
-    };
+    // Table might not exist yet
   }
+  return {
+    lastProcessedIndex: 0,
+    lastRunDate: null,
+    totalProcessed: 0,
+    totalCompaniesAdded: 0,
+    questionsUpdated: 0
+  };
 }
 
-// Save bot state
-function saveState(state) {
+// Save bot state to database
+async function saveState(state) {
   state.lastRunDate = new Date().toISOString();
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+  try {
+    await dbClient.execute(`
+      CREATE TABLE IF NOT EXISTS bot_state (
+        bot_name TEXT PRIMARY KEY,
+        value TEXT,
+        updated_at TEXT
+      )
+    `);
+    await dbClient.execute({
+      sql: "INSERT OR REPLACE INTO bot_state (bot_name, value, updated_at) VALUES (?, ?, ?)",
+      args: ['company-bot', JSON.stringify(state), new Date().toISOString()]
+    });
+  } catch (e) {
+    console.error('Failed to save state:', e.message);
+  }
 }
 
 // NFR: Validate company data
@@ -128,8 +146,8 @@ function sleep(ms) {
 async function main() {
   console.log('=== Company Bot - Add Company Data ===\n');
   
-  const state = loadState();
-  const allQuestions = getAllUnifiedQuestions();
+  const state = await loadState();
+  const allQuestions = await getAllUnifiedQuestions();
   
   console.log(`📊 Database: ${allQuestions.length} questions`);
   console.log(`📍 Last processed index: ${state.lastProcessedIndex}`);
@@ -156,7 +174,7 @@ async function main() {
   
   console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
   
-  const questions = loadUnifiedQuestions();
+  const questions = await loadUnifiedQuestions();
   const results = {
     processed: 0,
     companiesAdded: 0,
@@ -184,7 +202,7 @@ async function main() {
       results.processed++;
       
       // NFR: Update state after each question
-      saveState({
+      await saveState({
         ...state,
         lastProcessedIndex: startIndex + i + 1,
         totalProcessed: state.totalProcessed + results.processed
@@ -204,7 +222,7 @@ async function main() {
       results.failed++;
       results.processed++;
       
-      saveState({
+      await saveState({
         ...state,
         lastProcessedIndex: startIndex + i + 1,
         totalProcessed: state.totalProcessed + results.processed
@@ -222,14 +240,15 @@ async function main() {
     const newCompaniesCount = mergedCompanies.length - existingNormalized.length;
     
     // Update question
-    questions[question.id] = {
+    const updatedQuestion = {
       ...questions[question.id],
       companies: mergedCompanies,
-      lastCompanyUpdate: new Date().toISOString()
+      lastUpdated: new Date().toISOString()
     };
+    questions[question.id] = updatedQuestion;
     
     // NFR: Save immediately after each update
-    saveUnifiedQuestions(questions);
+    await saveQuestion(updatedQuestion);
     console.log(`💾 Saved (added ${newCompaniesCount} new companies)`);
     
     results.companiesAdded += newCompaniesCount;
@@ -237,7 +256,7 @@ async function main() {
     results.processed++;
     
     // NFR: Update state after each question
-    saveState({
+    await saveState({
       ...state,
       lastProcessedIndex: startIndex + i + 1,
       totalProcessed: state.totalProcessed + results.processed,
@@ -246,9 +265,6 @@ async function main() {
     });
   }
   
-  // Final updates
-  updateUnifiedIndexFile();
-  
   const newState = {
     lastProcessedIndex: endIndex >= sortedQuestions.length ? 0 : endIndex,
     lastRunDate: new Date().toISOString(),
@@ -256,7 +272,7 @@ async function main() {
     totalCompaniesAdded: state.totalCompaniesAdded + results.companiesAdded,
     questionsUpdated: state.questionsUpdated + results.questionsUpdated
   };
-  saveState(newState);
+  await saveState(newState);
   
   // Summary
   console.log('\n\n=== SUMMARY ===');

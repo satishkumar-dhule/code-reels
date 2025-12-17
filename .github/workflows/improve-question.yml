@@ -29,33 +29,15 @@ jobs:
       - name: Improve question
         id: improve
         run: node script/improve-question.js
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Regenerate RSS feed
         run: node script/generate-rss.js
-
-      - name: Check for changes
-        id: check
-        run: |
-          if git diff --quiet client/src/lib/questions/ client/public/rss.xml; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push
-        if: steps.check.outputs.changed == 'true'
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add client/src/lib/questions/ client/public/rss.xml
-          git commit -m "✨ Improve question $(date +%Y-%m-%d)"
-          
-          for i in 1 2 3; do
-            git pull --rebase origin main && git push origin main && exit 0
-            echo "Push failed, retry $i..."
-            sleep 5
-          done
-          exit 1
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Trigger deploy
         if: steps.check.outputs.changed == 'true'

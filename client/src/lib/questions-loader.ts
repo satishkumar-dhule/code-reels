@@ -1,8 +1,9 @@
-// Static question loader - loads questions from unified storage
-// This works for GitHub Pages static hosting (no backend required)
+/**
+ * Questions loader - fetches questions from static JSON files
+ * Data is pre-generated at build time from Turso database
+ */
 
-import allQuestionsData from './questions/all-questions.json';
-import channelMappingsData from './questions/channel-mappings.json';
+import * as api from './api-client';
 
 export interface Question {
   id: string;
@@ -20,58 +21,40 @@ export interface Question {
     longVideo?: string;
   };
   companies?: string[];
-  eli5?: string; // "Explain Like I'm 5" simple explanation
+  eli5?: string;
 }
 
-// Questions by ID from unified storage
-const questionsById: Record<string, Question> = (allQuestionsData as any).questions || {};
+// In-memory cache for questions
+const questionsCache = new Map<string, Question>();
+const channelQuestionsCache = new Map<string, Question[]>();
+let statsCache: api.ChannelDetailedStats[] | null = null;
+let initialized = false;
 
-// Channel mappings from unified storage
-const channelMappings: Record<string, { subChannels: Record<string, string[]> }> = 
-  (channelMappingsData as any).channels || {};
+// Load questions for a channel from static JSON
+export async function loadChannelQuestions(channelId: string): Promise<Question[]> {
+  if (channelQuestionsCache.has(channelId)) {
+    return channelQuestionsCache.get(channelId)!;
+  }
 
-// Build questions by channel from mappings
-function buildQuestionsByChannel(): Record<string, Question[]> {
-  const result: Record<string, Question[]> = {};
-  
-  Object.entries(channelMappings).forEach(([channelId, mapping]) => {
-    const questionIds = new Set<string>();
+  try {
+    const questions = await api.fetchChannelQuestions(channelId);
+    channelQuestionsCache.set(channelId, questions);
     
-    // Collect all question IDs for this channel
-    Object.values(mapping.subChannels || {}).forEach(ids => {
-      ids.forEach(id => questionIds.add(id));
-    });
+    // Also cache individual questions
+    for (const q of questions) {
+      questionsCache.set(q.id, q);
+    }
     
-    // Map IDs to questions, adding channel/subChannel info
-    const channelQuestions: Question[] = [];
-    
-    Array.from(questionIds).forEach(id => {
-      const q = questionsById[id];
-      if (!q) return;
-      
-      // Find which subChannel this question belongs to in this channel
-      let subChannel = 'general';
-      for (const [sc, ids] of Object.entries(mapping.subChannels || {})) {
-        if (ids.includes(id)) {
-          subChannel = sc;
-          break;
-        }
-      }
-      
-      channelQuestions.push({ ...q, channel: channelId, subChannel });
-    });
-    
-    result[channelId] = channelQuestions;
-  });
-  
-  return result;
+    return questions;
+  } catch (error) {
+    console.error(`Failed to load questions for channel ${channelId}:`, error);
+    return [];
+  }
 }
 
-const questionsByChannel = buildQuestionsByChannel();
-
-// Get all questions
+// Get all questions (sync - from cache)
 export function getAllQuestions(): Question[] {
-  return Object.values(questionsByChannel).flat();
+  return Array.from(questionsCache.values());
 }
 
 // Get questions for a channel with optional filters
@@ -81,7 +64,7 @@ export function getQuestions(
   difficulty?: string,
   company?: string
 ): Question[] {
-  let questions = questionsByChannel[channelId] || [];
+  let questions = channelQuestionsCache.get(channelId) || [];
 
   if (subChannel && subChannel !== 'all') {
     questions = questions.filter(q => q.subChannel === subChannel);
@@ -98,13 +81,24 @@ export function getQuestions(
   return questions;
 }
 
-// Get a single question by ID
+// Get a single question by ID (sync - from cache)
 export function getQuestionById(questionId: string): Question | undefined {
-  for (const questions of Object.values(questionsByChannel)) {
-    const question = questions.find(q => q.id === questionId);
-    if (question) return question;
+  return questionsCache.get(questionId);
+}
+
+// Get a single question by ID (async - will fetch if needed)
+export async function getQuestionByIdAsync(questionId: string): Promise<Question | null> {
+  if (questionsCache.has(questionId)) {
+    return questionsCache.get(questionId)!;
   }
-  return undefined;
+  
+  try {
+    const question = await api.fetchQuestion(questionId);
+    questionsCache.set(question.id, question);
+    return question;
+  } catch {
+    return null;
+  }
 }
 
 // Get question IDs for a channel with optional filters
@@ -118,7 +112,7 @@ export function getQuestionIds(
 
 // Get subchannels for a channel
 export function getSubChannels(channelId: string): string[] {
-  const questions = questionsByChannel[channelId] || [];
+  const questions = channelQuestionsCache.get(channelId) || [];
   const subChannels = new Set<string>();
   questions.forEach(q => {
     if (q.subChannel) {
@@ -130,7 +124,11 @@ export function getSubChannels(channelId: string): string[] {
 
 // Get channel statistics
 export function getChannelStats(): { id: string; total: number; beginner: number; intermediate: number; advanced: number }[] {
-  return Object.entries(questionsByChannel).map(([channelId, questions]) => ({
+  if (statsCache) {
+    return statsCache;
+  }
+  
+  return Array.from(channelQuestionsCache.entries()).map(([channelId, questions]) => ({
     id: channelId,
     total: questions.length,
     beginner: questions.filter(q => q.difficulty === 'beginner').length,
@@ -141,18 +139,17 @@ export function getChannelStats(): { id: string; total: number; beginner: number
 
 // Get available channel IDs
 export function getAvailableChannelIds(): string[] {
-  return Object.keys(questionsByChannel);
+  return Array.from(channelQuestionsCache.keys());
 }
 
 // Check if a channel has questions
 export function channelHasQuestions(channelId: string): boolean {
-  return (questionsByChannel[channelId]?.length || 0) > 0;
+  return (channelQuestionsCache.get(channelId)?.length || 0) > 0;
 }
 
 // Normalize company name for consistency
 function normalizeCompanyName(name: string): string {
   const normalized = name.trim();
-  // Common variations mapping
   const aliases: Record<string, string> = {
     'facebook': 'Meta',
     'fb': 'Meta',
@@ -168,7 +165,7 @@ function normalizeCompanyName(name: string): string {
 // Get all unique companies across all questions
 export function getAllCompanies(): string[] {
   const companies = new Set<string>();
-  Object.values(questionsByChannel).flat().forEach(q => {
+  questionsCache.forEach(q => {
     if (q.companies) {
       q.companies.forEach(c => companies.add(normalizeCompanyName(c)));
     }
@@ -176,9 +173,9 @@ export function getAllCompanies(): string[] {
   return Array.from(companies).sort();
 }
 
-// Get companies for a specific channel with question counts
+// Get companies for a specific channel
 export function getCompaniesForChannel(channelId: string): string[] {
-  const questions = questionsByChannel[channelId] || [];
+  const questions = channelQuestionsCache.get(channelId) || [];
   const companies = new Set<string>();
   questions.forEach(q => {
     if (q.companies) {
@@ -188,15 +185,14 @@ export function getCompaniesForChannel(channelId: string): string[] {
   return Array.from(companies).sort();
 }
 
-// Get companies with counts for a channel (respects current filters)
+// Get companies with counts for a channel
 export function getCompaniesWithCounts(
   channelId: string,
   subChannel?: string,
   difficulty?: string
 ): { name: string; count: number }[] {
-  let questions = questionsByChannel[channelId] || [];
+  let questions = channelQuestionsCache.get(channelId) || [];
   
-  // Apply current filters to get relevant questions
   if (subChannel && subChannel !== 'all') {
     questions = questions.filter(q => q.subChannel === subChannel);
   }
@@ -204,7 +200,6 @@ export function getCompaniesWithCounts(
     questions = questions.filter(q => q.difficulty === difficulty);
   }
   
-  // Count questions per company
   const companyCounts = new Map<string, number>();
   questions.forEach(q => {
     if (q.companies) {
@@ -215,7 +210,6 @@ export function getCompaniesWithCounts(
     }
   });
   
-  // Sort by count (descending), then alphabetically
   return Array.from(companyCounts.entries())
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
@@ -227,3 +221,33 @@ export const POPULAR_COMPANIES = [
   'Netflix', 'Uber', 'Airbnb', 'LinkedIn', 'Twitter',
   'Stripe', 'Salesforce', 'Adobe', 'Oracle', 'IBM'
 ];
+
+// Preload all questions (call on app init for search functionality)
+export async function preloadQuestions(): Promise<void> {
+  if (initialized) return;
+  
+  try {
+    const stats = await api.fetchStats();
+    statsCache = stats;
+    
+    // Load all channels in parallel
+    await Promise.all(
+      stats.map(stat => loadChannelQuestions(stat.id))
+    );
+    
+    initialized = true;
+  } catch (error) {
+    console.error('Failed to preload questions:', error);
+  }
+}
+
+// Get all questions async
+export async function getAllQuestionsAsync(): Promise<Question[]> {
+  if (!initialized) {
+    await preloadQuestions();
+  }
+  return getAllQuestions();
+}
+
+// Export API functions for direct use
+export { api };

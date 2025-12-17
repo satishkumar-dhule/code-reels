@@ -457,7 +457,7 @@ export default function ReelsRedesigned() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center text-white/50">
             <div className="text-xl mb-2 text-red-400">ERROR</div>
-            <div className="text-xs">{error}</div>
+            <div className="text-xs">{error?.message || 'Something went wrong'}</div>
             <button 
               onClick={() => window.location.reload()} 
               className="mt-4 px-4 py-2 bg-primary text-black text-xs font-bold rounded hover:bg-primary/90"

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, ArrowRight, Plus, RefreshCw } from 'lucide-react';
-import changelog from '../lib/questions/changelog.json';
+import changelog from '../lib/changelog';
 
 interface ChangelogEntry {
   date: string;
@@ -104,9 +104,9 @@ export function WhatsNewBanner() {
     sum + (entry.details?.questionsAdded || 0), 0);
   const totalImproved = recentChanges.reduce((sum, entry) => 
     sum + (entry.details?.questionsImproved || 0), 0);
-  const affectedChannels = [...new Set(
+  const affectedChannels = Array.from(new Set(
     recentChanges.flatMap(entry => entry.details?.channels || [])
-  )];
+  ));
 
   if (!isVisible || recentChanges.length === 0) return null;
 

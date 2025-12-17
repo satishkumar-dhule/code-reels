@@ -1,13 +1,12 @@
-import { readFileSync, writeFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import {
+  getAllUnifiedQuestions,
+  loadUnifiedQuestions,
+  saveChannelMappings,
+  dbClient
+} from './utils.js';
 
 // Channel keyword mappings for fuzzy matching
 const channelKeywords = {
-  // Engineering
   'system-design': {
     keywords: ['scalable', 'distributed', 'architecture', 'microservices', 'load balancer', 'caching', 'cdn', 'api gateway', 'message queue', 'event-driven', 'cap theorem', 'consistency', 'availability', 'partition', 'sharding', 'replication', 'rate limiting', 'circuit breaker'],
     subChannels: {
@@ -107,7 +106,6 @@ const channelKeywords = {
       'best-practices': ['dry', 'terragrunt', 'atlantis', 'sentinel']
     }
   },
-
   'data-engineering': {
     keywords: ['etl', 'data pipeline', 'spark', 'airflow', 'dbt', 'data warehouse', 'data lake', 'streaming', 'batch', 'kafka', 'flink'],
     subChannels: {
@@ -245,7 +243,6 @@ const channelKeywords = {
       'conflict-resolution': ['conflict', 'negotiation', 'mediation', 'feedback', 'difficult']
     }
   },
-  // Testing channels
   'testing': {
     keywords: ['test', 'unit test', 'integration test', 'tdd', 'mock', 'stub', 'coverage', 'assertion'],
     subChannels: {
@@ -284,20 +281,17 @@ const channelKeywords = {
   }
 };
 
-
 // Fuzzy matching function - calculates relevance score
-function calculateRelevanceScore(question, channelId, channelConfig) {
+function calculateRelevanceScore(question, channelConfig) {
   const text = `${question.question} ${question.answer} ${question.explanation} ${(question.tags || []).join(' ')}`.toLowerCase();
   let score = 0;
   
-  // Check main keywords
   for (const keyword of channelConfig.keywords) {
     if (text.includes(keyword.toLowerCase())) {
       score += 10;
     }
   }
   
-  // Check tags match
   if (question.tags) {
     for (const tag of question.tags) {
       if (channelConfig.keywords.some(k => k.toLowerCase().includes(tag.toLowerCase()) || tag.toLowerCase().includes(k.toLowerCase()))) {
@@ -332,23 +326,18 @@ function findBestSubChannel(question, channelConfig) {
 }
 
 // Main remapping function
-function remapQuestions() {
-  console.log('=== Fuzzy Question Remapping ===\n');
+async function remapQuestions() {
+  console.log('=== Fuzzy Question Remapping (Database) ===\n');
   
-  const questionsPath = join(__dirname, '../client/src/lib/questions/all-questions.json');
-  const mappingsPath = join(__dirname, '../client/src/lib/questions/channel-mappings.json');
-  
-  const questionsData = JSON.parse(readFileSync(questionsPath, 'utf-8'));
-  const questions = questionsData.questions;
-  
-  console.log(`Loaded ${Object.keys(questions).length} questions\n`);
+  const questions = await getAllUnifiedQuestions();
+  console.log(`Loaded ${questions.length} questions from database\n`);
   
   // Build new mappings
-  const newMappings = { channels: {}, lastUpdated: new Date().toISOString() };
+  const newMappings = {};
   
   // Initialize all channels
   for (const channelId of Object.keys(channelKeywords)) {
-    newMappings.channels[channelId] = { subChannels: {} };
+    newMappings[channelId] = { subChannels: {} };
   }
   
   // Track statistics
@@ -360,13 +349,13 @@ function remapQuestions() {
   };
   
   // Process each question
-  for (const [questionId, question] of Object.entries(questions)) {
+  for (const question of questions) {
     stats.totalQuestions++;
     
     // Calculate relevance scores for all channels
     const channelScores = [];
     for (const [channelId, channelConfig] of Object.entries(channelKeywords)) {
-      const score = calculateRelevanceScore(question, channelId, channelConfig);
+      const score = calculateRelevanceScore(question, channelConfig);
       if (score > 0) {
         channelScores.push({ channelId, score, config: channelConfig });
       }
@@ -375,10 +364,8 @@ function remapQuestions() {
     // Sort by score descending
     channelScores.sort((a, b) => b.score - a.score);
     
-    // Map to top channels (primary + related if score is high enough)
-    const threshold = 15; // Minimum score to be considered
-    const relatedThreshold = 0.5; // Related channel must have at least 50% of primary score
-    
+    const threshold = 15;
+    const relatedThreshold = 0.5;
     const mappedChannels = [];
     
     if (channelScores.length > 0 && channelScores[0].score >= threshold) {
@@ -389,17 +376,14 @@ function remapQuestions() {
           const subChannel = findBestSubChannel(question, config);
           mappedChannels.push({ channelId, subChannel, score });
           
-          // Add to mappings
-          if (!newMappings.channels[channelId].subChannels[subChannel]) {
-            newMappings.channels[channelId].subChannels[subChannel] = [];
+          if (!newMappings[channelId].subChannels[subChannel]) {
+            newMappings[channelId].subChannels[subChannel] = [];
           }
-          newMappings.channels[channelId].subChannels[subChannel].push(questionId);
+          newMappings[channelId].subChannels[subChannel].push(question.id);
           
-          // Update stats
           stats.channelCounts[channelId] = (stats.channelCounts[channelId] || 0) + 1;
         }
         
-        // Limit to max 3 channels per question
         if (mappedChannels.length >= 3) break;
       }
     }
@@ -410,67 +394,36 @@ function remapQuestions() {
         stats.multiChannelQuestions++;
       }
     } else {
-      // Fallback: try to map based on question ID prefix
-      const prefix = questionId.split('-')[0];
-      const prefixMap = {
-        'al': 'algorithms',
-        'db': 'database',
-        'da': 'database',
-        'sd': 'system-design',
-        'sy': 'system-design',
-        'fe': 'frontend',
-        'fr': 'frontend',
-        'do': 'devops',
-        'de': 'devops',
-        'gh': 'devops',
-        'sre': 'sre',
-        'sr': 'sre',
-        'k8': 'kubernetes',
-        'aws': 'aws',
-        'tf': 'terraform',
-        'ml': 'machine-learning',
-        'ai': 'generative-ai',
-        'py': 'python',
-        'sec': 'security',
-        'net': 'networking',
-        'ios': 'ios',
-        'and': 'android',
-        'rn': 'react-native',
-        'em': 'engineering-management',
-        'bh': 'behavioral',
-        'q': 'system-design' // Default for generic q- prefixed questions
-      };
-      
-      const fallbackChannel = prefixMap[prefix];
+      // Fallback: use existing channel from question
+      const fallbackChannel = question.channel;
       if (fallbackChannel && channelKeywords[fallbackChannel]) {
-        const subChannel = findBestSubChannel(question, channelKeywords[fallbackChannel]);
-        if (!newMappings.channels[fallbackChannel].subChannels[subChannel]) {
-          newMappings.channels[fallbackChannel].subChannels[subChannel] = [];
+        const subChannel = question.subChannel || findBestSubChannel(question, channelKeywords[fallbackChannel]);
+        if (!newMappings[fallbackChannel].subChannels[subChannel]) {
+          newMappings[fallbackChannel].subChannels[subChannel] = [];
         }
-        newMappings.channels[fallbackChannel].subChannels[subChannel].push(questionId);
+        newMappings[fallbackChannel].subChannels[subChannel].push(question.id);
         stats.mappedQuestions++;
         stats.channelCounts[fallbackChannel] = (stats.channelCounts[fallbackChannel] || 0) + 1;
-        console.log(`  Fallback mapped ${questionId} -> ${fallbackChannel}/${subChannel}`);
       } else {
-        console.log(`  ⚠️ Could not map: ${questionId}`);
+        console.log(`  ⚠️ Could not map: ${question.id}`);
       }
     }
   }
   
   // Clean up empty subchannels and channels
-  for (const [channelId, channelData] of Object.entries(newMappings.channels)) {
-    for (const [subChannel, questions] of Object.entries(channelData.subChannels)) {
-      if (questions.length === 0) {
+  for (const [channelId, channelData] of Object.entries(newMappings)) {
+    for (const [subChannel, questionIds] of Object.entries(channelData.subChannels)) {
+      if (questionIds.length === 0) {
         delete channelData.subChannels[subChannel];
       }
     }
     if (Object.keys(channelData.subChannels).length === 0) {
-      delete newMappings.channels[channelId];
+      delete newMappings[channelId];
     }
   }
   
-  // Save new mappings
-  writeFileSync(mappingsPath, JSON.stringify(newMappings, null, 2));
+  // Save new mappings to database
+  await saveChannelMappings(newMappings);
   
   // Print statistics
   console.log('\n=== Remapping Statistics ===');
@@ -484,7 +437,10 @@ function remapQuestions() {
     console.log(`  ${channel}: ${count}`);
   }
   
-  console.log('\n✅ Remapping complete! Saved to channel-mappings.json');
+  console.log('\n✅ Remapping complete! Saved to database');
 }
 
-remapQuestions();
+remapQuestions().catch(e => {
+  console.error('Fatal:', e);
+  process.exit(1);
+});

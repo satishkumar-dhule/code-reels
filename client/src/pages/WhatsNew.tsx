@@ -6,30 +6,9 @@ import {
   ChevronDown, ChevronUp, Tag, Layers, Rss
 } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
-import changelogData from '../lib/questions/changelog.json';
+import changelogData, { type ChangelogData } from '../lib/changelog';
 
-interface ChangelogEntry {
-  date: string;
-  type: 'added' | 'improved' | 'initial' | 'feature';
-  title: string;
-  description: string;
-  details?: {
-    questionsAdded?: number;
-    questionsImproved?: number;
-    channels?: string[];
-    questionIds?: string[];
-    features?: string[];
-  };
-}
-
-interface ChangelogData {
-  entries: ChangelogEntry[];
-  stats: {
-    totalQuestionsAdded: number;
-    totalQuestionsImproved: number;
-    lastUpdated: string;
-  };
-}
+import type { ChangelogEntry } from '../lib/changelog';
 
 const typeConfig = {
   added: { icon: Plus, color: 'text-green-400', bg: 'bg-green-500/20', label: 'New Questions' },

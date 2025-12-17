@@ -40,6 +40,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
         
+      - name: Fetch questions from Turso
+        run: node script/fetch-questions-for-build.js
+        env:
+          TURSO_DATABASE_URL_RO: ${{ secrets.TURSO_DATABASE_URL_RO }}
+          TURSO_AUTH_TOKEN_RO: ${{ secrets.TURSO_AUTH_TOKEN_RO }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
         
@@ -90,6 +98,14 @@ jobs:
         
     - name: Install dependencies
       run: pnpm install --no-frozen-lockfile
+      
+    - name: Fetch questions from Turso
+      run: node script/fetch-questions-for-build.js
+      env:
+        TURSO_DATABASE_URL_RO: ${{ secrets.TURSO_DATABASE_URL_RO }}
+        TURSO_AUTH_TOKEN_RO: ${{ secrets.TURSO_AUTH_TOKEN_RO }}
+        TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+        TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
       
     - name: Deploy to GitHub Pages
       env:

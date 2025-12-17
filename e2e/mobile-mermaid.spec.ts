@@ -11,6 +11,7 @@ test.describe('Mobile Mermaid Diagrams (Disabled)', () => {
   test.beforeEach(async ({ page }) => {
     // Skip onboarding
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms'],
@@ -103,6 +104,7 @@ async function simulateSwipe(page: any, startX: number, startY: number, endX: nu
 test.describe('Mobile Swipe Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms'],
@@ -225,6 +227,7 @@ test.describe('Mobile Swipe Navigation', () => {
 test.describe('Mobile Mermaid Disabled State', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design'],
@@ -283,6 +286,7 @@ test.describe('Mobile Mermaid Disabled State', () => {
 test.describe('Mobile Answer Panel Scrolling', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design'],

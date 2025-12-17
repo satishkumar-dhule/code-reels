@@ -37,33 +37,8 @@ jobs:
         run: node script/add-videos.js
         env:
           BATCH_SIZE: ${{ inputs.batch_size || '10' }}
-
-      - name: Check for changes
-        id: check
-        run: |
-          if git diff --quiet client/src/lib/questions/; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push
-        if: steps.check.outputs.changed == 'true'
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-          git add client/src/lib/questions/
-          git commit -m "🎬 Video Bot: Add/validate YouTube videos $(date +%Y-%m-%d)"
-          
-          for i in 1 2 3; do
-            git fetch origin main
-            git rebase origin/main
-            git push origin main && exit 0
-            echo "Push failed, retry $i..."
-            git rebase --abort 2>/dev/null || true
-            sleep 5
-          done
-          exit 1
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Trigger deploy
         if: steps.check.outputs.changed == 'true'

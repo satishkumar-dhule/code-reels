@@ -12,6 +12,7 @@ test.describe('Mobile Experience', () => {
   test.beforeEach(async ({ page }) => {
     // Skip onboarding
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms', 'backend', 'frontend', 'devops', 'sre'],
@@ -268,9 +269,10 @@ test.describe('Mobile Experience', () => {
 
 test.describe('Mobile Onboarding', () => {
   test('onboarding should work on mobile', async ({ page }) => {
-    // Clear preferences to show onboarding
+    // Clear preferences to show onboarding, but skip intro
     await page.addInitScript(() => {
       localStorage.removeItem('user-preferences');
+      localStorage.setItem('marvel-intro-seen', 'true');
     });
     
     await page.goto('/');

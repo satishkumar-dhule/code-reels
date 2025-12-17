@@ -2,9 +2,12 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Onboarding Flow', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage to simulate first-time user
+    // Clear localStorage to simulate first-time user, but skip the intro animation
     await page.goto('/');
-    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem('marvel-intro-seen', 'true'); // Skip intro but not onboarding
+    });
     await page.reload();
   });
 

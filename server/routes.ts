@@ -1,223 +1,203 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import fs from "fs";
-import path from "path";
+import { type Server } from "http";
+import { client } from "./db";
 
-// Load questions from JSON files
-const questionsPath = path.join(process.cwd(), "client/src/lib/questions");
-const questionsByChannel: Record<string, any[]> = {};
-
-// Load changelog for RSS feed
-function loadChangelog() {
-  try {
-    const changelogPath = path.join(questionsPath, "changelog.json");
-    return JSON.parse(fs.readFileSync(changelogPath, "utf-8"));
-  } catch {
-    return { entries: [], stats: {} };
-  }
+// Helper to parse JSON fields from DB
+function parseQuestion(row: any) {
+  return {
+    id: row.id,
+    question: row.question,
+    answer: row.answer,
+    explanation: row.explanation,
+    diagram: row.diagram,
+    difficulty: row.difficulty,
+    tags: row.tags ? JSON.parse(row.tags) : [],
+    channel: row.channel,
+    subChannel: row.sub_channel,
+    sourceUrl: row.source_url,
+    videos: row.videos ? JSON.parse(row.videos) : null,
+    companies: row.companies ? JSON.parse(row.companies) : null,
+    eli5: row.eli5,
+    lastUpdated: row.last_updated,
+  };
 }
-
-// Load all questions for RSS
-function loadAllQuestions() {
-  try {
-    const allQuestionsPath = path.join(questionsPath, "all-questions.json");
-    const data = JSON.parse(fs.readFileSync(allQuestionsPath, "utf-8"));
-    return data.questions || {};
-  } catch {
-    return {};
-  }
-}
-
-// Generate RSS XML
-function generateRssFeed(baseUrl: string) {
-  const changelog = loadChangelog();
-  const allQuestions = loadAllQuestions();
-  
-  const escapeXml = (str: string) => 
-    str.replace(/&/g, '&amp;')
-       .replace(/</g, '&lt;')
-       .replace(/>/g, '&gt;')
-       .replace(/"/g, '&quot;')
-       .replace(/'/g, '&apos;');
-
-  const items = changelog.entries.slice(0, 20).map((entry: any) => {
-    const pubDate = new Date(entry.date).toUTCString();
-    const questionIds = entry.details?.questionIds || [];
-    
-    // Build description with question details
-    let description = escapeXml(entry.description);
-    if (questionIds.length > 0) {
-      const questionDetails = questionIds
-        .slice(0, 5)
-        .map((id: string) => {
-          const q = allQuestions[id];
-          return q ? `• ${escapeXml(q.question)}` : null;
-        })
-        .filter(Boolean)
-        .join('\n');
-      
-      if (questionDetails) {
-        description += `\n\nSample questions:\n${questionDetails}`;
-      }
-    }
-    
-    const channels = entry.details?.channels || [];
-    const channelTags = channels.slice(0, 5).map((c: string) => 
-      `<category>${escapeXml(c)}</category>`
-    ).join('\n      ');
-
-    return `
-    <item>
-      <title>${escapeXml(entry.title)}</title>
-      <description><![CDATA[${description}]]></description>
-      <pubDate>${pubDate}</pubDate>
-      <guid isPermaLink="false">${entry.date}-${entry.type}</guid>
-      <link>${baseUrl}/whats-new</link>
-      ${channelTags}
-    </item>`;
-  }).join('');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Code Reels - Interview Questions</title>
-    <description>Daily AI-generated technical interview questions for system design, algorithms, frontend, backend, DevOps, and more.</description>
-    <link>${baseUrl}</link>
-    <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>
-    <language>en-us</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <ttl>60</ttl>
-    <image>
-      <url>${baseUrl}/favicon.ico</url>
-      <title>Code Reels</title>
-      <link>${baseUrl}</link>
-    </image>
-    ${items}
-  </channel>
-</rss>`;
-}
-
-// Load all channel JSON files
-const channelFiles = ["algorithms", "database", "devops", "frontend", "sre", "system-design"];
-for (const channel of channelFiles) {
-  try {
-    const filePath = path.join(questionsPath, `${channel}.json`);
-    const data = fs.readFileSync(filePath, "utf-8");
-    questionsByChannel[channel] = JSON.parse(data);
-  } catch (error) {
-    console.error(`Failed to load ${channel}.json:`, error);
-    questionsByChannel[channel] = [];
-  }
-}
-
-const allQuestions = Object.values(questionsByChannel).flat();
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // RSS Feed endpoint
-  app.get("/rss.xml", (req, res) => {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.headers['x-forwarded-host'] || req.get('host');
-    const baseUrl = `${protocol}://${host}`;
-    
-    const rssFeed = generateRssFeed(baseUrl);
-    res.set('Content-Type', 'application/rss+xml; charset=utf-8');
-    res.set('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-    res.send(rssFeed);
-  });
-
-  // Alternate RSS path
-  app.get("/feed", (req, res) => {
-    res.redirect(301, '/rss.xml');
-  });
-
-  // Get all channels metadata
-  app.get("/api/channels", (_req, res) => {
-    const channels = Object.keys(questionsByChannel).map(channelId => ({
-      id: channelId,
-      questionCount: questionsByChannel[channelId].length
-    }));
-    res.json(channels);
-  });
-
-  // Get filtered questions list (IDs only) for a channel
-  app.get("/api/questions/:channelId", (req, res) => {
-    const { channelId } = req.params;
-    const { subChannel, difficulty } = req.query;
-
-    let questions = questionsByChannel[channelId] || [];
-
-    // Filter by subchannel
-    if (subChannel && subChannel !== "all") {
-      questions = questions.filter((q: any) => q.subChannel === subChannel);
+  
+  // Get all channels with question counts
+  app.get("/api/channels", async (_req, res) => {
+    try {
+      const result = await client.execute(
+        "SELECT channel, COUNT(*) as count FROM questions GROUP BY channel"
+      );
+      res.json(result.rows.map(r => ({ id: r.channel, questionCount: r.count })));
+    } catch (error) {
+      console.error("Error fetching channels:", error);
+      res.status(500).json({ error: "Failed to fetch channels" });
     }
+  });
 
-    // Filter by difficulty
-    if (difficulty && difficulty !== "all") {
-      questions = questions.filter((q: any) => q.difficulty === difficulty);
+  // Get question IDs for a channel with filters
+  app.get("/api/questions/:channelId", async (req, res) => {
+    try {
+      const { channelId } = req.params;
+      const { subChannel, difficulty } = req.query;
+
+      let sql = "SELECT id, difficulty, sub_channel as subChannel FROM questions WHERE channel = ?";
+      const args: any[] = [channelId];
+
+      if (subChannel && subChannel !== "all") {
+        sql += " AND sub_channel = ?";
+        args.push(subChannel);
+      }
+      
+      if (difficulty && difficulty !== "all") {
+        sql += " AND difficulty = ?";
+        args.push(difficulty);
+      }
+
+      const result = await client.execute({ sql, args });
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Error fetching questions:", error);
+      res.status(500).json({ error: "Failed to fetch questions" });
     }
+  });
 
-    // Return only IDs and basic metadata
-    const questionList = questions.map((q: any) => ({
-      id: q.id,
-      difficulty: q.difficulty,
-      subChannel: q.subChannel
-    }));
+  // Get a random question (must be before :questionId to avoid route conflict)
+  app.get("/api/question/random", async (req, res) => {
+    try {
+      const { channel, difficulty } = req.query;
+      
+      let sql = "SELECT * FROM questions WHERE 1=1";
+      const args: any[] = [];
 
-    res.json(questionList);
+      if (channel && channel !== "all") {
+        sql += " AND channel = ?";
+        args.push(channel);
+      }
+      if (difficulty && difficulty !== "all") {
+        sql += " AND difficulty = ?";
+        args.push(difficulty);
+      }
+
+      sql += " ORDER BY RANDOM() LIMIT 1";
+
+      const result = await client.execute({ sql, args });
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "No questions found" });
+      }
+
+      res.json(parseQuestion(result.rows[0]));
+    } catch (error) {
+      console.error("Error fetching random question:", error);
+      res.status(500).json({ error: "Failed to fetch random question" });
+    }
   });
 
   // Get a single question by ID
-  app.get("/api/question/:questionId", (req, res) => {
-    const { questionId } = req.params;
+  app.get("/api/question/:questionId", async (req, res) => {
+    try {
+      const { questionId } = req.params;
+      
+      const result = await client.execute({
+        sql: "SELECT * FROM questions WHERE id = ? LIMIT 1",
+        args: [questionId]
+      });
 
-    // Search through all channels
-    for (const questions of Object.values(questionsByChannel)) {
-      const question = questions.find((q: any) => q.id === questionId);
-      if (question) {
-        return res.json(question);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Question not found" });
       }
-    }
 
-    res.status(404).json({ error: "Question not found" });
+      res.json(parseQuestion(result.rows[0]));
+    } catch (error) {
+      console.error("Error fetching question:", error);
+      res.status(500).json({ error: "Failed to fetch question" });
+    }
   });
 
   // Get channel stats
-  app.get("/api/stats", (_req, res) => {
-    const stats = Object.entries(questionsByChannel).map(([channelId, questions]) => {
-      const beginner = questions.filter((q: any) => q.difficulty === "beginner").length;
-      const intermediate = questions.filter((q: any) => q.difficulty === "intermediate").length;
-      const advanced = questions.filter((q: any) => q.difficulty === "advanced").length;
+  app.get("/api/stats", async (_req, res) => {
+    try {
+      const result = await client.execute(
+        "SELECT channel, difficulty, COUNT(*) as count FROM questions GROUP BY channel, difficulty"
+      );
 
-      return {
-        id: channelId,
-        total: questions.length,
-        beginner,
-        intermediate,
-        advanced
-      };
-    });
+      // Aggregate by channel
+      const statsMap = new Map<string, { total: number; beginner: number; intermediate: number; advanced: number }>();
+      
+      for (const row of result.rows) {
+        const channel = row.channel as string;
+        const difficulty = row.difficulty as string;
+        const count = Number(row.count);
+        
+        if (!statsMap.has(channel)) {
+          statsMap.set(channel, { total: 0, beginner: 0, intermediate: 0, advanced: 0 });
+        }
+        const stat = statsMap.get(channel)!;
+        stat.total += count;
+        if (difficulty === 'beginner') stat.beginner = count;
+        if (difficulty === 'intermediate') stat.intermediate = count;
+        if (difficulty === 'advanced') stat.advanced = count;
+      }
 
-    res.json(stats);
+      const stats = Array.from(statsMap.entries()).map(([id, stat]) => ({
+        id,
+        ...stat
+      }));
+
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ error: "Failed to fetch stats" });
+    }
   });
 
-  // Get all subchannels for a channel
-  app.get("/api/subchannels/:channelId", (req, res) => {
-    const { channelId } = req.params;
-    const questions = questionsByChannel[channelId] || [];
+  // Get subchannels for a channel
+  app.get("/api/subchannels/:channelId", async (req, res) => {
+    try {
+      const { channelId } = req.params;
+      
+      const result = await client.execute({
+        sql: "SELECT DISTINCT sub_channel FROM questions WHERE channel = ? ORDER BY sub_channel",
+        args: [channelId]
+      });
 
-    const subChannelSet = new Set<string>();
-    questions.forEach((q: any) => {
-      if (q.subChannel) {
-        subChannelSet.add(q.subChannel);
+      const subChannels = result.rows.map(r => r.sub_channel);
+      res.json(subChannels);
+    } catch (error) {
+      console.error("Error fetching subchannels:", error);
+      res.status(500).json({ error: "Failed to fetch subchannels" });
+    }
+  });
+
+  // Get companies for a channel
+  app.get("/api/companies/:channelId", async (req, res) => {
+    try {
+      const { channelId } = req.params;
+      
+      const result = await client.execute({
+        sql: "SELECT companies FROM questions WHERE channel = ? AND companies IS NOT NULL",
+        args: [channelId]
+      });
+
+      const companiesSet = new Set<string>();
+      for (const row of result.rows) {
+        if (row.companies) {
+          const parsed = JSON.parse(row.companies as string);
+          parsed.forEach((c: string) => companiesSet.add(c));
+        }
       }
-    });
-    const subChannels = Array.from(subChannelSet).sort();
 
-    res.json(subChannels);
+      res.json(Array.from(companiesSet).sort());
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      res.status(500).json({ error: "Failed to fetch companies" });
+    }
   });
 
   return httpServer;

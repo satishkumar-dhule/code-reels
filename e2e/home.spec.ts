@@ -5,6 +5,7 @@ test.describe('Home Page', () => {
     // Set up user preferences to skip onboarding
     await page.goto('/');
     await page.evaluate(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms', 'frontend', 'database', 'devops', 'sre'],

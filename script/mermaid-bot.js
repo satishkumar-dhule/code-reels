@@ -1,38 +1,57 @@
 import {
   loadUnifiedQuestions,
-  saveUnifiedQuestions,
+  saveQuestion,
   getAllUnifiedQuestions,
   runWithRetries,
   parseJson,
-  updateUnifiedIndexFile,
-  writeGitHubOutput
+  writeGitHubOutput,
+  dbClient
 } from './utils.js';
-import fs from 'fs';
 
-// NFR: State tracking for resumable runs
-const STATE_FILE = 'client/src/lib/questions/mermaid-bot-state.json';
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
 const RATE_LIMIT_MS = 2000; // NFR: Rate limiting between API calls
 
-// Load bot state
-function loadState() {
+// Load bot state from database
+async function loadState() {
   try {
-    return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+    const result = await dbClient.execute({
+      sql: "SELECT value FROM bot_state WHERE bot_name = ?",
+      args: ['mermaid-bot']
+    });
+    if (result.rows.length > 0) {
+      return JSON.parse(result.rows[0].value);
+    }
   } catch (e) {
-    return {
-      lastProcessedIndex: 0,
-      lastRunDate: null,
-      totalProcessed: 0,
-      totalDiagramsAdded: 0,
-      totalDiagramsImproved: 0
-    };
+    // Table might not exist yet
   }
+  return {
+    lastProcessedIndex: 0,
+    lastRunDate: null,
+    totalProcessed: 0,
+    totalDiagramsAdded: 0,
+    totalDiagramsImproved: 0
+  };
 }
 
-// Save bot state
-function saveState(state) {
+// Save bot state to database
+async function saveState(state) {
   state.lastRunDate = new Date().toISOString();
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+  try {
+    // Create table if not exists
+    await dbClient.execute(`
+      CREATE TABLE IF NOT EXISTS bot_state (
+        bot_name TEXT PRIMARY KEY,
+        value TEXT,
+        updated_at TEXT
+      )
+    `);
+    await dbClient.execute({
+      sql: "INSERT OR REPLACE INTO bot_state (bot_name, value, updated_at) VALUES (?, ?, ?)",
+      args: ['mermaid-bot', JSON.stringify(state), new Date().toISOString()]
+    });
+  } catch (e) {
+    console.error('Failed to save state:', e.message);
+  }
 }
 
 // NFR: Validate mermaid diagram syntax
@@ -117,8 +136,8 @@ function sleep(ms) {
 async function main() {
   console.log('=== Mermaid Bot - Add/Improve Diagrams ===\n');
   
-  const state = loadState();
-  const allQuestions = getAllUnifiedQuestions();
+  const state = await loadState();
+  const allQuestions = await getAllUnifiedQuestions();
   
   console.log(`📊 Database: ${allQuestions.length} questions`);
   console.log(`📍 Last processed index: ${state.lastProcessedIndex}`);
@@ -144,7 +163,7 @@ async function main() {
   
   console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
   
-  const questions = loadUnifiedQuestions();
+  const questions = await loadUnifiedQuestions();
   const results = {
     processed: 0,
     diagramsAdded: 0,
@@ -169,7 +188,7 @@ async function main() {
       results.processed++;
       
       // NFR: Update state after each question
-      saveState({
+      await saveState({
         ...state,
         lastProcessedIndex: startIndex + i + 1,
         totalProcessed: state.totalProcessed + results.processed
@@ -189,7 +208,7 @@ async function main() {
       results.failed++;
       results.processed++;
       
-      saveState({
+      await saveState({
         ...state,
         lastProcessedIndex: startIndex + i + 1,
         totalProcessed: state.totalProcessed + results.processed
@@ -201,14 +220,15 @@ async function main() {
     
     // Update question
     const wasEmpty = !question.diagram || question.diagram.length < 20;
-    questions[question.id] = {
+    const updatedQuestion = {
       ...questions[question.id],
       diagram: generated.diagram,
-      lastDiagramUpdate: new Date().toISOString()
+      lastUpdated: new Date().toISOString()
     };
+    questions[question.id] = updatedQuestion;
     
     // NFR: Save immediately after each update
-    saveUnifiedQuestions(questions);
+    await saveQuestion(updatedQuestion);
     console.log('💾 Saved to database');
     
     if (wasEmpty) {
@@ -220,7 +240,7 @@ async function main() {
     results.processed++;
     
     // NFR: Update state after each question
-    saveState({
+    await saveState({
       ...state,
       lastProcessedIndex: startIndex + i + 1,
       totalProcessed: state.totalProcessed + results.processed,
@@ -229,9 +249,6 @@ async function main() {
     });
   }
   
-  // Final updates
-  updateUnifiedIndexFile();
-  
   const newState = {
     lastProcessedIndex: endIndex >= sortedQuestions.length ? 0 : endIndex,
     lastRunDate: new Date().toISOString(),
@@ -239,7 +256,7 @@ async function main() {
     totalDiagramsAdded: state.totalDiagramsAdded + results.diagramsAdded,
     totalDiagramsImproved: state.totalDiagramsImproved + results.diagramsImproved
   };
-  saveState(newState);
+  await saveState(newState);
   
   // Summary
   console.log('\n\n=== SUMMARY ===');

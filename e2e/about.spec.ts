@@ -4,6 +4,7 @@ test.describe('About Page', () => {
   test.beforeEach(async ({ page }) => {
     // Skip onboarding by setting localStorage before navigation
     await page.addInitScript(() => {
+      localStorage.setItem('marvel-intro-seen', 'true');
       localStorage.setItem('user-preferences', JSON.stringify({
         role: 'fullstack',
         subscribedChannels: ['system-design', 'algorithms'],

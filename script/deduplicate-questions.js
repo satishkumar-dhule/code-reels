@@ -11,8 +11,8 @@ import {
 
 const SIMILARITY_THRESHOLD = 0.6;
 
-function getAllChannels() {
-  const mappings = loadChannelMappings();
+async function getAllChannels() {
+  const mappings = await loadChannelMappings();
   return Object.keys(mappings);
 }
 
@@ -40,10 +40,10 @@ function findDuplicates(questions, threshold = SIMILARITY_THRESHOLD) {
 }
 
 async function main() {
-  console.log('=== Question Deduplication Bot (Unified Storage) ===\n');
+  console.log('=== Question Deduplication Bot (Database) ===\n');
 
-  const allQuestions = getAllUnifiedQuestions();
-  console.log(`Loaded ${allQuestions.length} questions\n`);
+  const allQuestions = await getAllUnifiedQuestions();
+  console.log(`Loaded ${allQuestions.length} questions from database\n`);
 
   if (allQuestions.length === 0) {
     console.log('No questions found.');
@@ -64,8 +64,8 @@ async function main() {
   }
 
   const removedQuestions = [];
-  const questions = loadUnifiedQuestions();
-  const mappings = loadChannelMappings();
+  const questions = await loadUnifiedQuestions();
+  const mappings = await loadChannelMappings();
 
   // Remove duplicates (limit to 10 per run to avoid too many changes)
   const maxToRemove = Math.min(10, duplicates.length);
@@ -114,9 +114,8 @@ async function main() {
   }
 
   // Save updated data
-  saveUnifiedQuestions(questions);
-  saveChannelMappings(mappings);
-  updateUnifiedIndexFile();
+  await saveUnifiedQuestions(questions);
+  await saveChannelMappings(mappings);
 
   // Print summary
   const totalRemaining = Object.keys(questions).length;
