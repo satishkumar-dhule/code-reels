@@ -679,3 +679,153 @@ export function logQuestionsImproved(count, channels, questionIds = []) {
     `AI-powered improvement bot enhanced ${count} questions with better explanations and diagrams.`,
     { questionsImproved: count, channels: [...new Set(channels)], questionIds: questionIds.slice(0, 10) });
 }
+
+// ============================================
+// WORK QUEUE OPERATIONS
+// ============================================
+
+// Initialize work queue table
+export async function initWorkQueue() {
+  await dbClient.execute(`
+    CREATE TABLE IF NOT EXISTS work_queue (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question_id TEXT NOT NULL,
+      bot_type TEXT NOT NULL,
+      priority INTEGER DEFAULT 5,
+      status TEXT DEFAULT 'pending',
+      reason TEXT,
+      created_by TEXT,
+      created_at TEXT,
+      started_at TEXT,
+      completed_at TEXT,
+      result TEXT,
+      FOREIGN KEY (question_id) REFERENCES questions(id)
+    )
+  `);
+  // Create index for efficient queries
+  await dbClient.execute(`
+    CREATE INDEX IF NOT EXISTS idx_work_queue_status_bot ON work_queue(status, bot_type, priority)
+  `);
+}
+
+// Add work item to queue (avoids duplicates for same question+bot)
+export async function addWorkItem(questionId, botType, reason, createdBy, priority = 5) {
+  await initWorkQueue();
+  
+  // Check if pending work already exists for this question+bot
+  const existing = await dbClient.execute({
+    sql: `SELECT id FROM work_queue WHERE question_id = ? AND bot_type = ? AND status = 'pending'`,
+    args: [questionId, botType]
+  });
+  
+  if (existing.rows.length > 0) {
+    console.log(`  ℹ️ Work item already exists for ${questionId} -> ${botType}`);
+    return existing.rows[0].id;
+  }
+  
+  const result = await dbClient.execute({
+    sql: `INSERT INTO work_queue (question_id, bot_type, priority, status, reason, created_by, created_at)
+          VALUES (?, ?, ?, 'pending', ?, ?, ?)`,
+    args: [questionId, botType, priority, reason, createdBy, new Date().toISOString()]
+  });
+  
+  console.log(`  📋 Created work item: ${questionId} -> ${botType} (${reason})`);
+  return result.lastInsertRowid;
+}
+
+// Get pending work items for a specific bot type
+export async function getPendingWork(botType, limit = 10) {
+  await initWorkQueue();
+  
+  const result = await dbClient.execute({
+    sql: `SELECT w.*, q.question, q.answer, q.explanation, q.channel, q.sub_channel, q.tags, q.videos, q.companies, q.diagram, q.eli5, q.difficulty, q.source_url, q.last_updated, q.created_at as q_created_at
+          FROM work_queue w
+          JOIN questions q ON w.question_id = q.id
+          WHERE w.bot_type = ? AND w.status = 'pending'
+          ORDER BY w.priority ASC, w.created_at ASC
+          LIMIT ?`,
+    args: [botType, limit]
+  });
+  
+  return result.rows.map(row => ({
+    workId: row.id,
+    questionId: row.question_id,
+    reason: row.reason,
+    priority: row.priority,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+    question: {
+      id: row.question_id,
+      question: row.question,
+      answer: row.answer,
+      explanation: row.explanation,
+      channel: row.channel,
+      subChannel: row.sub_channel,
+      tags: row.tags ? JSON.parse(row.tags) : [],
+      videos: row.videos ? JSON.parse(row.videos) : null,
+      companies: row.companies ? JSON.parse(row.companies) : null,
+      diagram: row.diagram,
+      eli5: row.eli5,
+      difficulty: row.difficulty,
+      sourceUrl: row.source_url,
+      lastUpdated: row.last_updated,
+      createdAt: row.q_created_at
+    }
+  }));
+}
+
+// Mark work item as started
+export async function startWorkItem(workId) {
+  await dbClient.execute({
+    sql: `UPDATE work_queue SET status = 'processing', started_at = ? WHERE id = ?`,
+    args: [new Date().toISOString(), workId]
+  });
+}
+
+// Mark work item as completed
+export async function completeWorkItem(workId, result = null) {
+  await dbClient.execute({
+    sql: `UPDATE work_queue SET status = 'completed', completed_at = ?, result = ? WHERE id = ?`,
+    args: [new Date().toISOString(), result ? JSON.stringify(result) : null, workId]
+  });
+}
+
+// Mark work item as failed
+export async function failWorkItem(workId, error) {
+  await dbClient.execute({
+    sql: `UPDATE work_queue SET status = 'failed', completed_at = ?, result = ? WHERE id = ?`,
+    args: [new Date().toISOString(), JSON.stringify({ error }), workId]
+  });
+}
+
+// Get work queue stats
+export async function getWorkQueueStats() {
+  await initWorkQueue();
+  
+  const result = await dbClient.execute(`
+    SELECT bot_type, status, COUNT(*) as count
+    FROM work_queue
+    GROUP BY bot_type, status
+    ORDER BY bot_type, status
+  `);
+  
+  const stats = {};
+  for (const row of result.rows) {
+    if (!stats[row.bot_type]) stats[row.bot_type] = {};
+    stats[row.bot_type][row.status] = row.count;
+  }
+  return stats;
+}
+
+// Clean up old completed/failed work items (older than 7 days)
+export async function cleanupWorkQueue(daysOld = 7) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - daysOld);
+  
+  const result = await dbClient.execute({
+    sql: `DELETE FROM work_queue WHERE status IN ('completed', 'failed') AND completed_at < ?`,
+    args: [cutoff.toISOString()]
+  });
+  
+  return result.rowsAffected;
+}

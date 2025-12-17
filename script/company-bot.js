@@ -6,8 +6,15 @@ import {
   parseJson,
   writeGitHubOutput,
   normalizeCompanies,
-  dbClient
+  dbClient,
+  getPendingWork,
+  startWorkItem,
+  completeWorkItem,
+  failWorkItem,
+  initWorkQueue
 } from './utils.js';
+
+const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
 const RATE_LIMIT_MS = 2000; // NFR: Rate limiting between API calls
@@ -146,6 +153,8 @@ function sleep(ms) {
 async function main() {
   console.log('=== Company Bot - Add Company Data ===\n');
   
+  await initWorkQueue();
+  
   const state = await loadState();
   const allQuestions = await getAllUnifiedQuestions();
   
@@ -155,24 +164,43 @@ async function main() {
   console.log(`⚙️ Batch size: ${BATCH_SIZE}`);
   console.log(`🏢 Min companies required: ${MIN_COMPANIES}\n`);
   
-  // Sort questions by ID for consistent ordering
-  const sortedQuestions = [...allQuestions].sort((a, b) => {
-    const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
-    const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
-    return numA - numB;
-  });
-  
-  // Calculate start index (wrap around if needed)
+  let batch = [];
   let startIndex = state.lastProcessedIndex;
-  if (startIndex >= sortedQuestions.length) {
-    startIndex = 0;
-    console.log('🔄 Wrapped around to beginning\n');
+  let endIndex;
+  let usingWorkQueue = false;
+  
+  // First try work queue
+  if (USE_WORK_QUEUE) {
+    console.log('📋 Checking work queue for company tasks...');
+    const workItems = await getPendingWork('company', BATCH_SIZE);
+    if (workItems.length > 0) {
+      batch = workItems.map(w => ({ ...w.question, workId: w.workId, workReason: w.reason }));
+      endIndex = startIndex + batch.length;
+      usingWorkQueue = true;
+      console.log(`📦 Found ${batch.length} company tasks in work queue\n`);
+    }
   }
   
-  const endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
-  const batch = sortedQuestions.slice(startIndex, endIndex);
-  
-  console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
+  // Fallback to scanning if no work queue items
+  if (batch.length === 0) {
+    // Sort questions by ID for consistent ordering
+    const sortedQuestions = [...allQuestions].sort((a, b) => {
+      const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+      const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+      return numA - numB;
+    });
+    
+    // Calculate start index (wrap around if needed)
+    if (startIndex >= sortedQuestions.length) {
+      startIndex = 0;
+      console.log('🔄 Wrapped around to beginning\n');
+    }
+    
+    endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
+    batch = sortedQuestions.slice(startIndex, endIndex);
+    
+    console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
+  }
   
   const questions = await loadUnifiedQuestions();
   const results = {
@@ -185,10 +213,14 @@ async function main() {
   
   for (let i = 0; i < batch.length; i++) {
     const question = batch[i];
-    const globalIndex = startIndex + i + 1;
+    const workId = question.workId; // From work queue if applicable
     
-    console.log(`\n--- [${globalIndex}/${sortedQuestions.length}] ${question.id} ---`);
+    console.log(`\n--- [${i + 1}/${batch.length}] ${question.id} ---`);
     console.log(`Q: ${question.question.substring(0, 50)}...`);
+    if (workId) console.log(`Work ID: ${workId} (${question.workReason})`);
+    
+    // Mark work as started
+    if (workId) await startWorkItem(workId);
     
     const currentCompanies = question.companies || [];
     console.log(`Current companies: ${currentCompanies.length > 0 ? currentCompanies.join(', ') : 'none'}`);
@@ -198,15 +230,18 @@ async function main() {
     
     if (!check.needs) {
       console.log('✅ Company data is good, skipping');
+      if (workId) await completeWorkItem(workId, { status: 'already_valid', count: check.count });
       results.skipped++;
       results.processed++;
       
-      // NFR: Update state after each question
-      await saveState({
-        ...state,
-        lastProcessedIndex: startIndex + i + 1,
-        totalProcessed: state.totalProcessed + results.processed
-      });
+      // NFR: Update state after each question (only for non-work-queue mode)
+      if (!usingWorkQueue) {
+        await saveState({
+          ...state,
+          lastProcessedIndex: startIndex + i + 1,
+          totalProcessed: state.totalProcessed + results.processed
+        });
+      }
       continue;
     }
     
@@ -219,14 +254,17 @@ async function main() {
     
     if (!found) {
       console.log('❌ Failed to find companies');
+      if (workId) await failWorkItem(workId, 'Failed to find companies');
       results.failed++;
       results.processed++;
       
-      await saveState({
-        ...state,
-        lastProcessedIndex: startIndex + i + 1,
-        totalProcessed: state.totalProcessed + results.processed
-      });
+      if (!usingWorkQueue) {
+        await saveState({
+          ...state,
+          lastProcessedIndex: startIndex + i + 1,
+          totalProcessed: state.totalProcessed + results.processed
+        });
+      }
       continue;
     }
     
@@ -251,18 +289,26 @@ async function main() {
     await saveQuestion(updatedQuestion);
     console.log(`💾 Saved (added ${newCompaniesCount} new companies)`);
     
+    // Mark work as completed
+    if (workId) await completeWorkItem(workId, { 
+      companiesAdded: newCompaniesCount,
+      totalCompanies: mergedCompanies.length 
+    });
+    
     results.companiesAdded += newCompaniesCount;
     results.questionsUpdated++;
     results.processed++;
     
-    // NFR: Update state after each question
-    await saveState({
-      ...state,
-      lastProcessedIndex: startIndex + i + 1,
-      totalProcessed: state.totalProcessed + results.processed,
-      totalCompaniesAdded: state.totalCompaniesAdded + results.companiesAdded,
-      questionsUpdated: state.questionsUpdated + results.questionsUpdated
-    });
+    // NFR: Update state after each question (only for non-work-queue mode)
+    if (!usingWorkQueue) {
+      await saveState({
+        ...state,
+        lastProcessedIndex: startIndex + i + 1,
+        totalProcessed: state.totalProcessed + results.processed,
+        totalCompaniesAdded: state.totalCompaniesAdded + results.companiesAdded,
+        questionsUpdated: state.questionsUpdated + results.questionsUpdated
+      });
+    }
   }
   
   const newState = {

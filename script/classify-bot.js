@@ -4,7 +4,10 @@ import {
   runWithRetries,
   parseJson,
   writeGitHubOutput,
-  dbClient
+  dbClient,
+  addWorkItem,
+  initWorkQueue,
+  getWorkQueueStats
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
@@ -174,8 +177,56 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Check what work is needed for a question and create work items
+async function createWorkItemsForQuestion(question) {
+  const workItems = [];
+  
+  // Check if needs videos
+  const videos = question.videos || {};
+  const hasShort = videos.shortVideo && videos.shortVideo.length > 10;
+  const hasLong = videos.longVideo && videos.longVideo.length > 10;
+  if (!hasShort || !hasLong) {
+    await addWorkItem(question.id, 'video', `Missing ${!hasShort ? 'short' : ''}${!hasShort && !hasLong ? ' and ' : ''}${!hasLong ? 'long' : ''} video`, 'classify-bot', 5);
+    workItems.push('video');
+  }
+  
+  // Check if needs diagram
+  const diagram = question.diagram;
+  if (!diagram || diagram.length < 20) {
+    await addWorkItem(question.id, 'mermaid', 'Missing or short diagram', 'classify-bot', 4);
+    workItems.push('mermaid');
+  }
+  
+  // Check if needs companies
+  const companies = question.companies || [];
+  if (!Array.isArray(companies) || companies.length < 3) {
+    await addWorkItem(question.id, 'company', `Only ${companies.length || 0} companies`, 'classify-bot', 6);
+    workItems.push('company');
+  }
+  
+  // Check if needs ELI5
+  if (!question.eli5 || question.eli5.length < 50) {
+    await addWorkItem(question.id, 'eli5', 'Missing ELI5 explanation', 'classify-bot', 7);
+    workItems.push('eli5');
+  }
+  
+  // Check if needs general improvement (short answer/explanation)
+  const needsImprove = 
+    (!question.answer || question.answer.length < 20) ||
+    (!question.explanation || question.explanation.length < 50);
+  if (needsImprove) {
+    await addWorkItem(question.id, 'improve', 'Short answer or explanation', 'classify-bot', 3);
+    workItems.push('improve');
+  }
+  
+  return workItems;
+}
+
 async function main() {
   console.log('=== Channel Classification Bot ===\n');
+  
+  // Initialize work queue
+  await initWorkQueue();
   
   const state = await loadState();
   const allQuestions = await getAllUnifiedQuestions();
@@ -312,6 +363,15 @@ async function main() {
       results.confirmed++;
     }
     
+    // Create work items for other bots if needed
+    console.log('📋 Checking for additional work needed...');
+    const workCreated = await createWorkItemsForQuestion(question);
+    if (workCreated.length > 0) {
+      console.log(`   Created ${workCreated.length} work items: ${workCreated.join(', ')}`);
+    } else {
+      console.log('   ✅ No additional work needed');
+    }
+    
     results.processed++;
     
     // Update state after each question
@@ -344,6 +404,17 @@ async function main() {
   console.log(`\nNext run starts at: ${newState.lastProcessedIndex}`);
   console.log(`All-time processed: ${newState.totalProcessed}`);
   console.log(`All-time reclassified: ${newState.totalReclassified}`);
+  
+  // Show work queue stats
+  console.log('\n📋 Work Queue Status:');
+  const workStats = await getWorkQueueStats();
+  for (const [botType, statuses] of Object.entries(workStats)) {
+    const pending = statuses.pending || 0;
+    const completed = statuses.completed || 0;
+    const failed = statuses.failed || 0;
+    console.log(`  ${botType}: ${pending} pending, ${completed} completed, ${failed} failed`);
+  }
+  
   console.log('=== END ===\n');
   
   writeGitHubOutput({

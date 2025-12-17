@@ -4,10 +4,16 @@ import {
   runWithRetries,
   parseJson,
   validateYouTubeVideos,
-  writeGitHubOutput
+  writeGitHubOutput,
+  getPendingWork,
+  startWorkItem,
+  completeWorkItem,
+  failWorkItem,
+  initWorkQueue
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '10', 10);
+const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
 
 // Check if a question needs video work
 function needsVideoWork(question) {
@@ -50,16 +56,37 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
 async function main() {
   console.log('=== Video Bot - Add/Validate YouTube Videos (Database Mode) ===\n');
   
-  const allQuestions = await getAllUnifiedQuestions();
+  await initWorkQueue();
   
-  console.log(`📊 Database: ${allQuestions.length} questions`);
-  console.log(`⚙️ Batch size: ${BATCH_SIZE}\n`);
+  let batch = [];
+  let workItems = [];
   
-  // Find questions needing videos
-  const needingVideos = allQuestions.filter(needsVideoWork);
-  console.log(`📦 Questions needing videos: ${needingVideos.length}\n`);
+  if (USE_WORK_QUEUE) {
+    // Get work from queue
+    console.log('📋 Checking work queue for video tasks...');
+    workItems = await getPendingWork('video', BATCH_SIZE);
+    batch = workItems.map(w => ({ ...w.question, workId: w.workId, workReason: w.reason }));
+    console.log(`📦 Found ${batch.length} video tasks in work queue\n`);
+  }
   
-  const batch = needingVideos.slice(0, BATCH_SIZE);
+  // Fallback to scanning if no work queue items (for new questions or manual runs)
+  if (batch.length === 0 && !USE_WORK_QUEUE) {
+    console.log('📊 Scanning all questions (work queue disabled)...');
+    const allQuestions = await getAllUnifiedQuestions();
+    console.log(`📊 Database: ${allQuestions.length} questions`);
+    
+    const needingVideos = allQuestions.filter(needsVideoWork);
+    console.log(`📦 Questions needing videos: ${needingVideos.length}\n`);
+    batch = needingVideos.slice(0, BATCH_SIZE);
+  }
+  
+  if (batch.length === 0) {
+    console.log('✅ No video work to do!');
+    writeGitHubOutput({ processed: 0, videos_added: 0 });
+    return;
+  }
+  
+  console.log(`⚙️ Processing ${batch.length} questions\n`);
   
   const results = {
     processed: 0,
@@ -71,9 +98,14 @@ async function main() {
   
   for (let i = 0; i < batch.length; i++) {
     const question = batch[i];
+    const workId = question.workId; // From work queue if applicable
     
     console.log(`\n--- [${i + 1}/${batch.length}] ${question.id} ---`);
     console.log(`Q: ${question.question.substring(0, 60)}...`);
+    if (workId) console.log(`Work ID: ${workId} (${question.workReason})`);
+    
+    // Mark work as started
+    if (workId) await startWorkItem(workId);
     
     const currentVideos = question.videos || {};
     const hasShort = currentVideos.shortVideo && currentVideos.shortVideo.length > 10;
@@ -97,6 +129,7 @@ async function main() {
       
       if (validated.shortVideo && validated.longVideo) {
         console.log('  ✅ Both videos valid, skipping');
+        if (workId) await completeWorkItem(workId, { status: 'already_valid' });
         results.videosValidated++;
         results.skipped++;
         continue;
@@ -114,6 +147,7 @@ async function main() {
       
       if (!foundVideos) {
         console.log('  ❌ AI search failed');
+        if (workId) await failWorkItem(workId, 'AI search failed');
         results.failed++;
         results.processed++;
         continue;
@@ -126,11 +160,13 @@ async function main() {
       const validatedNew = await validateYouTubeVideos(foundVideos);
       
       let updated = false;
+      let addedVideos = [];
       
       if (needsShort && validatedNew.shortVideo) {
         currentVideos.shortVideo = validatedNew.shortVideo;
         results.videosAdded++;
         updated = true;
+        addedVideos.push('short');
         console.log('  ✅ Added short video');
       }
       
@@ -138,6 +174,7 @@ async function main() {
         currentVideos.longVideo = validatedNew.longVideo;
         results.videosAdded++;
         updated = true;
+        addedVideos.push('long');
         console.log('  ✅ Added long video');
       }
       
@@ -146,8 +183,11 @@ async function main() {
         question.lastUpdated = new Date().toISOString();
         await saveQuestion(question);
         console.log('  💾 Saved to database');
+        if (workId) await completeWorkItem(workId, { added: addedVideos });
       } else {
-        console.log('  ⚠️ No valid videos found');
+        console.log('  ⚠️ No valid videos found (closing work item)');
+        // Complete the work item even if no videos found - don't retry endlessly
+        if (workId) await completeWorkItem(workId, { status: 'no_valid_videos_found' });
       }
     }
     

@@ -3,11 +3,17 @@ import {
   saveQuestion,
   runWithRetries,
   parseJson,
-  writeGitHubOutput
+  writeGitHubOutput,
+  getPendingWork,
+  startWorkItem,
+  completeWorkItem,
+  failWorkItem,
+  initWorkQueue
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
 const RATE_LIMIT_MS = 2000;
+const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
 
 // Check if question needs ELI5 explanation
 function needsEli5(question) {
@@ -64,23 +70,42 @@ function sleep(ms) {
 async function main() {
   console.log('=== ELI5 Bot - Explain Like I\'m 5 (Database Mode) ===\n');
   
-  const allQuestions = await getAllUnifiedQuestions();
+  await initWorkQueue();
   
-  console.log(`📊 Database: ${allQuestions.length} questions`);
-  console.log(`⚙️ Batch size: ${BATCH_SIZE}\n`);
+  let batch = [];
+  let usingWorkQueue = false;
   
-  // Sort questions by ID for consistent ordering
-  const sortedQuestions = [...allQuestions].sort((a, b) => {
-    const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
-    const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
-    return numA - numB;
-  });
+  // First try work queue
+  if (USE_WORK_QUEUE) {
+    console.log('📋 Checking work queue for eli5 tasks...');
+    const workItems = await getPendingWork('eli5', BATCH_SIZE);
+    if (workItems.length > 0) {
+      batch = workItems.map(w => ({ ...w.question, workId: w.workId, workReason: w.reason }));
+      usingWorkQueue = true;
+      console.log(`📦 Found ${batch.length} eli5 tasks in work queue\n`);
+    }
+  }
   
-  // Find questions needing ELI5
-  const needingEli5 = sortedQuestions.filter(q => needsEli5(q).needs);
-  console.log(`📦 Questions needing ELI5: ${needingEli5.length}\n`);
-  
-  const batch = needingEli5.slice(0, BATCH_SIZE);
+  // Fallback to scanning if no work queue items
+  if (batch.length === 0) {
+    const allQuestions = await getAllUnifiedQuestions();
+    
+    console.log(`📊 Database: ${allQuestions.length} questions`);
+    console.log(`⚙️ Batch size: ${BATCH_SIZE}\n`);
+    
+    // Sort questions by ID for consistent ordering
+    const sortedQuestions = [...allQuestions].sort((a, b) => {
+      const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+      const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+      return numA - numB;
+    });
+    
+    // Find questions needing ELI5
+    const needingEli5Questions = sortedQuestions.filter(q => needsEli5(q).needs);
+    console.log(`📦 Questions needing ELI5: ${needingEli5Questions.length}\n`);
+    
+    batch = needingEli5Questions.slice(0, BATCH_SIZE);
+  }
   
   const results = {
     processed: 0,
@@ -91,9 +116,23 @@ async function main() {
   
   for (let i = 0; i < batch.length; i++) {
     const question = batch[i];
+    const workId = question.workId; // From work queue if applicable
     
     console.log(`\n--- [${i + 1}/${batch.length}] ${question.id} ---`);
     console.log(`Q: ${question.question.substring(0, 60)}...`);
+    if (workId) console.log(`Work ID: ${workId} (${question.workReason})`);
+    
+    // Mark work as started
+    if (workId) await startWorkItem(workId);
+    
+    // Check if already has ELI5
+    if (question.eli5 && question.eli5.length >= 50) {
+      console.log('✅ Already has ELI5, skipping');
+      if (workId) await completeWorkItem(workId, { status: 'already_exists' });
+      results.skipped++;
+      results.processed++;
+      continue;
+    }
     
     console.log('🧒 Generating ELI5 explanation...');
     
@@ -103,6 +142,7 @@ async function main() {
     
     if (!eli5) {
       console.log('❌ Failed to generate ELI5');
+      if (workId) await failWorkItem(workId, 'Failed to generate ELI5');
       results.failed++;
       results.processed++;
       continue;
@@ -116,6 +156,9 @@ async function main() {
     question.lastUpdated = new Date().toISOString();
     await saveQuestion(question);
     console.log('💾 Saved to database');
+    
+    // Mark work as completed
+    if (workId) await completeWorkItem(workId, { eli5Length: eli5.length });
     
     results.eli5Added++;
     results.processed++;

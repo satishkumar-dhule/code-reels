@@ -6,8 +6,15 @@ import {
   parseJson,
   writeGitHubOutput,
   dbClient,
-  getQuestionsNeedingDiagrams
+  getQuestionsNeedingDiagrams,
+  getPendingWork,
+  startWorkItem,
+  completeWorkItem,
+  failWorkItem,
+  initWorkQueue
 } from './utils.js';
+
+const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
 const RATE_LIMIT_MS = 2000; // NFR: Rate limiting between API calls
@@ -137,6 +144,8 @@ function sleep(ms) {
 async function main() {
   console.log('=== Mermaid Bot - Add/Improve Diagrams ===\n');
   
+  await initWorkQueue();
+  
   const state = await loadState();
   const allQuestions = await getAllUnifiedQuestions();
   
@@ -145,43 +154,58 @@ async function main() {
   console.log(`📅 Last run: ${state.lastRunDate || 'Never'}`);
   console.log(`⚙️ Batch size: ${BATCH_SIZE}\n`);
   
-  // Use database query to get prioritized questions needing diagrams
-  console.log('🔍 Querying database for questions needing diagrams...');
-  const prioritizedQuestions = await getQuestionsNeedingDiagrams(BATCH_SIZE * 3);
-  
-  // If we have prioritized questions, use those; otherwise fall back to sequential processing
-  let batch;
+  let batch = [];
+  let workItems = [];
   let startIndex = state.lastProcessedIndex;
   let endIndex;
   let totalQuestionsCount = allQuestions.length;
   let usingPrioritized = false;
+  let usingWorkQueue = false;
   
-  if (prioritizedQuestions.length > 0) {
-    console.log(`✅ Found ${prioritizedQuestions.length} questions needing diagrams (prioritized)`);
-    batch = prioritizedQuestions.slice(0, BATCH_SIZE);
-    endIndex = startIndex + batch.length;
-    usingPrioritized = true;
-    console.log(`📦 Processing ${batch.length} prioritized questions\n`);
-  } else {
-    // Fall back to sequential processing if no prioritized questions
-    console.log('ℹ️ No prioritized questions found, using sequential processing');
-    
-    const sortedQuestions = [...allQuestions].sort((a, b) => {
-      const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
-      const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
-      return numA - numB;
-    });
-    
-    totalQuestionsCount = sortedQuestions.length;
-    
-    if (startIndex >= sortedQuestions.length) {
-      startIndex = 0;
-      console.log('🔄 Wrapped around to beginning\n');
+  // First try work queue
+  if (USE_WORK_QUEUE) {
+    console.log('📋 Checking work queue for mermaid tasks...');
+    workItems = await getPendingWork('mermaid', BATCH_SIZE);
+    if (workItems.length > 0) {
+      batch = workItems.map(w => ({ ...w.question, workId: w.workId, workReason: w.reason }));
+      endIndex = startIndex + batch.length;
+      usingWorkQueue = true;
+      console.log(`📦 Found ${batch.length} mermaid tasks in work queue\n`);
     }
+  }
+  
+  // Fallback to prioritized query if no work queue items
+  if (batch.length === 0) {
+    console.log('🔍 Querying database for questions needing diagrams...');
+    const prioritizedQuestions = await getQuestionsNeedingDiagrams(BATCH_SIZE * 3);
     
-    endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
-    batch = sortedQuestions.slice(startIndex, endIndex);
-    console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
+    if (prioritizedQuestions.length > 0) {
+      console.log(`✅ Found ${prioritizedQuestions.length} questions needing diagrams (prioritized)`);
+      batch = prioritizedQuestions.slice(0, BATCH_SIZE);
+      endIndex = startIndex + batch.length;
+      usingPrioritized = true;
+      console.log(`📦 Processing ${batch.length} prioritized questions\n`);
+    } else {
+      // Fall back to sequential processing if no prioritized questions
+      console.log('ℹ️ No prioritized questions found, using sequential processing');
+      
+      const sortedQuestions = [...allQuestions].sort((a, b) => {
+        const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+        const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+        return numA - numB;
+      });
+      
+      totalQuestionsCount = sortedQuestions.length;
+      
+      if (startIndex >= sortedQuestions.length) {
+        startIndex = 0;
+        console.log('🔄 Wrapped around to beginning\n');
+      }
+      
+      endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
+      batch = sortedQuestions.slice(startIndex, endIndex);
+      console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
+    }
   }
   
   const questions = await loadUnifiedQuestions();
@@ -195,25 +219,32 @@ async function main() {
   
   for (let i = 0; i < batch.length; i++) {
     const question = batch[i];
-    const globalIndex = startIndex + i + 1;
+    const workId = question.workId; // From work queue if applicable
     
     console.log(`\n--- [${i + 1}/${batch.length}] ${question.id} ---`);
     console.log(`Q: ${question.question.substring(0, 50)}...`);
+    if (workId) console.log(`Work ID: ${workId} (${question.workReason})`);
+    
+    // Mark work as started
+    if (workId) await startWorkItem(workId);
     
     const check = needsDiagramWork(question);
     console.log(`Status: ${check.reason}`);
     
     if (!check.needs) {
       console.log('✅ Diagram is good, skipping');
+      if (workId) await completeWorkItem(workId, { status: 'already_valid' });
       results.skipped++;
       results.processed++;
       
       // NFR: Update state after each question
-      await saveState({
-        ...state,
-        lastProcessedIndex: startIndex + i + 1,
-        totalProcessed: state.totalProcessed + results.processed
-      });
+      if (!usingWorkQueue) {
+        await saveState({
+          ...state,
+          lastProcessedIndex: startIndex + i + 1,
+          totalProcessed: state.totalProcessed + results.processed
+        });
+      }
       continue;
     }
     
@@ -226,14 +257,17 @@ async function main() {
     
     if (!generated) {
       console.log('❌ Failed to generate diagram');
+      if (workId) await failWorkItem(workId, 'Failed to generate diagram');
       results.failed++;
       results.processed++;
       
-      await saveState({
-        ...state,
-        lastProcessedIndex: startIndex + i + 1,
-        totalProcessed: state.totalProcessed + results.processed
-      });
+      if (!usingWorkQueue) {
+        await saveState({
+          ...state,
+          lastProcessedIndex: startIndex + i + 1,
+          totalProcessed: state.totalProcessed + results.processed
+        });
+      }
       continue;
     }
     
@@ -252,6 +286,12 @@ async function main() {
     await saveQuestion(updatedQuestion);
     console.log('💾 Saved to database');
     
+    // Mark work as completed
+    if (workId) await completeWorkItem(workId, { 
+      action: wasEmpty ? 'added' : 'improved',
+      diagramType: generated.diagramType 
+    });
+    
     if (wasEmpty) {
       results.diagramsAdded++;
     } else {
@@ -260,14 +300,16 @@ async function main() {
     
     results.processed++;
     
-    // NFR: Update state after each question
-    await saveState({
-      ...state,
-      lastProcessedIndex: startIndex + i + 1,
-      totalProcessed: state.totalProcessed + results.processed,
-      totalDiagramsAdded: state.totalDiagramsAdded + results.diagramsAdded,
-      totalDiagramsImproved: state.totalDiagramsImproved + results.diagramsImproved
-    });
+    // NFR: Update state after each question (only for non-work-queue mode)
+    if (!usingWorkQueue) {
+      await saveState({
+        ...state,
+        lastProcessedIndex: startIndex + i + 1,
+        totalProcessed: state.totalProcessed + results.processed,
+        totalDiagramsAdded: state.totalDiagramsAdded + results.diagramsAdded,
+        totalDiagramsImproved: state.totalDiagramsImproved + results.diagramsImproved
+      });
+    }
   }
   
   const newState = {
