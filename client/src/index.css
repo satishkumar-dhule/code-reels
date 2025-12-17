@@ -1181,3 +1181,23 @@ html {
 [data-theme='sunset'] .border {
   border-radius: var(--radius);
 }
+
+/* Giscus Comments Styling */
+.giscus-container {
+  width: 100%;
+}
+
+.giscus-container .giscus {
+  width: 100%;
+}
+
+.giscus-container .giscus-frame {
+  width: 100% !important;
+  border: none !important;
+  color-scheme: dark;
+}
+
+/* Make Giscus blend with dark theme */
+.giscus-container iframe {
+  color-scheme: dark;
+}

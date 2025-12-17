@@ -10,6 +10,7 @@ import {
   ChevronDown, Baby 
 } from 'lucide-react';
 import type { Question } from '../lib/data';
+import { GiscusComments } from './GiscusComments';
 
 // Check if mermaid diagram content is valid (non-empty and has valid structure)
 function isValidMermaidDiagram(diagram: string | undefined | null): boolean {
@@ -434,6 +435,11 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             </a>
           </div>
         )}
+
+        {/* Discussion Section - Giscus Comments */}
+        <div className="w-full pt-2 sm:pt-6 border-t border-white/10">
+          <GiscusComments questionId={question.id} />
+        </div>
       </div>
     </motion.div>
   );
