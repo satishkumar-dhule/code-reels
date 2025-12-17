@@ -23,7 +23,8 @@
         "Meta"
       ],
       "lastUpdated": "2025-12-17T06:34:42.916Z",
-      "lastRemapped": "2025-12-17T06:34:21.300Z"
+      "lastRemapped": "2025-12-17T06:34:21.300Z",
+      "eli5": "Imagine you have a train of toy cars connected by hooks. That's a Linked List! If you want to add a new car in the middle, you just unhook two cars and hook the new one in between - super easy! But if you want to find the 5th car, you have to count from the front: 1, 2, 3, 4, 5. Now imagine a row of boxes on a shelf - that's an Array! Finding the 5th box is instant (just look at position 5!), but adding a new box in the middle means pushing all the other boxes over. So: need to add/remove things a lot? Use the train (Linked List). Need to quickly find things by position? Use the shelf (Array)!"
     },
     "al-2": {
       "id": "al-2",
@@ -43,7 +44,8 @@
         "shortVideo": "https://www.youtube.com/watch?v=7E7awVFzbRw",
         "longVideo": "https://www.youtube.com/watch?v=3AW_HTo27YY"
       },
-      "lastVideoUpdate": "2025-12-17T12:08:20.261Z"
+      "lastVideoUpdate": "2025-12-17T12:08:20.261Z",
+      "eli5": "Imagine you have a messy pile of numbered cards to sort. QuickSort is like picking one card (the 'boss'), then making two piles: cards smaller than the boss go left, bigger ones go right. Keep doing this with each pile until everything is sorted! It's fast but sometimes picks a bad boss. MergeSort is different - you split the pile in half, sort each half, then carefully combine them like a zipper. It's always reliable but needs extra table space for the combining. QuickSort is like a speedy but sometimes messy kid, MergeSort is like a careful kid who always cleans up but needs more room!"
     },
     "al-3": {
       "id": "al-3",
@@ -195,7 +197,9 @@
         "Meta",
         "Microsoft",
         "Netflix"
-      ]
+      ],
+      "eli5": "Imagine your toys are in a big toy box! A clustered index is like putting all your cars together, then all your dolls, then all your blocks - everything is sorted in one order. You can only have one way to sort everything! A non-clustered index is like having a separate notebook that says 'cars are on page 3, dolls are on page 7' - you can have many notebooks for different ways to find things! Use clustered when you always look for things in the same order (like finding books by their number). Use non-clustered when you need to find things in many different ways (like finding toys by color, size, or type)!",
+      "lastEli5Update": "2025-12-17T13:04:28.853Z"
     },
     "db-2": {
       "id": "db-2",
@@ -402,7 +406,9 @@
         "shortVideo": "https://youtube.com/watch?v=55afxfqeSCM",
         "longVideo": "https://youtube.com/watch?v=fqMOX6JJhGo"
       },
-      "lastVideoUpdate": "2025-12-16T15:16:15.054Z"
+      "lastVideoUpdate": "2025-12-16T15:16:15.054Z",
+      "eli5": "Imagine you and your friend are building a giant LEGO castle together! DevOps is like having a special teamwork system where you both help each other. Instead of one person building all day and another person cleaning up all night, you work together the whole time. You use magic tools that automatically test your LEGO pieces, put them in the right place, and fix any wobbly parts. When you add a new tower, your friend immediately checks if it's strong, and when your friend finds a problem, you help fix it right away. It's like having a super-smart toy box that helps you build faster, make fewer mistakes, and have more fun playing with your finished castle together!",
+      "lastEli5Update": "2025-12-17T13:04:40.369Z"
     },
     "gh-2": {
       "id": "gh-2",
@@ -1674,7 +1680,9 @@
         "shortVideo": "https://youtube.com/watch?v=bRXXCGX_J2w",
         "longVideo": "https://youtube.com/watch?v=UKn4aVlnB9A"
       },
-      "lastVideoUpdate": "2025-12-17T12:06:37.289Z"
+      "lastVideoUpdate": "2025-12-17T12:06:37.289Z",
+      "eli5": "Imagine you have two boxes of LEGO blocks and want to make them match! React is like a smart kid who compares the boxes quickly. Instead of taking apart everything and rebuilding, React just looks for what's different - like finding which blocks moved or changed colors. The 'keys' are like name tags on your LEGO pieces. When you have a row of toy soldiers, each one has a name tag so React knows exactly which soldier moved where, instead of getting confused and rebuilding the whole line. This makes fixing changes super fast - just swapping the few pieces that actually changed!",
+      "lastEli5Update": "2025-12-17T13:04:53.664Z"
     },
     "fe-2": {
       "id": "fe-2",
@@ -1824,7 +1832,9 @@
         "definitions",
         "observability"
       ],
-      "lastUpdated": "2025-12-12T09:07:04.188Z"
+      "lastUpdated": "2025-12-12T09:07:04.188Z",
+      "eli5": "Imagine you're building with LEGOs! SLIs are like counting how many blocks you stack correctly - that's your measurement. SLOs are your goal, like 'I want to stack 9 out of 10 blocks perfectly.' SLAs are what happens if you don't meet your goal, like 'If I only stack 7 blocks, I have to clean up all the toys.' So you measure your blocks (SLI), set a target (SLO), and decide the consequences (SLA). They work together like a game: keep score, have a goal to reach, and know what happens if you win or lose!",
+      "lastEli5Update": "2025-12-17T13:05:02.455Z"
     },
     "sre-2": {
       "id": "sre-2",

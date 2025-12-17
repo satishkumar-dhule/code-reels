@@ -1,0 +1,93 @@
+name: ELI5 Bot
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 08:00 UTC
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: 'Number of questions to process'
+        required: false
+        default: '5'
+
+jobs:
+  add-eli5:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install OpenCode CLI
+        run: npm install -g opencode-ai
+
+      - name: Run ELI5 bot
+        id: eli5
+        env:
+          BATCH_SIZE: ${{ github.event.inputs.batch_size || '5' }}
+        run: node script/eli5-bot.js
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet client/src/lib/questions/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add client/src/lib/questions/
+          git commit -m "🧒 Add ELI5 explanations to questions"
+          
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin main && exit 0
+            echo "Push failed, retry $i..."
+            sleep 5
+          done
+          exit 1
+
+      - name: Trigger deploy
+        if: steps.check.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-pages.yml',
+              ref: 'main'
+            });
+            console.log('Triggered deploy workflow');
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 🧒 ELI5 Bot" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
+            echo "### ✅ ELI5 Explanations Added" >> $GITHUB_STEP_SUMMARY
+            echo "Simple explanations have been added to questions!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ℹ️ No Changes" >> $GITHUB_STEP_SUMMARY
+            echo "All questions in batch already have ELI5 explanations." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Processed:** ${{ steps.eli5.outputs.processed || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**ELI5 Added:** ${{ steps.eli5.outputs.eli5_added || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

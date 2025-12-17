@@ -20,6 +20,7 @@ export interface Question {
     longVideo?: string;
   };
   companies?: string[];
+  eli5?: string; // "Explain Like I'm 5" simple explanation
 }
 
 // Questions by ID from unified storage

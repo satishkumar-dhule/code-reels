@@ -7,7 +7,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
 import { 
   Check, BookOpen, Code2, Lightbulb, ExternalLink, Building2, 
-  ChevronDown 
+  ChevronDown, Baby 
 } from 'lucide-react';
 import type { Question } from '../lib/data';
 
@@ -329,6 +329,27 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
               <p className="text-[11px] sm:text-sm text-white/90 leading-relaxed">
                 {question.answer}
               </p>
+            </div>
+          </CollapsibleSection>
+        )}
+
+        {/* ELI5 Section - Explain Like I'm 5 */}
+        {question.eli5 && (
+          <CollapsibleSection
+            id="eli5"
+            title="Explain Like I'm 5"
+            icon={<Baby className="w-3 h-3 sm:w-4 sm:h-4" />}
+            accentColor="green"
+            defaultExpanded={false}
+            onVisibilityChange={handleVisibilityChange}
+          >
+            <div className="p-2 sm:p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <span className="text-lg sm:text-2xl shrink-0">🧒</span>
+                <p className="text-[11px] sm:text-sm text-white/90 leading-relaxed">
+                  {question.eli5}
+                </p>
+              </div>
             </div>
           </CollapsibleSection>
         )}
