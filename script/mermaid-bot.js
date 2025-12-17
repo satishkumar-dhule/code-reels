@@ -153,11 +153,14 @@ async function main() {
   let batch;
   let startIndex = state.lastProcessedIndex;
   let endIndex;
+  let totalQuestionsCount = allQuestions.length;
+  let usingPrioritized = false;
   
   if (prioritizedQuestions.length > 0) {
     console.log(`✅ Found ${prioritizedQuestions.length} questions needing diagrams (prioritized)`);
     batch = prioritizedQuestions.slice(0, BATCH_SIZE);
     endIndex = startIndex + batch.length;
+    usingPrioritized = true;
     console.log(`📦 Processing ${batch.length} prioritized questions\n`);
   } else {
     // Fall back to sequential processing if no prioritized questions
@@ -168,6 +171,8 @@ async function main() {
       const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
       return numA - numB;
     });
+    
+    totalQuestionsCount = sortedQuestions.length;
     
     if (startIndex >= sortedQuestions.length) {
       startIndex = 0;
@@ -192,7 +197,7 @@ async function main() {
     const question = batch[i];
     const globalIndex = startIndex + i + 1;
     
-    console.log(`\n--- [${globalIndex}/${sortedQuestions.length}] ${question.id} ---`);
+    console.log(`\n--- [${i + 1}/${batch.length}] ${question.id} ---`);
     console.log(`Q: ${question.question.substring(0, 50)}...`);
     
     const check = needsDiagramWork(question);
@@ -266,7 +271,7 @@ async function main() {
   }
   
   const newState = {
-    lastProcessedIndex: endIndex >= sortedQuestions.length ? 0 : endIndex,
+    lastProcessedIndex: usingPrioritized ? state.lastProcessedIndex : (endIndex >= totalQuestionsCount ? 0 : endIndex),
     lastRunDate: new Date().toISOString(),
     totalProcessed: state.totalProcessed + results.processed,
     totalDiagramsAdded: state.totalDiagramsAdded + results.diagramsAdded,
