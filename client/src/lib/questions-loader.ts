@@ -22,6 +22,7 @@ export interface Question {
   };
   companies?: string[];
   eli5?: string;
+  lastUpdated?: string;
 }
 
 // In-memory cache for questions

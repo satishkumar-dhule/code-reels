@@ -23,6 +23,7 @@ export interface Question {
   };
   companies?: string[];
   eli5?: string;
+  lastUpdated?: string;
 }
 
 export interface QuestionListItem {

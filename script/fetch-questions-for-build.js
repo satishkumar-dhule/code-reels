@@ -194,6 +194,98 @@ async function main() {
     console.log(`   ✓ bot-activity.json (empty - work_queue may not exist)`);
   }
 
+  // Fetch GitHub analytics
+  console.log('\n📥 Fetching GitHub analytics...');
+  try {
+    // Get recent views/clones data
+    const viewsResult = await client.execute(`
+      SELECT date, repo, metric_type, metric_name, count, uniques
+      FROM github_analytics
+      WHERE metric_type IN ('views', 'clones')
+      ORDER BY date DESC
+      LIMIT 60
+    `);
+
+    // Get latest referrers
+    const referrersResult = await client.execute(`
+      SELECT metric_name as referrer, count, uniques
+      FROM github_analytics
+      WHERE metric_type = 'referrer'
+      AND date = (SELECT MAX(date) FROM github_analytics WHERE metric_type = 'referrer')
+      ORDER BY count DESC
+      LIMIT 10
+    `);
+
+    // Get latest repo stats
+    const repoStatsResult = await client.execute(`
+      SELECT repo, metric_name, count
+      FROM github_analytics
+      WHERE metric_type = 'repo_stat'
+      AND date = (SELECT MAX(date) FROM github_analytics WHERE metric_type = 'repo_stat')
+    `);
+
+    // Aggregate views by date
+    const viewsByDate = {};
+    const clonesByDate = {};
+    for (const row of viewsResult.rows) {
+      const date = row.date;
+      if (row.metric_type === 'views') {
+        if (!viewsByDate[date]) viewsByDate[date] = { count: 0, uniques: 0 };
+        viewsByDate[date].count += Number(row.count) || 0;
+        viewsByDate[date].uniques += Number(row.uniques) || 0;
+      } else if (row.metric_type === 'clones') {
+        if (!clonesByDate[date]) clonesByDate[date] = { count: 0, uniques: 0 };
+        clonesByDate[date].count += Number(row.count) || 0;
+        clonesByDate[date].uniques += Number(row.uniques) || 0;
+      }
+    }
+
+    // Format for chart display
+    const views = Object.entries(viewsByDate)
+      .map(([date, data]) => ({ date, ...data }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    const clones = Object.entries(clonesByDate)
+      .map(([date, data]) => ({ date, ...data }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    const referrers = referrersResult.rows.map(row => ({
+      referrer: row.referrer,
+      count: Number(row.count) || 0,
+      uniques: Number(row.uniques) || 0
+    }));
+
+    // Aggregate repo stats
+    const repoStats = {};
+    for (const row of repoStatsResult.rows) {
+      const repo = row.repo;
+      if (!repoStats[repo]) repoStats[repo] = {};
+      repoStats[repo][row.metric_name] = Number(row.count) || 0;
+    }
+
+    const githubAnalyticsFile = path.join(OUTPUT_DIR, 'github-analytics.json');
+    fs.writeFileSync(githubAnalyticsFile, JSON.stringify({
+      views,
+      clones,
+      referrers,
+      repoStats,
+      lastUpdated: new Date().toISOString()
+    }, null, 0));
+    console.log(`   ✓ github-analytics.json (${views.length} days of data)`);
+  } catch (e) {
+    console.log(`   ⚠️ Could not fetch GitHub analytics: ${e.message}`);
+    // Write empty analytics file
+    const githubAnalyticsFile = path.join(OUTPUT_DIR, 'github-analytics.json');
+    fs.writeFileSync(githubAnalyticsFile, JSON.stringify({
+      views: [],
+      clones: [],
+      referrers: [],
+      repoStats: {},
+      lastUpdated: new Date().toISOString()
+    }, null, 0));
+    console.log(`   ✓ github-analytics.json (empty - table may not exist yet)`);
+  }
+
   console.log('\n✅ Static data files generated successfully!');
   console.log(`   Output directory: ${OUTPUT_DIR}`);
   console.log(`   Total questions: ${questions.length}`);

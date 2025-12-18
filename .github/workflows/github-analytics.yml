@@ -1,0 +1,51 @@
+name: 📊 GitHub Analytics Bot
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6:00 UTC
+  workflow_dispatch:
+
+jobs:
+  collect-analytics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install dotenv @libsql/client
+
+      - name: Collect GitHub Analytics
+        run: node script/github-analytics-bot.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          REPO_OWNER: satishkumar-dhule
+          REPO_NAME: code-reels
+          PAGES_REPO_OWNER: reel-interview
+          PAGES_REPO_NAME: reel-interview.github.io
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 📊 GitHub Analytics Bot" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Analytics Collected" >> $GITHUB_STEP_SUMMARY
+          echo "- Page views and unique visitors" >> $GITHUB_STEP_SUMMARY
+          echo "- Clone statistics" >> $GITHUB_STEP_SUMMARY
+          echo "- Top referrers" >> $GITHUB_STEP_SUMMARY
+          echo "- Popular content paths" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository stats (stars, forks, watchers)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

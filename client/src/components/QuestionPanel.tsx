@@ -1,6 +1,28 @@
 import { motion } from 'framer-motion';
-import { Hash, Zap, Target, Flame, Bookmark, Clock, Check } from 'lucide-react';
+import { Hash, Zap, Target, Flame, Bookmark, Clock, Check, RefreshCw } from 'lucide-react';
 import type { Question } from '../lib/data';
+
+// Format relative time
+function formatTimeAgo(dateStr: string | undefined): string {
+  if (!dateStr) return '';
+  
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  const diffWeeks = Math.floor(diffDays / 7);
+  const diffMonths = Math.floor(diffDays / 30);
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffWeeks < 4) return `${diffWeeks}w ago`;
+  if (diffMonths < 12) return `${diffMonths}mo ago`;
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
 
 interface QuestionPanelProps {
   question: Question;
@@ -94,6 +116,16 @@ export function QuestionPanel({
             {question.subChannel}
           </span>
         </div>
+
+        {/* Last Updated - Hidden on mobile */}
+        {question.lastUpdated && (
+          <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded">
+            <RefreshCw className="w-3 h-3 text-white/40" />
+            <span className="text-[10px] font-mono text-white/40">
+              {formatTimeAgo(question.lastUpdated)}
+            </span>
+          </div>
+        )}
 
         {/* Spacer */}
         <div className="flex-1" />

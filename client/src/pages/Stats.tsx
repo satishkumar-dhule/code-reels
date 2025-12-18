@@ -9,6 +9,7 @@ import {
 import { motion } from "framer-motion";
 import { SEOHead } from "../components/SEOHead";
 import { trackStatsView } from "../hooks/use-analytics";
+import { GitHubAnalytics } from "../components/GitHubAnalytics";
 
 function generateActivityData(stats: { date: string; count: number }[], days: number) {
   const data: { date: string; count: number; week: number; dayOfWeek: number }[] = [];
@@ -212,6 +213,11 @@ export default function Stats() {
               })}
             </div>
           </motion.div>
+
+          {/* GitHub Analytics */}
+          <div className="mb-4">
+            <GitHubAnalytics />
+          </div>
 
           {/* Activity Heatmap */}
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="border border-border p-3 bg-card rounded-lg mb-4">
