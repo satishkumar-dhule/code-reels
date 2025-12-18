@@ -10,7 +10,8 @@ import {
   logQuestionsAdded,
   validateYouTubeVideos,
   normalizeCompanies,
-  logBotActivity
+  logBotActivity,
+  getChannelStats
 } from './utils.js';
 
 // Channel configurations
@@ -126,23 +127,88 @@ function getRandomSubChannel(channel) {
   return configs[Math.floor(Math.random() * configs.length)];
 }
 
+// Prioritize channels with fewer questions (weighted random selection)
+function selectChannelsWeighted(channelCounts, allChannels, limit) {
+  // Calculate weights - channels with fewer questions get higher weight
+  const maxCount = Math.max(...Object.values(channelCounts), 1);
+  const weights = allChannels.map(ch => {
+    const count = channelCounts[ch] || 0;
+    // Inverse weight: fewer questions = higher weight
+    // Add 1 to avoid division by zero, multiply by factor for channels with 0 questions
+    return Math.pow((maxCount - count + 10) / maxCount, 2);
+  });
+  
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  const selected = [];
+  const available = [...allChannels];
+  const availableWeights = [...weights];
+  
+  while (selected.length < limit && available.length > 0) {
+    // Weighted random selection
+    let random = Math.random() * availableWeights.reduce((a, b) => a + b, 0);
+    let idx = 0;
+    
+    for (let i = 0; i < availableWeights.length; i++) {
+      random -= availableWeights[i];
+      if (random <= 0) {
+        idx = i;
+        break;
+      }
+    }
+    
+    selected.push(available[idx]);
+    available.splice(idx, 1);
+    availableWeights.splice(idx, 1);
+  }
+  
+  return selected;
+}
+
 async function main() {
   console.log('=== Daily Question Generator (Database Mode) ===\n');
 
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
   const inputLimit = parseInt(process.env.INPUT_LIMIT || '0', 10);
+  const balanceChannels = process.env.BALANCE_CHANNELS !== 'false'; // Default to true
   
-  let channels = getAllChannels();
-  
-  if (inputLimit > 0) {
-    channels = channels.sort(() => Math.random() - 0.5).slice(0, inputLimit);
-    console.log(`Limited to ${inputLimit} channel(s): ${channels.join(', ')}\n`);
-  } else {
-    console.log(`Found ${channels.length} channels\n`);
-  }
-
+  const allChannels = getAllChannels();
   const allQuestions = await getAllUnifiedQuestions();
   console.log(`Loaded ${allQuestions.length} existing questions from database`);
+  
+  // Get channel question counts
+  const channelCounts = {};
+  allQuestions.forEach(q => {
+    channelCounts[q.channel] = (channelCounts[q.channel] || 0) + 1;
+  });
+  
+  // Show channel distribution
+  console.log('\n📊 Channel Distribution:');
+  const sortedChannels = [...allChannels].sort((a, b) => (channelCounts[a] || 0) - (channelCounts[b] || 0));
+  sortedChannels.slice(0, 5).forEach(ch => {
+    console.log(`   ${ch}: ${channelCounts[ch] || 0} questions (LOW)`);
+  });
+  console.log('   ...');
+  sortedChannels.slice(-3).forEach(ch => {
+    console.log(`   ${ch}: ${channelCounts[ch] || 0} questions`);
+  });
+  
+  let channels;
+  const limit = inputLimit > 0 ? inputLimit : allChannels.length;
+  
+  if (balanceChannels && inputLimit > 0) {
+    // Use weighted selection to prioritize channels with fewer questions
+    channels = selectChannelsWeighted(channelCounts, allChannels, limit);
+    console.log(`\n🎯 Balanced selection (prioritizing low-count channels):`);
+    channels.forEach(ch => {
+      console.log(`   ${ch}: ${channelCounts[ch] || 0} questions`);
+    });
+  } else if (inputLimit > 0) {
+    channels = allChannels.sort(() => Math.random() - 0.5).slice(0, limit);
+    console.log(`\nRandom selection: ${channels.join(', ')}`);
+  } else {
+    channels = allChannels;
+    console.log(`\nProcessing all ${channels.length} channels`);
+  }
 
   const addedQuestions = [];
   const failedAttempts = [];

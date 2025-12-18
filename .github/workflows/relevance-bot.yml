@@ -1,0 +1,57 @@
+name: Relevance Bot - Score Questions
+
+on:
+  schedule:
+    # Run daily at 4 AM UTC
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: 'Number of questions to score'
+        required: false
+        default: '10'
+
+jobs:
+  score-questions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install.sh | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          
+      - name: Run Relevance Bot
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          BATCH_SIZE: ${{ github.event.inputs.batch_size || '10' }}
+        run: node script/relevance-bot.js
+        
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Relevance Bot Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Processed: ${{ env.processed || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Scored: ${{ env.scored || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Score Distribution" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌟 Excellent (80-100): ${{ env.excellent || '0' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Good (60-79): ${{ env.good || '0' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚠️ Fair (40-59): ${{ env.fair || '0' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔴 Needs Review (<40): ${{ env.needs_review || '0' }}" >> $GITHUB_STEP_SUMMARY

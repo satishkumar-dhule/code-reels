@@ -77,6 +77,12 @@ const BOT_CONFIG: Record<string, { name: string; icon: typeof Bot; color: string
     icon: Sparkles, 
     color: 'text-orange-500 bg-orange-500/10 border-orange-500/30',
     description: 'Adds motivational content'
+  },
+  'relevance': { 
+    name: 'Relevance Bot', 
+    icon: TrendingUp, 
+    color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30',
+    description: 'Scores interview relevance'
   }
 };
 

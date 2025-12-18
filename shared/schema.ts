@@ -23,6 +23,8 @@ export const questions = sqliteTable("questions", {
   companies: text("companies"), // JSON array stored as text
   eli5: text("eli5"),
   tldr: text("tldr"),
+  relevanceScore: integer("relevance_score"), // 0-100 interview relevance score
+  relevanceDetails: text("relevance_details"), // JSON with detailed scoring breakdown
   lastUpdated: text("last_updated"),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
 });
