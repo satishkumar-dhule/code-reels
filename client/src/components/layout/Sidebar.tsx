@@ -90,17 +90,12 @@ export function Sidebar({ isOpen, onToggle, onSearch }: SidebarProps) {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{ 
-          width: isOpen ? 280 : 72,
-          x: 0 
-        }}
+      {/* Sidebar - Hidden on mobile by default, visible collapsed on desktop */}
+      <aside
         className={`
           fixed left-0 top-0 h-full bg-card border-r border-border z-50
           flex flex-col transition-all duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${isOpen ? 'w-[280px] translate-x-0' : 'w-[72px] -translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Header */}
@@ -190,7 +185,7 @@ export function Sidebar({ isOpen, onToggle, onSearch }: SidebarProps) {
             </div>
           )}
         </nav>
-      </motion.aside>
+      </aside>
     </>
   );
 }
