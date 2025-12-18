@@ -14,6 +14,8 @@ import AllChannels from "@/pages/AllChannels";
 import MermaidTest from "@/pages/MermaidTest";
 import BotActivity from "@/pages/BotActivity";
 import Badges from "@/pages/Badges";
+import TestSession from "@/pages/TestSession";
+import Tests from "@/pages/Tests";
 import { Onboarding } from "./components/Onboarding";
 import { MarvelIntro, useMarvelIntro } from "./components/MarvelIntro";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -30,6 +32,8 @@ function Router() {
       <Route path="/whats-new" component={WhatsNew} />
       <Route path="/stats" component={Stats} />
       <Route path="/badges" component={Badges} />
+      <Route path="/tests" component={Tests} />
+      <Route path="/test/:channelId" component={TestSession} />
       <Route path="/bot-activity" component={BotActivity} />
       <Route path="/channels" component={AllChannels} />
       <Route path="/test/mermaid" component={MermaidTest} />

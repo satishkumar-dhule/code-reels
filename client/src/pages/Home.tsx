@@ -8,7 +8,7 @@ import {
   Terminal, Cpu, Database, Layout, BarChart2, Palette, Activity, GitBranch, 
   Star, AlertCircle, Sparkles, Plus, Server, Layers, Smartphone, Shield,
   Brain, Workflow, Box, Cloud, Code, Network, MessageCircle, Users, Eye, FileText,
-  CheckCircle, Monitor, Zap, Gauge, Search, X, Rss, Bot, Trophy
+  CheckCircle, Monitor, Zap, Gauge, Search, X, Rss, Bot, Trophy, Target
 } from 'lucide-react';
 import { SearchModal } from '../components/SearchModal';
 import { useProgress } from '../hooks/use-progress';
@@ -331,6 +331,13 @@ export default function Home() {
                title="View Badges"
              >
                 <Trophy className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Badges</span>
+             </button>
+             <button 
+               onClick={() => setLocation('/tests')}
+               className="text-[10px] sm:text-xs uppercase tracking-widest hover:text-primary flex items-center gap-1 sm:gap-2 transition-colors p-1"
+               title="Knowledge Tests"
+             >
+                <Target className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden xs:inline">Tests</span>
              </button>
              <button 
                onClick={() => setLocation('/bot-activity')}

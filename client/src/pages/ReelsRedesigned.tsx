@@ -13,6 +13,7 @@ import {
   Terminal, Bookmark, Settings, Building2, Search
 } from 'lucide-react';
 import { SearchModal } from '../components/SearchModal';
+import { TestPromptToast } from '../components/TestPromptToast';
 import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';
 import { useUserPreferences } from '../context/UserPreferencesContext';
@@ -1021,6 +1022,16 @@ export default function ReelsRedesigned() {
       
       {/* Search Modal */}
       <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
+      
+      {/* Test Prompt Toast */}
+      {channelId && (
+        <TestPromptToast
+          channelId={channelId}
+          channelName={channel.name}
+          completedCount={completed.length}
+          totalCount={totalQuestions}
+        />
+      )}
     </>
   );
 }
