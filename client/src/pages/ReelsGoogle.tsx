@@ -251,7 +251,7 @@ export default function ReelsGoogle() {
         />
 
         {/* Main Content - Desktop: Split View, Mobile: Tabs */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden" data-testid="reels-content">
           {/* Desktop Split View */}
           <div className="hidden lg:flex flex-1">
             {/* Question Panel */}

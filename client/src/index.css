@@ -65,8 +65,31 @@
   --radius: 8px;
 }
 
-/* Google Dark theme - default for dark mode preference */
-[data-theme='google-dark'], 
+/* Google Dark theme */
+[data-theme='google-dark'] {
+  --background: hsl(0 0% 7%);
+  --foreground: hsl(0 0% 93%);
+  --card: hsl(0 0% 10%);
+  --card-foreground: hsl(0 0% 93%);
+  --popover: hsl(0 0% 10%);
+  --popover-foreground: hsl(0 0% 93%);
+  --primary: hsl(217 91% 60%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 15%);
+  --secondary-foreground: hsl(0 0% 93%);
+  --muted: hsl(0 0% 15%);
+  --muted-foreground: hsl(0 0% 64%);
+  --accent: hsl(0 0% 15%);
+  --accent-foreground: hsl(0 0% 93%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(0 0% 20%);
+  --input: hsl(0 0% 20%);
+  --ring: hsl(217 91% 60%);
+  --radius: 8px;
+}
+
+/* Auto dark mode for users without explicit theme */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --background: hsl(0 0% 7%);

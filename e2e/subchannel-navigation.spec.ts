@@ -19,10 +19,10 @@ test.describe('Subchannel Navigation', () => {
     await page.goto('/channel/system-design');
     
     // Wait for the page to load with a question panel
-    await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first()).toBeVisible({ timeout: 10000 });
     
-    // Find and click the subchannel dropdown (contains "All Topics" text)
-    const subchannelDropdown = page.locator('button').filter({ hasText: 'All Topics' }).first();
+    // Find and click the subchannel dropdown (contains "All Topics" or "Topic" text)
+    const subchannelDropdown = page.locator('button').filter({ hasText: /All Topics|Topic/i }).first();
     
     if (await subchannelDropdown.isVisible({ timeout: 3000 }).catch(() => false)) {
       await subchannelDropdown.click();
@@ -42,9 +42,9 @@ test.describe('Subchannel Navigation', () => {
         await page.waitForTimeout(500);
         
         // Page should NOT be blank - should show either a question panel or "NO_DATA_FOUND" message
-        const hasQuestionPanel = await page.getByTestId('question-panel').isVisible().catch(() => false);
+        const hasQuestionPanel = await page.getByTestId('question-panel').first().isVisible().catch(() => false);
         const hasNoDataView = await page.getByTestId('no-questions-view').isVisible().catch(() => false);
-        const hasNoDataMessage = await page.getByText('NO_DATA_FOUND').isVisible().catch(() => false);
+        const hasNoDataMessage = await page.getByText(/NO_DATA_FOUND|No questions/i).isVisible().catch(() => false);
         
         // At least one of these should be visible - page should never be completely blank
         expect(hasQuestionPanel || hasNoDataView || hasNoDataMessage).toBeTruthy();
@@ -64,18 +64,20 @@ test.describe('Subchannel Navigation', () => {
     // Should not be empty or just whitespace
     expect(pageContent?.trim().length).toBeGreaterThan(10);
     
-    // Should have navigation elements
-    await expect(page.locator('button').filter({ hasText: /ESC|Home/ }).first()).toBeVisible();
+    // Should have navigation elements (new UI uses back chevron)
+    const backButton = page.locator('button').filter({ hasText: /ESC|Home/ }).first()
+      .or(page.locator('button').filter({ has: page.locator('svg.lucide-chevron-left') }).first());
+    await expect(backButton).toBeVisible();
   });
 
   test('should handle difficulty filter changes without blank page', async ({ page }) => {
     await page.goto('/channel/system-design');
     
     // Wait for initial load
-    await expect(page.getByTestId('question-panel').or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first().or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
     
     // Find difficulty dropdown (look for the one with difficulty icons/text)
-    const difficultyDropdown = page.locator('button').filter({ hasText: /All|Beginner|Intermediate|Advanced/ }).first();
+    const difficultyDropdown = page.locator('button').filter({ hasText: /Difficulty|All Levels|Beginner|Intermediate|Advanced/ }).first();
     
     if (await difficultyDropdown.isVisible({ timeout: 3000 }).catch(() => false)) {
       await difficultyDropdown.click();
@@ -88,7 +90,7 @@ test.describe('Subchannel Navigation', () => {
         await page.waitForTimeout(500);
         
         // Page should not be blank - either show questions or no-data message
-        const hasContent = await page.getByTestId('question-panel').isVisible().catch(() => false) ||
+        const hasContent = await page.getByTestId('question-panel').first().isVisible().catch(() => false) ||
                           await page.getByTestId('no-questions-view').isVisible().catch(() => false);
         expect(hasContent).toBeTruthy();
       }
@@ -103,7 +105,7 @@ test.describe('Subchannel Navigation', () => {
     
     // Try to trigger no-questions state by selecting a very specific filter combination
     // First check if we can access the difficulty dropdown
-    const difficultyDropdown = page.locator('button').filter({ hasText: /All|Beginner|Intermediate|Advanced/ }).first();
+    const difficultyDropdown = page.locator('button').filter({ hasText: /Difficulty|All Levels|Beginner|Intermediate|Advanced/ }).first();
     
     if (await difficultyDropdown.isVisible({ timeout: 3000 }).catch(() => false)) {
       // Select advanced difficulty which might have fewer questions
@@ -128,26 +130,20 @@ test.describe('Subchannel Navigation', () => {
     await page.goto('/channel/system-design');
     
     // Wait for question panel
-    await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first()).toBeVisible({ timeout: 10000 });
     
-    // Find next button and click it
-    const nextButton = page.locator('button[title="Next"]');
-    if (await nextButton.isVisible() && await nextButton.isEnabled()) {
-      await nextButton.click();
-      await page.waitForTimeout(300);
-      
-      // Should still have question panel visible
-      await expect(page.getByTestId('question-panel')).toBeVisible();
-    }
+    // Use keyboard navigation
+    await page.keyboard.press('ArrowDown');
+    await page.waitForTimeout(300);
     
-    // Find prev button and click it
-    const prevButton = page.locator('button[title="Previous"]');
-    if (await prevButton.isVisible() && await prevButton.isEnabled()) {
-      await prevButton.click();
-      await page.waitForTimeout(300);
-      
-      // Should still have question panel visible
-      await expect(page.getByTestId('question-panel')).toBeVisible();
-    }
+    // Should still have question panel visible
+    await expect(page.getByTestId('question-panel').first()).toBeVisible();
+    
+    // Navigate back
+    await page.keyboard.press('ArrowUp');
+    await page.waitForTimeout(300);
+    
+    // Should still have question panel visible
+    await expect(page.getByTestId('question-panel').first()).toBeVisible();
   });
 });

@@ -17,11 +17,13 @@ test.describe('Channel/Reels Page', () => {
   test('should display question content', async ({ page }) => {
     await page.goto('/channel/system-design');
     
-    // Should show question panel
-    await expect(page.getByTestId('question-panel').or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
+    // Should show question panel (use first() since new UI has desktop and mobile views)
+    await expect(page.getByTestId('question-panel').first().or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
     
-    // Should show navigation (ESC button)
-    await expect(page.locator('button').filter({ hasText: 'ESC' }).first()).toBeVisible();
+    // Should show navigation - look for back button or ESC
+    const hasNav = await page.locator('button').filter({ hasText: /ESC|Back/i }).first().isVisible().catch(() => false);
+    const hasBackIcon = await page.locator('svg.lucide-chevron-left').first().isVisible().catch(() => false);
+    expect(hasNav || hasBackIcon).toBeTruthy();
   });
 
   test('should show question count', async ({ page }) => {
@@ -51,7 +53,7 @@ test.describe('Channel/Reels Page', () => {
     await page.goto('/channel/system-design/0');
     
     // Wait for content to load - either question panel or no-questions view
-    await expect(page.getByTestId('question-panel').or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first().or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
     
     // Verify reveal button exists (timer mode) or answer is already visible (no timer mode)
     const revealButton = page.locator('button').filter({ hasText: /Reveal/i }).first();
@@ -59,7 +61,7 @@ test.describe('Channel/Reels Page', () => {
     
     // Either reveal button exists (timer enabled) or we're in no-timer mode
     // The test passes if the page loaded successfully with question content
-    const hasQuestionContent = await page.getByTestId('question-panel').isVisible().catch(() => false);
+    const hasQuestionContent = await page.getByTestId('question-panel').first().isVisible().catch(() => false);
     
     expect(hasRevealButton || hasQuestionContent).toBeTruthy();
   });
@@ -68,10 +70,10 @@ test.describe('Channel/Reels Page', () => {
     await page.goto('/channel/system-design');
     
     // Wait for page to load
-    await expect(page.getByTestId('question-panel').or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first().or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
     
     // Should have difficulty dropdown - look for the button with difficulty icon
-    const difficultyFilter = page.locator('button').filter({ has: page.locator('svg') }).filter({ hasText: /All|Beginner|Intermediate|Advanced/i }).first();
+    const difficultyFilter = page.locator('button').filter({ has: page.locator('svg') }).filter({ hasText: /All|Beginner|Intermediate|Advanced|Difficulty/i }).first();
     // Or just check that the difficulty icons exist
     const hasTarget = await page.locator('svg.lucide-target').first().isVisible().catch(() => false);
     const hasZap = await page.locator('svg.lucide-zap').first().isVisible().catch(() => false);
@@ -89,10 +91,12 @@ test.describe('Channel/Reels Page', () => {
     await page.goto('/channel/system-design');
     
     // Wait for page to load
-    await expect(page.getByTestId('question-panel').or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first().or(page.getByTestId('no-questions-view'))).toBeVisible({ timeout: 10000 });
     
-    // Click ESC/home button
-    await page.locator('button').filter({ hasText: /ESC/i }).first().click();
+    // Click back button (new UI uses chevron-left icon instead of ESC text)
+    const backButton = page.locator('button').filter({ hasText: /ESC/i }).first()
+      .or(page.locator('button').filter({ has: page.locator('svg.lucide-chevron-left') }).first());
+    await backButton.click();
     
     // Should be on home page
     await expect(page).toHaveURL('/');

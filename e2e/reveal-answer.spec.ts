@@ -26,17 +26,13 @@ test.describe('Reveal Answer Functionality', () => {
     });
 
     await page.goto('/channel/system-design/0');
-    await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first()).toBeVisible({ timeout: 10000 });
 
-    // Click reveal button
-    const revealButton = page.locator('button').filter({ hasText: /Reveal/i }).first();
-    if (await revealButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await revealButton.click();
-      await page.waitForTimeout(1000);
-    }
+    // New UI has split view - answer is already visible on desktop
+    await page.waitForTimeout(1000);
 
     // Page should still be functional - no React errors
-    const hasQuestionPanel = await page.getByTestId('question-panel').isVisible().catch(() => false);
+    const hasQuestionPanel = await page.getByTestId('question-panel').first().isVisible().catch(() => false);
     
     // Filter out non-critical errors
     const criticalErrors = errors.filter(e => 
@@ -56,14 +52,14 @@ test.describe('Reveal Answer Functionality', () => {
     });
 
     await page.goto('/channel/system-design/0');
-    await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first()).toBeVisible({ timeout: 10000 });
 
-    // Press right arrow to reveal
+    // Press right arrow to navigate
     await page.keyboard.press('ArrowRight');
     await page.waitForTimeout(1000);
 
     // Page should still be functional
-    const hasQuestionPanel = await page.getByTestId('question-panel').isVisible().catch(() => false);
+    const hasQuestionPanel = await page.getByTestId('question-panel').first().isVisible().catch(() => false);
     
     // No page errors should occur
     const criticalErrors = errors.filter(e => 
@@ -77,25 +73,12 @@ test.describe('Reveal Answer Functionality', () => {
 
   test('should show answer content after reveal', async ({ page }) => {
     await page.goto('/channel/system-design/0');
-    await expect(page.getByTestId('question-panel')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('question-panel').first()).toBeVisible({ timeout: 10000 });
 
-    // Click reveal button
-    const revealButton = page.locator('button').filter({ hasText: /Reveal/i }).first();
-    if (await revealButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await revealButton.click();
-      await page.waitForTimeout(1000);
-    }
-
-    // Answer panel should be visible or answer content should appear
-    const answerPanel = page.getByTestId('answer-panel');
-    const hasAnswerPanel = await answerPanel.isVisible({ timeout: 3000 }).catch(() => false);
+    // New UI has split view - answer is already visible on desktop
+    // Page should be functional
+    const pageStillWorks = await page.getByTestId('question-panel').first().isVisible().catch(() => false);
     
-    // Or check for answer-related content
-    const hasAnswerContent = await page.locator('[class*="answer"], [class*="Answer"]').first().isVisible({ timeout: 2000 }).catch(() => false);
-    
-    // Either answer panel exists or the page is still functional
-    const pageStillWorks = await page.getByTestId('question-panel').isVisible().catch(() => false);
-    
-    expect(hasAnswerPanel || hasAnswerContent || pageStillWorks).toBeTruthy();
+    expect(pageStillWorks).toBeTruthy();
   });
 });
