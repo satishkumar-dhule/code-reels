@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { 
   ArrowLeft, Bot, Sparkles, FileText, Building2, Brain, Zap,
@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEOHead } from "../components/SEOHead";
+import { getQuestions } from "../lib/data";
 
 interface BotActivityItem {
   id: number;
@@ -162,6 +163,18 @@ export default function BotActivity() {
     : 0;
 
   const botTypes = ['all', ...Object.keys(BOT_CONFIG)];
+
+  // Navigate to specific question by finding its index in the channel
+  const navigateToQuestion = useCallback((channel: string, questionId: string) => {
+    const questions = getQuestions(channel);
+    const index = questions.findIndex(q => q.id === questionId);
+    if (index >= 0) {
+      setLocation(`/channel/${channel}/${index}`);
+    } else {
+      // Fallback to channel if question not found
+      setLocation(`/channel/${channel}`);
+    }
+  }, [setLocation]);
 
   return (
     <>
@@ -406,7 +419,7 @@ export default function BotActivity() {
                             </div>
                           </div>
                           <button
-                            onClick={() => setLocation(`/channel/${activity.channel}?q=${activity.questionId}`)}
+                            onClick={() => navigateToQuestion(activity.channel, activity.questionId)}
                             className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-primary transition-colors flex-shrink-0"
                             title="View question"
                           >
