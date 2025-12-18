@@ -59,6 +59,7 @@ function parseQuestionRow(row) {
     videos: row.videos ? JSON.parse(row.videos) : null,
     companies: row.companies ? JSON.parse(row.companies) : null,
     eli5: row.eli5,
+    tldr: row.tldr,
     lastUpdated: row.last_updated,
     lastRemapped: row.last_remapped,
     createdAt: row.created_at
@@ -85,8 +86,8 @@ export async function getAllUnifiedQuestions() {
 export async function saveQuestion(question) {
   await dbClient.execute({
     sql: `INSERT OR REPLACE INTO questions 
-          (id, question, answer, explanation, diagram, difficulty, tags, channel, sub_channel, source_url, videos, companies, eli5, last_updated, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE((SELECT created_at FROM questions WHERE id = ?), ?))`,
+          (id, question, answer, explanation, diagram, difficulty, tags, channel, sub_channel, source_url, videos, companies, eli5, tldr, last_updated, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE((SELECT created_at FROM questions WHERE id = ?), ?))`,
     args: [
       question.id,
       question.question,
@@ -101,6 +102,7 @@ export async function saveQuestion(question) {
       question.videos ? JSON.stringify(question.videos) : null,
       question.companies ? JSON.stringify(question.companies) : null,
       question.eli5 || null,
+      question.tldr || null,
       question.lastUpdated || new Date().toISOString(),
       question.id,
       new Date().toISOString()
@@ -114,8 +116,8 @@ export async function saveUnifiedQuestions(questions) {
   for (const [id, q] of Object.entries(questions)) {
     batch.push({
       sql: `INSERT OR REPLACE INTO questions 
-            (id, question, answer, explanation, diagram, difficulty, tags, channel, sub_channel, source_url, videos, companies, eli5, last_updated)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (id, question, answer, explanation, diagram, difficulty, tags, channel, sub_channel, source_url, videos, companies, eli5, tldr, last_updated)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         id,
         q.question,
@@ -130,6 +132,7 @@ export async function saveUnifiedQuestions(questions) {
         q.videos ? JSON.stringify(q.videos) : null,
         q.companies ? JSON.stringify(q.companies) : null,
         q.eli5 || null,
+        q.tldr || null,
         q.lastUpdated || new Date().toISOString()
       ]
     });

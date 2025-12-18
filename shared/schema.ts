@@ -22,6 +22,7 @@ export const questions = sqliteTable("questions", {
   videos: text("videos"), // JSON object stored as text
   companies: text("companies"), // JSON array stored as text
   eli5: text("eli5"),
+  tldr: text("tldr"),
   lastUpdated: text("last_updated"),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
 });
