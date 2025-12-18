@@ -1,5 +1,4 @@
 import {
-  getAllUnifiedQuestions,
   addUnifiedQuestion,
   generateUnifiedId,
   isDuplicateUnified,
@@ -11,7 +10,8 @@ import {
   validateYouTubeVideos,
   normalizeCompanies,
   getChannelStats,
-  getUnderservedChannels
+  getUnderservedChannels,
+  getQuestionCount
 } from './utils.js';
 
 // Channel structure for mapping
@@ -53,8 +53,8 @@ async function main() {
     process.exit(0);
   }
   
-  const allQuestions = await getAllUnifiedQuestions();
-  console.log(`📊 Current database: ${allQuestions.length} questions\n`);
+  const questionCount = await getQuestionCount();
+  console.log(`📊 Current database: ${questionCount} questions\n`);
   
   // Show channel statistics to help with balancing
   console.log('📊 Channel Statistics (questions per channel):');
@@ -189,7 +189,7 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
   
   logQuestionsAdded(1, channelMappings.map(m => m.channel), [newQuestion.id]);
   
-  const totalQuestions = (await getAllUnifiedQuestions()).length;
+  const totalQuestions = await getQuestionCount();
   console.log('\n=== SUMMARY ===');
   console.log(`Original: "${inputQuestion.substring(0, 50)}..."`);
   console.log(`Refined:  "${newQuestion.question.substring(0, 50)}..."`);

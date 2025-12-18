@@ -1,5 +1,4 @@
 import {
-  loadUnifiedQuestions,
   saveQuestion,
   getAllUnifiedQuestions,
   runWithRetries,
@@ -209,7 +208,10 @@ async function main() {
     }
   }
   
-  const questions = await loadUnifiedQuestions();
+  // Build a map from allQuestions for quick lookup (reuse already fetched data)
+  const questionsMap = {};
+  allQuestions.forEach(q => { questionsMap[q.id] = q; });
+  
   const results = {
     processed: 0,
     diagramsAdded: 0,
@@ -277,11 +279,11 @@ async function main() {
     // Update question
     const wasEmpty = !question.diagram || question.diagram.length < 20;
     const updatedQuestion = {
-      ...questions[question.id],
+      ...questionsMap[question.id],
       diagram: generated.diagram,
       lastUpdated: new Date().toISOString()
     };
-    questions[question.id] = updatedQuestion;
+    questionsMap[question.id] = updatedQuestion;
     
     // NFR: Save immediately after each update
     await saveQuestion(updatedQuestion);

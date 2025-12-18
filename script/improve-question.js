@@ -9,7 +9,8 @@ import {
   logQuestionsImproved,
   getQuestionsNeedingImprovement,
   getChannelStats,
-  logBotActivity
+  logBotActivity,
+  getQuestionCount
 } from './utils.js';
 
 // Focus on answer/explanation quality only
@@ -133,7 +134,7 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
     console.log(`✅ Improved: ${question.id}`);
   }
 
-  const totalQuestions = (await getAllUnifiedQuestions()).length;
+  const totalQuestions = await getQuestionCount();
   console.log('\n\n=== SUMMARY ===');
   console.log(`Total Questions Improved: ${improvedQuestions.length}`);
   

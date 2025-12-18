@@ -1,6 +1,4 @@
 import {
-  getAllUnifiedQuestions,
-  saveQuestion,
   runWithRetries,
   parseJson,
   writeGitHubOutput,
@@ -46,15 +44,6 @@ async function initRelevanceColumn() {
       console.log('ℹ️ relevance_details column already exists');
     }
   }
-}
-
-// Check if question needs scoring
-function needsScoring(question) {
-  // Score if never scored or scored more than 30 days ago
-  if (question.relevanceScore === null || question.relevanceScore === undefined) {
-    return { needs: true, reason: 'never_scored' };
-  }
-  return { needs: false, reason: 'already_scored' };
 }
 
 // Generate relevance score using AI

@@ -43,6 +43,21 @@ export const TIMEOUT_MS = 300000; // 5 minutes
 // DATABASE OPERATIONS
 // ============================================
 
+// Cache for questions within a single bot run
+let _questionsCache = null;
+let _questionsCacheTime = 0;
+const CACHE_TTL_MS = 60000; // 1 minute cache
+
+// Cache for work queue initialization
+let _workQueueInitialized = false;
+
+// Clear caches (useful for testing or long-running processes)
+export function clearCaches() {
+  _questionsCache = null;
+  _questionsCacheTime = 0;
+  _workQueueInitialized = false;
+}
+
 // Parse a database row into a question object
 function parseQuestionRow(row) {
   return {
@@ -76,10 +91,52 @@ export async function loadUnifiedQuestions() {
   return questions;
 }
 
-// Get all questions as array
-export async function getAllUnifiedQuestions() {
+// Get all questions as array (with caching for single bot run)
+export async function getAllUnifiedQuestions(useCache = true) {
+  const now = Date.now();
+  
+  // Return cached data if valid
+  if (useCache && _questionsCache && (now - _questionsCacheTime) < CACHE_TTL_MS) {
+    return _questionsCache;
+  }
+  
   const result = await dbClient.execute('SELECT * FROM questions');
-  return result.rows.map(parseQuestionRow);
+  const questions = result.rows.map(parseQuestionRow);
+  
+  // Update cache
+  _questionsCache = questions;
+  _questionsCacheTime = now;
+  
+  return questions;
+}
+
+// Get question count without fetching all data
+export async function getQuestionCount(channel = null) {
+  if (channel) {
+    const result = await dbClient.execute({
+      sql: 'SELECT COUNT(*) as count FROM questions WHERE channel = ?',
+      args: [channel]
+    });
+    return result.rows[0]?.count || 0;
+  }
+  
+  const result = await dbClient.execute('SELECT COUNT(*) as count FROM questions');
+  return result.rows[0]?.count || 0;
+}
+
+// Get channel question counts efficiently (single query)
+export async function getChannelQuestionCounts() {
+  const result = await dbClient.execute(`
+    SELECT channel, COUNT(*) as count 
+    FROM questions 
+    GROUP BY channel
+  `);
+  
+  const counts = {};
+  for (const row of result.rows) {
+    counts[row.channel] = row.count;
+  }
+  return counts;
 }
 
 // Save/update a question in the database
@@ -192,7 +249,7 @@ export async function saveChannelMappings(mappings) {
   }
 }
 
-// Add a question to database and map to channels
+// Add a question to database and map to channels (optimized with batch insert)
 export async function addUnifiedQuestion(question, channels) {
   // Set channel/subChannel from first mapping
   question.channel = channels[0].channel;
@@ -201,13 +258,17 @@ export async function addUnifiedQuestion(question, channels) {
   // Save question
   await saveQuestion(question);
   
-  // Add channel mappings
-  for (const { channel, subChannel } of channels) {
-    await dbClient.execute({
+  // Batch insert channel mappings (single transaction instead of multiple calls)
+  if (channels.length > 0) {
+    const batch = channels.map(({ channel, subChannel }) => ({
       sql: 'INSERT OR IGNORE INTO channel_mappings (channel_id, sub_channel, question_id) VALUES (?, ?, ?)',
       args: [channel, subChannel, question.id]
-    });
+    }));
+    await dbClient.batch(batch);
   }
+  
+  // Invalidate cache since we added a new question
+  _questionsCache = null;
 }
 
 // Get questions for a specific channel
@@ -332,24 +393,41 @@ export async function getUnderservedChannels(minQuestions = 10) {
   return result.rows;
 }
 
-// Generate unique ID
+// Generate unique ID - optimized to only fetch max ID
 export async function generateUnifiedId(prefix = 'q') {
-  const result = await dbClient.execute('SELECT id FROM questions');
-  const existingIds = new Set(result.rows.map(r => r.id));
+  // Get the max numeric ID to avoid fetching all IDs
+  const result = await dbClient.execute(`
+    SELECT MAX(CAST(SUBSTR(id, 3) AS INTEGER)) as max_num 
+    FROM questions 
+    WHERE id LIKE '${prefix}-%'
+  `);
   
-  let counter = result.rows.length + 1;
-  let id;
-  do {
-    id = `${prefix}-${counter++}`;
-  } while (existingIds.has(id));
-  
-  return id;
+  const maxNum = result.rows[0]?.max_num || 0;
+  return `${prefix}-${maxNum + 1}`;
 }
 
-// Check if question is duplicate
+// Check if question is duplicate - optimized to use SQL LIKE for initial filter
 export async function isDuplicateUnified(questionText, threshold = 0.6) {
-  const questions = await getAllUnifiedQuestions();
-  return questions.some(q => calculateSimilarity(questionText, q.question) >= threshold);
+  // Extract key words for SQL pre-filtering (reduces data transfer)
+  const words = normalizeText(questionText).split(' ').filter(w => w.length > 3).slice(0, 5);
+  
+  if (words.length === 0) {
+    // Fallback to full scan if no meaningful words
+    const questions = await getAllUnifiedQuestions();
+    return questions.some(q => calculateSimilarity(questionText, q.question) >= threshold);
+  }
+  
+  // Pre-filter with SQL LIKE to reduce candidates
+  const likeConditions = words.map(() => 'LOWER(question) LIKE ?').join(' OR ');
+  const likeArgs = words.map(w => `%${w}%`);
+  
+  const result = await dbClient.execute({
+    sql: `SELECT question FROM questions WHERE ${likeConditions}`,
+    args: likeArgs
+  });
+  
+  // Check similarity only on pre-filtered candidates
+  return result.rows.some(row => calculateSimilarity(questionText, row.question) >= threshold);
 }
 
 // ============================================
@@ -703,8 +781,11 @@ export function logQuestionsImproved(count, channels, questionIds = []) {
 // WORK QUEUE OPERATIONS
 // ============================================
 
-// Initialize work queue table
+// Initialize work queue table (cached to avoid repeated CREATE TABLE calls)
 export async function initWorkQueue() {
+  // Skip if already initialized in this run
+  if (_workQueueInitialized) return;
+  
   await dbClient.execute(`
     CREATE TABLE IF NOT EXISTS work_queue (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -725,6 +806,8 @@ export async function initWorkQueue() {
   await dbClient.execute(`
     CREATE INDEX IF NOT EXISTS idx_work_queue_status_bot ON work_queue(status, bot_type, priority)
   `);
+  
+  _workQueueInitialized = true;
 }
 
 // Add work item to queue (avoids duplicates for same question+bot)

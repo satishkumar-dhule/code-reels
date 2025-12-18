@@ -11,7 +11,8 @@ import {
   validateYouTubeVideos,
   normalizeCompanies,
   logBotActivity,
-  getChannelStats
+  getChannelQuestionCounts,
+  getQuestionCount
 } from './utils.js';
 
 // Channel configurations
@@ -138,7 +139,6 @@ function selectChannelsWeighted(channelCounts, allChannels, limit) {
     return Math.pow((maxCount - count + 10) / maxCount, 2);
   });
   
-  const totalWeight = weights.reduce((a, b) => a + b, 0);
   const selected = [];
   const available = [...allChannels];
   const availableWeights = [...weights];
@@ -172,14 +172,11 @@ async function main() {
   const balanceChannels = process.env.BALANCE_CHANNELS !== 'false'; // Default to true
   
   const allChannels = getAllChannels();
-  const allQuestions = await getAllUnifiedQuestions();
-  console.log(`Loaded ${allQuestions.length} existing questions from database`);
   
-  // Get channel question counts
-  const channelCounts = {};
-  allQuestions.forEach(q => {
-    channelCounts[q.channel] = (channelCounts[q.channel] || 0) + 1;
-  });
+  // Get channel question counts efficiently (single query instead of fetching all questions)
+  const channelCounts = await getChannelQuestionCounts();
+  const totalQuestionCount = Object.values(channelCounts).reduce((a, b) => a + b, 0);
+  console.log(`Database has ${totalQuestionCount} existing questions`);
   
   // Show channel distribution
   console.log('\n📊 Channel Distribution:');
@@ -300,7 +297,7 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
     console.log(`Q: ${newQuestion.question.substring(0, 60)}...`);
   }
 
-  const totalQuestions = (await getAllUnifiedQuestions()).length;
+  const totalQuestions = await getQuestionCount();
   console.log('\n\n=== SUMMARY ===');
   console.log(`Total Questions Added: ${addedQuestions.length}/${channels.length}`);
   

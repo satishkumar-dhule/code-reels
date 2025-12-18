@@ -1,5 +1,4 @@
 import {
-  loadUnifiedQuestions,
   saveQuestion,
   getAllUnifiedQuestions,
   runWithRetries,
@@ -202,7 +201,10 @@ async function main() {
     console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
   }
   
-  const questions = await loadUnifiedQuestions();
+  // Build a map from allQuestions for quick lookup (reuse already fetched data)
+  const questionsMap = {};
+  allQuestions.forEach(q => { questionsMap[q.id] = q; });
+  
   const results = {
     processed: 0,
     companiesAdded: 0,
@@ -279,11 +281,11 @@ async function main() {
     
     // Update question
     const updatedQuestion = {
-      ...questions[question.id],
+      ...questionsMap[question.id],
       companies: mergedCompanies,
       lastUpdated: new Date().toISOString()
     };
-    questions[question.id] = updatedQuestion;
+    questionsMap[question.id] = updatedQuestion;
     
     // NFR: Save immediately after each update
     await saveQuestion(updatedQuestion);
@@ -312,7 +314,7 @@ async function main() {
   }
   
   const newState = {
-    lastProcessedIndex: endIndex >= sortedQuestions.length ? 0 : endIndex,
+    lastProcessedIndex: endIndex >= allQuestions.length ? 0 : endIndex,
     lastRunDate: new Date().toISOString(),
     totalProcessed: state.totalProcessed + results.processed,
     totalCompaniesAdded: state.totalCompaniesAdded + results.companiesAdded,

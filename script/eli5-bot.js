@@ -8,7 +8,8 @@ import {
   startWorkItem,
   completeWorkItem,
   failWorkItem,
-  initWorkQueue
+  initWorkQueue,
+  clearCaches
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
