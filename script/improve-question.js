@@ -35,7 +35,7 @@ function needsImprovement(q) {
 }
 
 async function main() {
-  console.log('=== Question Improvement Bot (Database Mode) ===\n');
+  console.log('=== ✨ Polisher Bot - Making Good Answers Great ===\n');
   
   const inputLimit = parseInt(process.env.INPUT_LIMIT || '0', 10);
   const improveLimit = inputLimit > 0 ? inputLimit : 5;

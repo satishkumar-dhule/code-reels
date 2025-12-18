@@ -150,7 +150,7 @@ function sleep(ms) {
 }
 
 async function main() {
-  console.log('=== Company Bot - Add Company Data ===\n');
+  console.log('=== 🏢 Recruiter Bot - Who Asks This? ===\n');
   
   await initWorkQueue();
   

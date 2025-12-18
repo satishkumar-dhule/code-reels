@@ -1,4 +1,4 @@
-name: Motivation Bot
+name: 💪 Inspirer Bot
 
 on:
   schedule:
@@ -77,10 +77,10 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## Motivation Bot" >> $GITHUB_STEP_SUMMARY
+          echo "## 💪 Inspirer Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check.outputs.changed }}" == "true" ]; then
-            echo "### ✅ Quotes Updated" >> $GITHUB_STEP_SUMMARY
+            echo "### ✅ Daily Dose of Motivation" >> $GITHUB_STEP_SUMMARY
             echo "New motivational quotes have been added!" >> $GITHUB_STEP_SUMMARY
           else
             echo "### ℹ️ No Changes" >> $GITHUB_STEP_SUMMARY

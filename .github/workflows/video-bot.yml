@@ -1,4 +1,4 @@
-name: Video Bot - Add YouTube Videos
+name: 🎬 Tutor Bot
 
 on:
   schedule:
@@ -61,9 +61,9 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 🎬 Video Bot Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎬 Tutor Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Videos Updated" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Finding Learning Videos" >> $GITHUB_STEP_SUMMARY
           echo "- Processed questions in batch" >> $GITHUB_STEP_SUMMARY
           echo "- Validated existing YouTube videos" >> $GITHUB_STEP_SUMMARY
           echo "- Found and added new videos where missing" >> $GITHUB_STEP_SUMMARY

@@ -165,7 +165,7 @@ function selectChannelsWeighted(channelCounts, allChannels, limit) {
 }
 
 async function main() {
-  console.log('=== Daily Question Generator (Database Mode) ===\n');
+  console.log('=== 🚀 Creator Bot - Crafting New Questions ===\n');
 
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
   const inputLimit = parseInt(process.env.INPUT_LIMIT || '0', 10);

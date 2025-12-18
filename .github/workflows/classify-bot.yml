@@ -1,4 +1,4 @@
-name: Channel Classification Bot
+name: 🗂️ Sorter Bot
 
 on:
   schedule:
@@ -61,9 +61,9 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 🏷️ Channel Classification Bot Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🗂️ Sorter Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Classification Complete" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Organizing Into Channels" >> $GITHUB_STEP_SUMMARY
           echo "- Reviewed questions for correct channel/subchannel mapping" >> $GITHUB_STEP_SUMMARY
           echo "- Reclassified misplaced questions using AI" >> $GITHUB_STEP_SUMMARY
           echo "- Confirmed correctly classified questions" >> $GITHUB_STEP_SUMMARY

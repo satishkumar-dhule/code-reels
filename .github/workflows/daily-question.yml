@@ -1,4 +1,4 @@
-name: Daily Question Generator
+name: 🚀 Creator Bot
 
 on:
   schedule:
@@ -72,9 +72,9 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## Daily Question Generator" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Creator Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Question Generation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Crafting New Questions" >> $GITHUB_STEP_SUMMARY
           echo "- Generated new interview questions" >> $GITHUB_STEP_SUMMARY
           echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY
           echo "- Deploy workflow triggered" >> $GITHUB_STEP_SUMMARY

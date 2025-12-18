@@ -162,9 +162,9 @@ export default function WhatsNew() {
   return (
     <>
       <SEOHead
-        title="What's New - Code Reels Updates & Changelog"
-        description="Stay updated with the latest questions, improvements, and features added to Code Reels. See daily AI-generated content updates and platform enhancements."
-        keywords="code reels updates, changelog, new questions, interview prep updates"
+        title="What's New - Daily Updates & Changelog | Code Reels Interview Prep"
+        description="Stay updated with daily AI-generated interview questions, improvements, and new features. See the latest additions to System Design, Algorithms, Frontend, Backend, DevOps, and AI/ML channels."
+        keywords="code reels updates, changelog, new interview questions, daily updates, interview prep news, new features, AI generated questions"
         canonical="https://reel-interview.github.io/whats-new"
       />
       <div className="min-h-screen bg-background text-foreground font-mono overflow-y-auto">

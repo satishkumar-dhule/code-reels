@@ -543,9 +543,9 @@ export default function ReelsRedesigned() {
   return (
     <>
       <SEOHead
-        title={`${currentQuestion?.question?.substring(0, 60) || 'Question'} | ${channel?.name || 'Interview'} - Code Reels`}
-        description={`${currentQuestion?.answer?.substring(0, 150) || `Practice ${currentQuestion?.channel || 'technical'} interview questions`}. Difficulty: ${currentQuestion?.difficulty || 'intermediate'}`}
-        keywords={`${currentQuestion?.channel}, ${currentQuestion?.subChannel}, interview prep, ${currentQuestion?.tags?.slice(0, 5).join(', ') || 'technical interviews'}, ${currentQuestion?.companies?.join(', ') || ''}`}
+        title={`${currentQuestion?.question?.substring(0, 55) || 'Question'}... | ${channel?.name || 'Interview'} Questions - Code Reels`}
+        description={`${currentQuestion?.answer?.substring(0, 120) || `Practice ${currentQuestion?.channel || 'technical'} interview questions`}. ${currentQuestion?.difficulty?.charAt(0).toUpperCase()}${currentQuestion?.difficulty?.slice(1) || 'Intermediate'} level. Asked at: ${currentQuestion?.companies?.slice(0, 3).join(', ') || 'top tech companies'}.`}
+        keywords={`${currentQuestion?.channel} interview questions, ${currentQuestion?.subChannel} interview, ${currentQuestion?.tags?.slice(0, 5).join(' interview, ') || 'technical interviews'}, ${currentQuestion?.companies?.slice(0, 5).join(', ') || 'FAANG interview'}, ${currentQuestion?.difficulty} interview questions`}
         canonical={`https://reel-interview.github.io/channel/${channelId}/${currentIndex}`}
         structuredData={questionStructuredData}
       />

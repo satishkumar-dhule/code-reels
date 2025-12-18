@@ -1,4 +1,4 @@
-name: Mermaid Bot - Add/Improve Diagrams
+name: 🎨 Visualizer Bot
 
 on:
   schedule:
@@ -61,9 +61,9 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 📊 Mermaid Bot Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎨 Visualizer Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Diagrams Updated" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Drawing It Out" >> $GITHUB_STEP_SUMMARY
           echo "- Validated existing diagrams" >> $GITHUB_STEP_SUMMARY
           echo "- Generated new diagrams for questions missing them" >> $GITHUB_STEP_SUMMARY
           echo "- Improved low-quality diagrams" >> $GITHUB_STEP_SUMMARY

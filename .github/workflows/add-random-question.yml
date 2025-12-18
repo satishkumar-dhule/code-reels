@@ -1,4 +1,4 @@
-name: Add Random Question
+name: 🎲 Intake Bot
 
 on:
   workflow_dispatch:
@@ -64,11 +64,11 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## Add Random Question" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎲 Intake Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Input Question:** ${{ inputs.question }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Question Processing Complete" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Processing New Questions" >> $GITHUB_STEP_SUMMARY
           echo "- Mapped to appropriate channel/subchannel" >> $GITHUB_STEP_SUMMARY
           echo "- Refined into professional interview question" >> $GITHUB_STEP_SUMMARY
           echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY

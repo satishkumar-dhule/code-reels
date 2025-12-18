@@ -78,7 +78,7 @@ function sleep(ms) {
 }
 
 async function main() {
-  console.log('=== TLDR Bot - Quick Summaries (Database Mode) ===\n');
+  console.log('=== ⚡ Quickshot Bot - One-Liner Summaries ===\n');
   
   await initWorkQueue();
   

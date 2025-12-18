@@ -31,58 +31,64 @@ interface BotStats {
 
 const BOT_CONFIG: Record<string, { name: string; icon: typeof Bot; color: string; description: string }> = {
   'eli5': { 
-    name: 'ELI5 Bot', 
+    name: 'Simplify 🧒', 
     icon: Brain, 
     color: 'text-pink-500 bg-pink-500/10 border-pink-500/30',
-    description: 'Explains concepts like you\'re 5'
+    description: 'Makes complex concepts simple'
   },
   'tldr': { 
-    name: 'TLDR Bot', 
+    name: 'Quickshot ⚡', 
     icon: FileText, 
     color: 'text-blue-500 bg-blue-500/10 border-blue-500/30',
-    description: 'Creates quick summaries'
+    description: 'One-liner summaries'
   },
   'company': { 
-    name: 'Company Bot', 
+    name: 'Recruiter 🏢', 
     icon: Building2, 
     color: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
-    description: 'Adds company interview data'
+    description: 'Who asks this question?'
   },
   'mermaid': { 
-    name: 'Diagram Bot', 
+    name: 'Visualizer 🎨', 
     icon: Sparkles, 
     color: 'text-purple-500 bg-purple-500/10 border-purple-500/30',
-    description: 'Generates visual diagrams'
+    description: 'Draws it out for you'
   },
   'improve': { 
-    name: 'Improve Bot', 
+    name: 'Polisher ✨', 
     icon: Zap, 
     color: 'text-green-500 bg-green-500/10 border-green-500/30',
-    description: 'Enhances question quality'
+    description: 'Makes good answers great'
   },
   'video': { 
-    name: 'Video Bot', 
+    name: 'Tutor 🎬', 
     icon: Activity, 
     color: 'text-red-500 bg-red-500/10 border-red-500/30',
-    description: 'Adds educational videos'
+    description: 'Finds learning videos'
   },
   'generate': { 
-    name: 'Generate Bot', 
+    name: 'Creator 🚀', 
     icon: Bot, 
     color: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/30',
-    description: 'Creates new questions'
+    description: 'Crafts new questions'
   },
   'motivation': { 
-    name: 'Motivation Bot', 
+    name: 'Inspirer 💪', 
     icon: Sparkles, 
     color: 'text-orange-500 bg-orange-500/10 border-orange-500/30',
-    description: 'Adds motivational content'
+    description: 'Daily dose of motivation'
   },
   'relevance': { 
-    name: 'Relevance Bot', 
+    name: 'Ranker 📊', 
     icon: TrendingUp, 
     color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30',
-    description: 'Scores interview relevance'
+    description: 'Interview likelihood score'
+  },
+  'classify': { 
+    name: 'Sorter 🗂️', 
+    icon: Bot, 
+    color: 'text-teal-500 bg-teal-500/10 border-teal-500/30',
+    description: 'Organizes into channels'
   }
 };
 
@@ -185,9 +191,9 @@ export default function BotActivity() {
   return (
     <>
       <SEOHead 
-        title="Bot Activity - Code Reels" 
-        description="See what our AI bots have been doing. Track automated improvements to interview questions."
-        keywords="bot activity, AI automation, question improvements"
+        title="AI Bot Activity - Automated Interview Question Improvements | Code Reels" 
+        description="Track our AI bots that continuously improve interview questions. See real-time updates from Simplify, Quickshot, Recruiter, Visualizer, and other bots enhancing 1000+ questions."
+        keywords="AI bots, automated improvements, interview questions, ELI5 explanations, TLDR summaries, company data, mermaid diagrams, question quality"
         canonical="https://reel-interview.github.io/bot-activity"
       />
       <div className="min-h-screen bg-background text-foreground p-3 sm:p-4 font-mono overflow-y-auto">

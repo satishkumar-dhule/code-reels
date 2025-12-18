@@ -134,9 +134,9 @@ export default function Stats() {
   return (
     <>
       <SEOHead 
-        title="Progress Stats - Code Reels Interview Prep" 
-        description="Track your technical interview preparation progress. View completion stats, activity heatmap, and difficulty breakdown across all channels."
-        keywords="interview prep stats, progress tracking, learning analytics, study streak"
+        title="Track Your Interview Prep Progress - Stats & Analytics | Code Reels" 
+        description="Monitor your technical interview preparation progress with detailed analytics. View completion stats, activity heatmap, difficulty breakdown, study streaks, and channel-by-channel progress across 1000+ questions."
+        keywords="interview prep progress, study tracker, learning analytics, study streak, interview preparation stats, coding practice tracker, FAANG prep progress"
         canonical="https://reel-interview.github.io/stats"
       />
       <div className="min-h-screen bg-background text-foreground p-3 sm:p-4 font-mono overflow-y-auto">

@@ -141,7 +141,7 @@ function sleep(ms) {
 }
 
 async function main() {
-  console.log('=== Mermaid Bot - Add/Improve Diagrams ===\n');
+  console.log('=== 🎨 Visualizer Bot - Drawing It Out ===\n');
   
   await initWorkQueue();
   

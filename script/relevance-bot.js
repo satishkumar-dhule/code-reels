@@ -172,7 +172,7 @@ async function saveRelevanceScore(questionId, score, details) {
 }
 
 async function main() {
-  console.log('=== Relevance Bot - Interview Question Scoring ===\n');
+  console.log('=== 📊 Ranker Bot - Interview Likelihood Scoring ===\n');
   
   await initRelevanceColumn();
   

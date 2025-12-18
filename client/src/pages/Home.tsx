@@ -270,9 +270,9 @@ export default function Home() {
   return (
     <>
       <SEOHead
-        title="Code Reels - Master Technical Interviews with Bite-Sized Learning"
-        description="Interactive platform for practicing system design, algorithms, frontend, database, DevOps, and SRE interview questions. Learn with bite-sized modules and track your progress."
-        keywords="interview prep, technical interviews, system design, algorithms, frontend, database, DevOps, SRE, learning platform, code practice"
+        title="Code Reels - Free Technical Interview Prep | System Design, Algorithms, Frontend, DevOps"
+        description="Master technical interviews with 1000+ free practice questions. System design, algorithms, frontend, backend, DevOps, SRE, AI/ML interview prep. Track progress, learn with bite-sized modules. Used by engineers at FAANG companies."
+        keywords="technical interview prep, system design interview, algorithm interview questions, frontend interview, backend interview, DevOps interview, SRE interview, FAANG interview prep, coding interview, software engineer interview, free interview prep, leetcode alternative, Google interview, Amazon interview, Meta interview"
         canonical="https://reel-interview.github.io/"
       />
       <WhatsNewBanner />

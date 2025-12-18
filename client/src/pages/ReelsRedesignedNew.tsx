@@ -163,9 +163,9 @@ export default function ReelsRedesignedNew() {
   return (
     <>
       <SEOHead
-        title={`${currentQuestion?.question || 'Question'} - Code Reels Interview Prep`}
-        description={`Practice ${currentQuestion?.channel || 'technical'} interview questions on Code Reels. Difficulty: ${currentQuestion?.difficulty || 'intermediate'}`}
-        keywords={`${currentQuestion?.channel}, ${currentQuestion?.subChannel}, interview prep, ${currentQuestion?.tags?.join(', ') || 'technical interviews'}`}
+        title={`${currentQuestion?.question?.substring(0, 55) || 'Question'}... | ${currentQuestion?.channel || 'Interview'} - Code Reels`}
+        description={`Practice ${currentQuestion?.channel || 'technical'} interview questions. ${currentQuestion?.difficulty?.charAt(0).toUpperCase()}${currentQuestion?.difficulty?.slice(1) || 'Intermediate'} level. Free interview prep with explanations and diagrams.`}
+        keywords={`${currentQuestion?.channel} interview, ${currentQuestion?.subChannel} questions, interview prep, ${currentQuestion?.tags?.join(', ') || 'technical interviews'}, FAANG interview`}
         canonical={`https://reel-interview.github.io/channel/${channelId}`}
       />
       <div className="h-screen w-full bg-black text-white flex flex-col font-mono">

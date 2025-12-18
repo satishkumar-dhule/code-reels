@@ -1,4 +1,4 @@
-name: Question Improvement Bot
+name: ✨ Polisher Bot
 
 on:
   schedule:
@@ -60,11 +60,11 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## Question Improvement Bot" >> $GITHUB_STEP_SUMMARY
+          echo "## ✨ Polisher Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Question Improvement Complete" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Making Good Answers Great" >> $GITHUB_STEP_SUMMARY
           echo "- Improved questions with better explanations" >> $GITHUB_STEP_SUMMARY
-          echo "- Added missing diagrams and metadata" >> $GITHUB_STEP_SUMMARY
+          echo "- Enhanced answer quality" >> $GITHUB_STEP_SUMMARY
           echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY
           echo "- Deploy workflow triggered" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

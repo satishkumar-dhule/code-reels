@@ -1,4 +1,4 @@
-name: TLDR Bot
+name: ⚡ Quickshot Bot
 
 on:
   schedule:
@@ -60,13 +60,13 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 📝 TLDR Bot" >> $GITHUB_STEP_SUMMARY
+          echo "## ⚡ Quickshot Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ TLDR Summaries Updated" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ One-Liner Summaries Added" >> $GITHUB_STEP_SUMMARY
           echo "- Processed questions in batch" >> $GITHUB_STEP_SUMMARY
           echo "- Added concise one-liner summaries" >> $GITHUB_STEP_SUMMARY
           echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Processed:** ${{ steps.tldr.outputs.processed || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**TLDR Added:** ${{ steps.tldr.outputs.tldr_added || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Quickshots Added:** ${{ steps.tldr.outputs.tldr_added || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

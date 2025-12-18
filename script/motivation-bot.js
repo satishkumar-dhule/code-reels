@@ -93,7 +93,7 @@ function pruneQuotes(quotes, maxQuotes = 50) {
 }
 
 async function main() {
-  console.log('=== Motivation Bot - Daily Quote Generator ===\n');
+  console.log('=== 💪 Inspirer Bot - Daily Dose of Motivation ===\n');
 
   const data = loadQuotes();
   console.log(`📚 Current quotes: ${data.quotes.length}`);

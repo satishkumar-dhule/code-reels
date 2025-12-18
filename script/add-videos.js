@@ -36,7 +36,7 @@ function findVideosForQuestion(question) {
 }
 
 async function main() {
-  console.log('=== Video Bot - Add/Validate YouTube Videos (Database Mode) ===\n');
+  console.log('=== 🎬 Tutor Bot - Finding Learning Videos ===\n');
   
   await initWorkQueue();
   

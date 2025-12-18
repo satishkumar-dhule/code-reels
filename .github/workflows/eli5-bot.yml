@@ -1,4 +1,4 @@
-name: ELI5 Bot
+name: 🧒 Simplify Bot
 
 on:
   schedule:
@@ -60,13 +60,13 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 🧒 ELI5 Bot" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧒 Simplify Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ ELI5 Explanations Updated" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Making Complex Simple" >> $GITHUB_STEP_SUMMARY
           echo "- Processed questions in batch" >> $GITHUB_STEP_SUMMARY
-          echo "- Added simple explanations where missing" >> $GITHUB_STEP_SUMMARY
+          echo "- Added ELI5 explanations where missing" >> $GITHUB_STEP_SUMMARY
           echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Processed:** ${{ steps.eli5.outputs.processed || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**ELI5 Added:** ${{ steps.eli5.outputs.eli5_added || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Simplified:** ${{ steps.eli5.outputs.eli5_added || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

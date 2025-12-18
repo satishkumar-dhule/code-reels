@@ -223,7 +223,7 @@ async function createWorkItemsForQuestion(question) {
 }
 
 async function main() {
-  console.log('=== Channel Classification Bot ===\n');
+  console.log('=== 🗂️ Sorter Bot - Organizing Into Channels ===\n');
   
   // Initialize work queue
   await initWorkQueue();

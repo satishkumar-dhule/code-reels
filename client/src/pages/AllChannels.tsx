@@ -142,9 +142,9 @@ export default function AllChannels() {
   return (
     <>
       <SEOHead
-        title="Browse All Channels - Code Reels Interview Prep"
-        description="Explore all technical interview prep channels including System Design, Algorithms, Frontend, Backend, DevOps, SRE, and more. Subscribe to topics that match your career goals."
-        keywords="interview channels, system design, algorithms, frontend, backend, devops, sre, database, mobile development"
+        title="Browse 30+ Interview Prep Channels - System Design, Algorithms, AI/ML | Code Reels"
+        description="Explore 30+ technical interview prep channels: System Design, Algorithms, Frontend, Backend, DevOps, SRE, Kubernetes, AWS, Machine Learning, Generative AI, and more. Free practice questions for FAANG interviews."
+        keywords="interview prep channels, system design questions, algorithm practice, frontend interview, backend interview, devops questions, sre interview, kubernetes interview, aws interview, machine learning interview, generative ai interview, FAANG prep"
         canonical="https://reel-interview.github.io/channels"
       />
       <div className="min-h-screen bg-black text-white font-mono overflow-y-auto">

@@ -35,7 +35,7 @@ const CHANNEL_STRUCTURE = {
 const difficulties = ['beginner', 'intermediate', 'advanced'];
 
 async function main() {
-  console.log('=== Random Question Processor (Database Mode) ===\n');
+  console.log('=== 🎲 Intake Bot - Processing New Questions ===\n');
   
   const inputQuestion = process.env.INPUT_QUESTION;
   

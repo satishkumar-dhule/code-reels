@@ -69,7 +69,7 @@ function sleep(ms) {
 }
 
 async function main() {
-  console.log('=== ELI5 Bot - Explain Like I\'m 5 (Database Mode) ===\n');
+  console.log('=== 🧒 Simplify Bot - Making Complex Simple ===\n');
   
   await initWorkQueue();
   

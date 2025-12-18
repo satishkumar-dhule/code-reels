@@ -1,4 +1,4 @@
-name: Relevance Bot - Score Questions
+name: 📊 Ranker Bot
 
 on:
   schedule:
@@ -60,8 +60,9 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## Relevance Bot Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Ranker Bot" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Interview Likelihood Scoring" >> $GITHUB_STEP_SUMMARY
           echo "- Processed: ${{ env.processed || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Scored: ${{ env.scored || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
