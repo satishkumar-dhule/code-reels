@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme, Theme } from '../../context/ThemeContext';
 import {
   Search, Menu, Sun, Moon, Palette, Github, Star, Bell,
   ChevronDown, User, Settings, LogOut
@@ -24,7 +24,7 @@ export function TopBar({ onMenuClick, onSearchClick, title, showBackButton }: To
   const [, setLocation] = useLocation();
   const { theme, cycleTheme, setTheme } = useTheme();
 
-  const themes = [
+  const themeOptions: { id: Theme; name: string; color: string }[] = [
     { id: 'google', name: 'Google Light', color: '#4285f4' },
     { id: 'google-dark', name: 'Google Dark', color: '#8ab4f8' },
     { id: 'light', name: 'Light', color: '#000000' },
@@ -85,7 +85,7 @@ export function TopBar({ onMenuClick, onSearchClick, title, showBackButton }: To
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   Theme
                 </div>
-                {themes.map(t => (
+                {themeOptions.map(t => (
                   <DropdownMenu.Item
                     key={t.id}
                     onClick={() => setTheme(t.id)}

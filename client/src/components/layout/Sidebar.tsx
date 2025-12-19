@@ -77,25 +77,26 @@ export function Sidebar({ isOpen, onToggle, onSearch }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Desktop overlay when sidebar is expanded */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/30 z-40 hidden lg:block"
             onClick={onToggle}
           />
         )}
       </AnimatePresence>
 
-      {/* Sidebar - Hidden on mobile by default, visible collapsed on desktop */}
+      {/* Sidebar - Completely hidden on mobile, visible collapsed on desktop */}
       <aside
         className={`
           fixed left-0 top-0 h-full bg-card border-r border-border z-50
-          flex flex-col transition-all duration-300 ease-in-out
-          ${isOpen ? 'w-[280px] translate-x-0' : 'w-[72px] -translate-x-full lg:translate-x-0'}
+          flex-col transition-all duration-300 ease-in-out
+          hidden lg:flex
+          ${isOpen ? 'w-[280px]' : 'w-[72px]'}
         `}
       >
         {/* Header */}

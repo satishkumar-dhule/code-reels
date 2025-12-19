@@ -1324,3 +1324,160 @@ html {
 .giscus-container iframe {
   color-scheme: dark;
 }
+
+
+/* ===== MOBILE-FIRST LAYOUT STYLES ===== */
+
+/* Safe area support for iOS */
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+}
+
+/* Padding utilities for safe areas */
+.pt-safe {
+  padding-top: var(--safe-area-inset-top);
+}
+
+.pb-safe {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.pl-safe {
+  padding-left: var(--safe-area-inset-left);
+}
+
+.pr-safe {
+  padding-right: var(--safe-area-inset-right);
+}
+
+/* Mobile viewport height fix */
+.min-h-dvh {
+  min-height: 100dvh;
+}
+
+/* Mobile bottom nav styles */
+@media (max-width: 1023px) {
+  /* Ensure content doesn't get hidden behind bottom nav */
+  main {
+    padding-bottom: calc(80px + var(--safe-area-inset-bottom)) !important;
+  }
+  
+  /* Hide desktop sidebar completely on mobile */
+  aside.fixed {
+    display: none !important;
+  }
+  
+  /* Full width content on mobile */
+  .lg\:pl-\[72px\] {
+    padding-left: 0 !important;
+  }
+}
+
+/* Mobile card improvements */
+@media (max-width: 640px) {
+  /* Larger touch targets */
+  .bg-card {
+    min-height: 44px;
+  }
+  
+  /* Better spacing for mobile cards */
+  .grid {
+    gap: 12px;
+  }
+  
+  /* Full-bleed cards on mobile */
+  .rounded-xl {
+    border-radius: 16px;
+  }
+  
+  /* Improve text readability */
+  .text-sm {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  
+  .text-xs {
+    font-size: 0.8125rem;
+  }
+  
+  /* Better button sizing */
+  button {
+    min-height: 44px;
+  }
+  
+  /* Improve stat cards on mobile */
+  .grid-cols-2 > div {
+    padding: 16px;
+  }
+}
+
+/* Smooth page transitions */
+main {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile pull-to-refresh feel */
+@media (max-width: 1023px) {
+  html {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Bottom nav blur effect */
+@supports (backdrop-filter: blur(20px)) {
+  .backdrop-blur-xl {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+/* Prevent layout shift on mobile */
+@media (max-width: 1023px) {
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
+/* Mobile-optimized scrolling */
+@media (max-width: 1023px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Momentum scrolling */
+  .overflow-y-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Hide scrollbars on mobile but keep functionality */
+@media (max-width: 1023px) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    scrollbar-width: none;
+  }
+}

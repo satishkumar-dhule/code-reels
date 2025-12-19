@@ -85,26 +85,25 @@ export default function HomeRedesigned() {
       <WhatsNewBanner />
       
       <AppLayout>
-        <div className="space-y-8">
-          {/* Welcome Section */}
-          <section className="text-center py-8">
+        <div className="space-y-6 lg:space-y-8">
+          {/* Welcome Section - Compact on mobile */}
+          <section className="text-center py-4 lg:py-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-                Master Your <span className="text-primary">Technical Interview</span>
+              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-2 lg:mb-4">
+                Master Your <span className="text-primary">Interview</span>
               </h1>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Practice with {totalQuestions}+ questions across {channelStats.length} topics. 
-                Track your progress and ace your next interview.
+              <p className="text-muted-foreground text-sm lg:text-lg max-w-2xl mx-auto px-2">
+                {totalQuestions}+ questions across {channelStats.length} topics
               </p>
             </motion.div>
           </section>
 
-          {/* Quick Stats */}
-          <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {/* Quick Stats - 2x2 grid on mobile */}
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
             <StatCard
               icon={<BookOpen className="w-5 h-5" />}
               label="Questions"
@@ -114,14 +113,14 @@ export default function HomeRedesigned() {
             />
             <StatCard
               icon={<Flame className="w-5 h-5" />}
-              label="Day Streak"
+              label="Streak"
               value={streak.toString()}
               color="text-orange-500"
               bgColor="bg-orange-500/10"
             />
             <StatCard
               icon={<Target className="w-5 h-5" />}
-              label="Channels"
+              label="Subscribed"
               value={subscribedChannels.length.toString()}
               color="text-green-500"
               bgColor="bg-green-500/10"
@@ -138,16 +137,17 @@ export default function HomeRedesigned() {
           {/* Your Channels */}
           {subscribedChannels.length > 0 ? (
             <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">Your Channels</h2>
+              <div className="flex items-center justify-between mb-3 lg:mb-4">
+                <h2 className="text-lg lg:text-xl font-semibold">Your Channels</h2>
                 <button
                   onClick={() => setLocation('/channels')}
                   className="text-sm text-primary hover:underline flex items-center gap-1"
                 >
-                  Browse all <ArrowRight className="w-4 h-4" />
+                  All <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Horizontal scroll on mobile, grid on desktop */}
+              <div className="flex lg:grid lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:overflow-visible snap-x snap-mandatory">
                 {subscribedChannels.map((channel, index) => (
                   <ChannelCard
                     key={channel.id}
@@ -164,8 +164,8 @@ export default function HomeRedesigned() {
             <EmptyState onBrowse={() => setLocation('/channels')} />
           )}
 
-          {/* Quick Actions */}
-          <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {/* Quick Actions - Hidden on mobile since we have bottom nav */}
+          <section className="hidden lg:grid grid-cols-4 gap-4">
             <QuickAction
               icon={<BarChart2 className="w-5 h-5" />}
               label="View Stats"
@@ -206,14 +206,14 @@ function StatCard({ icon, label, value, color, bgColor }: {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card border border-border rounded-xl p-4 flex items-center gap-4"
+      className="bg-card border border-border rounded-2xl p-3 lg:p-4 flex items-center gap-3 lg:gap-4"
     >
-      <div className={`p-3 rounded-lg ${bgColor}`}>
+      <div className={`p-2.5 lg:p-3 rounded-xl ${bgColor}`}>
         <div className={color}>{icon}</div>
       </div>
-      <div>
-        <div className="text-2xl font-bold">{value}</div>
-        <div className="text-sm text-muted-foreground">{label}</div>
+      <div className="min-w-0">
+        <div className="text-xl lg:text-2xl font-bold truncate">{value}</div>
+        <div className="text-xs lg:text-sm text-muted-foreground truncate">{label}</div>
       </div>
     </motion.div>
   );
@@ -232,38 +232,37 @@ function ChannelCard({ channel, questionCount, index, onClick }: {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.03 }}
       onClick={onClick}
-      className="bg-card border border-border rounded-xl p-5 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all group"
+      className="bg-card border border-border rounded-2xl p-4 lg:p-5 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all group flex-shrink-0 w-[280px] lg:w-auto snap-start"
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors`}>
+      <div className="flex items-start justify-between mb-3 lg:mb-4">
+        <div className={`p-2.5 lg:p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors`}>
           {iconMap[channel.icon] || <Cpu className="w-6 h-6" />}
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-primary">{progress}%</div>
-          <div className="text-xs text-muted-foreground">complete</div>
+          <div className="text-xl lg:text-2xl font-bold text-primary">{progress}%</div>
+          <div className="text-[10px] lg:text-xs text-muted-foreground">done</div>
         </div>
       </div>
       
-      <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+      <h3 className="font-semibold text-base lg:text-lg mb-1 group-hover:text-primary transition-colors truncate">
         {channel.name}
       </h3>
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+      <p className="text-xs lg:text-sm text-muted-foreground line-clamp-2 mb-3 lg:mb-4 h-8 lg:h-10">
         {channel.description}
       </p>
       
       {/* Progress bar */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{completed.length} completed</span>
-          <span>{questionCount} total</span>
+      <div className="space-y-1.5 lg:space-y-2">
+        <div className="flex justify-between text-[10px] lg:text-xs text-muted-foreground">
+          <span>{completed.length}/{questionCount}</span>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div className="h-1.5 lg:h-2 bg-muted rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5, delay: index * 0.05 }}
+            transition={{ duration: 0.5, delay: index * 0.03 }}
             className="h-full bg-primary rounded-full"
           />
         </div>
@@ -278,12 +277,12 @@ function AddChannelCard({ onClick }: { onClick: () => void }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       onClick={onClick}
-      className="bg-card border-2 border-dashed border-border rounded-xl p-5 cursor-pointer hover:border-primary/50 transition-all flex flex-col items-center justify-center min-h-[200px] group"
+      className="bg-card border-2 border-dashed border-border rounded-2xl p-4 lg:p-5 cursor-pointer hover:border-primary/50 transition-all flex flex-col items-center justify-center min-h-[160px] lg:min-h-[200px] group flex-shrink-0 w-[280px] lg:w-auto snap-start"
     >
-      <div className="p-4 rounded-full bg-muted group-hover:bg-primary/10 transition-colors mb-3">
-        <Plus className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+      <div className="p-3 lg:p-4 rounded-full bg-muted group-hover:bg-primary/10 transition-colors mb-2 lg:mb-3">
+        <Plus className="w-6 h-6 lg:w-8 lg:h-8 text-muted-foreground group-hover:text-primary transition-colors" />
       </div>
-      <span className="font-medium text-muted-foreground group-hover:text-primary transition-colors">
+      <span className="font-medium text-sm lg:text-base text-muted-foreground group-hover:text-primary transition-colors">
         Add Channel
       </span>
     </motion.div>
@@ -295,19 +294,18 @@ function EmptyState({ onBrowse }: { onBrowse: () => void }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="text-center py-16 px-4"
+      className="text-center py-10 lg:py-16 px-4"
     >
-      <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-        <BookOpen className="w-10 h-10 text-muted-foreground" />
+      <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4 lg:mb-6">
+        <BookOpen className="w-8 h-8 lg:w-10 lg:h-10 text-muted-foreground" />
       </div>
-      <h2 className="text-2xl font-bold mb-2">Start Your Journey</h2>
-      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-        Subscribe to channels that match your interview prep goals. 
-        We'll track your progress and help you stay on track.
+      <h2 className="text-xl lg:text-2xl font-bold mb-2">Start Your Journey</h2>
+      <p className="text-sm lg:text-base text-muted-foreground mb-4 lg:mb-6 max-w-md mx-auto">
+        Subscribe to channels that match your goals
       </p>
       <button
         onClick={onBrowse}
-        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+        className="px-5 py-2.5 lg:px-6 lg:py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors active:scale-95"
       >
         Browse Channels
       </button>
