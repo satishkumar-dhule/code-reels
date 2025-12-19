@@ -33,8 +33,12 @@ test.describe('Mobile Experience', () => {
     // Main heading should be visible
     await expect(page.locator('h1').first()).toBeVisible();
     
-    // Channel cards should be visible
-    await expect(page.locator('[class*="channel"], [class*="card"]').first()).toBeVisible({ timeout: 5000 });
+    // Channel cards should be visible (look for visible cards in main content, not sidebar)
+    // The redesigned UI uses rounded-2xl cards with channel names
+    const channelCard = page.locator('main [class*="rounded-2xl"]').first()
+      .or(page.locator('h3:has-text("System Design")').first())
+      .or(page.getByText('Your Channels').first());
+    await expect(channelCard).toBeVisible({ timeout: 5000 });
   });
 
   test('channel page should work on mobile', async ({ page }) => {
