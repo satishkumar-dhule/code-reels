@@ -83,10 +83,10 @@ export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
             >
               <Youtube className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-500" />
               <div className="text-left">
-                <div className="text-[10px] sm:text-sm font-bold text-white group-hover:text-red-400 transition-colors">
+                <div className="text-[10px] sm:text-sm font-bold text-foreground group-hover:text-red-500 transition-colors">
                   Quick
                 </div>
-                <div className="text-[8px] sm:text-xs text-white/50 hidden sm:flex items-center gap-1">
+                <div className="text-[8px] sm:text-xs text-muted-foreground hidden sm:flex items-center gap-1">
                   <Clock className="w-3 h-3" /> Under 60s
                 </div>
               </div>
@@ -101,10 +101,10 @@ export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
             >
               <Youtube className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-red-500" />
               <div className="text-left">
-                <div className="text-[10px] sm:text-sm font-bold text-white group-hover:text-red-400 transition-colors">
+                <div className="text-[10px] sm:text-sm font-bold text-foreground group-hover:text-red-500 transition-colors">
                   Deep Dive
                 </div>
-                <div className="text-[8px] sm:text-xs text-white/50 hidden sm:flex items-center gap-1">
+                <div className="text-[8px] sm:text-xs text-muted-foreground hidden sm:flex items-center gap-1">
                   <Clock className="w-3 h-3" /> 5-20 min
                 </div>
               </div>

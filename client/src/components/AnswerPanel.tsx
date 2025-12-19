@@ -103,20 +103,20 @@ function CollapsibleSection({
       >
         <div className="flex items-center gap-1.5 sm:gap-2">
           <div className={`w-0.5 sm:w-1 h-3.5 sm:h-5 ${accentClasses[accentColor as keyof typeof accentClasses] || accentClasses.primary} transition-all ${isExpanded ? 'opacity-100' : 'opacity-50'}`} />
-          <span className="text-white/70">{icon}</span>
-          <h2 className="text-[10px] sm:text-sm font-bold uppercase tracking-widest text-white/70 group-hover:text-white transition-colors">
+          <span className="text-muted-foreground">{icon}</span>
+          <h2 className="text-[10px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">
             {title}
           </h2>
         </div>
         {isMobile ? (
-          <div className={`text-white/50 transition-transform ${isExpanded ? '' : '-rotate-90'}`}>
+          <div className={`text-muted-foreground transition-transform ${isExpanded ? '' : '-rotate-90'}`}>
             <ChevronDown className="w-3.5 h-3.5" />
           </div>
         ) : (
           <motion.div
             animate={{ rotate: isExpanded ? 0 : -90 }}
             transition={{ duration: 0.2 }}
-            className="text-white/50 group-hover:text-white transition-colors"
+            className="text-muted-foreground group-hover:text-foreground transition-colors"
           >
             <ChevronDown className="w-4 h-4" />
           </motion.div>
@@ -198,11 +198,11 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             }
             
             return (
-              <div className="my-3 sm:my-8 w-full rounded-lg overflow-hidden border border-white/10 shadow-lg clear-both mb-3 sm:mb-6">
-                <div className="flex items-center justify-between px-2 sm:px-4 py-1 sm:py-2 bg-white/5 border-b border-white/10">
+              <div className="my-3 sm:my-8 w-full rounded-lg overflow-hidden border border-border shadow-lg clear-both mb-3 sm:mb-6">
+                <div className="flex items-center justify-between px-2 sm:px-4 py-1 sm:py-2 bg-muted border-b border-border">
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <Code2 className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-primary shrink-0" />
-                    <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-white/50">{language || 'code'}</span>
+                    <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-muted-foreground">{language || 'code'}</span>
                   </div>
                 </div>
                 <SyntaxHighlighter
@@ -226,19 +226,19 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             );
           },
           p({ children }) {
-            return <p className="mb-2 sm:mb-4 leading-relaxed text-white/85 clear-both">{children}</p>;
+            return <p className="mb-2 sm:mb-4 leading-relaxed text-foreground/85 clear-both">{children}</p>;
           },
           h1({ children }) {
-            return <h1 className="text-sm sm:text-xl md:text-2xl font-bold mb-2 sm:mb-4 mt-3 sm:mt-6 md:mt-8 text-white border-b border-white/10 pb-1.5 sm:pb-2 clear-both">{children}</h1>;
+            return <h1 className="text-sm sm:text-xl md:text-2xl font-bold mb-2 sm:mb-4 mt-3 sm:mt-6 md:mt-8 text-foreground border-b border-border pb-1.5 sm:pb-2 clear-both">{children}</h1>;
           },
           h2({ children }) {
-            return <h2 className="text-xs sm:text-lg md:text-xl font-bold mb-1.5 sm:mb-3 mt-3 sm:mt-6 text-white clear-both">{children}</h2>;
+            return <h2 className="text-xs sm:text-lg md:text-xl font-bold mb-1.5 sm:mb-3 mt-3 sm:mt-6 text-foreground clear-both">{children}</h2>;
           },
           h3({ children }) {
-            return <h3 className="text-[11px] sm:text-base md:text-lg font-bold mb-1.5 sm:mb-2 mt-2 sm:mt-4 text-white/90 clear-both">{children}</h3>;
+            return <h3 className="text-[11px] sm:text-base md:text-lg font-bold mb-1.5 sm:mb-2 mt-2 sm:mt-4 text-foreground/90 clear-both">{children}</h3>;
           },
           strong({ children }) {
-            return <strong className="font-bold text-white">{children}</strong>;
+            return <strong className="font-bold text-foreground">{children}</strong>;
           },
           em({ children }) {
             return <em className="italic text-primary/90">{children}</em>;
@@ -252,7 +252,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
           li({ children, node }) {
             const isOrdered = node?.tagName === 'ol';
             return (
-              <li className="flex gap-1.5 sm:gap-3 text-white/80 clear-both">
+              <li className="flex gap-1.5 sm:gap-3 text-foreground/80 clear-both">
                 <span className="text-primary shrink-0 mt-0.5 text-[10px] sm:text-sm">
                   {isOrdered ? '→' : '•'}
                 </span>
@@ -274,13 +274,13 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
           },
           blockquote({ children }) {
             return (
-              <blockquote className="border-l-2 sm:border-l-4 border-primary/50 pl-2 sm:pl-4 py-1.5 sm:py-2 my-2 sm:my-4 bg-primary/5 text-white/70 italic text-[10px] sm:text-sm clear-both">
+              <blockquote className="border-l-2 sm:border-l-4 border-primary/50 pl-2 sm:pl-4 py-1.5 sm:py-2 my-2 sm:my-4 bg-primary/5 text-muted-foreground italic text-[10px] sm:text-sm clear-both">
                 {children}
               </blockquote>
             );
           },
           hr() {
-            return <hr className="my-2 sm:my-6 md:my-8 border-white/10 clear-both" />;
+            return <hr className="my-2 sm:my-6 md:my-8 border-border clear-both" />;
           },
           table({ children }) {
             return (
@@ -292,24 +292,24 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             );
           },
           thead({ children }) {
-            return <thead className="bg-white/10">{children}</thead>;
+            return <thead className="bg-muted">{children}</thead>;
           },
           tbody({ children }) {
-            return <tbody className="divide-y divide-white/10">{children}</tbody>;
+            return <tbody className="divide-y divide-border">{children}</tbody>;
           },
           tr({ children }) {
-            return <tr className="border-b border-white/10 hover:bg-white/5 transition-colors">{children}</tr>;
+            return <tr className="border-b border-border hover:bg-muted/50 transition-colors">{children}</tr>;
           },
           th({ children }) {
             return (
-              <th className="px-2 sm:px-4 py-1.5 sm:py-2 text-left font-semibold text-white/90 border border-white/10 bg-white/5">
+              <th className="px-2 sm:px-4 py-1.5 sm:py-2 text-left font-semibold text-foreground/90 border border-border bg-muted">
                 {children}
               </th>
             );
           },
           td({ children }) {
             return (
-              <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-white/80 border border-white/10">
+              <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-foreground/80 border border-border">
                 {children}
               </td>
             );
@@ -336,14 +336,14 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
         {/* Companies Section - Non-collapsible, compact on mobile */}
         {question.companies && question.companies.length > 0 && (
           <div className="w-full mb-2 sm:mb-6 clear-both">
-            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" />
+            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-3 bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400 shrink-0" />
               <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                <span className="text-[9px] sm:text-xs text-blue-400/70 uppercase tracking-wider">Asked at:</span>
+                <span className="text-[9px] sm:text-xs text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wider">Asked at:</span>
                 {question.companies.map((company, idx) => (
                   <span 
                     key={idx}
-                    className="px-1.5 sm:px-2 py-0.5 bg-blue-500/20 text-blue-300 text-[9px] sm:text-xs font-medium rounded-full border border-blue-500/30"
+                    className="px-1.5 sm:px-2 py-0.5 bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] sm:text-xs font-medium rounded-full border border-blue-500/30"
                   >
                     {company}
                   </span>
@@ -396,7 +396,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             onVisibilityChange={handleVisibilityChange}
           >
             <div className="p-2 sm:p-4 bg-primary/5 border border-primary/20 rounded-lg">
-              <p className="text-[11px] sm:text-sm text-white/90 leading-relaxed">
+              <p className="text-[11px] sm:text-sm text-foreground/90 leading-relaxed">
                 {question.answer}
               </p>
             </div>
@@ -416,7 +416,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             <div className="p-2 sm:p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
               <div className="flex items-start gap-2 sm:gap-3">
                 <span className="text-lg sm:text-2xl shrink-0">🧒</span>
-                <p className="text-[11px] sm:text-sm text-white/90 leading-relaxed">
+                <p className="text-[11px] sm:text-sm text-foreground/90 leading-relaxed">
                   {question.eli5}
                 </p>
               </div>
@@ -439,18 +439,18 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
 
         {/* Tags - Non-collapsible, compact on mobile */}
         {question.tags && question.tags.length > 0 && (
-          <div className="w-full pt-2 sm:pt-6 border-t border-white/10">
+          <div className="w-full pt-2 sm:pt-6 border-t border-border">
             <div className="flex flex-wrap gap-1 sm:gap-2">
               {question.tags.slice(0, window.innerWidth < 640 ? 4 : question.tags.length).map(tag => (
                 <span 
                   key={tag} 
-                  className="px-1.5 sm:px-3 py-0.5 sm:py-1 bg-white/5 hover:bg-white/10 text-[9px] sm:text-xs font-mono text-white/60 border border-white/10 rounded-full transition-colors"
+                  className="px-1.5 sm:px-3 py-0.5 sm:py-1 bg-muted hover:bg-muted/80 text-[9px] sm:text-xs font-mono text-muted-foreground border border-border rounded-full transition-colors"
                 >
                   #{tag}
                 </span>
               ))}
               {window.innerWidth < 640 && question.tags.length > 4 && (
-                <span className="text-[9px] text-white/40 py-0.5">+{question.tags.length - 4}</span>
+                <span className="text-[9px] text-muted-foreground py-0.5">+{question.tags.length - 4}</span>
               )}
             </div>
           </div>
@@ -458,15 +458,15 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
 
         {/* Source Link - Non-collapsible, compact on mobile */}
         {question.sourceUrl && (
-          <div className="w-full pt-2 sm:pt-6 border-t border-white/10">
+          <div className="w-full pt-2 sm:pt-6 border-t border-border">
             <a
               href={question.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors group"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-muted hover:bg-muted/80 border border-border rounded-lg transition-colors group"
             >
-              <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white/50 group-hover:text-primary transition-colors" />
-              <span className="text-[10px] sm:text-sm text-white/70 group-hover:text-white transition-colors">
+              <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="text-[10px] sm:text-sm text-muted-foreground group-hover:text-foreground transition-colors">
                 Source
               </span>
             </a>
@@ -474,7 +474,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
         )}
 
         {/* Discussion Section - Giscus Comments */}
-        <div className="w-full pt-2 sm:pt-6 border-t border-white/10">
+        <div className="w-full pt-2 sm:pt-6 border-t border-border">
           <GiscusComments questionId={question.id} />
         </div>
       </div>

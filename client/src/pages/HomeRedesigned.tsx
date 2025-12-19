@@ -3,23 +3,20 @@
  * Features: Channel cards, progress tracking, quick actions
  */
 
-import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useChannelStats } from '../hooks/use-stats';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useProgress } from '../hooks/use-progress';
 import { useGlobalStats } from '../hooks/use-progress';
 import { SEOHead } from '../components/SEOHead';
-import { BadgeWidget } from '../components/BadgeWidget';
-import { WhatsNewBanner } from '../components/WhatsNewBanner';
 import {
-  Plus, ArrowRight, Flame, Target, Zap, Trophy, BarChart2,
+  Plus, ArrowRight, Flame, Target, Trophy,
   Cpu, Terminal, Layout, Database, Activity, GitBranch, Server,
   Layers, Smartphone, Shield, Brain, Workflow, Box, Cloud, Code,
   Network, MessageCircle, Users, Sparkles, Eye, FileText, CheckCircle, 
-  Monitor, Gauge, TrendingUp, Clock, BookOpen
+  Monitor, Zap, Gauge, BookOpen
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -81,8 +78,6 @@ export default function HomeRedesigned() {
         description="Master technical interviews with 1000+ free practice questions. System design, algorithms, frontend, backend, DevOps, SRE, AI/ML interview prep."
         canonical="https://reel-interview.github.io/"
       />
-      
-      <WhatsNewBanner />
       
       <AppLayout>
         <div className="space-y-6 lg:space-y-8">
@@ -164,33 +159,9 @@ export default function HomeRedesigned() {
             <EmptyState onBrowse={() => setLocation('/channels')} />
           )}
 
-          {/* Quick Actions - Hidden on mobile since we have bottom nav */}
-          <section className="hidden lg:grid grid-cols-4 gap-4">
-            <QuickAction
-              icon={<BarChart2 className="w-5 h-5" />}
-              label="View Stats"
-              onClick={() => setLocation('/stats')}
-            />
-            <QuickAction
-              icon={<Trophy className="w-5 h-5" />}
-              label="Badges"
-              onClick={() => setLocation('/badges')}
-            />
-            <QuickAction
-              icon={<Target className="w-5 h-5" />}
-              label="Take Test"
-              onClick={() => setLocation('/tests')}
-            />
-            <QuickAction
-              icon={<Sparkles className="w-5 h-5" />}
-              label="What's New"
-              onClick={() => setLocation('/whats-new')}
-            />
-          </section>
+
         </div>
       </AppLayout>
-      
-      <BadgeWidget />
     </>
   );
 }
@@ -315,22 +286,4 @@ function EmptyState({ onBrowse }: { onBrowse: () => void }) {
   );
 }
 
-function QuickAction({ icon, label, onClick }: {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 hover:border-primary/50 hover:bg-primary/5 transition-all group"
-    >
-      <div className="text-muted-foreground group-hover:text-primary transition-colors">
-        {icon}
-      </div>
-      <span className="font-medium group-hover:text-primary transition-colors">
-        {label}
-      </span>
-    </button>
-  );
-}
+
