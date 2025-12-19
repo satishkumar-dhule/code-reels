@@ -41,21 +41,21 @@ test.describe('Badges Page', () => {
     await page.goto('/badges');
     await page.waitForLoadState('networkidle');
     
-    // Should show category filter buttons
+    // Should show category filter buttons - use role button with name pattern to avoid duplicates
     await expect(page.getByRole('button', { name: /All/i })).toBeVisible();
-    await expect(page.getByText('Consistency')).toBeVisible();
-    await expect(page.getByText('Progress')).toBeVisible();
-    await expect(page.getByText('Difficulty')).toBeVisible();
-    await expect(page.getByText('Explorer')).toBeVisible();
-    await expect(page.getByText('Special')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Consistency/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Progress/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Difficulty/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Explorer/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Special/i })).toBeVisible();
   });
 
   test('should filter badges by category', async ({ page }) => {
     await page.goto('/badges');
     await page.waitForLoadState('networkidle');
     
-    // Click on Consistency category
-    await page.getByText('Consistency').click();
+    // Click on Consistency category - use role button to avoid duplicate matches
+    await page.getByRole('button', { name: /Consistency/i }).click();
     await page.waitForTimeout(300);
     
     // Should show only streak badges section
@@ -182,11 +182,12 @@ test.describe('Badges Page - Badge Modal', () => {
     await badgeRing.click();
     await page.waitForTimeout(300);
     
-    // Should show progress section
-    await expect(page.getByText('Progress')).toBeVisible();
+    // Should show progress section in modal - use more specific selector
+    const modal = page.locator('.bg-card.border.border-border.rounded-lg.p-6');
+    await expect(modal).toBeVisible();
     
-    // Should show progress bar
-    const progressBar = page.locator('.h-2.bg-muted\\/30.rounded-full.overflow-hidden').last();
+    // Should show progress bar in modal
+    const progressBar = modal.locator('.h-2.bg-muted\\/30.rounded-full.overflow-hidden');
     await expect(progressBar).toBeVisible();
   });
 

@@ -79,8 +79,8 @@ test.describe('Screenshot Pages - Desktop', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
     
-    // Should show badges content
-    await expect(page.getByText('Badges')).toBeVisible();
+    // Should show badges content - use heading role to avoid duplicate matches
+    await expect(page.getByRole('heading', { name: /Badges/i })).toBeVisible();
     await expect(page.getByText('Your Collection')).toBeVisible();
   });
 
@@ -148,8 +148,8 @@ test.describe('Screenshot Pages - Mobile', () => {
     const viewportWidth = await page.evaluate(() => window.innerWidth);
     expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 10);
     
-    // Content visible
-    await expect(page.getByText('Badges')).toBeVisible();
+    // Content visible - use heading role to avoid duplicate matches
+    await expect(page.getByRole('heading', { name: /Badges/i })).toBeVisible();
   });
 
   test('tests page renders correctly on mobile', async ({ page }) => {
@@ -206,13 +206,13 @@ test.describe('Screenshot Pages - Theme Support', () => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/badges');
     await page.waitForLoadState('networkidle');
-    await expect(page.getByText('Badges')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Badges/i })).toBeVisible();
     
     // Test light theme
     await page.emulateMedia({ colorScheme: 'light' });
     await page.reload();
     await page.waitForLoadState('networkidle');
-    await expect(page.getByText('Badges')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Badges/i })).toBeVisible();
   });
 
   test('tests page supports both themes', async ({ page }) => {
