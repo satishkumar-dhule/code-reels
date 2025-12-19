@@ -8,6 +8,7 @@ import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useToast } from '@/hooks/use-toast';
 import { allChannelsConfig } from '../lib/channels-config';
 import { getQuestions } from '../lib/data';
+import { formatTag } from '../lib/utils';
 
 type FilterType = 'all' | 'company' | 'video' | 'diagram';
 
@@ -308,7 +309,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           <div className="flex items-center gap-1 mt-2">
                             <Tag className="w-3 h-3 text-muted-foreground/50" />
                             <span className="text-[10px] text-muted-foreground/50">
-                              {result.question.tags.slice(0, 3).join(', ')}
+                              {result.question.tags.slice(0, 3).map(formatTag).join(', ')}
                             </span>
                           </div>
                         )}

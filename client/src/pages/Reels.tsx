@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useRoute } from 'wouter';
 import { getQuestions, getChannel } from '../lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatTag } from '../lib/utils';
 import { Mermaid } from '../components/Mermaid';
 import { SEOHead } from '../components/SEOHead';
 import { trackQuestionView, trackAnswerRevealed, trackLinkedInShare, trackLinkedInDownload, trackGitHubClick, trackTimerUsage } from '../hooks/use-analytics';
@@ -905,8 +906,8 @@ export default function Reels() {
 
                   <div className="flex flex-wrap gap-1 sm:gap-2">
                     {currentQuestion.tags.slice(0, 4).map(tag => (
-                      <span key={tag} className="px-1 sm:px-2 py-0.5 bg-white/5 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest border border-white/10 text-white/60">
-                        #{tag}
+                      <span key={tag} className="px-1 sm:px-2 py-0.5 bg-white/5 text-[8px] sm:text-[10px] font-bold tracking-widest border border-white/10 text-white/60">
+                        {formatTag(tag)}
                       </span>
                     ))}
                     {currentQuestion.tags.length > 4 && (

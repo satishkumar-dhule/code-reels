@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Hash, Zap, Target, Flame, Bookmark, Clock, Check, RefreshCw } from 'lucide-react';
 import type { Question } from '../lib/data';
+import { formatTag } from '../lib/utils';
 
 // Format relative time
 function formatTimeAgo(dateStr: string | undefined): string {
@@ -179,9 +180,9 @@ export function QuestionPanel({
             {question.tags.slice(0, 4).map(tag => (
               <span 
                 key={tag} 
-                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-muted/50 text-[9px] sm:text-[10px] font-mono uppercase tracking-wider border border-border text-muted-foreground rounded"
+                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-muted/50 text-[9px] sm:text-[10px] font-mono tracking-wider border border-border text-muted-foreground rounded"
               >
-                #{tag}
+                {formatTag(tag)}
               </span>
             ))}
             {question.tags.length > 4 && (

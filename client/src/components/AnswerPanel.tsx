@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { Question } from '../lib/data';
 import { GiscusComments } from './GiscusComments';
+import { formatTag } from '../lib/utils';
 
 // Check if mermaid diagram content is valid (non-empty and has valid structure)
 function isValidMermaidDiagram(diagram: string | undefined | null): boolean {
@@ -446,7 +447,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
                   key={tag} 
                   className="px-1.5 sm:px-3 py-0.5 sm:py-1 bg-muted hover:bg-muted/80 text-[9px] sm:text-xs font-mono text-muted-foreground border border-border rounded-full transition-colors"
                 >
-                  #{tag}
+                  {formatTag(tag)}
                 </span>
               ))}
               {window.innerWidth < 640 && question.tags.length > 4 && (
