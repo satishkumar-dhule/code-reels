@@ -336,14 +336,14 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
         {/* Companies Section - Non-collapsible, compact on mobile */}
         {question.companies && question.companies.length > 0 && (
           <div className="w-full mb-2 sm:mb-6 clear-both">
-            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-3 bg-blue-500/10 dark:bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
               <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                <span className="text-[9px] sm:text-xs text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wider">Asked at:</span>
+                <span className="text-[9px] sm:text-xs text-primary/70 uppercase tracking-wider">Asked at:</span>
                 {question.companies.map((company, idx) => (
                   <span 
                     key={idx}
-                    className="px-1.5 sm:px-2 py-0.5 bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] sm:text-xs font-medium rounded-full border border-blue-500/30"
+                    className="px-1.5 sm:px-2 py-0.5 bg-primary/20 text-primary text-[9px] sm:text-xs font-medium rounded-full border border-primary/30"
                   >
                     {company}
                   </span>
