@@ -1,5 +1,4 @@
 import {
-  getAllUnifiedQuestions,
   addUnifiedQuestion,
   generateUnifiedId,
   isDuplicateUnified,
@@ -116,6 +115,47 @@ const channelConfigs = {
 
 const difficulties = ['beginner', 'intermediate', 'advanced'];
 
+// Top 100 tech companies known for rigorous technical interviews
+const TOP_TECH_COMPANIES = [
+  // FAANG / MAANG
+  'Google', 'Amazon', 'Apple', 'Meta', 'Netflix', 'Microsoft',
+  // Big Tech
+  'Nvidia', 'Tesla', 'Salesforce', 'Adobe', 'Oracle', 'IBM', 'Intel', 'Cisco', 'SAP',
+  // Cloud & Infrastructure
+  'Snowflake', 'Databricks', 'Cloudflare', 'MongoDB', 'Elastic', 'HashiCorp', 'Confluent',
+  // Fintech
+  'Stripe', 'Square', 'PayPal', 'Plaid', 'Robinhood', 'Coinbase', 'Affirm', 'Chime',
+  // E-commerce & Retail
+  'Shopify', 'Instacart', 'DoorDash', 'Uber', 'Lyft', 'Airbnb', 'Booking.com', 'Expedia',
+  // Social & Communication
+  'LinkedIn', 'Twitter', 'Snap', 'Discord', 'Slack', 'Zoom', 'Twilio',
+  // Streaming & Entertainment
+  'Spotify', 'Disney+', 'Hulu', 'Warner Bros', 'Roblox', 'Epic Games', 'Unity',
+  // Enterprise & SaaS
+  'ServiceNow', 'Workday', 'Atlassian', 'Splunk', 'Datadog', 'New Relic', 'PagerDuty',
+  'Okta', 'CrowdStrike', 'Zscaler', 'Palo Alto Networks', 'Fortinet',
+  // AI & ML
+  'OpenAI', 'Anthropic', 'DeepMind', 'Hugging Face', 'Scale AI', 'Cohere', 'Stability AI',
+  // Hardware & Semiconductors
+  'AMD', 'Qualcomm', 'Broadcom', 'Micron', 'Western Digital', 'Seagate',
+  // Consulting & Services
+  'Accenture', 'Deloitte', 'McKinsey', 'BCG', 'Bain', 'Thoughtworks', 'Infosys', 'TCS', 'Wipro',
+  // Startups & Unicorns
+  'Figma', 'Notion', 'Canva', 'Miro', 'Airtable', 'Vercel', 'Supabase', 'PlanetScale',
+  'Linear', 'Retool', 'Webflow', 'Postman', 'GitLab', 'GitHub',
+  // Healthcare Tech
+  'Epic Systems', 'Cerner', 'Veeva', 'Tempus', 'Oscar Health',
+  // Other Notable
+  'Bloomberg', 'Two Sigma', 'Citadel', 'Jane Street', 'DE Shaw', 'HRT',
+  'Palantir', 'Anduril', 'SpaceX', 'Waymo', 'Cruise', 'Aurora'
+];
+
+// Get random companies from the top list (2-4 companies)
+function getRandomTopCompanies(count = 3) {
+  const shuffled = [...TOP_TECH_COMPANIES].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, Math.floor(Math.random() * 3) + 2));
+}
+
 function getAllChannels() {
   return Object.keys(channelConfigs);
 }
@@ -128,24 +168,57 @@ function getRandomSubChannel(channel) {
   return configs[Math.floor(Math.random() * configs.length)];
 }
 
-// Prioritize channels with fewer questions (weighted random selection)
+// Prioritize channels with fewer questions using weighted selection
+// Excludes channels in the top percentile to focus on lagging channels
 function selectChannelsWeighted(channelCounts, allChannels, limit) {
-  // Calculate weights - channels with fewer questions get higher weight
-  const maxCount = Math.max(...Object.values(channelCounts), 1);
-  const weights = allChannels.map(ch => {
+  // Sort channels by question count
+  const sortedByCount = [...allChannels].map(ch => ({
+    channel: ch,
+    count: channelCounts[ch] || 0
+  })).sort((a, b) => a.count - b.count);
+  
+  // Calculate statistics
+  const counts = sortedByCount.map(c => c.count);
+  const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
+  const medianCount = counts[Math.floor(counts.length / 2)];
+  const maxCount = Math.max(...counts, 1);
+  
+  // Exclude channels in top 25% (those with most questions)
+  const excludeThreshold = counts[Math.floor(counts.length * 0.75)];
+  const eligibleChannels = sortedByCount
+    .filter(c => c.count <= excludeThreshold)
+    .map(c => c.channel);
+  
+  console.log(`\n📈 Channel Statistics:`);
+  console.log(`   Average: ${avgCount.toFixed(1)} questions`);
+  console.log(`   Median: ${medianCount} questions`);
+  console.log(`   Max: ${maxCount} questions`);
+  console.log(`   Exclude threshold (top 25%): >${excludeThreshold} questions`);
+  console.log(`   Eligible channels: ${eligibleChannels.length}/${allChannels.length}`);
+  
+  // If all channels are excluded (unlikely), fall back to bottom half
+  const channelsToUse = eligibleChannels.length > 0 
+    ? eligibleChannels 
+    : sortedByCount.slice(0, Math.ceil(sortedByCount.length / 2)).map(c => c.channel);
+  
+  // Calculate weights - exponential preference for channels with fewer questions
+  // Weight formula: (maxCount - count + 1)^3 / maxCount^2
+  // This gives MUCH higher weight to channels with very few questions
+  const weights = channelsToUse.map(ch => {
     const count = channelCounts[ch] || 0;
-    // Inverse weight: fewer questions = higher weight
-    // Add 1 to avoid division by zero, multiply by factor for channels with 0 questions
-    return Math.pow((maxCount - count + 10) / maxCount, 2);
+    const deficit = maxCount - count + 1;
+    // Cubic weight for strong preference toward low-count channels
+    return Math.pow(deficit, 3) / Math.pow(maxCount, 2);
   });
   
   const selected = [];
-  const available = [...allChannels];
+  const available = [...channelsToUse];
   const availableWeights = [...weights];
   
   while (selected.length < limit && available.length > 0) {
     // Weighted random selection
-    let random = Math.random() * availableWeights.reduce((a, b) => a + b, 0);
+    const totalWeight = availableWeights.reduce((a, b) => a + b, 0);
+    let random = Math.random() * totalWeight;
     let idx = 0;
     
     for (let i = 0; i < availableWeights.length; i++) {
@@ -162,6 +235,18 @@ function selectChannelsWeighted(channelCounts, allChannels, limit) {
   }
   
   return selected;
+}
+
+// Get channels that are significantly below average (need the most help)
+function getLaggingChannels(channelCounts, allChannels, targetPerChannel = 20) {
+  const sortedByCount = [...allChannels].map(ch => ({
+    channel: ch,
+    count: channelCounts[ch] || 0,
+    deficit: Math.max(0, targetPerChannel - (channelCounts[ch] || 0))
+  })).sort((a, b) => b.deficit - a.deficit);
+  
+  // Return channels that are below target, sorted by how far below they are
+  return sortedByCount.filter(c => c.deficit > 0);
 }
 
 async function main() {
@@ -192,12 +277,28 @@ async function main() {
   let channels;
   const limit = inputLimit > 0 ? inputLimit : allChannels.length;
   
+  // Show lagging channels that need the most attention
+  const laggingChannels = getLaggingChannels(channelCounts, allChannels, 20);
+  if (laggingChannels.length > 0) {
+    console.log(`\n⚠️  Channels below target (20 questions):`);
+    laggingChannels.slice(0, 8).forEach(c => {
+      console.log(`   ${c.channel}: ${c.count} questions (need ${c.deficit} more)`);
+    });
+    if (laggingChannels.length > 8) {
+      console.log(`   ... and ${laggingChannels.length - 8} more`);
+    }
+  }
+  
   if (balanceChannels && inputLimit > 0) {
     // Use weighted selection to prioritize channels with fewer questions
+    // This will EXCLUDE channels in the top 25% by question count
     channels = selectChannelsWeighted(channelCounts, allChannels, limit);
-    console.log(`\n🎯 Balanced selection (prioritizing low-count channels):`);
+    console.log(`\n🎯 Weighted selection (excluding top 25%, prioritizing lagging channels):`);
     channels.forEach(ch => {
-      console.log(`   ${ch}: ${channelCounts[ch] || 0} questions`);
+      const count = channelCounts[ch] || 0;
+      const avgCount = Object.values(channelCounts).reduce((a, b) => a + b, 0) / allChannels.length;
+      const status = count < avgCount * 0.5 ? '🔴 CRITICAL' : count < avgCount ? '🟡 LOW' : '🟢';
+      console.log(`   ${ch}: ${count} questions ${status}`);
     });
   } else if (inputLimit > 0) {
     channels = allChannels.sort(() => Math.random() - 0.5).slice(0, limit);
@@ -223,13 +324,19 @@ async function main() {
     console.log(`Sub-channel: ${subChannelConfig.subChannel}`);
     console.log(`Difficulty: ${difficulty}`);
 
+    // Select random top companies for this question
+    const targetCompanies = getRandomTopCompanies(3);
+    console.log(`Target companies: ${targetCompanies.join(', ')}`);
+
     const prompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
 
-Generate ${difficulty} ${channel}/${subChannelConfig.subChannel} interview question.
+Generate a ${difficulty} ${channel}/${subChannelConfig.subChannel} interview question that is commonly asked at top tech companies like ${targetCompanies.join(', ')}.
 Topics: ${subChannelConfig.tags.join(', ')}
 
+IMPORTANT: Generate a question that is ACTUALLY asked in technical interviews at companies like ${targetCompanies.join(', ')}. Focus on real-world interview patterns from these companies.
+
 Output this exact JSON structure:
-{"question":"specific technical question ending with ?","answer":"concise answer under 150 chars","explanation":"## Why Asked\\nInterview context\\n## Key Concepts\\nCore knowledge\\n## Code Example\\n\`\`\`\\nImplementation\\n\`\`\`\\n## Follow-up Questions\\nCommon follow-ups","diagram":"flowchart TD\\n  A[Start] --> B[End]","companies":["Google","Amazon","Meta"],"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null}}
+{"question":"specific technical question ending with ?","answer":"concise answer under 150 chars","explanation":"## Why Asked\\nInterview context at ${targetCompanies[0]} and similar companies\\n## Key Concepts\\nCore knowledge\\n## Code Example\\n\`\`\`\\nImplementation\\n\`\`\`\\n## Follow-up Questions\\nCommon follow-ups","diagram":"flowchart TD\\n  A[Start] --> B[End]","companies":${JSON.stringify(targetCompanies)},"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null}}
 
 IMPORTANT: Return ONLY the JSON object. No other text.`;
 
