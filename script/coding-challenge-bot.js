@@ -12,7 +12,7 @@
  *   INPUT_COUNT - number of challenges to generate (default: 1)
  */
 
-import { runWithRetries, parseJson, writeGitHubOutput, dbClient, logBotActivity } from './utils.js';
+import { runWithRetries, parseJson, writeGitHubOutput, dbClient } from './utils.js';
 
 const CATEGORIES = [
   'arrays',
@@ -349,12 +349,8 @@ async function main() {
         console.log(`   Companies: ${challenge.companies?.join(', ') || 'N/A'}`);
         console.log(`   Test cases: ${challenge.testCases.length}`);
         
-        // Log bot activity
-        await logBotActivity(challengeId, 'coding-challenge', 'new challenge created', 'completed', {
-          difficulty: challenge.difficulty,
-          category: challenge.category,
-          companies: challenge.companies
-        });
+        // Note: Skip logBotActivity for coding challenges since they're not in questions table
+        // The work_queue has a foreign key constraint on question_id
       } catch (dbError) {
         console.log(`❌ Database error: ${dbError.message}`);
         failed.push({ difficulty, category, reason: `DB error: ${dbError.message}` });
