@@ -1,5 +1,5 @@
 /**
- * Google-style Sidebar Navigation
+ * Sidebar Navigation
  * Clean, minimal design with smooth transitions
  */
 

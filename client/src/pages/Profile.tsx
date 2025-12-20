@@ -1,5 +1,5 @@
 /**
- * LinkedIn-style Profile Page
+ * Profile Page
  * User stats, achievements, and settings
  */
 

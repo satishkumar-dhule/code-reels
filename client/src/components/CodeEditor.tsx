@@ -8,7 +8,7 @@ import Editor, { OnMount, OnChange, loader, Monaco } from '@monaco-editor/react'
 import { useTheme } from '../context/ThemeContext';
 
 // Light themes list for theme detection
-const lightThemes = ['google', 'light', 'macos-light', 'ios-light', 'aqua', 'solarized', 'minimal'];
+const lightThemes = ['clean', 'light', 'macos-light', 'ios-light', 'aqua', 'solarized', 'minimal'];
 
 // Define custom VS Code Dark+ inspired theme
 loader.init().then((monaco) => {

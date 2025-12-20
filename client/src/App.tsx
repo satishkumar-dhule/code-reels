@@ -18,9 +18,9 @@ import Badges from "@/pages/Badges";
 import TestSession from "@/pages/TestSession";
 import Tests from "@/pages/Tests";
 import CodingChallenge from "@/pages/CodingChallenge";
-// Redesigned pages (Google-style)
+// Redesigned pages
 import HomeRedesigned from "@/pages/HomeRedesigned";
-import ReelsGoogle from "@/pages/ReelsGoogle";
+import QuestionViewer from "@/pages/QuestionViewer";
 import StatsRedesigned from "@/pages/StatsRedesigned";
 import AllChannelsRedesigned from "@/pages/AllChannelsRedesigned";
 import Profile from "@/pages/Profile";
@@ -32,7 +32,7 @@ import { usePageViewTracking, useSessionTracking, useInteractionTracking } from 
 import { AnimatePresence } from "framer-motion";
 import { preloadQuestions } from "./lib/questions-loader";
 import PixelMascot from "./components/PixelMascot";
-import DuolingoMascots from "./components/DuolingoMascots";
+import BackgroundMascots from "./components/BackgroundMascots";
 
 // New UI is now the default for all users
 const useNewUI = () => {
@@ -53,7 +53,7 @@ function Router() {
   
   // Select components based on UI mode
   const Home = newUI ? HomeRedesigned : HomeOriginal;
-  const Reels = newUI ? ReelsGoogle : ReelsOriginal;
+  const Reels = newUI ? QuestionViewer : ReelsOriginal;
   const Stats = newUI ? StatsRedesigned : StatsOriginal;
   const Channels = newUI ? AllChannelsRedesigned : AllChannels;
   
@@ -116,7 +116,7 @@ function AppContent() {
     <>
       <Router />
       <PixelMascot />
-      <DuolingoMascots />
+      <BackgroundMascots />
     </>
   );
 }

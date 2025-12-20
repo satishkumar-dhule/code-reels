@@ -1,6 +1,6 @@
 /**
  * UI Toggle Component
- * Allows users to switch between classic and new Google-style UI
+ * Allows users to switch between classic and new UI
  */
 
 import { useState, useEffect } from 'react';
@@ -52,7 +52,7 @@ export function UIToggle() {
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm mb-1">Try the New UI!</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                We've redesigned Code Reels with a cleaner, Google-style interface. 
+                We've redesigned Code Reels with a cleaner interface. 
                 Want to try it?
               </p>
               <div className="flex gap-2">
@@ -105,7 +105,7 @@ export function UIToggleSwitch() {
       <div>
         <h3 className="font-medium text-sm">New UI Design</h3>
         <p className="text-xs text-muted-foreground">
-          Use the redesigned Google-style interface
+          Use the redesigned interface
         </p>
       </div>
       <button

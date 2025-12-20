@@ -13,7 +13,7 @@ import { SEOHead } from '../components/SEOHead';
 import {
   Test, TestQuestion, getTestForChannel, getSessionQuestions,
   calculateScore, saveTestAttempt, TestAttempt, getTestProgress,
-  generateShareableBadge, generateLinkedInShare
+  generateShareableBadge, generateSocialShare
 } from '../lib/tests';
 import { mascotEvents } from '../components/PixelMascot';
 
@@ -433,12 +433,12 @@ export default function TestSession() {
                   <Share2 className="w-4 h-4" /> Share on X
                 </a>
                 <a
-                  href={generateLinkedInShare(test.channelName, result.score, result.passed)}
+                  href={generateSocialShare(test.channelName, result.score, result.passed)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 py-2 border border-border rounded text-center text-sm hover:bg-muted/20 transition-colors flex items-center justify-center gap-1"
                 >
-                  <Share2 className="w-4 h-4" /> LinkedIn
+                  <Share2 className="w-4 h-4" /> Share
                 </a>
               </div>
 

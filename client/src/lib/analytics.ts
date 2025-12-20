@@ -135,17 +135,17 @@ export function trackAnswerRevealed(questionId: string, timeToReveal: number) {
   });
 }
 
-// Track LinkedIn post shared
-export function trackLinkedInShare(questionId: string, channel: string) {
-  trackEvent('linkedin_share', {
+// Track social post shared
+export function trackSocialShare(questionId: string, channel: string) {
+  trackEvent('social_share', {
     'question_id': questionId,
     'channel': channel,
   });
 }
 
-// Track LinkedIn post downloaded
-export function trackLinkedInDownload(questionId: string, format: string) {
-  trackEvent('linkedin_download', {
+// Track social post downloaded
+export function trackSocialDownload(questionId: string, format: string) {
+  trackEvent('social_download', {
     'question_id': questionId,
     'format': format, // 'image' or 'text'
   });

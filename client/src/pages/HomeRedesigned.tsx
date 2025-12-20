@@ -1,13 +1,13 @@
 /**
- * Redesigned Home Page - LinkedIn-style mobile, Google-style desktop
+ * Redesigned Home Page
  * Features: Channel cards, progress tracking, quick actions
- * Mobile: LinkedIn-style feed with stories and cards
+ * Mobile: Card-based feed with stories
  */
 
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
-import { LinkedInFeed } from '../components/mobile/LinkedInFeed';
+import { MobileFeed } from '../components/mobile/MobileFeed';
 import { useChannelStats } from '../hooks/use-stats';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useProgress } from '../hooks/use-progress';
@@ -75,7 +75,7 @@ export default function HomeRedesigned() {
     return s;
   })();
 
-  // Mobile: LinkedIn-style feed
+  // Mobile: Card-based feed
   if (isMobile) {
     return (
       <>
@@ -86,7 +86,7 @@ export default function HomeRedesigned() {
         />
         
         <AppLayout fullWidth>
-          <LinkedInFeed />
+          <MobileFeed />
         </AppLayout>
       </>
     );

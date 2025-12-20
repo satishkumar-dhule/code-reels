@@ -1,5 +1,5 @@
 /**
- * Duolingo-style Background Mascots
+ * Background Mascots
  * One large vibrant mascot per page, changes based on URL
  */
 
@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { useTheme } from '../context/ThemeContext';
 
-// Giant Owl - Green Duolingo mascot
+// Giant Owl - Green mascot
 const GiantOwl = () => (
   <svg viewBox="0 0 400 500" fill="none" className="w-full h-full">
     <ellipse cx="200" cy="320" rx="140" ry="120" fill="#58CC02" />
@@ -189,19 +189,19 @@ function getMascotForPath(path: string): React.FC {
   return GiantOwl;
 }
 
-export function DuolingoMascots() {
+export function BackgroundMascots() {
   const { theme } = useTheme();
   const [location] = useLocation();
   
   // Get mascot based on current URL - must be before any conditional returns
   const MascotComponent = useMemo(() => getMascotForPath(location), [location]);
   
-  // Only show on Duolingo themes
-  const isDuolingoTheme = theme === 'duolingo' || theme === 'duolingo-dark';
+  // Only show on playful themes
+  const isPlayfulTheme = theme === 'playful' || theme === 'playful-dark';
   
-  if (!isDuolingoTheme) return null;
+  if (!isPlayfulTheme) return null;
 
-  const isDark = theme === 'duolingo-dark';
+  const isDark = theme === 'playful-dark';
 
   return (
     <>
@@ -244,4 +244,4 @@ export function DuolingoMascots() {
   );
 }
 
-export default DuolingoMascots;
+export default BackgroundMascots;

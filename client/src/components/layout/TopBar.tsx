@@ -1,5 +1,5 @@
 /**
- * Google-style Top Navigation Bar
+ * Top Navigation Bar
  * Clean, minimal design with search and user actions
  */
 
@@ -25,10 +25,10 @@ export function TopBar({ onMenuClick, onSearchClick, title, showBackButton }: To
   const { theme, cycleTheme, setTheme } = useTheme();
 
   const themeOptions: { id: Theme; name: string; color: string }[] = [
-    { id: 'google', name: 'Google Light', color: '#4285f4' },
-    { id: 'google-dark', name: 'Google Dark', color: '#8ab4f8' },
-    { id: 'duolingo', name: 'Duolingo', color: '#58cc02' },
-    { id: 'duolingo-dark', name: 'Duolingo Dark', color: '#58cc02' },
+    { id: 'clean', name: 'Clean Light', color: '#4285f4' },
+    { id: 'clean-dark', name: 'Clean Dark', color: '#8ab4f8' },
+    { id: 'playful', name: 'Playful', color: '#58cc02' },
+    { id: 'playful-dark', name: 'Playful Dark', color: '#58cc02' },
     { id: 'light', name: 'Light', color: '#000000' },
     { id: 'unix', name: 'Unix', color: '#22c55e' },
     { id: 'dracula', name: 'Dracula', color: '#bd93f9' },

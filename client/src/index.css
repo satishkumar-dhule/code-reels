@@ -65,8 +65,8 @@
   --radius: 8px;
 }
 
-/* Google Dark theme */
-[data-theme='google-dark'] {
+/* Clean Dark theme */
+[data-theme='clean-dark'] {
   --background: hsl(0 0% 7%);
   --foreground: hsl(0 0% 93%);
   --card: hsl(0 0% 10%);
@@ -115,8 +115,8 @@
   }
 }
 
-/* Explicit Google theme */
-[data-theme='google'] {
+/* Explicit Clean theme */
+[data-theme='clean'] {
   --background: hsl(0 0% 100%);
   --foreground: hsl(0 0% 13%);
   --card: hsl(0 0% 100%);
@@ -139,7 +139,7 @@
   --radius: 8px;
 }
 
-[data-theme='google-dark'] {
+[data-theme='clean-dark'] {
   --background: hsl(0 0% 7%);
   --foreground: hsl(0 0% 93%);
   --card: hsl(0 0% 10%);
@@ -162,10 +162,10 @@
   --radius: 8px;
 }
 
-/* ===== DUOLINGO THEMES ===== */
+/* ===== PLAYFUL THEMES ===== */
 
-/* Duolingo Light - Playful learning green */
-[data-theme='duolingo'] {
+/* Playful Light - Playful learning green */
+[data-theme='playful'] {
   --background: hsl(0 0% 98%);
   --foreground: hsl(200 20% 20%);
   --card: hsl(0 0% 100%);
@@ -197,8 +197,8 @@
   --duo-feather: hsl(200 20% 20%);
 }
 
-/* Duolingo Dark - Dark owl mode */
-[data-theme='duolingo-dark'] {
+/* Playful Dark - Dark playful mode */
+[data-theme='playful-dark'] {
   --background: hsl(220 25% 12%);
   --foreground: hsl(0 0% 95%);
   --card: hsl(220 25% 16%);
@@ -230,21 +230,21 @@
   --duo-feather: hsl(0 0% 95%);
 }
 
-/* Duolingo-specific styling */
-[data-theme='duolingo'] .bg-card,
-[data-theme='duolingo-dark'] .bg-card {
+/* Playful-specific styling */
+[data-theme='playful'] .bg-card,
+[data-theme='playful-dark'] .bg-card {
   box-shadow: none;
   border: 2px solid hsl(200 20% 88%);
 }
 
-[data-theme='duolingo-dark'] .bg-card {
+[data-theme='playful-dark'] .bg-card {
   box-shadow: none;
   border: 2px solid hsl(220 20% 25%);
 }
 
-/* Duolingo chunky button style */
-[data-theme='duolingo'] button.bg-primary,
-[data-theme='duolingo-dark'] button.bg-primary {
+/* Playful chunky button style */
+[data-theme='playful'] button.bg-primary,
+[data-theme='playful-dark'] button.bg-primary {
   font-weight: 700 !important;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -253,84 +253,84 @@
   transition: all 0.1s ease;
 }
 
-[data-theme='duolingo'] button.bg-primary:active,
-[data-theme='duolingo-dark'] button.bg-primary:active {
+[data-theme='playful'] button.bg-primary:active,
+[data-theme='playful-dark'] button.bg-primary:active {
   transform: translateY(4px);
   box-shadow: 0 0 0 0 var(--duo-green-dark);
 }
 
-/* Duolingo progress bar styling */
-[data-theme='duolingo'] [role="progressbar"],
-[data-theme='duolingo-dark'] [role="progressbar"] {
+/* Playful progress bar styling */
+[data-theme='playful'] [role="progressbar"],
+[data-theme='playful-dark'] [role="progressbar"] {
   background: hsl(200 15% 90%);
   border-radius: 999px;
   overflow: hidden;
 }
 
-[data-theme='duolingo-dark'] [role="progressbar"] {
+[data-theme='playful-dark'] [role="progressbar"] {
   background: hsl(220 20% 25%);
 }
 
-[data-theme='duolingo'] [role="progressbar"] > div,
-[data-theme='duolingo-dark'] [role="progressbar"] > div {
+[data-theme='playful'] [role="progressbar"] > div,
+[data-theme='playful-dark'] [role="progressbar"] > div {
   background: linear-gradient(90deg, var(--duo-green) 0%, hsl(104 76% 50%) 100%);
   border-radius: 999px;
 }
 
-/* Duolingo badge/streak styling */
-[data-theme='duolingo'] .badge,
-[data-theme='duolingo-dark'] .badge {
+/* Playful badge/streak styling */
+[data-theme='playful'] .badge,
+[data-theme='playful-dark'] .badge {
   font-weight: 700;
   border-radius: 999px;
 }
 
-/* Rounded corners for Duolingo */
-[data-theme='duolingo'] .rounded-lg,
-[data-theme='duolingo'] .rounded-xl,
-[data-theme='duolingo-dark'] .rounded-lg,
-[data-theme='duolingo-dark'] .rounded-xl {
+/* Rounded corners for Playful */
+[data-theme='playful'] .rounded-lg,
+[data-theme='playful'] .rounded-xl,
+[data-theme='playful-dark'] .rounded-lg,
+[data-theme='playful-dark'] .rounded-xl {
   border-radius: 16px !important;
 }
 
-[data-theme='duolingo'] .rounded-md,
-[data-theme='duolingo-dark'] .rounded-md {
+[data-theme='playful'] .rounded-md,
+[data-theme='playful-dark'] .rounded-md {
   border-radius: 12px !important;
 }
 
-/* Duolingo font styling - friendly and bold */
-[data-theme='duolingo'],
-[data-theme='duolingo-dark'] {
+/* Playful font styling - friendly and bold */
+[data-theme='playful'],
+[data-theme='playful-dark'] {
   --font-sans: 'Nunito', 'DIN Round', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-[data-theme='duolingo'] h1,
-[data-theme='duolingo'] h2,
-[data-theme='duolingo'] h3,
-[data-theme='duolingo-dark'] h1,
-[data-theme='duolingo-dark'] h2,
-[data-theme='duolingo-dark'] h3 {
+[data-theme='playful'] h1,
+[data-theme='playful'] h2,
+[data-theme='playful'] h3,
+[data-theme='playful-dark'] h1,
+[data-theme='playful-dark'] h2,
+[data-theme='playful-dark'] h3 {
   font-weight: 800 !important;
 }
 
-/* Duolingo hover effects */
-[data-theme='duolingo'] .hover\:bg-primary:hover,
-[data-theme='duolingo-dark'] .hover\:bg-primary:hover {
+/* Playful hover effects */
+[data-theme='playful'] .hover\:bg-primary:hover,
+[data-theme='playful-dark'] .hover\:bg-primary:hover {
   background-color: hsl(104 76% 40%) !important;
 }
 
-/* Duolingo input styling */
-[data-theme='duolingo'] input,
-[data-theme='duolingo'] textarea,
-[data-theme='duolingo-dark'] input,
-[data-theme='duolingo-dark'] textarea {
+/* Playful input styling */
+[data-theme='playful'] input,
+[data-theme='playful'] textarea,
+[data-theme='playful-dark'] input,
+[data-theme='playful-dark'] textarea {
   border-radius: 12px !important;
   border-width: 2px !important;
 }
 
-[data-theme='duolingo'] input:focus,
-[data-theme='duolingo'] textarea:focus,
-[data-theme='duolingo-dark'] input:focus,
-[data-theme='duolingo-dark'] textarea:focus {
+[data-theme='playful'] input:focus,
+[data-theme='playful'] textarea:focus,
+[data-theme='playful-dark'] input:focus,
+[data-theme='playful-dark'] textarea:focus {
   border-color: var(--duo-green) !important;
   box-shadow: 0 0 0 3px hsla(104 76% 44% / 0.2) !important;
 }

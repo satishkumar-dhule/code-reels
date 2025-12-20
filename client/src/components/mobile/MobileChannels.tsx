@@ -1,5 +1,5 @@
 /**
- * LinkedIn-style Mobile Channels Browser
+ * Mobile Channels Browser
  * Card-based channel discovery with categories
  */
 
@@ -47,7 +47,7 @@ const iconMap: Record<string, React.ReactNode> = {
   'gauge': <Gauge className="w-5 h-5" />
 };
 
-export function LinkedInChannels() {
+export function MobileChannels() {
   const [, setLocation] = useLocation();
   const { isSubscribed, toggleSubscription, preferences } = useUserPreferences();
   const { stats } = useChannelStats();

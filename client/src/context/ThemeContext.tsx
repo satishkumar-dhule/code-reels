@@ -2,13 +2,13 @@ import { createContext, useContext, useEffect, useState, useRef, useCallback } f
 
 // All available themes
 export const themes = [
-  // Google (Default)
-  { id: "google", name: "Google Light", category: "modern", description: "Clean Google-style light" },
-  { id: "google-dark", name: "Google Dark", category: "modern", description: "Clean Google-style dark" },
+  // Clean (Default)
+  { id: "clean", name: "Clean Light", category: "modern", description: "Clean minimal light" },
+  { id: "clean-dark", name: "Clean Dark", category: "modern", description: "Clean minimal dark" },
   
-  // Duolingo
-  { id: "duolingo", name: "Duolingo", category: "modern", description: "Playful learning green" },
-  { id: "duolingo-dark", name: "Duolingo Dark", category: "modern", description: "Dark owl mode" },
+  // Playful
+  { id: "playful", name: "Playful", category: "modern", description: "Playful learning green" },
+  { id: "playful-dark", name: "Playful Dark", category: "modern", description: "Dark playful mode" },
   
   // Classic
   { id: "unix", name: "Unix", category: "classic", description: "Classic terminal green" },
@@ -87,8 +87,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem("theme") as Theme;
-    // Default to Google Dark for new users
-    return themes.some(t => t.id === saved) ? saved : "google-dark";
+    // Default to Clean Dark for new users
+    return themes.some(t => t.id === saved) ? saved : "clean-dark";
   });
   
   // Track if user has manually changed theme (disables auto-rotate)

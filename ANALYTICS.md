@@ -193,11 +193,11 @@ import { trackAnswerRevealed } from '@/hooks/use-analytics';
 trackAnswerRevealed('q-123', 45); // 45 seconds to reveal
 ```
 
-### Track LinkedIn Share
+### Track Social Share
 ```tsx
-import { trackLinkedInShare } from '@/hooks/use-analytics';
+import { trackSocialShare } from '@/hooks/use-analytics';
 
-trackLinkedInShare('q-123', 'system-design');
+trackSocialShare('q-123', 'system-design');
 ```
 
 ### Track GitHub Click

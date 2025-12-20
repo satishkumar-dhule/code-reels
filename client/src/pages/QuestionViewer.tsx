@@ -1,5 +1,5 @@
 /**
- * Redesigned Question Viewer - Google-style clean interface
+ * Question Viewer - Clean interface
  * Split view with question on left, answer on right
  * Mobile: Swipeable cards
  */
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
-export default function ReelsGoogle() {
+export default function QuestionViewer() {
   const [, setLocation] = useLocation();
   const [, params] = useRoute('/channel/:id/:index?');
   const channelId = params?.id;

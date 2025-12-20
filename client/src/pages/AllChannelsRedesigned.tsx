@@ -1,5 +1,5 @@
 /**
- * Redesigned All Channels Page - LinkedIn-style mobile, Google-style desktop
+ * Redesigned All Channels Page
  * Browse and subscribe to channels with category filtering
  */
 
@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
-import { LinkedInChannels } from '../components/mobile/LinkedInChannels';
+import { MobileChannels } from '../components/mobile/MobileChannels';
 import { allChannelsConfig, categories, ChannelConfig } from '../lib/channels-config';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useChannelStats } from '../hooks/use-stats';
@@ -77,7 +77,7 @@ export default function AllChannelsRedesigned() {
     channels: filteredChannels.filter(c => c.category === cat.id)
   })).filter(group => group.channels.length > 0);
 
-  // Mobile: LinkedIn-style channels
+  // Mobile: Card-based channels
   if (isMobile) {
     return (
       <>
@@ -87,7 +87,7 @@ export default function AllChannelsRedesigned() {
           canonical="https://reel-interview.github.io/channels"
         />
         <AppLayout title="Explore" fullWidth>
-          <LinkedInChannels />
+          <MobileChannels />
         </AppLayout>
       </>
     );

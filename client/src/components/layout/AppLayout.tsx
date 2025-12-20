@@ -1,13 +1,13 @@
 /**
  * Mobile-First App Layout
- * LinkedIn-style bottom nav on mobile, sidebar on desktop
+ * Bottom nav on mobile, sidebar on desktop
  */
 
 import { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
-import { LinkedInMobileNav } from './LinkedInMobileNav';
-import { LinkedInMobileHeader } from './LinkedInMobileHeader';
+import { MobileNav } from './MobileNav';
+import { MobileHeader } from './MobileHeader';
 import { UnifiedSearch } from '../UnifiedSearch';
 
 interface AppLayoutProps {
@@ -61,7 +61,7 @@ export function AppLayout({
       </div>
 
       {/* Mobile Header - visible only on mobile */}
-      <LinkedInMobileHeader 
+      <MobileHeader 
         title={title}
         showBack={showBackOnMobile}
         onSearchClick={() => setSearchOpen(true)}
@@ -88,7 +88,7 @@ export function AppLayout({
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <LinkedInMobileNav onCreateClick={() => setSearchOpen(true)} />
+      <MobileNav onCreateClick={() => setSearchOpen(true)} />
 
       {/* Search Modal */}
       <UnifiedSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

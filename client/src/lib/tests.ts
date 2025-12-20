@@ -199,8 +199,8 @@ export function generateShareableBadge(
   return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
 }
 
-// Generate LinkedIn share URL
-export function generateLinkedInShare(
+// Generate social share URL
+export function generateSocialShare(
   channelName: string,
   score: number,
   passed: boolean

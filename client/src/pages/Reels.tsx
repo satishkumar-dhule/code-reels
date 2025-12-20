@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatTag } from '../lib/utils';
 import { Mermaid } from '../components/Mermaid';
 import { SEOHead } from '../components/SEOHead';
-import { trackQuestionView, trackAnswerRevealed, trackLinkedInShare, trackLinkedInDownload, trackGitHubClick, trackTimerUsage } from '../hooks/use-analytics';
+import { trackQuestionView, trackAnswerRevealed, trackSocialShare, trackSocialDownload, trackGitHubClick, trackTimerUsage } from '../hooks/use-analytics';
 import { ArrowLeft, ArrowRight, Share2, Terminal, ChevronRight, Hash, ChevronDown, Check, Timer, List, Flag, Bookmark, Grid3X3, LayoutList, Zap, Target, Flame, Star, AlertCircle } from 'lucide-react';
 import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useToast } from '@/hooks/use-toast';

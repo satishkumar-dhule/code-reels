@@ -1,5 +1,5 @@
 /**
- * Redesigned Stats Page - Google-style clean interface
+ * Redesigned Stats Page - Clean interface
  * Dashboard with progress cards, activity heatmap, and channel breakdown
  */
 

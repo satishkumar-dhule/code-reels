@@ -1,5 +1,5 @@
 /**
- * LinkedIn-style Mobile Feed
+ * Mobile Feed
  * Card-based feed with stories, posts, and engagement
  */
 
@@ -46,7 +46,7 @@ const iconMap: Record<string, React.ReactNode> = {
   'gauge': <Gauge className="w-5 h-5" />
 };
 
-export function LinkedInFeed() {
+export function MobileFeed() {
   const [, setLocation] = useLocation();
   const { stats: channelStats } = useChannelStats();
   const { getSubscribedChannels } = useUserPreferences();
@@ -70,7 +70,7 @@ export function LinkedInFeed() {
 
   return (
     <div className="pb-20">
-      {/* Stories/Quick Access - LinkedIn style horizontal scroll */}
+      {/* Stories/Quick Access - horizontal scroll */}
       <StoriesSection 
         channels={subscribedChannels} 
         onChannelClick={(id) => setLocation(`/channel/${id}`)}
@@ -112,7 +112,7 @@ export function LinkedInFeed() {
   );
 }
 
-// Stories-style horizontal scroll (like LinkedIn's "Catch up on stories")
+// Stories-style horizontal scroll
 function StoriesSection({ 
   channels, 
   onChannelClick,
@@ -182,7 +182,7 @@ function StoryItem({ channel, onClick }: { channel: any; onClick: () => void }) 
   );
 }
 
-// Stats summary card (LinkedIn style)
+// Stats summary card
 function StatsCard({ 
   totalQuestions, 
   streak, 
