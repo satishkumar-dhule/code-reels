@@ -14,6 +14,58 @@ import type { Question } from '../lib/data';
 import { GiscusComments } from './GiscusComments';
 import { formatTag } from '../lib/utils';
 
+/**
+ * Preprocess markdown text to fix common formatting issues
+ * - Converts inline bullet points (•) to proper markdown lists
+ * - Fixes numbered lists that are inline
+ * - Ensures proper line breaks for list items
+ */
+function preprocessMarkdown(text: string): string {
+  if (!text) return '';
+  
+  let processed = text;
+  
+  // Fix inline bullet points: "• Item 1 • Item 2" -> proper list
+  // First, handle cases where bullets are at the start of lines but not formatted as lists
+  processed = processed.replace(/^[•·]\s*/gm, '- ');
+  
+  // Handle inline bullets (• followed by text, then another •)
+  // Split by bullet and rejoin as list items
+  if (processed.includes('•') || processed.includes('·')) {
+    // Check if bullets are inline (not at start of lines)
+    const lines = processed.split('\n');
+    const processedLines = lines.map(line => {
+      // If line contains multiple bullets inline, convert to list
+      const bulletCount = (line.match(/[•·]/g) || []).length;
+      if (bulletCount > 1 || (bulletCount === 1 && !line.trim().startsWith('•') && !line.trim().startsWith('·'))) {
+        // Split by bullet and create list items
+        const parts = line.split(/[•·]/).map(p => p.trim()).filter(p => p);
+        if (parts.length > 1) {
+          return parts.map(p => `- ${p}`).join('\n');
+        }
+      }
+      // Single bullet at start - convert to list item
+      return line.replace(/^[•·]\s*/, '- ');
+    });
+    processed = processedLines.join('\n');
+  }
+  
+  // Fix inline numbered lists: "1. Item 2. Item" -> proper list
+  // Look for patterns like "1. text 2. text" or "1) text 2) text"
+  processed = processed.replace(/(\d+[.)]\s+[^0-9]+?)(?=\s+\d+[.)])/g, '$1\n');
+  
+  // Ensure numbered items at start of content are on their own lines
+  processed = processed.replace(/(?<!\n)(\d+[.)]\s+)/g, '\n$1');
+  
+  // Clean up any double newlines that might have been created
+  processed = processed.replace(/\n{3,}/g, '\n\n');
+  
+  // Trim leading newline if we added one at the start
+  processed = processed.replace(/^\n+/, '');
+  
+  return processed;
+}
+
 // Check if mermaid diagram content is valid (non-empty, has valid structure, and is not trivial)
 function isValidMermaidDiagram(diagram: string | undefined | null): boolean {
   if (!diagram || typeof diagram !== 'string') return false;
@@ -209,6 +261,9 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
   }, []);
 
   const renderMarkdown = (text: string) => {
+    // Preprocess the text to fix formatting issues
+    const processedText = preprocessMarkdown(text);
+    
     return (
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
@@ -286,19 +341,26 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             return <em className="italic text-primary/90">{children}</em>;
           },
           ul({ children }) {
-            return <ul className="list-none space-y-1 sm:space-y-2 mb-2 sm:mb-4 ml-2 sm:ml-4 clear-both">{children}</ul>;
+            return <ul className="list-none space-y-1.5 sm:space-y-2.5 mb-3 sm:mb-5 ml-1 sm:ml-2 clear-both">{children}</ul>;
           },
           ol({ children }) {
-            return <ol className="list-none space-y-1 sm:space-y-2 mb-2 sm:mb-4 ml-2 sm:ml-4 counter-reset-list clear-both">{children}</ol>;
+            return <ol className="list-none space-y-1.5 sm:space-y-2.5 mb-3 sm:mb-5 ml-1 sm:ml-2 clear-both [counter-reset:list-counter]">{children}</ol>;
           },
-          li({ children, node }) {
-            const isOrdered = node?.tagName === 'ol';
+          li({ children, node, ...props }) {
+            // Check parent to determine if ordered or unordered
+            const parent = (node as any)?.parent;
+            const isOrdered = parent?.tagName === 'ol';
+            
             return (
-              <li className="flex gap-1.5 sm:gap-3 text-foreground/80 clear-both">
-                <span className="text-primary shrink-0 mt-0.5 text-[10px] sm:text-sm">
-                  {isOrdered ? '→' : '•'}
+              <li className="flex gap-2 sm:gap-3 text-foreground/85 clear-both items-start [counter-increment:list-counter]">
+                <span className={`shrink-0 mt-0.5 sm:mt-1 ${isOrdered ? 'text-primary font-semibold text-[10px] sm:text-xs min-w-[1.25rem]' : 'text-primary text-sm sm:text-base'}`}>
+                  {isOrdered ? (
+                    <span className="before:content-[counter(list-counter)'.']" />
+                  ) : (
+                    '•'
+                  )}
                 </span>
-                <span className="flex-1 break-words">{children}</span>
+                <span className="flex-1 break-words leading-relaxed">{children}</span>
               </li>
             );
           },
@@ -358,7 +420,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
           },
         }}
       >
-        {text}
+        {processedText}
       </ReactMarkdown>
     );
   };
