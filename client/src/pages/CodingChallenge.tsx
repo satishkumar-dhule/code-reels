@@ -100,6 +100,24 @@ export default function CodingChallenge() {
   // Mobile collapsible states
   const [isProblemCollapsed, setIsProblemCollapsed] = useState(false);
   const [isCodeCollapsed, setIsCodeCollapsed] = useState(false);
+  
+  // Reset collapse states when switching to desktop view
+  useEffect(() => {
+    const handleResize = () => {
+      // lg breakpoint is 1024px
+      if (window.innerWidth >= 1024) {
+        setIsProblemCollapsed(false);
+        setIsCodeCollapsed(false);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    // Check on mount too
+    handleResize();
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   const stats = getCodingStats();
 
   // Refresh solved IDs when returning to list or after solving

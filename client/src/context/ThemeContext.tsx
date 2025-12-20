@@ -6,6 +6,10 @@ export const themes = [
   { id: "google", name: "Google Light", category: "modern", description: "Clean Google-style light" },
   { id: "google-dark", name: "Google Dark", category: "modern", description: "Clean Google-style dark" },
   
+  // Duolingo
+  { id: "duolingo", name: "Duolingo", category: "modern", description: "Playful learning green" },
+  { id: "duolingo-dark", name: "Duolingo Dark", category: "modern", description: "Dark owl mode" },
+  
   // Classic
   { id: "unix", name: "Unix", category: "classic", description: "Classic terminal green" },
   { id: "light", name: "Light", category: "classic", description: "Clean light mode" },

@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -322,97 +323,101 @@ export default function Badges() {
         </div>
       </AppLayout>
 
-      {/* Badge Detail Modal */}
-      <AnimatePresence>
-        {selectedBadge && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setSelectedBadge(null)}
-          >
+      {/* Badge Detail Modal - Using Portal to ensure proper centering */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedBadge && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card border border-border rounded-lg p-6 max-w-sm w-full"
-              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+              onClick={() => setSelectedBadge(null)}
             >
-              <button
-                onClick={() => setSelectedBadge(null)}
-                className="absolute top-3 right-3 p-1 hover:bg-muted rounded"
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative bg-card border border-border rounded-lg p-6 max-w-sm w-full max-h-[90vh] overflow-y-auto"
+                onClick={e => e.stopPropagation()}
               >
-                <X className="w-4 h-4" />
-              </button>
-              
-              <div className="flex flex-col items-center text-center">
-                <BadgeRing progress={selectedBadge} size="lg" showProgress={false} />
+                <button
+                  onClick={() => setSelectedBadge(null)}
+                  className="absolute top-3 right-3 p-1 hover:bg-muted rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
                 
-                <h3 className="text-lg font-bold mt-4">{selectedBadge.badge.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {selectedBadge.badge.description}
-                </p>
-                
-                <div className="flex items-center gap-2 mt-3">
-                  <span
-                    className="px-2 py-0.5 rounded text-[10px] uppercase font-bold"
-                    style={{ 
-                      backgroundColor: `${getTierColor(selectedBadge.badge.tier)}20`,
-                      color: getTierColor(selectedBadge.badge.tier)
-                    }}
-                  >
-                    {selectedBadge.badge.tier}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground uppercase">
-                    {getCategoryLabel(selectedBadge.badge.category)}
-                  </span>
-                </div>
-                
-                {/* Progress */}
-                <div className="w-full mt-6">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Progress</span>
-                    <span className="font-bold">
-                      {selectedBadge.current}/{selectedBadge.badge.requirement} {selectedBadge.badge.unit}
+                <div className="flex flex-col items-center text-center">
+                  <BadgeRing progress={selectedBadge} size="lg" showProgress={false} />
+                  
+                  <h3 className="text-lg font-bold mt-4">{selectedBadge.badge.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {selectedBadge.badge.description}
+                  </p>
+                  
+                  <div className="flex items-center gap-2 mt-3">
+                    <span
+                      className="px-2 py-0.5 rounded text-[10px] uppercase font-bold"
+                      style={{ 
+                        backgroundColor: `${getTierColor(selectedBadge.badge.tier)}20`,
+                        color: getTierColor(selectedBadge.badge.tier)
+                      }}
+                    >
+                      {selectedBadge.badge.tier}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground uppercase">
+                      {getCategoryLabel(selectedBadge.badge.category)}
                     </span>
                   </div>
-                  <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: getTierColor(selectedBadge.badge.tier) }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${selectedBadge.progress}%` }}
-                      transition={{ duration: 0.5 }}
-                    />
+                  
+                  {/* Progress */}
+                  <div className="w-full mt-6">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Progress</span>
+                      <span className="font-bold">
+                        {selectedBadge.current}/{selectedBadge.badge.requirement} {selectedBadge.badge.unit}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: getTierColor(selectedBadge.badge.tier) }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${selectedBadge.progress}%` }}
+                        transition={{ duration: 0.5 }}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Status */}
+                  <div className="mt-4 flex items-center gap-2">
+                    {selectedBadge.isUnlocked ? (
+                      <>
+                        <Check className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-green-500">
+                          Unlocked {selectedBadge.unlockedAt 
+                            ? new Date(selectedBadge.unlockedAt).toLocaleDateString() 
+                            : 'recently'}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {selectedBadge.badge.requirement - selectedBadge.current} {selectedBadge.badge.unit} to go
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
-                
-                {/* Status */}
-                <div className="mt-4 flex items-center gap-2">
-                  {selectedBadge.isUnlocked ? (
-                    <>
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-green-500">
-                        Unlocked {selectedBadge.unlockedAt 
-                          ? new Date(selectedBadge.unlockedAt).toLocaleDateString() 
-                          : 'recently'}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {selectedBadge.badge.requirement - selectedBadge.current} {selectedBadge.badge.unit} to go
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

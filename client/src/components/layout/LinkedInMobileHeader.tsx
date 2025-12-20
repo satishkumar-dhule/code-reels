@@ -35,6 +35,8 @@ export function LinkedInMobileHeader({
   const themeOptions: { id: Theme; name: string; icon: typeof Sun }[] = [
     { id: 'google', name: 'Light', icon: Sun },
     { id: 'google-dark', name: 'Dark', icon: Moon },
+    { id: 'duolingo', name: 'Duolingo', icon: Palette },
+    { id: 'duolingo-dark', name: 'Duolingo Dark', icon: Palette },
     { id: 'dracula', name: 'Dracula', icon: Palette },
     { id: 'nord', name: 'Nord', icon: Palette },
   ];

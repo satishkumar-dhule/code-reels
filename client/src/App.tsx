@@ -32,6 +32,7 @@ import { usePageViewTracking, useSessionTracking, useInteractionTracking } from 
 import { AnimatePresence } from "framer-motion";
 import { preloadQuestions } from "./lib/questions-loader";
 import PixelMascot from "./components/PixelMascot";
+import DuolingoMascots from "./components/DuolingoMascots";
 
 // New UI is now the default for all users
 const useNewUI = () => {
@@ -115,6 +116,7 @@ function AppContent() {
     <>
       <Router />
       <PixelMascot />
+      <DuolingoMascots />
     </>
   );
 }

@@ -162,6 +162,179 @@
   --radius: 8px;
 }
 
+/* ===== DUOLINGO THEMES ===== */
+
+/* Duolingo Light - Playful learning green */
+[data-theme='duolingo'] {
+  --background: hsl(0 0% 98%);
+  --foreground: hsl(200 20% 20%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(200 20% 20%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(200 20% 20%);
+  --primary: hsl(104 76% 44%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(200 20% 95%);
+  --secondary-foreground: hsl(200 20% 20%);
+  --muted: hsl(200 15% 93%);
+  --muted-foreground: hsl(200 10% 50%);
+  --accent: hsl(45 100% 51%);
+  --accent-foreground: hsl(200 20% 20%);
+  --destructive: hsl(0 72% 51%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(200 20% 88%);
+  --input: hsl(200 20% 88%);
+  --ring: hsl(104 76% 44%);
+  --radius: 16px;
+  /* Duolingo custom colors */
+  --duo-green: hsl(104 76% 44%);
+  --duo-green-dark: hsl(104 76% 36%);
+  --duo-blue: hsl(200 100% 50%);
+  --duo-purple: hsl(270 70% 55%);
+  --duo-orange: hsl(25 100% 55%);
+  --duo-red: hsl(0 72% 51%);
+  --duo-yellow: hsl(45 100% 51%);
+  --duo-feather: hsl(200 20% 20%);
+}
+
+/* Duolingo Dark - Dark owl mode */
+[data-theme='duolingo-dark'] {
+  --background: hsl(220 25% 12%);
+  --foreground: hsl(0 0% 95%);
+  --card: hsl(220 25% 16%);
+  --card-foreground: hsl(0 0% 95%);
+  --popover: hsl(220 25% 16%);
+  --popover-foreground: hsl(0 0% 95%);
+  --primary: hsl(104 76% 48%);
+  --primary-foreground: hsl(220 25% 12%);
+  --secondary: hsl(220 20% 22%);
+  --secondary-foreground: hsl(0 0% 95%);
+  --muted: hsl(220 20% 20%);
+  --muted-foreground: hsl(220 10% 60%);
+  --accent: hsl(45 100% 51%);
+  --accent-foreground: hsl(220 25% 12%);
+  --destructive: hsl(0 72% 55%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(220 20% 25%);
+  --input: hsl(220 20% 25%);
+  --ring: hsl(104 76% 48%);
+  --radius: 16px;
+  /* Duolingo custom colors */
+  --duo-green: hsl(104 76% 48%);
+  --duo-green-dark: hsl(104 76% 40%);
+  --duo-blue: hsl(200 100% 55%);
+  --duo-purple: hsl(270 70% 60%);
+  --duo-orange: hsl(25 100% 58%);
+  --duo-red: hsl(0 72% 55%);
+  --duo-yellow: hsl(45 100% 55%);
+  --duo-feather: hsl(0 0% 95%);
+}
+
+/* Duolingo-specific styling */
+[data-theme='duolingo'] .bg-card,
+[data-theme='duolingo-dark'] .bg-card {
+  box-shadow: none;
+  border: 2px solid hsl(200 20% 88%);
+}
+
+[data-theme='duolingo-dark'] .bg-card {
+  box-shadow: none;
+  border: 2px solid hsl(220 20% 25%);
+}
+
+/* Duolingo chunky button style */
+[data-theme='duolingo'] button.bg-primary,
+[data-theme='duolingo-dark'] button.bg-primary {
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 0 0 var(--duo-green-dark);
+  transition: all 0.1s ease;
+}
+
+[data-theme='duolingo'] button.bg-primary:active,
+[data-theme='duolingo-dark'] button.bg-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 0 var(--duo-green-dark);
+}
+
+/* Duolingo progress bar styling */
+[data-theme='duolingo'] [role="progressbar"],
+[data-theme='duolingo-dark'] [role="progressbar"] {
+  background: hsl(200 15% 90%);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+[data-theme='duolingo-dark'] [role="progressbar"] {
+  background: hsl(220 20% 25%);
+}
+
+[data-theme='duolingo'] [role="progressbar"] > div,
+[data-theme='duolingo-dark'] [role="progressbar"] > div {
+  background: linear-gradient(90deg, var(--duo-green) 0%, hsl(104 76% 50%) 100%);
+  border-radius: 999px;
+}
+
+/* Duolingo badge/streak styling */
+[data-theme='duolingo'] .badge,
+[data-theme='duolingo-dark'] .badge {
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+/* Rounded corners for Duolingo */
+[data-theme='duolingo'] .rounded-lg,
+[data-theme='duolingo'] .rounded-xl,
+[data-theme='duolingo-dark'] .rounded-lg,
+[data-theme='duolingo-dark'] .rounded-xl {
+  border-radius: 16px !important;
+}
+
+[data-theme='duolingo'] .rounded-md,
+[data-theme='duolingo-dark'] .rounded-md {
+  border-radius: 12px !important;
+}
+
+/* Duolingo font styling - friendly and bold */
+[data-theme='duolingo'],
+[data-theme='duolingo-dark'] {
+  --font-sans: 'Nunito', 'DIN Round', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+[data-theme='duolingo'] h1,
+[data-theme='duolingo'] h2,
+[data-theme='duolingo'] h3,
+[data-theme='duolingo-dark'] h1,
+[data-theme='duolingo-dark'] h2,
+[data-theme='duolingo-dark'] h3 {
+  font-weight: 800 !important;
+}
+
+/* Duolingo hover effects */
+[data-theme='duolingo'] .hover\:bg-primary:hover,
+[data-theme='duolingo-dark'] .hover\:bg-primary:hover {
+  background-color: hsl(104 76% 40%) !important;
+}
+
+/* Duolingo input styling */
+[data-theme='duolingo'] input,
+[data-theme='duolingo'] textarea,
+[data-theme='duolingo-dark'] input,
+[data-theme='duolingo-dark'] textarea {
+  border-radius: 12px !important;
+  border-width: 2px !important;
+}
+
+[data-theme='duolingo'] input:focus,
+[data-theme='duolingo'] textarea:focus,
+[data-theme='duolingo-dark'] input:focus,
+[data-theme='duolingo-dark'] textarea:focus {
+  border-color: var(--duo-green) !important;
+  box-shadow: 0 0 0 3px hsla(104 76% 44% / 0.2) !important;
+}
+
 /* Legacy Unix theme for users who prefer it */
 [data-theme='unix'] {
   --background: hsl(0 0% 0%);

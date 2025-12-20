@@ -27,6 +27,8 @@ export function TopBar({ onMenuClick, onSearchClick, title, showBackButton }: To
   const themeOptions: { id: Theme; name: string; color: string }[] = [
     { id: 'google', name: 'Google Light', color: '#4285f4' },
     { id: 'google-dark', name: 'Google Dark', color: '#8ab4f8' },
+    { id: 'duolingo', name: 'Duolingo', color: '#58cc02' },
+    { id: 'duolingo-dark', name: 'Duolingo Dark', color: '#58cc02' },
     { id: 'light', name: 'Light', color: '#000000' },
     { id: 'unix', name: 'Unix', color: '#22c55e' },
     { id: 'dracula', name: 'Dracula', color: '#bd93f9' },
