@@ -137,6 +137,36 @@ function dispatch(action: Action) {
   })
 }
 
+// Notification storage helper - stores toasts as notifications
+function saveToNotifications(title: string, description?: string, variant?: string) {
+  try {
+    const STORAGE_KEY = 'app-notifications';
+    const MAX_NOTIFICATIONS = 50;
+    
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const notifications = stored ? JSON.parse(stored) : [];
+    
+    const type = variant === 'destructive' ? 'error' : 'info';
+    
+    const newNotification = {
+      id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: typeof title === 'string' ? title : 'Notification',
+      description: typeof description === 'string' ? description : undefined,
+      type,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+    
+    const updated = [newNotification, ...notifications].slice(0, MAX_NOTIFICATIONS);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    
+    // Dispatch custom event so NotificationsContext can update
+    window.dispatchEvent(new CustomEvent('notification-added'));
+  } catch (e) {
+    console.error('Failed to save notification:', e);
+  }
+}
+
 type Toast = Omit<ToasterToast, "id">
 
 function toast({ ...props }: Toast) {
@@ -160,6 +190,15 @@ function toast({ ...props }: Toast) {
       },
     },
   })
+
+  // Also save to notifications storage
+  if (props.title) {
+    saveToNotifications(
+      props.title as string, 
+      props.description as string | undefined,
+      props.variant
+    );
+  }
 
   return {
     id: id,

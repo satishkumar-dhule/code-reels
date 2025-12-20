@@ -24,6 +24,7 @@ import QuestionViewer from "@/pages/QuestionViewer";
 import StatsRedesigned from "@/pages/StatsRedesigned";
 import AllChannelsRedesigned from "@/pages/AllChannelsRedesigned";
 import Profile from "@/pages/Profile";
+import Notifications from "@/pages/Notifications";
 import { Onboarding } from "./components/Onboarding";
 import { MarvelIntro, useMarvelIntro } from "./components/MarvelIntro";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/bot-activity" component={BotActivity} />
       <Route path="/channels" component={Channels} />
       <Route path="/profile" component={Profile} />
+      <Route path="/notifications" component={Notifications} />
       <Route path="/test/mermaid" component={MermaidTest} />
       <Route path="/channel/:id" component={Reels} />
       <Route path="/channel/:id/:index" component={Reels} />

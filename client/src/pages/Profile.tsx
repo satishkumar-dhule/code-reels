@@ -3,17 +3,20 @@
  * User stats, achievements, and settings
  */
 
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useChannelStats } from '../hooks/use-stats';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useProgress, useGlobalStats } from '../hooks/use-progress';
+import { useTheme, themes, themeCategories } from '../context/ThemeContext';
 import { SEOHead } from '../components/SEOHead';
 import {
   Code, Trophy, Target, Flame, BookOpen, ChevronRight,
   Settings, Moon, Bell, Shield, HelpCircle, LogOut,
-  Award, Zap, Calendar, TrendingUp, Star
+  Award, Zap, Calendar, TrendingUp, Star, X, Check, Sun, Monitor
 } from 'lucide-react';
 
 export default function Profile() {
@@ -21,7 +24,9 @@ export default function Profile() {
   const { stats: channelStats } = useChannelStats();
   const { getSubscribedChannels } = useUserPreferences();
   const { stats: activityStats } = useGlobalStats();
+  const { theme, setTheme } = useTheme();
   const subscribedChannels = getSubscribedChannels();
+  const [showThemeModal, setShowThemeModal] = useState(false);
 
   // Calculate stats
   const totalQuestions = channelStats.reduce((sum, s) => sum + s.total, 0);
@@ -191,32 +196,128 @@ export default function Profile() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-card rounded-2xl border border-border overflow-hidden"
+            className="bg-card rounded-2xl border border-border overflow-hidden relative"
           >
             <div className="px-4 py-3 border-b border-border/50">
               <h3 className="text-sm font-semibold text-muted-foreground">Settings</h3>
             </div>
-            <MenuItem
-              icon={<Moon className="w-5 h-5" />}
-              label="Appearance"
-              sublabel="Theme settings"
-              onClick={() => {}}
-            />
-            <MenuItem
-              icon={<Bell className="w-5 h-5" />}
-              label="Notifications"
-              sublabel="Manage alerts"
-              onClick={() => {}}
-            />
-            <MenuItem
-              icon={<HelpCircle className="w-5 h-5" />}
-              label="About"
-              sublabel="App information"
-              onClick={() => setLocation('/about')}
-            />
+            <div className="divide-y divide-border/50">
+              <button
+                type="button"
+                onClick={() => setShowThemeModal(true)}
+                className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors active:bg-muted/70 cursor-pointer touch-manipulation"
+              >
+                <div className="flex items-center gap-3 pointer-events-none">
+                  <span className="text-muted-foreground"><Moon className="w-5 h-5" /></span>
+                  <div className="text-left">
+                    <h4 className="font-medium text-sm">Appearance</h4>
+                    <p className="text-xs text-muted-foreground">{themes.find(t => t.id === theme)?.name || 'Theme settings'}</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground pointer-events-none" />
+              </button>
+              <MenuItem
+                icon={<Bell className="w-5 h-5" />}
+                label="Notifications"
+                sublabel="View all alerts"
+                onClick={() => setLocation('/notifications')}
+              />
+              <MenuItem
+                icon={<HelpCircle className="w-5 h-5" />}
+                label="About"
+                sublabel="App information"
+                onClick={() => setLocation('/about')}
+              />
+            </div>
           </motion.section>
         </div>
       </AppLayout>
+
+      {/* Theme Picker Modal - Using Portal */}
+      {createPortal(
+        <AnimatePresence>
+          {showThemeModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center"
+              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+              onClick={() => setShowThemeModal(false)}
+            >
+              <motion.div
+                initial={{ y: '100%', opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: '100%', opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="bg-card border border-border rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md max-h-[80vh] overflow-hidden"
+                onClick={e => e.stopPropagation()}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b border-border">
+                  <h2 className="text-lg font-bold">Appearance</h2>
+                  <button
+                    onClick={() => setShowThemeModal(false)}
+                    className="p-2 hover:bg-muted rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Theme List */}
+                <div className="overflow-y-auto max-h-[60vh] p-2">
+                  {themeCategories.map(category => {
+                    const categoryThemes = themes.filter(t => t.category === category.id);
+                    if (categoryThemes.length === 0) return null;
+                    
+                    return (
+                      <div key={category.id} className="mb-4">
+                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-3 py-2">
+                          {category.name}
+                        </h3>
+                        <div className="space-y-1">
+                          {categoryThemes.map(t => (
+                            <button
+                              key={t.id}
+                              onClick={() => {
+                                setTheme(t.id);
+                                setShowThemeModal(false);
+                              }}
+                              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
+                                theme === t.id 
+                                  ? 'bg-primary/10 text-primary' 
+                                  : 'hover:bg-muted/50'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                  t.id.includes('dark') || ['matrix', 'blade-runner', 'tron', 'cyberpunk', 'fallout', 'witcher', 'dracula', 'nord', 'monokai', 'gruvbox', 'catppuccin', 'synthwave', 'hacker', 'midnight', 'unix', 'graphite', 'visionos', 'ios-dark', 'macos-dark', 'dune', 'neon'].includes(t.id)
+                                    ? 'bg-gray-800 text-white'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {t.id.includes('dark') ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                                </div>
+                                <div className="text-left">
+                                  <div className="font-medium text-sm">{t.name}</div>
+                                  <div className="text-xs text-muted-foreground">{t.description}</div>
+                                </div>
+                              </div>
+                              {theme === t.id && (
+                                <Check className="w-5 h-5 text-primary" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
@@ -258,17 +359,18 @@ function MenuItem({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-b-0"
+      className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-b-0 active:bg-muted/70 cursor-pointer touch-manipulation"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pointer-events-none">
         <span className="text-muted-foreground">{icon}</span>
         <div className="text-left">
           <h4 className="font-medium text-sm">{label}</h4>
           <p className="text-xs text-muted-foreground">{sublabel}</p>
         </div>
       </div>
-      <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      <ChevronRight className="w-5 h-5 text-muted-foreground pointer-events-none" />
     </button>
   );
 }
