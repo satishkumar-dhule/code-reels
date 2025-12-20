@@ -91,6 +91,7 @@ export function LinkedInFeed() {
           channels={subscribedChannels}
           questionCounts={questionCounts}
           onChannelClick={(id) => setLocation(`/channel/${id}`)}
+          onSeeAll={() => setLocation('/channels')}
         />
       )}
 
@@ -237,19 +238,24 @@ function StatItem({
 function ContinueLearningSection({ 
   channels, 
   questionCounts,
-  onChannelClick 
+  onChannelClick,
+  onSeeAll
 }: { 
   channels: any[];
   questionCounts: Record<string, number>;
   onChannelClick: (id: string) => void;
+  onSeeAll: () => void;
 }) {
   return (
     <section className="mx-4 my-3">
       <div className="bg-card rounded-xl border border-border overflow-hidden">
-        <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
+        <button 
+          onClick={onSeeAll}
+          className="w-full px-4 py-3 border-b border-border/50 flex items-center justify-between hover:bg-muted/50 transition-colors"
+        >
           <h3 className="font-semibold text-sm">Continue Learning</h3>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
-        </div>
+        </button>
         
         <div className="divide-y divide-border/50">
           {channels.slice(0, 3).map((channel) => (

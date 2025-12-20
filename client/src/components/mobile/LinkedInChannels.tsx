@@ -217,6 +217,9 @@ function CategorySection({
   onToggle: (id: string) => void;
   onNavigate: (id: string) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const displayedChannels = expanded ? channels : channels.slice(0, 3);
+
   return (
     <section>
       <div className="flex items-center justify-between px-4 mb-3">
@@ -230,7 +233,7 @@ function CategorySection({
       </div>
       
       <div className="px-4 space-y-2">
-        {channels.slice(0, 3).map((channel, index) => (
+        {displayedChannels.map((channel, index) => (
           <ChannelListCard
             key={channel.id}
             channel={channel}
@@ -243,8 +246,11 @@ function CategorySection({
           />
         ))}
         {channels.length > 3 && (
-          <button className="w-full py-2 text-sm text-primary font-medium">
-            Show {channels.length - 3} more
+          <button 
+            onClick={() => setExpanded(!expanded)}
+            className="w-full py-2 text-sm text-primary font-medium hover:bg-primary/5 rounded-lg transition-colors"
+          >
+            {expanded ? 'Show less' : `Show ${channels.length - 3} more`}
           </button>
         )}
       </div>
