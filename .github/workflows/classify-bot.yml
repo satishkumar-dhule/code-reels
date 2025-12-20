@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       batch_size:
-        description: 'Number of questions to process (default: 5)'
+        description: 'Number of questions to process (default: 100)'
         required: false
         default: '100'
         type: string
@@ -39,7 +39,7 @@ jobs:
         id: classify-bot
         run: node script/classify-bot.js
         env:
-          BATCH_SIZE: ${{ inputs.batch_size || '5' }}
+          BATCH_SIZE: ${{ inputs.batch_size || '100' }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           CI: 'true'

@@ -10,7 +10,7 @@ import {
   getWorkQueueStats
 } from './utils.js';
 
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
+const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
 const RATE_LIMIT_MS = 2000;
 
 // Channel structure for classification

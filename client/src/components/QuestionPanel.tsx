@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Hash, Zap, Target, Flame, Bookmark, Clock, Check, RefreshCw } from 'lucide-react';
+import { Hash, Zap, Target, Flame, Bookmark, Clock, Check, RefreshCw, TrendingUp } from 'lucide-react';
 import type { Question } from '../lib/data';
 import { formatTag } from '../lib/utils';
 
@@ -91,20 +91,20 @@ export function QuestionPanel({
       {/* Header badges - Compact on mobile */}
       <div className="absolute top-1.5 sm:top-4 left-2 sm:left-6 md:left-10 lg:left-16 right-2 sm:right-4 flex flex-wrap items-center gap-1 sm:gap-2">
         {/* Question ID - Hidden on mobile */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 bg-muted/50 border border-border rounded">
+        <div className="hidden sm:flex items-center gap-1.5 h-6 px-2 bg-muted/50 border border-border rounded">
           <Hash className="w-3 h-3 text-primary" />
           <span className="text-[10px] font-mono text-muted-foreground">{question.id}</span>
         </div>
 
         {/* Progress - Compact on mobile */}
-        <div className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-muted/50 border border-border rounded">
+        <div className="flex items-center h-5 sm:h-6 px-1.5 sm:px-2 bg-muted/50 border border-border rounded">
           <span className="text-[9px] sm:text-[10px] font-mono text-muted-foreground">
             {questionNumber}/{totalQuestions}
           </span>
         </div>
 
         {/* Difficulty - Icon only on mobile */}
-        <div className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 sm:py-1 ${difficultyConfig.bg} border ${difficultyConfig.border} rounded`}>
+        <div className={`flex items-center gap-1 sm:gap-1.5 h-5 sm:h-6 px-1.5 sm:px-2 ${difficultyConfig.bg} border ${difficultyConfig.border} rounded`}>
           <DifficultyIcon className={`w-3 h-3 ${difficultyConfig.color}`} />
           <span className={`hidden sm:inline text-[10px] font-bold uppercase tracking-wider ${difficultyConfig.color}`}>
             {difficultyConfig.label}
@@ -112,15 +112,43 @@ export function QuestionPanel({
         </div>
 
         {/* SubChannel - Hidden on mobile */}
-        <div className="hidden sm:block px-2 py-1 bg-muted/50 border border-border rounded">
+        <div className="hidden sm:flex items-center h-6 px-2 bg-muted/50 border border-border rounded">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
             {question.subChannel}
           </span>
         </div>
 
+        {/* Relevance Score - Hidden on mobile */}
+        {question.relevanceScore !== undefined && question.relevanceScore !== null && (
+          <div className={`hidden sm:flex items-center gap-1.5 h-6 px-2 rounded border ${
+            question.relevanceScore >= 80 
+              ? 'bg-green-500/10 border-green-500/30' 
+              : question.relevanceScore >= 60 
+              ? 'bg-yellow-500/10 border-yellow-500/30'
+              : 'bg-muted/50 border-border'
+          }`}>
+            <TrendingUp className={`w-3 h-3 ${
+              question.relevanceScore >= 80 
+                ? 'text-green-400' 
+                : question.relevanceScore >= 60 
+                ? 'text-yellow-400'
+                : 'text-muted-foreground'
+            }`} />
+            <span className={`text-[10px] font-bold ${
+              question.relevanceScore >= 80 
+                ? 'text-green-400' 
+                : question.relevanceScore >= 60 
+                ? 'text-yellow-400'
+                : 'text-muted-foreground'
+            }`}>
+              {question.relevanceScore}%
+            </span>
+          </div>
+        )}
+
         {/* Last Updated - Hidden on mobile */}
         {question.lastUpdated && (
-          <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 bg-muted/50 border border-border rounded">
+          <div className="hidden sm:flex items-center gap-1.5 h-6 px-2 bg-muted/50 border border-border rounded">
             <RefreshCw className="w-3 h-3 text-muted-foreground" />
             <span className="text-[10px] font-mono text-muted-foreground">
               {formatTimeAgo(question.lastUpdated)}
@@ -134,7 +162,7 @@ export function QuestionPanel({
         {/* Bookmark - Smaller on mobile */}
         <button
           onClick={onToggleMark}
-          className={`p-1 sm:p-1.5 rounded transition-all ${
+          className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded transition-all ${
             isMarked
               ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
               : 'bg-muted/50 text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10 border border-border'

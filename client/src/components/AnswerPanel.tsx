@@ -14,15 +14,56 @@ import type { Question } from '../lib/data';
 import { GiscusComments } from './GiscusComments';
 import { formatTag } from '../lib/utils';
 
-// Check if mermaid diagram content is valid (non-empty and has valid structure)
+// Check if mermaid diagram content is valid (non-empty, has valid structure, and is not trivial)
 function isValidMermaidDiagram(diagram: string | undefined | null): boolean {
   if (!diagram || typeof diagram !== 'string') return false;
   const trimmed = diagram.trim();
   if (!trimmed || trimmed.length < 10) return false;
+  
   // Check for common mermaid diagram types
   const validStarts = ['graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 'stateDiagram', 'erDiagram', 'journey', 'gantt', 'pie', 'gitGraph', 'mindmap', 'timeline', 'quadrantChart', 'sankey', 'xychart', 'block'];
   const firstLine = trimmed.split('\n')[0].toLowerCase().trim();
-  return validStarts.some(start => firstLine.startsWith(start.toLowerCase()));
+  const hasValidStart = validStarts.some(start => firstLine.startsWith(start.toLowerCase()));
+  if (!hasValidStart) return false;
+  
+  // Filter out trivial/placeholder diagrams
+  const lines = trimmed.split('\n').filter(line => {
+    const l = line.trim().toLowerCase();
+    // Skip empty lines, comments, and diagram type declarations
+    return l && !l.startsWith('%%') && !validStarts.some(s => l.startsWith(s.toLowerCase()));
+  });
+  
+  // Must have at least 3 meaningful lines (nodes/connections)
+  if (lines.length < 3) return false;
+  
+  // Check for trivial patterns like just "Start" and "End"
+  const content = lines.join(' ').toLowerCase();
+  const trivialPatterns = [
+    /^[a-z]\[?start\]?\s*--?>?\s*[a-z]\[?end\]?$/i,  // A[Start] --> B[End]
+    /^start\s*--?>?\s*end$/i,  // start --> end
+  ];
+  
+  // Check if diagram only contains trivial content
+  const meaningfulContent = content
+    .replace(/\[.*?\]/g, '') // Remove labels
+    .replace(/--+>?/g, ' ')  // Remove arrows
+    .replace(/\|.*?\|/g, '') // Remove edge labels
+    .replace(/[a-z]\d*/gi, '') // Remove node IDs
+    .trim();
+  
+  // If after removing structure there's very little content, it's trivial
+  if (meaningfulContent.length < 5 && lines.length < 4) return false;
+  
+  // Check for common trivial placeholder diagrams
+  const lowerContent = trimmed.toLowerCase();
+  if (
+    (lowerContent.includes('start') && lowerContent.includes('end') && lines.length <= 3) ||
+    (lowerContent.match(/\bstart\b/g)?.length === 1 && lowerContent.match(/\bend\b/g)?.length === 1 && lines.length <= 2)
+  ) {
+    return false;
+  }
+  
+  return true;
 }
 
 interface AnswerPanelProps {

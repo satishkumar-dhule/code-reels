@@ -8,7 +8,7 @@ on:
       batch_size:
         description: 'Number of questions to process'
         required: false
-        default: '50'
+        default: '100'
 
 jobs:
   add-eli5:
@@ -37,7 +37,7 @@ jobs:
       - name: Run ELI5 bot
         id: eli5
         env:
-          BATCH_SIZE: ${{ github.event.inputs.batch_size || '5' }}
+          BATCH_SIZE: ${{ github.event.inputs.batch_size || '100' }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           CI: 'true'

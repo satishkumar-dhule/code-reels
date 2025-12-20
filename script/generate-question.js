@@ -160,6 +160,46 @@ function getAllChannels() {
   return Object.keys(channelConfigs);
 }
 
+// NFR: Check if diagram is trivial/placeholder (should be rejected)
+function isTrivialDiagram(diagram) {
+  if (!diagram) return true;
+  
+  const trimmed = diagram.trim().toLowerCase();
+  const lines = trimmed.split('\n').filter(line => {
+    const l = line.trim();
+    // Skip empty lines, comments, and diagram type declarations
+    return l && !l.startsWith('%%') && 
+           !l.startsWith('graph') && !l.startsWith('flowchart') &&
+           !l.startsWith('sequencediagram') && !l.startsWith('classdiagram');
+  });
+  
+  // Must have at least 4 meaningful lines
+  if (lines.length < 4) return true;
+  
+  // Check for trivial "Start -> End" patterns
+  const content = lines.join(' ');
+  if (content.includes('start') && content.includes('end') && lines.length <= 3) {
+    return true;
+  }
+  
+  // Check for generic placeholder patterns
+  const placeholderPatterns = [
+    /\bstart\b.*\bend\b/i,
+    /\bbegin\b.*\bfinish\b/i,
+    /\bstep\s*1\b.*\bstep\s*2\b.*\bstep\s*3\b/i,
+    /\bconcept\b.*\bimplementation\b/i,
+    /\binput\b.*\boutput\b/i,
+  ];
+  
+  // If matches placeholder pattern AND has few nodes, it's trivial
+  const nodeCount = (diagram.match(/\[.*?\]|\(.*?\)|{.*?}|>.*?]/g) || []).length;
+  if (nodeCount <= 3 && placeholderPatterns.some(p => p.test(content))) {
+    return true;
+  }
+  
+  return false;
+}
+
 // Validate question quality to ensure it's a real interview question
 function validateQuestionQuality(question, channel, difficulty) {
   // Check minimum length
@@ -475,8 +515,15 @@ ${channel === 'frontend' ? '- Framework-specific implementation\n- Performance o
 ${channel === 'behavioral' ? '- STAR method scenario\n- Leadership/conflict resolution\n- Technical decision making' : ''}
 ${['devops', 'sre', 'kubernetes'].includes(channel) ? '- Production incident scenario\n- Infrastructure automation\n- Monitoring and alerting' : ''}
 
+DIAGRAM REQUIREMENTS (CRITICAL):
+- Create a MEANINGFUL diagram with 5-8 specific nodes showing the actual technical concept
+- DO NOT create trivial diagrams like "Start -> End" or "Step 1 -> Step 2 -> Step 3"
+- DO NOT use generic labels like "Concept", "Implementation", "Input", "Output", "Process"
+- Each node must have a specific, descriptive label related to the actual content
+- If you cannot create a meaningful diagram, set diagram to null
+
 Output ONLY this JSON (no markdown, no explanation):
-{"question":"[Specific, practical interview question ending with ?]","answer":"[Concise answer under 150 chars that directly addresses the question]","explanation":"## Why This Is Asked\\n[Why ${targetCompanies[0]} asks this - what skills it tests]\\n\\n## Expected Answer\\n[What a strong candidate would say]\\n\\n## Code Example\\n\`\`\`${channel === 'algorithms' ? 'python' : channel === 'frontend' ? 'javascript' : 'typescript'}\\n[Working code example]\\n\`\`\`\\n\\n## Follow-up Questions\\n- [Follow-up 1]\\n- [Follow-up 2]\\n- [Follow-up 3]","diagram":"flowchart TD\\n  A[Start] --> B[Step 1]\\n  B --> C[Step 2]\\n  C --> D[End]","companies":${JSON.stringify(targetCompanies)},"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null}}`;
+{"question":"[Specific, practical interview question ending with ?]","answer":"[Concise answer under 150 chars that directly addresses the question]","explanation":"## Why This Is Asked\\n[Why ${targetCompanies[0]} asks this - what skills it tests]\\n\\n## Expected Answer\\n[What a strong candidate would say]\\n\\n## Code Example\\n\`\`\`${channel === 'algorithms' ? 'python' : channel === 'frontend' ? 'javascript' : 'typescript'}\\n[Working code example]\\n\`\`\`\\n\\n## Follow-up Questions\\n- [Follow-up 1]\\n- [Follow-up 2]\\n- [Follow-up 3]","diagram":"flowchart TD\\n  A[Specific Technical Step] --> B[Another Specific Step]\\n  B --> C{Decision Point}\\n  C -->|Yes| D[Outcome 1]\\n  C -->|No| E[Outcome 2]\\n  D --> F[Final Result]\\n  E --> F","companies":${JSON.stringify(targetCompanies)},"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null}}`;
 
     console.log('\n📝 PROMPT:');
     console.log('─'.repeat(50));
@@ -516,6 +563,13 @@ Output ONLY this JSON (no markdown, no explanation):
     console.log('🎬 Validating YouTube videos...');
     const validatedVideos = await validateYouTubeVideos(data.videos);
 
+    // Validate diagram - reject trivial ones
+    let validatedDiagram = data.diagram;
+    if (validatedDiagram && isTrivialDiagram(validatedDiagram)) {
+      console.log('⚠️ Generated diagram is trivial, setting to null');
+      validatedDiagram = null;
+    }
+
     const newQuestion = {
       id: await generateUnifiedId(),
       question: data.question,
@@ -523,7 +577,7 @@ Output ONLY this JSON (no markdown, no explanation):
       explanation: data.explanation,
       tags: subChannelConfig.tags,
       difficulty: difficulty,
-      diagram: data.diagram || 'graph TD\n    A[Concept] --> B[Implementation]',
+      diagram: validatedDiagram || null,
       sourceUrl: data.sourceUrl || null,
       videos: {
         shortVideo: validatedVideos.shortVideo,

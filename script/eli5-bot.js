@@ -12,7 +12,7 @@ import {
   clearCaches
 } from './utils.js';
 
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
+const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
 const RATE_LIMIT_MS = 2000;
 const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
 

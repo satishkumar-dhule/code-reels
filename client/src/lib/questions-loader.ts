@@ -22,6 +22,7 @@ export interface Question {
   };
   companies?: string[];
   eli5?: string;
+  relevanceScore?: number;
   lastUpdated?: string;
 }
 

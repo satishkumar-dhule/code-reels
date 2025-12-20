@@ -15,7 +15,7 @@ import {
 
 const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
 
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
+const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
 const RATE_LIMIT_MS = 2000; // NFR: Rate limiting between API calls
 
 // Load bot state from database
@@ -61,7 +61,7 @@ async function saveState(state) {
   }
 }
 
-// NFR: Validate mermaid diagram syntax
+// NFR: Validate mermaid diagram syntax and quality
 function isValidMermaidSyntax(diagram) {
   if (!diagram || diagram.length < 20) return false;
   
@@ -81,6 +81,46 @@ function isValidMermaidSyntax(diagram) {
   return validTypes.some(pattern => pattern.test(trimmed));
 }
 
+// NFR: Check if diagram is trivial/placeholder (should be rejected)
+function isTrivialDiagram(diagram) {
+  if (!diagram) return true;
+  
+  const trimmed = diagram.trim().toLowerCase();
+  const lines = trimmed.split('\n').filter(line => {
+    const l = line.trim();
+    // Skip empty lines, comments, and diagram type declarations
+    return l && !l.startsWith('%%') && 
+           !l.startsWith('graph') && !l.startsWith('flowchart') &&
+           !l.startsWith('sequencediagram') && !l.startsWith('classdiagram');
+  });
+  
+  // Must have at least 4 meaningful lines
+  if (lines.length < 4) return true;
+  
+  // Check for trivial "Start -> End" patterns
+  const content = lines.join(' ');
+  if (content.includes('start') && content.includes('end') && lines.length <= 3) {
+    return true;
+  }
+  
+  // Check for generic placeholder patterns
+  const placeholderPatterns = [
+    /\bstart\b.*\bend\b/i,
+    /\bbegin\b.*\bfinish\b/i,
+    /\bstep\s*1\b.*\bstep\s*2\b.*\bstep\s*3\b/i,
+    /\bconcept\b.*\bimplementation\b/i,
+    /\binput\b.*\boutput\b/i,
+  ];
+  
+  // If matches placeholder pattern AND has few nodes, it's trivial
+  const nodeCount = (diagram.match(/\[.*?\]|\(.*?\)|{.*?}|>.*?]/g) || []).length;
+  if (nodeCount <= 3 && placeholderPatterns.some(p => p.test(content))) {
+    return true;
+  }
+  
+  return false;
+}
+
 // Check if diagram needs improvement
 function needsDiagramWork(question) {
   const diagram = question.diagram;
@@ -91,9 +131,12 @@ function needsDiagramWork(question) {
   // Invalid syntax
   if (!isValidMermaidSyntax(diagram)) return { needs: true, reason: 'invalid_syntax' };
   
-  // Too simple (less than 3 nodes)
+  // Trivial/placeholder diagram
+  if (isTrivialDiagram(diagram)) return { needs: true, reason: 'trivial_placeholder' };
+  
+  // Too simple (less than 4 nodes)
   const nodeCount = (diagram.match(/\[.*?\]|\(.*?\)|{.*?}|>.*?]/g) || []).length;
-  if (nodeCount < 3) return { needs: true, reason: 'too_simple' };
+  if (nodeCount < 4) return { needs: true, reason: 'too_simple' };
   
   // Generic placeholder diagram
   if (diagram.includes('Concept') && diagram.includes('Implementation') && nodeCount <= 3) {
@@ -107,18 +150,35 @@ function needsDiagramWork(question) {
 async function generateDiagram(question) {
   const prompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
 
-Create a detailed Mermaid diagram for this interview question.
+Create a detailed, meaningful Mermaid diagram for this interview question.
 
 Question: "${question.question}"
-Answer: "${question.answer?.substring(0, 200) || ''}"
+Answer: "${question.answer?.substring(0, 300) || ''}"
 Tags: ${question.tags?.slice(0, 4).join(', ') || 'technical'}
 
-Requirements: Use flowchart TD or appropriate diagram type, include 5-10 meaningful nodes, show relationships clearly, use proper Mermaid syntax.
+CRITICAL REQUIREMENTS:
+1. The diagram MUST have at least 5-8 meaningful nodes with descriptive labels
+2. DO NOT create trivial diagrams like "Start -> End" or "Input -> Process -> Output"
+3. DO NOT use generic labels like "Step 1", "Step 2", "Concept", "Implementation"
+4. Each node should have a specific, descriptive label related to the actual content
+5. Show the actual technical flow, architecture, or process being discussed
+6. Include decision points, loops, or parallel paths where appropriate
+7. Use proper Mermaid syntax with flowchart TD or appropriate diagram type
+
+EXAMPLES OF BAD DIAGRAMS (DO NOT CREATE):
+- A[Start] --> B[End]
+- A[Input] --> B[Process] --> C[Output]
+- A[Step 1] --> B[Step 2] --> C[Step 3]
+
+EXAMPLES OF GOOD DIAGRAMS:
+- For "How does DNS work?": Show Client, Resolver, Root Server, TLD Server, Authoritative Server with actual query flow
+- For "Explain OAuth flow": Show User, Client App, Auth Server, Resource Server with token exchange steps
+- For "Database indexing": Show Query, Index Lookup, B-Tree traversal, Data Page retrieval
 
 Output this exact JSON structure:
-{"diagram":"flowchart TD\\n  A[Step 1] --> B[Step 2]\\n  B --> C[Step 3]","diagramType":"flowchart|sequence|class|state","confidence":"high|medium|low"}
+{"diagram":"flowchart TD\\n  A[Specific Label] --> B[Another Specific Label]\\n  B --> C{Decision Point}\\n  C -->|Yes| D[Action 1]\\n  C -->|No| E[Action 2]","diagramType":"flowchart|sequence|class|state","confidence":"high|medium|low"}
 
-IMPORTANT: Return ONLY the JSON object. No other text.`;
+IMPORTANT: Return ONLY the JSON object. No other text. The diagram must be meaningful and specific to the question.`;
 
   const response = await runWithRetries(prompt);
   if (!response) return null;
@@ -129,6 +189,12 @@ IMPORTANT: Return ONLY the JSON object. No other text.`;
   // NFR: Validate the generated diagram
   if (!isValidMermaidSyntax(data.diagram)) {
     console.log('  ⚠️ Generated diagram has invalid syntax');
+    return null;
+  }
+  
+  // NFR: Reject trivial diagrams
+  if (isTrivialDiagram(data.diagram)) {
+    console.log('  ⚠️ Generated diagram is too trivial/generic');
     return null;
   }
   

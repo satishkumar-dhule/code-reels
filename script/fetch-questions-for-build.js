@@ -35,6 +35,7 @@ function parseQuestionRow(row) {
     videos: row.videos ? JSON.parse(row.videos) : null,
     companies: row.companies ? JSON.parse(row.companies) : null,
     eli5: row.eli5,
+    relevanceScore: row.relevance_score,
     lastUpdated: row.last_updated,
   };
 }

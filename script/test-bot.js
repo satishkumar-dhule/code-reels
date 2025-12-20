@@ -15,7 +15,7 @@ const db = createClient({
 });
 
 const CHANNEL_ID = process.env.CHANNEL_ID || null;
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5');
+const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100');
 
 const CHANNEL_NAMES = {
   'system-design': 'System Design',

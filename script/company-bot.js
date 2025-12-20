@@ -15,7 +15,7 @@ import {
 
 const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
 
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
+const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
 const RATE_LIMIT_MS = 2000; // NFR: Rate limiting between API calls
 const MIN_COMPANIES = 3; // Minimum companies per question
 

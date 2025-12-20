@@ -886,6 +886,18 @@ export default function Reels() {
                  <span className="px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider bg-white/5 text-white/50 border border-white/10 rounded">
                    {currentQuestion.subChannel}
                  </span>
+                 {/* Relevance Score Badge */}
+                 {currentQuestion.relevanceScore !== undefined && currentQuestion.relevanceScore !== null && (
+                   <span className={`hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold rounded border ${
+                     currentQuestion.relevanceScore >= 80 
+                       ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                       : currentQuestion.relevanceScore >= 60 
+                       ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                       : 'bg-white/5 text-white/50 border-white/10'
+                   }`}>
+                     {currentQuestion.relevanceScore}%
+                   </span>
+                 )}
                  <button
                    onClick={() => toggleMark(currentQuestion.id)}
                    className={`p-1 rounded transition-colors ${

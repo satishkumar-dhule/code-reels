@@ -8,7 +8,7 @@ on:
       batch_size:
         description: 'Number of questions to process'
         required: false
-        default: '20'
+        default: '100'
 
 jobs:
   add-companies:
@@ -37,7 +37,7 @@ jobs:
       - name: Run Company bot
         id: company
         env:
-          BATCH_SIZE: ${{ github.event.inputs.batch_size || '5' }}
+          BATCH_SIZE: ${{ github.event.inputs.batch_size || '100' }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           CI: 'true'
