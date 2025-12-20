@@ -4,25 +4,22 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { StagingBanner } from "./components/StagingBanner";
 import NotFound from "@/pages/not-found";
-// Original pages
-import StatsOriginal from "@/pages/Stats";
-import HomeOriginal from "@/pages/Home";
+// Pages - using redesigned versions as default
+import Home from "@/pages/HomeRedesigned";
 import About from "@/pages/About";
 import WhatsNew from "@/pages/WhatsNew";
-import ReelsOriginal from "@/pages/ReelsRedesigned";
-import AllChannels from "@/pages/AllChannels";
+import QuestionViewer from "@/pages/QuestionViewer";
+import Stats from "@/pages/StatsRedesigned";
+import Channels from "@/pages/AllChannelsRedesigned";
 import MermaidTest from "@/pages/MermaidTest";
 import BotActivity from "@/pages/BotActivity";
 import Badges from "@/pages/Badges";
 import TestSession from "@/pages/TestSession";
 import Tests from "@/pages/Tests";
 import CodingChallenge from "@/pages/CodingChallenge";
-// Redesigned pages
-import HomeRedesigned from "@/pages/HomeRedesigned";
-import QuestionViewer from "@/pages/QuestionViewer";
-import StatsRedesigned from "@/pages/StatsRedesigned";
-import AllChannelsRedesigned from "@/pages/AllChannelsRedesigned";
 import Profile from "@/pages/Profile";
 import Notifications from "@/pages/Notifications";
 import { Onboarding } from "./components/Onboarding";
@@ -35,29 +32,7 @@ import { preloadQuestions } from "./lib/questions-loader";
 import PixelMascot from "./components/PixelMascot";
 import BackgroundMascots from "./components/BackgroundMascots";
 
-// New UI is now the default for all users
-const useNewUI = () => {
-  return true; // Always use new UI
-};
-
-// Export toggle function for easy switching
-if (typeof window !== 'undefined') {
-  (window as any).toggleNewUI = () => {
-    const current = localStorage.getItem('use-new-ui') === 'true';
-    localStorage.setItem('use-new-ui', (!current).toString());
-    window.location.reload();
-  };
-}
-
 function Router() {
-  const newUI = useNewUI();
-  
-  // Select components based on UI mode
-  const Home = newUI ? HomeRedesigned : HomeOriginal;
-  const Reels = newUI ? QuestionViewer : ReelsOriginal;
-  const Stats = newUI ? StatsRedesigned : StatsOriginal;
-  const Channels = newUI ? AllChannelsRedesigned : AllChannels;
-  
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -74,8 +49,8 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/notifications" component={Notifications} />
       <Route path="/test/mermaid" component={MermaidTest} />
-      <Route path="/channel/:id" component={Reels} />
-      <Route path="/channel/:id/:index" component={Reels} />
+      <Route path="/channel/:id" component={QuestionViewer} />
+      <Route path="/channel/:id/:index" component={QuestionViewer} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -125,16 +100,19 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <UserPreferencesProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <AppContent />
-          </TooltipProvider>
-        </QueryClientProvider>
-      </UserPreferencesProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <UserPreferencesProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <StagingBanner />
+              <Toaster />
+              <AppContent />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </UserPreferencesProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

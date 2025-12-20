@@ -7,8 +7,8 @@ import {
   getCompaniesWithCounts,
   loadChannelQuestions,
   api,
-  type Question,
 } from '../lib/questions-loader';
+import type { Question } from '../types';
 
 // Hook to get questions for a channel with filters
 export function useQuestions(
@@ -45,7 +45,7 @@ export function useQuestions(
         const filtered = getQuestions(channelId, subChannel, difficulty, company);
         setQuestions(filtered);
       })
-      .catch(err => {
+      .catch((err: Error) => {
         setError(err);
         setQuestions([]);
       })
@@ -85,9 +85,9 @@ export function useCompanies(channelId: string) {
     }
 
     // Load from API
-    api.fetchCompanies(channelId)
+    api.channels.getCompanies(channelId)
       .then(setCompanies)
-      .catch(err => {
+      .catch((err: Error) => {
         setError(err);
         setCompanies([]);
       })
@@ -142,9 +142,9 @@ export function useQuestion(questionId: string | undefined) {
 
     // Load from API
     setLoading(true);
-    api.fetchQuestion(questionId)
+    api.questions.getById(questionId)
       .then(setQuestion)
-      .catch(err => {
+      .catch((err: Error) => {
         setError(err);
         setQuestion(null);
       })
@@ -211,9 +211,9 @@ export function useSubChannels(channelId: string) {
     }
 
     // Load from API
-    api.fetchSubChannels(channelId)
+    api.channels.getSubChannels(channelId)
       .then(setSubChannels)
-      .catch(err => {
+      .catch((err: Error) => {
         setError(err);
         setSubChannels([]);
       })

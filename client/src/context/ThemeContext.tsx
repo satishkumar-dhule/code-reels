@@ -1,4 +1,6 @@
 import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
+import { ThemeStorage } from "../services/storage.service";
+import { TIMING, DEFAULTS } from "../lib/constants";
 
 // All available themes
 export const themes = [
@@ -78,44 +80,38 @@ interface ThemeContextType {
   setAutoRotate: (enabled: boolean) => void;
 }
 
-const AUTO_ROTATE_INTERVAL = 15 * 60 * 1000; // 15 minutes in milliseconds
-const AUTO_ROTATE_KEY = "theme-auto-rotate";
-const USER_CHANGED_KEY = "theme-user-changed";
-
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem("theme") as Theme;
-    // Default to Clean Dark for new users
-    return themes.some(t => t.id === saved) ? saved : "clean-dark";
+    const saved = ThemeStorage.getTheme() as Theme;
+    return themes.some(t => t.id === saved) ? saved : DEFAULTS.THEME as Theme;
   });
   
   // Track if user has manually changed theme (disables auto-rotate)
   const [userChanged, setUserChanged] = useState(() => {
-    return localStorage.getItem(USER_CHANGED_KEY) === "true";
+    return ThemeStorage.getUserChanged();
   });
   
   // Auto-rotate preference
   const [autoRotate, setAutoRotateState] = useState(() => {
-    const saved = localStorage.getItem(AUTO_ROTATE_KEY);
-    return saved !== "false"; // Default to true
+    return ThemeStorage.getAutoRotate();
   });
   
-  const autoRotateTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoRotateTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Apply theme to DOM
   useEffect(() => {
     const root = window.document.documentElement;
     root.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
+    ThemeStorage.setTheme(theme);
   }, [theme]);
 
   // Set theme (marks as user-changed)
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     setUserChanged(true);
-    localStorage.setItem(USER_CHANGED_KEY, "true");
+    ThemeStorage.setUserChanged(true);
   }, []);
 
   // Cycle theme (marks as user-changed)
@@ -129,11 +125,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Auto-rotate toggle
   const setAutoRotate = useCallback((enabled: boolean) => {
     setAutoRotateState(enabled);
-    localStorage.setItem(AUTO_ROTATE_KEY, String(enabled));
+    ThemeStorage.setAutoRotate(enabled);
     if (enabled) {
       // Reset user-changed flag when enabling auto-rotate
       setUserChanged(false);
-      localStorage.removeItem(USER_CHANGED_KEY);
+      ThemeStorage.setUserChanged(false);
     }
   }, []);
 
@@ -155,7 +151,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const currentIndex = themeIds.indexOf(currentTheme);
         return themeIds[(currentIndex + 1) % themeIds.length];
       });
-    }, AUTO_ROTATE_INTERVAL);
+    }, TIMING.AUTO_ROTATE_INTERVAL);
 
     return () => {
       if (autoRotateTimerRef.current) {

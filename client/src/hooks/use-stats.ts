@@ -1,17 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { getChannelStats, api } from '../lib/questions-loader';
+import type { ChannelDetailedStats } from '../types';
 
-export interface ChannelStats {
-  id: string;
-  total: number;
-  beginner: number;
-  intermediate: number;
-  advanced: number;
-}
+// Re-export for backward compatibility
+export type ChannelStats = ChannelDetailedStats;
 
 // Hook to get channel statistics
 export function useChannelStats() {
-  const [stats, setStats] = useState<ChannelStats[]>([]);
+  const [stats, setStats] = useState<ChannelDetailedStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -25,9 +21,9 @@ export function useChannelStats() {
     }
 
     // Load from API
-    api.fetchStats()
+    api.stats.getAll()
       .then(setStats)
-      .catch(err => {
+      .catch((err: Error) => {
         setError(err);
         setStats([]);
       })

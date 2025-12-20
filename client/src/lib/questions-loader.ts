@@ -3,33 +3,17 @@
  * Data is pre-generated at build time from Turso database
  */
 
-import * as api from './api-client';
+import { api, QuestionService, ChannelService, StatsService } from '../services/api.service';
+import { COMPANY_ALIASES, POPULAR_COMPANIES } from './constants';
+import type { Question, ChannelDetailedStats } from '../types';
 
-export interface Question {
-  id: string;
-  question: string;
-  answer: string;
-  explanation: string;
-  diagram?: string;
-  tags: string[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  channel: string;
-  subChannel: string;
-  sourceUrl?: string;
-  videos?: {
-    shortVideo?: string;
-    longVideo?: string;
-  };
-  companies?: string[];
-  eli5?: string;
-  relevanceScore?: number;
-  lastUpdated?: string;
-}
+// Re-export Question type for backward compatibility
+export type { Question };
 
 // In-memory cache for questions
 const questionsCache = new Map<string, Question>();
 const channelQuestionsCache = new Map<string, Question[]>();
-let statsCache: api.ChannelDetailedStats[] | null = null;
+let statsCache: ChannelDetailedStats[] | null = null;
 let initialized = false;
 
 // Load questions for a channel from static JSON
@@ -39,7 +23,8 @@ export async function loadChannelQuestions(channelId: string): Promise<Question[
   }
 
   try {
-    const questions = await api.fetchChannelQuestions(channelId);
+    const data = await ChannelService.getData(channelId);
+    const questions = data.questions;
     channelQuestionsCache.set(channelId, questions);
     
     // Also cache individual questions
@@ -95,7 +80,7 @@ export async function getQuestionByIdAsync(questionId: string): Promise<Question
   }
   
   try {
-    const question = await api.fetchQuestion(questionId);
+    const question = await QuestionService.getById(questionId);
     questionsCache.set(question.id, question);
     return question;
   } catch {
@@ -152,16 +137,8 @@ export function channelHasQuestions(channelId: string): boolean {
 // Normalize company name for consistency
 function normalizeCompanyName(name: string): string {
   const normalized = name.trim();
-  const aliases: Record<string, string> = {
-    'facebook': 'Meta',
-    'fb': 'Meta',
-    'aws': 'Amazon',
-    'msft': 'Microsoft',
-    'goog': 'Google',
-    'alphabet': 'Google',
-  };
   const lower = normalized.toLowerCase();
-  return aliases[lower] || normalized;
+  return COMPANY_ALIASES[lower] || normalized;
 }
 
 // Get all unique companies across all questions
@@ -218,18 +195,14 @@ export function getCompaniesWithCounts(
 }
 
 // Popular tech companies for prioritization in UI
-export const POPULAR_COMPANIES = [
-  'Google', 'Amazon', 'Meta', 'Microsoft', 'Apple', 
-  'Netflix', 'Uber', 'Airbnb', 'LinkedIn', 'Twitter',
-  'Stripe', 'Salesforce', 'Adobe', 'Oracle', 'IBM'
-];
+export { POPULAR_COMPANIES };
 
 // Preload all questions (call on app init for search functionality)
 export async function preloadQuestions(): Promise<void> {
   if (initialized) return;
   
   try {
-    const stats = await api.fetchStats();
+    const stats = await StatsService.getAll();
     statsCache = stats;
     
     // Load all channels in parallel
@@ -251,5 +224,5 @@ export async function getAllQuestionsAsync(): Promise<Question[]> {
   return getAllQuestions();
 }
 
-// Export API functions for direct use
+// Export API service for direct use
 export { api };

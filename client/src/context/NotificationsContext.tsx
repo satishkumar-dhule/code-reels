@@ -1,16 +1,10 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { NotificationsStorage } from '../services/storage.service';
+import { LIMITS } from '../lib/constants';
+import type { Notification, NotificationType } from '../types';
 
-const STORAGE_KEY = 'app-notifications';
-const MAX_NOTIFICATIONS = 50;
-
-export interface Notification {
-  id: string;
-  title: string;
-  description?: string;
-  type: 'success' | 'error' | 'info' | 'warning';
-  timestamp: string;
-  read: boolean;
-}
+// Re-export Notification type for backward compatibility
+export type { Notification };
 
 interface NotificationsContextType {
   notifications: Notification[];
@@ -24,35 +18,30 @@ interface NotificationsContextType {
 
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
+// Generate unique ID without deprecated substr
+function generateId(): string {
+  return `notif-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+    return NotificationsStorage.get();
   });
 
-  // Save to localStorage
+  // Save to localStorage when notifications change
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-    } catch (e) {
-      console.error('Failed to save notifications:', e);
-    }
+    NotificationsStorage.set(notifications);
   }, [notifications]);
 
   const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {
       ...notification,
-      id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateId(),
       timestamp: new Date().toISOString(),
       read: false,
     };
 
-    setNotifications(prev => [newNotification, ...prev].slice(0, MAX_NOTIFICATIONS));
+    setNotifications(prev => [newNotification, ...prev].slice(0, LIMITS.MAX_NOTIFICATIONS));
   }, []);
 
   const markAsRead = useCallback((id: string) => {

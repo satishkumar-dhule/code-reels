@@ -1,17 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { allChannelsConfig, getRecommendedChannels } from '../lib/channels-config';
+import { PreferencesStorage } from '../services/storage.service';
+import { DEFAULTS } from '../lib/constants';
+import type { UserPreferences } from '../types';
 
-const STORAGE_KEY = 'user-preferences';
-
-export interface UserPreferences {
-  role: string | null;
-  subscribedChannels: string[];
-  onboardingComplete: boolean;
-  createdAt: string;
-}
+// Re-export UserPreferences type for backward compatibility
+export type { UserPreferences };
 
 const defaultPreferences: UserPreferences = {
-  role: null,
+  role: DEFAULTS.ROLE,
   subscribedChannels: [],
   onboardingComplete: false,
   createdAt: new Date().toISOString()
@@ -35,25 +32,12 @@ const UserPreferencesContext = createContext<UserPreferencesContextType | null>(
 export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [preferences, setPreferences] = useState<UserPreferences>(() => {
     if (typeof window === 'undefined') return defaultPreferences;
-    
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (e) {
-      console.error('Failed to load preferences:', e);
-    }
-    return defaultPreferences;
+    return PreferencesStorage.get();
   });
 
   // Save to localStorage whenever preferences change
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
-    } catch (e) {
-      console.error('Failed to save preferences:', e);
-    }
+    PreferencesStorage.set(preferences);
   }, [preferences]);
 
 
@@ -61,7 +45,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     const recommended = getRecommendedChannels(roleId);
     const recommendedIds = recommended.map(c => c.id);
     
-    const newPrefs = {
+    const newPrefs: UserPreferences = {
       role: roleId,
       subscribedChannels: recommendedIds,
       onboardingComplete: true,
@@ -69,7 +53,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     };
     
     // Save to localStorage immediately
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newPrefs));
+    PreferencesStorage.set(newPrefs);
     
     // Update state
     setPreferences(newPrefs);
@@ -119,14 +103,13 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
 
   const resetPreferences = useCallback(() => {
     setPreferences(defaultPreferences);
-    localStorage.removeItem(STORAGE_KEY);
+    PreferencesStorage.reset();
   }, []);
 
   const skipOnboarding = useCallback(() => {
-    const defaultChannels = ['system-design', 'algorithms', 'frontend', 'backend', 'database', 'devops'];
     setPreferences(prev => ({
       ...prev,
-      subscribedChannels: defaultChannels,
+      subscribedChannels: DEFAULTS.SUBSCRIBED_CHANNELS as unknown as string[],
       onboardingComplete: true
     }));
   }, []);

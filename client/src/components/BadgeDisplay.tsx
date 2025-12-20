@@ -10,8 +10,10 @@ import {
 } from 'lucide-react';
 import { Badge, BadgeProgress, getTierColor } from '../lib/badges';
 
-// Icon mapping
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+// Icon mapping - using LucideIcon type for proper typing
+import type { LucideIcon } from 'lucide-react';
+
+const iconMap: Record<string, LucideIcon> = {
   'flame': Flame,
   'check-circle': CheckCircle,
   'award': Award,

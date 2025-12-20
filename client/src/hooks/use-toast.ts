@@ -149,7 +149,7 @@ function saveToNotifications(title: string, description?: string, variant?: stri
     const type = variant === 'destructive' ? 'error' : 'info';
     
     const newNotification = {
-      id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
       title: typeof title === 'string' ? title : 'Notification',
       description: typeof description === 'string' ? description : undefined,
       type,
@@ -196,7 +196,7 @@ function toast({ ...props }: Toast) {
     saveToNotifications(
       props.title as string, 
       props.description as string | undefined,
-      props.variant
+      props.variant ?? undefined
     );
   }
 
