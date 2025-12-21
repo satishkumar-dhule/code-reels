@@ -27,6 +27,7 @@ import { Onboarding } from "./components/Onboarding";
 import { MarvelIntro, useMarvelIntro } from "./components/MarvelIntro";
 import { ThemeProvider } from "./context/ThemeContext";
 import { UserPreferencesProvider, useUserPreferences } from "./context/UserPreferencesContext";
+import { BadgeProvider } from "./context/BadgeContext";
 import { usePageViewTracking, useSessionTracking, useInteractionTracking } from "./hooks/use-analytics";
 import { AnimatePresence } from "framer-motion";
 import { preloadQuestions } from "./lib/questions-loader";
@@ -107,9 +108,11 @@ function App() {
         <UserPreferencesProvider>
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
-              <StagingBanner />
-              <Toaster />
-              <AppContent />
+              <BadgeProvider>
+                <StagingBanner />
+                <Toaster />
+                <AppContent />
+              </BadgeProvider>
             </TooltipProvider>
           </QueryClientProvider>
         </UserPreferencesProvider>

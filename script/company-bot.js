@@ -10,7 +10,8 @@ import {
   startWorkItem,
   completeWorkItem,
   failWorkItem,
-  initWorkQueue
+  initWorkQueue,
+  postBotCommentToDiscussion
 } from './utils.js';
 
 const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
@@ -280,6 +281,7 @@ async function main() {
     const newCompaniesCount = mergedCompanies.length - existingNormalized.length;
     
     // Update question
+    const oldCompanies = question.companies || [];
     const updatedQuestion = {
       ...questionsMap[question.id],
       companies: mergedCompanies,
@@ -290,6 +292,17 @@ async function main() {
     // NFR: Save immediately after each update
     await saveQuestion(updatedQuestion);
     console.log(`💾 Saved (added ${newCompaniesCount} new companies)`);
+    
+    // Post comment to Giscus discussion
+    if (newCompaniesCount > 0) {
+      await postBotCommentToDiscussion(question.id, 'Company Bot', 'companies_added', {
+        summary: `Added ${newCompaniesCount} companies that ask this question`,
+        changes: [
+          `New companies: ${mergedCompanies.filter(c => !oldCompanies.includes(c)).join(', ')}`,
+          `Total companies: ${mergedCompanies.length}`
+        ]
+      });
+    }
     
     // Mark work as completed
     if (workId) await completeWorkItem(workId, { 

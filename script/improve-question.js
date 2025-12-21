@@ -11,7 +11,8 @@ import {
   getChannelStats,
   logBotActivity,
   getQuestionCount,
-  dbClient
+  dbClient,
+  postBotCommentToDiscussion
 } from './utils.js';
 
 // Focus on answer/explanation quality only
@@ -271,6 +272,9 @@ async function main() {
     }
 
     // Update only question, answer, explanation - other fields handled by dedicated bots
+    const oldAnswer = question.answer;
+    const oldExplanation = question.explanation;
+    
     question.question = data.question;
     question.answer = data.answer.substring(0, 200);
     question.explanation = data.explanation;
@@ -294,6 +298,17 @@ async function main() {
       channel: question.channel,
       issuesFixed: issues.length,
       usedRelevanceFeedback: hasRelevanceFeedback
+    });
+    
+    // Post comment to Giscus discussion
+    await postBotCommentToDiscussion(question.id, 'Improve Bot', 'improved', {
+      summary: `Improved question quality based on ${hasRelevanceFeedback ? 'relevance feedback' : 'detected issues'}`,
+      changes: [
+        ...issues.map(i => `Fixed: ${i}`),
+        hasRelevanceFeedback ? 'Applied relevance bot suggestions' : null
+      ].filter(Boolean),
+      before: oldAnswer,
+      after: question.answer
     });
     
     improvedQuestions.push(question);

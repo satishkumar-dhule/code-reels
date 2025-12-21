@@ -161,6 +161,7 @@ export interface Notification {
   type: NotificationType;
   timestamp: string;
   read: boolean;
+  link?: string; // Optional link to navigate to when clicked
 }
 
 // ============================================

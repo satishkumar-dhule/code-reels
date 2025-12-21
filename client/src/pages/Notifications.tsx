@@ -20,6 +20,7 @@ interface Notification {
   type: 'success' | 'error' | 'info' | 'warning';
   timestamp: string;
   read: boolean;
+  link?: string;
 }
 
 const STORAGE_KEY = 'app-notifications';
@@ -72,6 +73,19 @@ export default function Notifications() {
       n.id === id ? { ...n, read: true } : n
     );
     saveNotifications(updated);
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    // Mark as read
+    const updated = notifications.map(n => 
+      n.id === notification.id ? { ...n, read: true } : n
+    );
+    saveNotifications(updated);
+    
+    // Navigate if link exists
+    if (notification.link) {
+      setLocation(notification.link);
+    }
   };
 
   const markAllAsRead = () => {
@@ -173,11 +187,11 @@ export default function Notifications() {
                     transition={{ delay: index * 0.05 }}
                     className={`bg-card rounded-xl border overflow-hidden ${
                       notification.read ? 'border-border' : typeColors[notification.type]
-                    }`}
+                    } ${notification.link ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
                   >
                     <div 
-                      className={`flex items-start gap-3 p-4 ${!notification.read ? 'cursor-pointer' : ''}`}
-                      onClick={() => !notification.read && markAsRead(notification.id)}
+                      className="flex items-start gap-3 p-4"
+                      onClick={() => handleNotificationClick(notification)}
                     >
                       <div className="flex-shrink-0 mt-0.5">
                         {typeIcons[notification.type]}
@@ -208,6 +222,9 @@ export default function Notifications() {
                           </span>
                           {!notification.read && (
                             <span className="w-2 h-2 rounded-full bg-primary" />
+                          )}
+                          {notification.link && (
+                            <span className="text-[10px] text-primary">Tap to view →</span>
                           )}
                         </div>
                       </div>

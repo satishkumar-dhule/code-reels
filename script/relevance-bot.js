@@ -3,7 +3,8 @@ import {
   parseJson,
   writeGitHubOutput,
   logBotActivity,
-  dbClient
+  dbClient,
+  postBotCommentToDiscussion
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
@@ -307,6 +308,18 @@ async function main() {
     // Save to database with improvement suggestions
     await saveRelevanceScore(question.id, scoring.score, scoring.details, scoring.recommendation, scoring.improvements);
     console.log('💾 Saved to database (with improvement suggestions)');
+    
+    // Post comment to Giscus discussion
+    await postBotCommentToDiscussion(question.id, 'Relevance Bot', 'relevance_scored', {
+      summary: `Interview relevance score: ${scoring.score}/100 (${scoring.recommendation})`,
+      changes: [
+        `Score: ${scoring.score}/100`,
+        `Recommendation: ${scoring.recommendation}`,
+        `Reasoning: ${scoring.details.reasoning}`,
+        scoring.improvements?.questionIssues?.length > 0 ? `Question issues: ${scoring.improvements.questionIssues.join(', ')}` : null,
+        scoring.improvements?.missingTopics?.length > 0 ? `Missing topics: ${scoring.improvements.missingTopics.join(', ')}` : null
+      ].filter(Boolean)
+    });
     
     // Log bot activity
     await logBotActivity(question.id, 'relevance', `scored ${scoring.score}/100`, 'completed', {

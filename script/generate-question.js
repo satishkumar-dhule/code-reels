@@ -11,7 +11,8 @@ import {
   normalizeCompanies,
   logBotActivity,
   getChannelQuestionCounts,
-  getQuestionCount
+  getQuestionCount,
+  postBotCommentToDiscussion
 } from './utils.js';
 
 // Channel configurations
@@ -656,6 +657,19 @@ Output ONLY this JSON (no markdown, no explanation):
       channel,
       subChannel: subChannelConfig.subChannel,
       difficulty
+    });
+    
+    // Post comment to Giscus discussion
+    await postBotCommentToDiscussion(newQuestion.id, 'Question Generator Bot', 'generated', {
+      summary: `New ${difficulty} question generated for ${channel}/${subChannelConfig.subChannel}`,
+      changes: [
+        `Channel: ${channel}`,
+        `Sub-channel: ${subChannelConfig.subChannel}`,
+        `Difficulty: ${difficulty}`,
+        `Tags: ${newQuestion.tags.join(', ')}`,
+        newQuestion.diagram ? 'Includes diagram' : 'No diagram',
+        newQuestion.companies?.length > 0 ? `Companies: ${newQuestion.companies.join(', ')}` : null
+      ].filter(Boolean)
     });
     
     addedQuestions.push({ ...newQuestion, mappedChannels: channelMappings });

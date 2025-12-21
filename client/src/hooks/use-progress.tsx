@@ -60,6 +60,9 @@ export function useProgress(channelId: string, validQuestionIds?: string[]) {
       localStorage.setItem(`history-${channelId}`, JSON.stringify(next));
       return next;
     });
+    
+    // Dispatch event to trigger badge check
+    window.dispatchEvent(new CustomEvent('question-completed'));
   };
 
   // Clean up stale completed IDs that no longer exist in the channel

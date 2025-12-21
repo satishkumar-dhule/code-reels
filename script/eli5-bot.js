@@ -9,7 +9,8 @@ import {
   completeWorkItem,
   failWorkItem,
   initWorkQueue,
-  clearCaches
+  clearCaches,
+  postBotCommentToDiscussion
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
@@ -157,6 +158,14 @@ async function main() {
     question.lastUpdated = new Date().toISOString();
     await saveQuestion(question);
     console.log('💾 Saved to database');
+    
+    // Post comment to Giscus discussion
+    await postBotCommentToDiscussion(question.id, 'ELI5 Bot', 'eli5_added', {
+      summary: 'Added simple explanation for beginners',
+      changes: [
+        `ELI5 explanation: ${eli5.substring(0, 150)}...`
+      ]
+    });
     
     // Mark work as completed
     if (workId) await completeWorkItem(workId, { eli5Length: eli5.length });

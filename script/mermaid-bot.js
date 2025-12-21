@@ -10,7 +10,8 @@ import {
   startWorkItem,
   completeWorkItem,
   failWorkItem,
-  initWorkQueue
+  initWorkQueue,
+  postBotCommentToDiscussion
 } from './utils.js';
 
 const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
@@ -344,6 +345,7 @@ async function main() {
     
     // Update question
     const wasEmpty = !question.diagram || question.diagram.length < 20;
+    const oldDiagram = question.diagram;
     const updatedQuestion = {
       ...questionsMap[question.id],
       diagram: generated.diagram,
@@ -354,6 +356,18 @@ async function main() {
     // NFR: Save immediately after each update
     await saveQuestion(updatedQuestion);
     console.log('💾 Saved to database');
+    
+    // Post comment to Giscus discussion
+    await postBotCommentToDiscussion(question.id, 'Mermaid Bot', wasEmpty ? 'diagram_added' : 'diagram_updated', {
+      summary: wasEmpty ? 'Added new diagram visualization' : 'Improved existing diagram',
+      changes: [
+        `Diagram type: ${generated.diagramType || 'flowchart'}`,
+        `Confidence: ${generated.confidence}`,
+        wasEmpty ? 'Created new diagram from scratch' : `Replaced ${check.reason} diagram`
+      ],
+      before: oldDiagram || '(no diagram)',
+      after: generated.diagram
+    });
     
     // Mark work as completed
     if (workId) await completeWorkItem(workId, { 

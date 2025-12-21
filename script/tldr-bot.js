@@ -8,7 +8,8 @@ import {
   startWorkItem,
   completeWorkItem,
   failWorkItem,
-  initWorkQueue
+  initWorkQueue,
+  postBotCommentToDiscussion
 } from './utils.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
@@ -166,6 +167,14 @@ async function main() {
     question.lastUpdated = new Date().toISOString();
     await saveQuestion(question);
     console.log('💾 Saved to database');
+    
+    // Post comment to Giscus discussion
+    await postBotCommentToDiscussion(question.id, 'TLDR Bot', 'tldr_added', {
+      summary: 'Added quick summary',
+      changes: [
+        `TL;DR: ${tldr}`
+      ]
+    });
     
     // Mark work as completed
     if (workId) await completeWorkItem(workId, { tldrLength: tldr.length });
