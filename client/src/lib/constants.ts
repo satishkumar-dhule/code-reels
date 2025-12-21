@@ -24,6 +24,8 @@ export const STORAGE_KEYS = {
   // Onboarding
   MARVEL_INTRO_SEEN: 'marvel-intro-seen',
   SWIPE_HINT_SEEN: 'swipe-hint-seen',
+  GETTING_STARTED_SEEN: 'getting-started-seen',
+  COACH_MARKS_SEEN: 'coach-marks-seen',
   
   // Timer settings
   TIMER_ENABLED: 'timer-enabled',

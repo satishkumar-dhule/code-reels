@@ -5,9 +5,7 @@
 
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import {
-  Home, Compass, PlusSquare, Trophy, User
-} from 'lucide-react';
+import { Code, Compass, Trophy, User, Home } from 'lucide-react';
 
 interface MobileNavProps {
   onCreateClick?: () => void;
@@ -19,7 +17,7 @@ export function MobileNav({ onCreateClick }: MobileNavProps) {
   const navItems = [
     { id: 'home', icon: Home, label: 'Home', path: '/' },
     { id: 'explore', icon: Compass, label: 'Explore', path: '/channels' },
-    { id: 'create', icon: PlusSquare, label: 'Practice', action: onCreateClick, isCenter: true },
+    { id: 'create', icon: Code, label: 'Code', action: onCreateClick, isCenter: true },
     { id: 'achievements', icon: Trophy, label: 'Progress', path: '/stats' },
     { id: 'profile', icon: User, label: 'Me', path: '/profile' },
   ];

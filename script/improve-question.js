@@ -100,6 +100,66 @@ RELEVANCE BOT FEEDBACK (use this to guide improvements):`;
     }
   }
 
+  // Check if this is a system design question
+  const isSystemDesign = question.channel === 'system-design' || 
+    question.question.toLowerCase().includes('design') ||
+    question.question.toLowerCase().includes('architect') ||
+    question.question.toLowerCase().includes('scale');
+
+  const systemDesignFormat = `
+SYSTEM DESIGN EXPLANATION FORMAT (MANDATORY):
+The explanation MUST include these sections in order:
+
+## Functional Requirements
+- List 4-6 specific functional requirements (what the system must do)
+
+## Non-Functional Requirements (NFRs)
+- Availability: Target uptime (e.g., 99.99%)
+- Latency: Response time targets (e.g., p99 < 200ms)
+- Scalability: Expected growth and peak loads
+- Consistency: Strong vs eventual consistency trade-offs
+- Durability: Data loss tolerance
+
+## Back-of-Envelope Calculations
+- Daily/Monthly Active Users (DAU/MAU)
+- Requests per second (read/write ratio)
+- Storage requirements (per user, total)
+- Bandwidth requirements
+- Show your math!
+
+## High-Level Design
+- Describe the main components and their interactions
+
+## Deep Dive: Key Components
+- Pick 2-3 critical components and explain in detail
+- Database schema design
+- API design
+- Caching strategy
+
+## Trade-offs & Considerations
+- CAP theorem implications
+- Cost vs performance trade-offs
+
+## Failure Scenarios & Mitigations
+- What happens when X fails?
+- Graceful degradation strategies`;
+
+  const standardFormat = `## Why Asked
+Interview context explaining why this is commonly asked
+
+## Key Concepts
+- Concept 1
+- Concept 2
+
+## Code Example
+\`\`\`
+Implementation if applicable
+\`\`\`
+
+## Follow-up Questions
+- Common follow-up 1
+- Common follow-up 2`;
+
   return `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
 
 Improve this ${question.channel} interview question's answer and explanation. Fix: ${issues.slice(0, 3).join(', ')}
@@ -108,8 +168,10 @@ ${feedbackSection}
 Current Q: "${question.question.substring(0, 150)}"
 Current A: "${question.answer?.substring(0, 150) || 'missing'}"
 
+${isSystemDesign ? systemDesignFormat : ''}
+
 Output this exact JSON structure:
-{"question":"improved question ending with ?","answer":"concise answer under 150 chars","explanation":"## Why Asked\\nInterview context explaining why this is commonly asked\\n\\n## Key Concepts\\n- Concept 1\\n- Concept 2\\n\\n## Code Example\\n\`\`\`\\nImplementation if applicable\\n\`\`\`\\n\\n## Follow-up Questions\\n- Common follow-up 1\\n- Common follow-up 2"}
+{"question":"improved question ending with ?","answer":"concise answer under 150 chars","explanation":"${isSystemDesign ? '## Functional Requirements\\n- [Requirement 1]\\n- [Requirement 2]\\n\\n## Non-Functional Requirements (NFRs)\\n- **Availability**: [Target]\\n- **Latency**: [Target]\\n- **Scalability**: [Target]\\n- **Consistency**: [Type]\\n\\n## Back-of-Envelope Calculations\\n### Users & Traffic\\n- DAU: [Number]\\n- Peak QPS: [Number]\\n\\n### Storage\\n- Per user: [Size]\\n- Total: [Size]\\n\\n## High-Level Design\\n[Description]\\n\\n## Deep Dive: Key Components\\n### [Component 1]\\n[Details]\\n\\n## Trade-offs & Considerations\\n- [Trade-off 1]\\n\\n## Failure Scenarios & Mitigations\\n- [Scenario]: [Mitigation]' : standardFormat.replace(/\n/g, '\\n')}"}
 
 IMPORTANT: Return ONLY the JSON object. No other text.`;
 }

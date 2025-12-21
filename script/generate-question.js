@@ -351,9 +351,17 @@ async function main() {
 
   const inputDifficulty = process.env.INPUT_DIFFICULTY || 'random';
   const inputLimit = parseInt(process.env.INPUT_LIMIT || '0', 10);
+  const inputChannel = process.env.INPUT_CHANNEL || null; // Specific channel to generate for
   const balanceChannels = process.env.BALANCE_CHANNELS !== 'false'; // Default to true
   
   const allChannels = getAllChannels();
+  
+  // Validate input channel if provided
+  if (inputChannel && !allChannels.includes(inputChannel)) {
+    console.error(`❌ Invalid channel: ${inputChannel}`);
+    console.log(`Available channels: ${allChannels.join(', ')}`);
+    process.exit(1);
+  }
   
   // Get channel question counts efficiently (single query instead of fetching all questions)
   const channelCounts = await getChannelQuestionCounts();
@@ -386,7 +394,12 @@ async function main() {
     }
   }
   
-  if (balanceChannels && inputLimit > 0) {
+  // If specific channel is provided, use only that channel
+  if (inputChannel) {
+    channels = Array(limit).fill(inputChannel);
+    console.log(`\n🎯 Specific channel selected: ${inputChannel} (generating ${limit} question(s))`);
+    console.log(`   Current count: ${channelCounts[inputChannel] || 0} questions`);
+  } else if (balanceChannels && inputLimit > 0) {
     // Use weighted selection to prioritize channels with fewer questions
     // This will EXCLUDE channels in the top 25% by question count
     channels = selectChannelsWeighted(channelCounts, allChannels, limit);
@@ -522,8 +535,55 @@ DIAGRAM REQUIREMENTS (CRITICAL):
 - Each node must have a specific, descriptive label related to the actual content
 - If you cannot create a meaningful diagram, set diagram to null
 
+${channel === 'system-design' ? `
+SYSTEM DESIGN EXPLANATION FORMAT (MANDATORY):
+For system design questions, the explanation MUST include these sections in order:
+
+## Functional Requirements
+- List 4-6 specific functional requirements (what the system must do)
+- Be specific: "Users can post tweets up to 280 characters" not "Users can post"
+
+## Non-Functional Requirements (NFRs)
+- Availability: Target uptime (e.g., 99.99%)
+- Latency: Response time targets (e.g., p99 < 200ms)
+- Scalability: Expected growth and peak loads
+- Consistency: Strong vs eventual consistency trade-offs
+- Durability: Data loss tolerance
+
+## Back-of-Envelope Calculations
+- Daily/Monthly Active Users (DAU/MAU)
+- Requests per second (read/write ratio)
+- Storage requirements (per user, total)
+- Bandwidth requirements
+- Cache size estimates
+- Show your math!
+
+## High-Level Design
+- Describe the main components and their interactions
+- Explain data flow for key operations
+
+## System Architecture Diagram
+(This will be in the diagram field)
+
+## Deep Dive: Key Components
+- Pick 2-3 critical components and explain in detail
+- Database schema design
+- API design
+- Caching strategy
+
+## Trade-offs & Considerations
+- CAP theorem implications
+- Cost vs performance trade-offs
+- Technology choices and alternatives
+
+## Failure Scenarios & Mitigations
+- What happens when X fails?
+- How to handle data center outages
+- Graceful degradation strategies
+` : ''}
+
 Output ONLY this JSON (no markdown, no explanation):
-{"question":"[Specific, practical interview question ending with ?]","answer":"[Concise answer under 150 chars that directly addresses the question]","explanation":"## Why This Is Asked\\n[Why ${targetCompanies[0]} asks this - what skills it tests]\\n\\n## Expected Answer\\n[What a strong candidate would say]\\n\\n## Code Example\\n\`\`\`${channel === 'algorithms' ? 'python' : channel === 'frontend' ? 'javascript' : 'typescript'}\\n[Working code example]\\n\`\`\`\\n\\n## Follow-up Questions\\n- [Follow-up 1]\\n- [Follow-up 2]\\n- [Follow-up 3]","diagram":"flowchart TD\\n  A[Specific Technical Step] --> B[Another Specific Step]\\n  B --> C{Decision Point}\\n  C -->|Yes| D[Outcome 1]\\n  C -->|No| E[Outcome 2]\\n  D --> F[Final Result]\\n  E --> F","companies":${JSON.stringify(targetCompanies)},"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null}}`;
+{"question":"[Specific, practical interview question ending with ?]","answer":"[Concise answer under 150 chars that directly addresses the question]","explanation":"${channel === 'system-design' ? '## Functional Requirements\\n- [Requirement 1]\\n- [Requirement 2]\\n- [Requirement 3]\\n- [Requirement 4]\\n\\n## Non-Functional Requirements (NFRs)\\n- **Availability**: [Target]\\n- **Latency**: [Target]\\n- **Scalability**: [Target]\\n- **Consistency**: [Type and reasoning]\\n- **Durability**: [Requirements]\\n\\n## Back-of-Envelope Calculations\\n### Users & Traffic\\n- DAU: [Number]\\n- Peak QPS: [Number]\\n- Read:Write ratio: [Ratio]\\n\\n### Storage\\n- Per user: [Size]\\n- Total (5 years): [Size]\\n\\n### Bandwidth\\n- Ingress: [Size/sec]\\n- Egress: [Size/sec]\\n\\n## High-Level Design\\n[Description of main components]\\n\\n## Deep Dive: Key Components\\n### [Component 1]\\n[Details]\\n\\n### [Component 2]\\n[Details]\\n\\n## Trade-offs & Considerations\\n- [Trade-off 1]\\n- [Trade-off 2]\\n\\n## Failure Scenarios & Mitigations\\n- [Scenario 1]: [Mitigation]\\n- [Scenario 2]: [Mitigation]' : '## Why This Is Asked\\n[Why ' + targetCompanies[0] + ' asks this - what skills it tests]\\n\\n## Expected Answer\\n[What a strong candidate would say]\\n\\n## Code Example\\n```' + (channel === 'algorithms' ? 'python' : channel === 'frontend' ? 'javascript' : 'typescript') + '\\n[Working code example]\\n```\\n\\n## Follow-up Questions\\n- [Follow-up 1]\\n- [Follow-up 2]\\n- [Follow-up 3]'}","diagram":"flowchart TD\\n  A[Specific Technical Step] --> B[Another Specific Step]\\n  B --> C{Decision Point}\\n  C -->|Yes| D[Outcome 1]\\n  C -->|No| E[Outcome 2]\\n  D --> F[Final Result]\\n  E --> F","companies":${JSON.stringify(targetCompanies)},"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null}}`;
 
     console.log('\n📝 PROMPT:');
     console.log('─'.repeat(50));

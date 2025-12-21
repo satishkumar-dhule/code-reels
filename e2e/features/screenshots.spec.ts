@@ -32,7 +32,13 @@ test.describe('Screenshot Pages - Desktop', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1500);
     
-    await expect(page.locator('h1').first()).toBeVisible();
+    // Check for key elements in the redesigned home page
+    // Featured question card or welcome card should be visible
+    const hasFeaturedQuestion = await page.getByText("Today's Question").isVisible({ timeout: 3000 }).catch(() => false);
+    const hasWelcome = await page.getByText('Welcome to Learn Reels').isVisible({ timeout: 1000 }).catch(() => false);
+    expect(hasFeaturedQuestion || hasWelcome).toBeTruthy();
+    
+    // Your Channels section should be visible for users with subscriptions
     await expect(page.getByText('Your Channels')).toBeVisible();
   });
 
@@ -163,7 +169,10 @@ test.describe('Screenshot Pages - Theme Support', () => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('h1').first()).toBeVisible();
+    // Check for key elements in the redesigned home page
+    const hasFeaturedQuestion = await page.getByText("Today's Question").isVisible({ timeout: 3000 }).catch(() => false);
+    const hasChannels = await page.getByText('Your Channels').isVisible({ timeout: 1000 }).catch(() => false);
+    expect(hasFeaturedQuestion || hasChannels).toBeTruthy();
   });
 
   test('home page supports light theme', async ({ page }) => {
@@ -173,7 +182,10 @@ test.describe('Screenshot Pages - Theme Support', () => {
     });
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('h1').first()).toBeVisible();
+    // Check for key elements in the redesigned home page
+    const hasFeaturedQuestion = await page.getByText("Today's Question").isVisible({ timeout: 3000 }).catch(() => false);
+    const hasChannels = await page.getByText('Your Channels').isVisible({ timeout: 1000 }).catch(() => false);
+    expect(hasFeaturedQuestion || hasChannels).toBeTruthy();
   });
 
   test('badges page supports both themes', async ({ page }) => {

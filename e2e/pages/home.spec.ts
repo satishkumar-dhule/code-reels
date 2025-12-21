@@ -23,11 +23,14 @@ test.describe('Home Page', () => {
     await page.waitForLoadState('networkidle');
     
     if (isMobile) {
-      // Mobile uses LinkedIn-style feed UI without h1
+      // Mobile uses focused feed UI
       const pageContent = await page.locator('body').textContent();
       expect(pageContent && pageContent.length > 100).toBeTruthy();
     } else {
-      await expect(page.locator('h1').first()).toBeVisible({ timeout: 10000 });
+      // Desktop uses same focused design - check for key elements
+      const hasFeaturedQuestion = await page.getByText("Today's Question").isVisible({ timeout: 5000 }).catch(() => false);
+      const hasChannels = await page.getByText('Your Channels').isVisible({ timeout: 3000 }).catch(() => false);
+      expect(hasFeaturedQuestion || hasChannels).toBeTruthy();
     }
   });
 
@@ -36,7 +39,7 @@ test.describe('Home Page', () => {
     await page.waitForLoadState('networkidle');
     
     if (isMobile) {
-      // Mobile uses LinkedIn-style feed UI
+      // Mobile uses focused feed UI
       const pageContent = await page.locator('body').textContent();
       expect(pageContent && pageContent.length > 100).toBeTruthy();
     } else {

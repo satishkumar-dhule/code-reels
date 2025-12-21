@@ -16,7 +16,8 @@ import { SEOHead } from '../components/SEOHead';
 import {
   Code, Trophy, Target, Flame, BookOpen, ChevronRight,
   Settings, Moon, Bell, Shield, HelpCircle, LogOut,
-  Award, Zap, Calendar, TrendingUp, Star, X, Check, Sun, Monitor
+  Award, Zap, Calendar, TrendingUp, Star, X, Check, Sun, Monitor,
+  Bookmark
 } from 'lucide-react';
 
 export default function Profile() {
@@ -165,6 +166,12 @@ export default function Profile() {
             transition={{ delay: 0.3 }}
             className="bg-card rounded-2xl border border-border overflow-hidden"
           >
+            <MenuItem
+              icon={<Bookmark className="w-5 h-5" />}
+              label="Bookmarks"
+              sublabel="Saved questions"
+              onClick={() => setLocation('/bookmarks')}
+            />
             <MenuItem
               icon={<BookOpen className="w-5 h-5" />}
               label="My Channels"

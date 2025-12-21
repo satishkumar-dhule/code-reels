@@ -3,19 +3,19 @@
  * Card-based feed with stories, posts, and engagement
  */
 
-import { useState } from 'react';
 import { useLocation } from 'wouter';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useChannelStats } from '../../hooks/use-stats';
 import { useUserPreferences } from '../../context/UserPreferencesContext';
 import { useProgress, useGlobalStats } from '../../hooks/use-progress';
 import { allChannelsConfig } from '../../lib/channels-config';
+import { GettingStartedCard } from './GettingStartedCard';
+import { ProgressStorage } from '../../services/storage.service';
 import {
   Cpu, Terminal, Layout, Database, Activity, GitBranch, Server,
   Layers, Smartphone, Shield, Brain, Workflow, Box, Cloud, Code,
   Network, MessageCircle, Users, Sparkles, Eye, FileText, CheckCircle, 
-  Monitor, Zap, Gauge, ChevronRight, Bookmark, Share2, ThumbsUp,
-  Play, Clock, Target, Flame, Trophy, ArrowRight, Plus
+  Monitor, Zap, Gauge, ChevronRight, Bookmark,
+  Play, Target, Flame, Trophy, Plus
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -69,8 +69,23 @@ export function MobileFeed() {
     return s;
   })();
 
+  // Memoize these checks to avoid re-running on every render
+  // Check if user has started learning (visited any channel)
+  const hasStartedLearning = subscribedChannels.length > 0 && 
+    ProgressStorage.getAllCompletedIds().size > 0;
+
+  // Check if user has completed any question
+  const hasCompletedQuestion = ProgressStorage.getAllCompletedIds().size > 0;
+
   return (
     <div className="pb-20">
+      {/* Getting Started Card for new users */}
+      <GettingStartedCard 
+        subscribedChannels={subscribedChannels.length}
+        hasStartedLearning={hasStartedLearning}
+        hasCompletedQuestion={hasCompletedQuestion}
+      />
+
       {/* Stories/Quick Access - horizontal scroll */}
       <StoriesSection 
         channels={subscribedChannels} 
@@ -135,10 +150,23 @@ function StoriesSection({
   onChannelClick: (id: string) => void;
   onAddClick: () => void;
 }) {
-  if (channels.length === 0) return null;
-
   return (
     <section className="py-3 border-b border-border/50">
+      {/* Section label */}
+      <div className="flex items-center justify-between px-4 mb-2">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          Your Channels
+        </span>
+        {channels.length > 0 && (
+          <button 
+            onClick={onAddClick}
+            className="text-xs text-primary font-medium"
+          >
+            Manage
+          </button>
+        )}
+      </div>
+
       <div className="flex gap-3 overflow-x-auto px-4 no-scrollbar" style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Add new story */}
         <button
@@ -151,13 +179,22 @@ function StoriesSection({
           <span className="text-[11px] text-muted-foreground font-medium">Add</span>
         </button>
 
-        {channels.map((channel) => (
-          <StoryItem 
-            key={channel.id}
-            channel={channel}
-            onClick={() => onChannelClick(channel.id)}
-          />
-        ))}
+        {channels.length === 0 ? (
+          // Empty state hint
+          <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-full">
+            <span className="text-xs text-muted-foreground">
+              👈 Tap to browse topics
+            </span>
+          </div>
+        ) : (
+          channels.map((channel) => (
+            <StoryItem 
+              key={channel.id}
+              channel={channel}
+              onClick={() => onChannelClick(channel.id)}
+            />
+          ))
+        )}
       </div>
     </section>
   );

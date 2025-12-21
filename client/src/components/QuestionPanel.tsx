@@ -1,29 +1,7 @@
 import { motion } from 'framer-motion';
-import { Hash, Zap, Target, Flame, Bookmark, Clock, Check, RefreshCw, TrendingUp } from 'lucide-react';
+import { Zap, Target, Flame, Bookmark, Clock, Check, Building2, Hash, TrendingUp } from 'lucide-react';
 import type { Question } from '../lib/data';
 import { formatTag } from '../lib/utils';
-
-// Format relative time
-function formatTimeAgo(dateStr: string | undefined): string {
-  if (!dateStr) return '';
-  
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-  const diffWeeks = Math.floor(diffDays / 7);
-  const diffMonths = Math.floor(diffDays / 30);
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffWeeks < 4) return `${diffWeeks}w ago`;
-  if (diffMonths < 12) return `${diffMonths}mo ago`;
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-}
 
 interface QuestionPanelProps {
   question: Question;
@@ -34,6 +12,92 @@ interface QuestionPanelProps {
   onToggleMark: () => void;
   timerEnabled: boolean;
   timeLeft: number;
+}
+
+// Background mascot SVGs based on difficulty/emotion
+function BackgroundMascot({ difficulty }: { difficulty: string }) {
+  // Thinking robot for easy - curious and friendly
+  if (difficulty === 'beginner') {
+    return (
+      <svg 
+        className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 opacity-[0.06] pointer-events-none"
+        viewBox="0 0 100 100" 
+        fill="currentColor"
+      >
+        {/* Happy robot with lightbulb */}
+        <circle cx="50" cy="45" r="28" strokeWidth="3" stroke="currentColor" fill="none" />
+        <rect x="42" y="73" width="16" height="12" rx="2" />
+        <rect x="38" y="85" width="24" height="6" rx="2" />
+        {/* Eyes - happy */}
+        <circle cx="40" cy="42" r="5" />
+        <circle cx="60" cy="42" r="5" />
+        {/* Smile */}
+        <path d="M38 52 Q50 62 62 52" strokeWidth="3" stroke="currentColor" fill="none" />
+        {/* Antenna with lightbulb */}
+        <line x1="50" y1="17" x2="50" y2="8" strokeWidth="2" stroke="currentColor" />
+        <circle cx="50" cy="5" r="4" />
+        {/* Ears */}
+        <rect x="18" y="38" width="6" height="14" rx="2" />
+        <rect x="76" y="38" width="6" height="14" rx="2" />
+      </svg>
+    );
+  }
+  
+  // Focused robot for medium - determined
+  if (difficulty === 'intermediate') {
+    return (
+      <svg 
+        className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 opacity-[0.06] pointer-events-none"
+        viewBox="0 0 100 100" 
+        fill="currentColor"
+      >
+        {/* Focused robot with gear */}
+        <circle cx="50" cy="45" r="28" strokeWidth="3" stroke="currentColor" fill="none" />
+        <rect x="42" y="73" width="16" height="12" rx="2" />
+        <rect x="38" y="85" width="24" height="6" rx="2" />
+        {/* Eyes - focused/determined */}
+        <rect x="35" y="40" width="10" height="6" rx="1" />
+        <rect x="55" y="40" width="10" height="6" rx="1" />
+        {/* Straight mouth - concentrating */}
+        <line x1="40" y1="55" x2="60" y2="55" strokeWidth="3" stroke="currentColor" />
+        {/* Antenna */}
+        <line x1="50" y1="17" x2="50" y2="8" strokeWidth="2" stroke="currentColor" />
+        <polygon points="50,2 46,8 54,8" />
+        {/* Gear on side */}
+        <circle cx="82" cy="50" r="8" strokeWidth="2" stroke="currentColor" fill="none" />
+        <circle cx="82" cy="50" r="3" />
+      </svg>
+    );
+  }
+  
+  // Intense robot for hard - sweating but determined
+  return (
+    <svg 
+      className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 opacity-[0.06] pointer-events-none"
+      viewBox="0 0 100 100" 
+      fill="currentColor"
+    >
+      {/* Intense robot */}
+      <circle cx="50" cy="45" r="28" strokeWidth="3" stroke="currentColor" fill="none" />
+      <rect x="42" y="73" width="16" height="12" rx="2" />
+      <rect x="38" y="85" width="24" height="6" rx="2" />
+      {/* Eyes - intense/worried */}
+      <ellipse cx="40" cy="42" rx="6" ry="7" />
+      <ellipse cx="60" cy="42" rx="6" ry="7" />
+      <circle cx="42" cy="41" r="2" fill="white" />
+      <circle cx="62" cy="41" r="2" fill="white" />
+      {/* Worried mouth */}
+      <path d="M38 56 Q50 52 62 56" strokeWidth="3" stroke="currentColor" fill="none" />
+      {/* Sweat drops */}
+      <ellipse cx="78" cy="35" rx="3" ry="5" />
+      <ellipse cx="82" cy="45" rx="2" ry="4" />
+      {/* Antenna - alert */}
+      <line x1="50" y1="17" x2="50" y2="5" strokeWidth="2" stroke="currentColor" />
+      <circle cx="50" cy="3" r="3" />
+      {/* Lightning bolt */}
+      <polygon points="85,20 80,30 84,30 79,42 88,28 84,28" />
+    </svg>
+  );
 }
 
 export function QuestionPanel({ 
@@ -49,37 +113,13 @@ export function QuestionPanel({
   const getDifficultyConfig = () => {
     switch (question.difficulty) {
       case 'beginner':
-        return {
-          icon: Zap,
-          color: 'text-green-400',
-          bg: 'bg-green-500/10',
-          border: 'border-green-500/30',
-          label: 'Beginner'
-        };
+        return { icon: Zap, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', label: 'Easy' };
       case 'intermediate':
-        return {
-          icon: Target,
-          color: 'text-yellow-400',
-          bg: 'bg-yellow-500/10',
-          border: 'border-yellow-500/30',
-          label: 'Intermediate'
-        };
+        return { icon: Target, color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', label: 'Medium' };
       case 'advanced':
-        return {
-          icon: Flame,
-          color: 'text-red-400',
-          bg: 'bg-red-500/10',
-          border: 'border-red-500/30',
-          label: 'Advanced'
-        };
+        return { icon: Flame, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Hard' };
       default:
-        return {
-          icon: Target,
-          color: 'text-muted-foreground',
-          bg: 'bg-muted/50',
-          border: 'border-border',
-          label: 'Unknown'
-        };
+        return { icon: Target, color: 'text-muted-foreground', bg: 'bg-muted', border: 'border-border', label: 'Unknown' };
     }
   };
 
@@ -87,169 +127,161 @@ export function QuestionPanel({
   const DifficultyIcon = difficultyConfig.icon;
 
   return (
-    <div className="w-full h-full flex flex-col justify-center px-2 sm:px-6 md:px-10 lg:px-16 py-2 sm:py-6 relative overflow-y-auto custom-scrollbar" data-testid="question-panel">
-      {/* Header badges - Compact on mobile */}
-      <div className="absolute top-1.5 sm:top-4 left-2 sm:left-6 md:left-10 lg:left-16 right-2 sm:right-4 flex flex-wrap items-center gap-1 sm:gap-2">
-        {/* Question ID - Hidden on mobile */}
-        <div className="hidden sm:flex items-center gap-1.5 h-6 px-2 bg-muted/50 border border-border rounded">
-          <Hash className="w-3 h-3 text-primary" />
-          <span className="text-[10px] font-mono text-muted-foreground">{question.id}</span>
+    <div className="w-full h-full flex flex-col px-3 sm:px-6 lg:px-12 py-3 sm:py-6 overflow-y-auto relative" data-testid="question-panel">
+      
+      {/* Background mascot */}
+      <BackgroundMascot difficulty={question.difficulty} />
+      
+      {/* Top bar - Progress, Difficulty, Bookmark */}
+      <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Question ID - Desktop only */}
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-muted/50 border border-border rounded-lg">
+            <Hash className="w-3.5 h-3.5 text-primary" />
+            <span className="text-xs font-mono text-muted-foreground">{question.id}</span>
+          </div>
+
+          {/* Progress pill */}
+          <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-muted rounded-full sm:rounded-lg">
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+              {questionNumber} <span className="text-muted-foreground/50">/</span> {totalQuestions}
+            </span>
+          </div>
+          
+          {/* Difficulty badge */}
+          <div className={`flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full sm:rounded-lg ${difficultyConfig.bg} border ${difficultyConfig.border}`}>
+            <DifficultyIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${difficultyConfig.color}`} />
+            <span className={`text-xs sm:text-sm font-medium ${difficultyConfig.color}`}>
+              {difficultyConfig.label}
+            </span>
+          </div>
+
+          {/* Completed indicator */}
+          {isCompleted && (
+            <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/10 border border-green-500/20 rounded-full sm:rounded-lg">
+              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
+              <span className="text-xs sm:text-sm font-medium text-green-500">Done</span>
+            </div>
+          )}
+
+          {/* Relevance Score - Desktop only */}
+          {question.relevanceScore !== undefined && question.relevanceScore >= 60 && (
+            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+              question.relevanceScore >= 80 
+                ? 'bg-green-500/10 border-green-500/20' 
+                : 'bg-yellow-500/10 border-yellow-500/20'
+            }`}>
+              <TrendingUp className={`w-4 h-4 ${
+                question.relevanceScore >= 80 ? 'text-green-500' : 'text-yellow-500'
+              }`} />
+              <span className={`text-sm font-medium ${
+                question.relevanceScore >= 80 ? 'text-green-500' : 'text-yellow-500'
+              }`}>
+                {question.relevanceScore}% relevant
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Progress - Compact on mobile */}
-        <div className="flex items-center h-5 sm:h-6 px-1.5 sm:px-2 bg-muted/50 border border-border rounded">
-          <span className="text-[9px] sm:text-[10px] font-mono text-muted-foreground">
-            {questionNumber}/{totalQuestions}
-          </span>
-        </div>
+        {/* Bookmark button */}
+        <button
+          onClick={onToggleMark}
+          className={`p-2 sm:p-2.5 rounded-full sm:rounded-lg transition-colors ${
+            isMarked
+              ? 'bg-primary/10 text-primary border border-primary/20'
+              : 'bg-muted text-muted-foreground hover:text-primary hover:bg-primary/5 border border-transparent'
+          }`}
+          title={isMarked ? 'Remove bookmark' : 'Bookmark question'}
+        >
+          <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 ${isMarked ? 'fill-current' : ''}`} />
+        </button>
+      </div>
 
-        {/* Difficulty - Icon only on mobile */}
-        <div className={`flex items-center gap-1 sm:gap-1.5 h-5 sm:h-6 px-1.5 sm:px-2 ${difficultyConfig.bg} border ${difficultyConfig.border} rounded`}>
-          <DifficultyIcon className={`w-3 h-3 ${difficultyConfig.color}`} />
-          <span className={`hidden sm:inline text-[10px] font-bold uppercase tracking-wider ${difficultyConfig.color}`}>
-            {difficultyConfig.label}
-          </span>
-        </div>
+      {/* Main content area - Question centered */}
+      <div className="flex-1 flex flex-col justify-center max-w-3xl mx-auto w-full">
+        
+        {/* Companies - if asked at specific companies */}
+        {question.companies && question.companies.length > 0 && (
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
+            <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+            {question.companies.map((company, idx) => (
+              <span 
+                key={idx}
+                className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-500/10 text-blue-500 text-xs sm:text-sm font-medium rounded-full"
+              >
+                {company}
+              </span>
+            ))}
+          </div>
+        )}
 
-        {/* SubChannel - Hidden on mobile */}
-        <div className="hidden sm:flex items-center h-6 px-2 bg-muted/50 border border-border rounded">
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+        {/* Question text */}
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className={`font-bold text-foreground leading-snug sm:leading-normal ${
+            question.question.length > 200 
+              ? 'text-base sm:text-lg lg:text-xl' 
+              : question.question.length > 100
+              ? 'text-lg sm:text-xl lg:text-2xl'
+              : 'text-xl sm:text-2xl lg:text-3xl'
+          }`}
+        >
+          {question.question}
+        </motion.h1>
+
+        {/* Sub-channel / Topic */}
+        <div className="mt-3 sm:mt-4 lg:mt-6">
+          <span className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider font-medium">
             {question.subChannel}
           </span>
         </div>
 
-        {/* Relevance Score - Hidden on mobile */}
-        {question.relevanceScore !== undefined && question.relevanceScore !== null && (
-          <div className={`hidden sm:flex items-center gap-1.5 h-6 px-2 rounded border ${
-            question.relevanceScore >= 80 
-              ? 'bg-green-500/10 border-green-500/30' 
-              : question.relevanceScore >= 60 
-              ? 'bg-yellow-500/10 border-yellow-500/30'
-              : 'bg-muted/50 border-border'
-          }`}>
-            <TrendingUp className={`w-3 h-3 ${
-              question.relevanceScore >= 80 
-                ? 'text-green-400' 
-                : question.relevanceScore >= 60 
-                ? 'text-yellow-400'
-                : 'text-muted-foreground'
-            }`} />
-            <span className={`text-[10px] font-bold ${
-              question.relevanceScore >= 80 
-                ? 'text-green-400' 
-                : question.relevanceScore >= 60 
-                ? 'text-yellow-400'
-                : 'text-muted-foreground'
-            }`}>
-              {question.relevanceScore}%
-            </span>
-          </div>
-        )}
-
-        {/* Last Updated - Hidden on mobile */}
-        {question.lastUpdated && (
-          <div className="hidden sm:flex items-center gap-1.5 h-6 px-2 bg-muted/50 border border-border rounded">
-            <RefreshCw className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[10px] font-mono text-muted-foreground">
-              {formatTimeAgo(question.lastUpdated)}
-            </span>
-          </div>
-        )}
-
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Bookmark - Smaller on mobile */}
-        <button
-          onClick={onToggleMark}
-          className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded transition-all ${
-            isMarked
-              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-              : 'bg-muted/50 text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10 border border-border'
-          }`}
-          title={isMarked ? 'Remove bookmark' : 'Bookmark this question'}
-        >
-          <Bookmark className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isMarked ? 'fill-blue-400' : ''}`} />
-        </button>
-      </div>
-
-      {/* Main question content - Tighter spacing on mobile */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className={`max-w-3xl mx-auto w-full mt-6 sm:mt-0 ${
-          question.question.length > 200 ? 'space-y-1.5 sm:space-y-3' : 'space-y-2 sm:space-y-6'
-        }`}
-      >
-        {/* Question text - Smart sizing based on length */}
-        <div className="flex items-start gap-2">
-          {isCompleted && (
-            <div className="shrink-0 mt-0.5 sm:mt-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500/20 flex items-center justify-center" title="Completed">
-              <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-green-400" />
-            </div>
-          )}
-          <h1 className={`font-bold text-foreground ${
-            question.question.length > 250 
-              ? 'text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed' // Very long questions
-              : question.question.length > 150
-              ? 'text-sm sm:text-base md:text-lg lg:text-xl leading-snug' // Long questions
-              : question.question.length > 80
-              ? 'text-base sm:text-lg md:text-xl lg:text-2xl leading-snug sm:leading-tight' // Medium questions
-              : 'text-base sm:text-xl md:text-2xl lg:text-3xl leading-tight tracking-tight' // Short questions
-          }`}>
-            {question.question}
-          </h1>
-        </div>
-
-        {/* Tags - Hidden on mobile for compactness */}
+        {/* Tags */}
         {question.tags && question.tags.length > 0 && (
-          <div className="hidden sm:flex flex-wrap gap-1.5 sm:gap-2">
-            {question.tags.slice(0, 4).map(tag => (
+          <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
+            {question.tags.slice(0, 6).map(tag => (
               <span 
                 key={tag} 
-                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-muted/50 text-[9px] sm:text-[10px] font-mono tracking-wider border border-border text-muted-foreground rounded"
+                className="px-2 sm:px-3 py-0.5 sm:py-1 bg-muted text-[10px] sm:text-xs font-mono text-muted-foreground rounded-md border border-border"
               >
                 {formatTag(tag)}
               </span>
             ))}
-            {question.tags.length > 4 && (
-              <span className="px-2 py-0.5 text-[9px] sm:text-xs text-muted-foreground">
-                +{question.tags.length - 4}
+            {question.tags.length > 6 && (
+              <span className="text-[10px] sm:text-xs text-muted-foreground py-0.5 sm:py-1">
+                +{question.tags.length - 6} more
               </span>
             )}
           </div>
         )}
 
-        {/* Timer display - Hidden on mobile */}
+        {/* Timer - if enabled */}
         {timerEnabled && timeLeft > 0 && (
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="hidden sm:inline-flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-3 bg-primary/5 border-l-4 border-primary rounded"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mt-6 sm:mt-8 inline-flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 bg-primary/5 border border-primary/20 rounded-xl self-start"
           >
-            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             <div>
-              <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-muted-foreground mb-0.5">Time Left</div>
-              <div className="text-lg sm:text-2xl font-mono font-bold text-primary tabular-nums">
+              <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">Time Remaining</div>
+              <div className="text-2xl sm:text-3xl font-mono font-bold text-primary tabular-nums">
                 {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')}
               </div>
             </div>
           </motion.div>
         )}
-      </motion.div>
-
-      {/* Bottom hint - Hidden on mobile for compactness */}
-      <div className="absolute bottom-2 sm:bottom-4 left-3 sm:left-6 md:left-10 lg:left-16 right-3 sm:right-4 hidden sm:block">
-        <div className="text-[9px] sm:text-[10px] text-muted-foreground/50 uppercase tracking-widest">
-          Press → to reveal answer
-        </div>
       </div>
 
-      {/* Scroll indicator for long questions on mobile */}
-      {question.question.length > 200 && (
-        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-black/80 to-transparent pointer-events-none lg:hidden" />
-      )}
+      {/* Bottom hint */}
+      <div className="mt-4 sm:mt-6 text-center">
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          <span className="sm:hidden">Swipe left or tap Answer tab →</span>
+          <span className="hidden sm:inline">Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">→</kbd> or click the Answer tab to reveal</span>
+        </p>
+      </div>
     </div>
   );
 }

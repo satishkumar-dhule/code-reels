@@ -337,6 +337,22 @@ export const OnboardingStorage = {
   markSwipeHintSeen(): void {
     setBoolean(STORAGE_KEYS.SWIPE_HINT_SEEN, true);
   },
+
+  hasSeenGettingStarted(): boolean {
+    return getBoolean(STORAGE_KEYS.GETTING_STARTED_SEEN, false);
+  },
+
+  markGettingStartedSeen(): void {
+    setBoolean(STORAGE_KEYS.GETTING_STARTED_SEEN, true);
+  },
+
+  hasSeenCoachMarks(): boolean {
+    return getBoolean(STORAGE_KEYS.COACH_MARKS_SEEN, false);
+  },
+
+  markCoachMarksSeen(): void {
+    setBoolean(STORAGE_KEYS.COACH_MARKS_SEEN, true);
+  },
 };
 
 // ============================================

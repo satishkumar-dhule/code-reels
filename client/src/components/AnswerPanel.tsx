@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EnhancedMermaid } from './EnhancedMermaid';
 import { YouTubePlayer } from './YouTubePlayer';
@@ -7,8 +7,9 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
-  Check, BookOpen, Code2, Lightbulb, ExternalLink, Building2, 
-  ChevronDown, Baby 
+  BookOpen, Code2, Lightbulb, ExternalLink, Building2, 
+  ChevronDown, Baby, Copy, Check, Tag, MessageSquare,
+  Zap, List
 } from 'lucide-react';
 import type { Question } from '../lib/data';
 import { GiscusComments } from './GiscusComments';
@@ -16,97 +17,56 @@ import { formatTag } from '../lib/utils';
 
 /**
  * Preprocess markdown text to fix common formatting issues
- * - Converts inline bullet points (•) to proper markdown lists
- * - Fixes numbered lists that are inline
- * - Ensures proper line breaks for list items
  */
 function preprocessMarkdown(text: string): string {
   if (!text) return '';
   
   let processed = text;
   
-  // Fix inline bullet points: "• Item 1 • Item 2" -> proper list
-  // First, handle cases where bullets are at the start of lines but not formatted as lists
+  // Fix inline bullet points
   processed = processed.replace(/^[•·]\s*/gm, '- ');
   
-  // Handle inline bullets (• followed by text, then another •)
-  // Split by bullet and rejoin as list items
   if (processed.includes('•') || processed.includes('·')) {
-    // Check if bullets are inline (not at start of lines)
     const lines = processed.split('\n');
     const processedLines = lines.map(line => {
-      // If line contains multiple bullets inline, convert to list
       const bulletCount = (line.match(/[•·]/g) || []).length;
       if (bulletCount > 1 || (bulletCount === 1 && !line.trim().startsWith('•') && !line.trim().startsWith('·'))) {
-        // Split by bullet and create list items
         const parts = line.split(/[•·]/).map(p => p.trim()).filter(p => p);
         if (parts.length > 1) {
           return parts.map(p => `- ${p}`).join('\n');
         }
       }
-      // Single bullet at start - convert to list item
       return line.replace(/^[•·]\s*/, '- ');
     });
     processed = processedLines.join('\n');
   }
   
-  // Fix inline numbered lists: "1. Item 2. Item" -> proper list
-  // Look for patterns like "1. text 2. text" or "1) text 2) text"
   processed = processed.replace(/(\d+[.)]\s+[^0-9]+?)(?=\s+\d+[.)])/g, '$1\n');
-  
-  // Ensure numbered items at start of content are on their own lines
   processed = processed.replace(/(?<!\n)(\d+[.)]\s+)/g, '\n$1');
-  
-  // Clean up any double newlines that might have been created
   processed = processed.replace(/\n{3,}/g, '\n\n');
-  
-  // Trim leading newline if we added one at the start
   processed = processed.replace(/^\n+/, '');
   
   return processed;
 }
 
-// Check if mermaid diagram content is valid (non-empty, has valid structure, and is not trivial)
+// Check if mermaid diagram is valid
 function isValidMermaidDiagram(diagram: string | undefined | null): boolean {
   if (!diagram || typeof diagram !== 'string') return false;
   const trimmed = diagram.trim();
   if (!trimmed || trimmed.length < 10) return false;
   
-  // Check for common mermaid diagram types
   const validStarts = ['graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 'stateDiagram', 'erDiagram', 'journey', 'gantt', 'pie', 'gitGraph', 'mindmap', 'timeline', 'quadrantChart', 'sankey', 'xychart', 'block'];
   const firstLine = trimmed.split('\n')[0].toLowerCase().trim();
   const hasValidStart = validStarts.some(start => firstLine.startsWith(start.toLowerCase()));
   if (!hasValidStart) return false;
   
-  // Filter out trivial/placeholder diagrams
   const lines = trimmed.split('\n').filter(line => {
     const l = line.trim().toLowerCase();
-    // Skip empty lines, comments, and diagram type declarations
     return l && !l.startsWith('%%') && !validStarts.some(s => l.startsWith(s.toLowerCase()));
   });
   
-  // Must have at least 3 meaningful lines (nodes/connections)
   if (lines.length < 3) return false;
   
-  // Check for trivial patterns like just "Start" and "End"
-  const content = lines.join(' ').toLowerCase();
-  const trivialPatterns = [
-    /^[a-z]\[?start\]?\s*--?>?\s*[a-z]\[?end\]?$/i,  // A[Start] --> B[End]
-    /^start\s*--?>?\s*end$/i,  // start --> end
-  ];
-  
-  // Check if diagram only contains trivial content
-  const meaningfulContent = content
-    .replace(/\[.*?\]/g, '') // Remove labels
-    .replace(/--+>?/g, ' ')  // Remove arrows
-    .replace(/\|.*?\|/g, '') // Remove edge labels
-    .replace(/[a-z]\d*/gi, '') // Remove node IDs
-    .trim();
-  
-  // If after removing structure there's very little content, it's trivial
-  if (meaningfulContent.length < 5 && lines.length < 4) return false;
-  
-  // Check for common trivial placeholder diagrams
   const lowerContent = trimmed.toLowerCase();
   if (
     (lowerContent.includes('start') && lowerContent.includes('end') && lines.length <= 3) ||
@@ -123,107 +83,59 @@ interface AnswerPanelProps {
   isCompleted: boolean;
 }
 
-interface CollapsibleSectionProps {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  defaultExpanded?: boolean;
-  accentColor?: string;
-  onVisibilityChange?: (id: string, isVisible: boolean) => void;
-}
-
-function CollapsibleSection({ 
-  id, 
+// Compact expandable card component
+function ExpandableCard({ 
   title, 
   icon, 
   children, 
   defaultExpanded = true,
-  accentColor = 'primary',
-  onVisibilityChange 
-}: CollapsibleSectionProps) {
+  variant = 'default',
+  badge
+}: { 
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  defaultExpanded?: boolean;
+  variant?: 'default' | 'highlight' | 'success' | 'purple';
+  badge?: string;
+}) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-  const [userToggled, setUserToggled] = useState(false); // Track if user manually toggled
-  const sectionRef = useRef<HTMLDivElement>(null);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
-  // Only auto-collapse when section scrolls above viewport
-  // Don't auto-expand - let user control that
-  useEffect(() => {
-    // Skip auto-collapse if user has manually toggled
-    if (userToggled) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          // Only auto-collapse when scrolled above viewport (not below)
-          if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
-            setIsExpanded(false);
-          }
-          onVisibilityChange?.(id, entry.isIntersecting);
-        });
-      },
-      { 
-        threshold: 0.1,
-        rootMargin: '-100px 0px 0px 0px' // Only trigger when header is well above viewport
-      }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [id, userToggled, onVisibilityChange]);
-
-  const toggleExpanded = () => {
-    setUserToggled(true); // Mark as user-controlled
-    setIsExpanded(!isExpanded);
+  const variantStyles = {
+    default: 'bg-card border-border',
+    highlight: 'bg-primary/5 border-primary/20',
+    success: 'bg-green-500/5 border-green-500/20',
+    purple: 'bg-purple-500/5 border-purple-500/20',
   };
 
-  const accentClasses = {
-    primary: 'bg-primary',
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    yellow: 'bg-yellow-500',
-    red: 'bg-red-500',
+  const iconStyles = {
+    default: 'text-muted-foreground',
+    highlight: 'text-primary',
+    success: 'text-green-500',
+    purple: 'text-purple-500',
   };
 
   return (
-    <div ref={sectionRef} className="w-full mb-2 sm:mb-6 clear-both">
+    <div className={`rounded-xl sm:rounded-2xl border overflow-hidden ${variantStyles[variant]}`}>
       <button
-        onClick={toggleExpanded}
-        className="w-full flex items-center justify-between gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 group cursor-pointer py-1"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-4 hover:bg-muted/30 transition-colors"
       >
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className={`w-0.5 sm:w-1 h-3.5 sm:h-5 ${accentClasses[accentColor as keyof typeof accentClasses] || accentClasses.primary} transition-all ${isExpanded ? 'opacity-100' : 'opacity-50'}`} />
-          <span className="text-muted-foreground">{icon}</span>
-          <h2 className="text-[10px] sm:text-sm font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors">
-            {title}
-          </h2>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className={iconStyles[variant]}>{icon}</span>
+          <span className="font-semibold text-sm sm:text-base">{title}</span>
+          {badge && (
+            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary/10 text-primary text-[10px] sm:text-xs font-medium rounded">
+              {badge}
+            </span>
+          )}
         </div>
-        {isMobile ? (
-          <div className={`text-muted-foreground transition-transform ${isExpanded ? '' : '-rotate-90'}`}>
-            <ChevronDown className="w-3.5 h-3.5" />
-          </div>
-        ) : (
-          <motion.div
-            animate={{ rotate: isExpanded ? 0 : -90 }}
-            transition={{ duration: 0.2 }}
-            className="text-muted-foreground group-hover:text-foreground transition-colors"
-          >
-            <ChevronDown className="w-4 h-4" />
-          </motion.div>
-        )}
+        <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
       </button>
       
-      {/* Simplified animation on mobile for better performance */}
       {isMobile ? (
-        isExpanded && (
-          <div className="overflow-hidden">
-            {children}
-          </div>
-        )
+        isExpanded && <div className="px-3 pb-3">{children}</div>
       ) : (
         <AnimatePresence initial={false}>
           {isExpanded && (
@@ -231,10 +143,10 @@ function CollapsibleSection({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              {children}
+              <div className="px-3 sm:px-4 lg:px-5 pb-3 sm:pb-4 lg:pb-5">{children}</div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -243,32 +155,74 @@ function CollapsibleSection({
   );
 }
 
+// Code block with copy button
+function CodeBlock({ code, language }: { code: string; language: string }) {
+  const [copied, setCopied] = useState(false);
 
-export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
-  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="rounded-lg sm:rounded-xl overflow-hidden border border-border bg-[#1e1e1e]">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-1.5 sm:py-2 bg-muted/50 border-b border-border">
+        <div className="flex items-center gap-2">
+          <Code2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+          <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">
+            {language || 'code'}
+          </span>
+        </div>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded transition-colors"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
+              <span className="text-green-500">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        language={language || 'text'}
+        style={vscDarkPlus}
+        customStyle={{ 
+          margin: 0, 
+          padding: '0.75rem', 
+          background: 'transparent',
+          fontSize: '0.75rem',
+          lineHeight: '1.5',
+        }}
+        wrapLines={true}
+        wrapLongLines={true}
+        className="!text-xs sm:!text-sm !p-3 sm:!p-4"
+      >
+        {code}
+      </SyntaxHighlighter>
+    </div>
+  );
+}
+
+export function AnswerPanel({ question }: AnswerPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isMobileView = typeof window !== 'undefined' && window.innerWidth < 640;
 
-  const handleVisibilityChange = useCallback((id: string, isVisible: boolean) => {
-    setVisibleSections(prev => {
-      const next = new Set(prev);
-      if (isVisible) {
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const renderMarkdown = (text: string) => {
-    // Preprocess the text to fix formatting issues
+  const renderMarkdown = useCallback((text: string) => {
     const processedText = preprocessMarkdown(text);
     
     return (
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, className, children, ...props }) {
+          code({ className, children }) {
             const match = /language-(\w+)/.exec(className || '');
             const language = match ? match[1] : '';
             const codeContent = String(children).replace(/\n$/, '');
@@ -276,311 +230,229 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             
             if (isInline) {
               return (
-                <code className="px-1.5 py-0.5 bg-primary/10 text-primary rounded text-[0.85em] font-mono border border-primary/20 whitespace-nowrap" {...props}>
+                <code className="px-1 sm:px-1.5 py-0.5 bg-primary/10 text-primary rounded text-[0.85em] font-mono">
                   {children}
                 </code>
               );
             }
             
             if (language === 'mermaid') {
-              // Skip invalid mermaid diagrams
-              if (!isValidMermaidDiagram(codeContent)) {
-                return null;
-              }
+              if (!isValidMermaidDiagram(codeContent)) return null;
               return (
-                <div className="my-6 sm:my-8 w-full clear-both mb-8">
+                <div className="my-4 sm:my-6">
                   <EnhancedMermaid chart={codeContent} />
                 </div>
               );
             }
             
             return (
-              <div className="my-3 sm:my-8 w-full rounded-lg overflow-hidden border border-border shadow-lg clear-both mb-3 sm:mb-6">
-                <div className="flex items-center justify-between px-2 sm:px-4 py-1 sm:py-2 bg-muted border-b border-border">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Code2 className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-primary shrink-0" />
-                    <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-muted-foreground">{language || 'code'}</span>
-                  </div>
-                </div>
-                <SyntaxHighlighter
-                  language={language || 'text'}
-                  style={vscDarkPlus}
-                  customStyle={{ 
-                    margin: 0, 
-                    padding: window.innerWidth < 640 ? '0.5rem' : '0.75rem', 
-                    background: '#0a0a0a',
-                    fontSize: window.innerWidth < 640 ? '0.6rem' : '0.7rem',
-                    lineHeight: '1.4',
-                    overflowX: 'auto'
-                  }}
-                  showLineNumbers={codeContent.split('\n').length > 5 && window.innerWidth >= 640}
-                  wrapLines={true}
-                  wrapLongLines={true}
-                >
-                  {codeContent}
-                </SyntaxHighlighter>
+              <div className="my-3 sm:my-4">
+                <CodeBlock code={codeContent} language={language} />
               </div>
             );
           },
           p({ children }) {
-            return <p className="mb-2 sm:mb-4 leading-relaxed text-foreground/85 clear-both">{children}</p>;
+            return <p className="mb-3 sm:mb-4 leading-relaxed text-foreground/90 text-sm sm:text-base">{children}</p>;
           },
           h1({ children }) {
-            return <h1 className="text-sm sm:text-xl md:text-2xl font-bold mb-2 sm:mb-4 mt-3 sm:mt-6 md:mt-8 text-foreground border-b border-border pb-1.5 sm:pb-2 clear-both">{children}</h1>;
+            return <h1 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4 mt-4 sm:mt-6 text-foreground border-b border-border pb-2">{children}</h1>;
           },
           h2({ children }) {
-            return <h2 className="text-xs sm:text-lg md:text-xl font-bold mb-1.5 sm:mb-3 mt-3 sm:mt-6 text-foreground clear-both">{children}</h2>;
+            return <h2 className="text-sm sm:text-base lg:text-lg font-bold mb-2 sm:mb-3 mt-4 sm:mt-5 text-foreground">{children}</h2>;
           },
           h3({ children }) {
-            return <h3 className="text-[11px] sm:text-base md:text-lg font-bold mb-1.5 sm:mb-2 mt-2 sm:mt-4 text-foreground/90 clear-both">{children}</h3>;
+            return <h3 className="text-sm sm:text-base font-semibold mb-2 mt-3 sm:mt-4 text-foreground/90">{children}</h3>;
           },
           strong({ children }) {
-            return <strong className="font-bold text-foreground">{children}</strong>;
-          },
-          em({ children }) {
-            return <em className="italic text-primary/90">{children}</em>;
+            return <strong className="font-semibold text-foreground">{children}</strong>;
           },
           ul({ children }) {
-            return <ul className="list-none space-y-1.5 sm:space-y-2.5 mb-3 sm:mb-5 ml-1 sm:ml-2 clear-both">{children}</ul>;
+            return <ul className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4 ml-1">{children}</ul>;
           },
           ol({ children }) {
-            return <ol className="list-none space-y-1.5 sm:space-y-2.5 mb-3 sm:mb-5 ml-1 sm:ml-2 clear-both [counter-reset:list-counter]">{children}</ol>;
+            return <ol className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4 ml-1 [counter-reset:list-counter]">{children}</ol>;
           },
-          li({ children, node, ...props }) {
-            // Check parent to determine if ordered or unordered
+          li({ children, node }) {
             const parent = (node as any)?.parent;
             const isOrdered = parent?.tagName === 'ol';
             
             return (
-              <li className="flex gap-2 sm:gap-3 text-foreground/85 clear-both items-start [counter-increment:list-counter]">
-                <span className={`shrink-0 mt-0.5 sm:mt-1 ${isOrdered ? 'text-primary font-semibold text-[10px] sm:text-xs min-w-[1.25rem]' : 'text-primary text-sm sm:text-base'}`}>
-                  {isOrdered ? (
-                    <span className="before:content-[counter(list-counter)'.']" />
-                  ) : (
-                    '•'
-                  )}
+              <li className="flex gap-2 sm:gap-3 text-foreground/90 text-sm sm:text-base [counter-increment:list-counter]">
+                <span className="shrink-0 text-primary mt-0.5">
+                  {isOrdered ? <span className="text-xs sm:text-sm font-medium before:content-[counter(list-counter)'.']" /> : '•'}
                 </span>
-                <span className="flex-1 break-words leading-relaxed">{children}</span>
+                <span className="flex-1">{children}</span>
               </li>
             );
           },
           a({ href, children }) {
             return (
-              <a 
-                href={href} 
-                className="text-primary hover:text-primary/80 underline decoration-primary/30 hover:decoration-primary/60 transition-colors" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
+              <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                 {children}
               </a>
             );
           },
           blockquote({ children }) {
             return (
-              <blockquote className="border-l-2 sm:border-l-4 border-primary/50 pl-2 sm:pl-4 py-1.5 sm:py-2 my-2 sm:my-4 bg-primary/5 text-muted-foreground italic text-[10px] sm:text-sm clear-both">
+              <blockquote className="border-l-2 sm:border-l-4 border-primary/50 pl-3 sm:pl-4 py-1 sm:py-2 my-3 sm:my-4 bg-primary/5 text-muted-foreground italic text-sm sm:text-base">
                 {children}
               </blockquote>
             );
           },
-          hr() {
-            return <hr className="my-2 sm:my-6 md:my-8 border-border clear-both" />;
-          },
           table({ children }) {
             return (
-              <div className="my-3 sm:my-6 overflow-x-auto clear-both">
-                <table className="w-full border-collapse text-[10px] sm:text-sm">
-                  {children}
-                </table>
+              <div className="my-3 sm:my-4 overflow-x-auto">
+                <table className="w-full border-collapse text-sm sm:text-base">{children}</table>
               </div>
             );
           },
-          thead({ children }) {
-            return <thead className="bg-muted">{children}</thead>;
-          },
-          tbody({ children }) {
-            return <tbody className="divide-y divide-border">{children}</tbody>;
-          },
-          tr({ children }) {
-            return <tr className="border-b border-border hover:bg-muted/50 transition-colors">{children}</tr>;
-          },
           th({ children }) {
-            return (
-              <th className="px-2 sm:px-4 py-1.5 sm:py-2 text-left font-semibold text-foreground/90 border border-border bg-muted">
-                {children}
-              </th>
-            );
+            return <th className="px-3 sm:px-4 py-2 sm:py-3 text-left font-semibold bg-muted border border-border text-xs sm:text-sm">{children}</th>;
           },
           td({ children }) {
-            return (
-              <td className="px-2 sm:px-4 py-1.5 sm:py-2 text-foreground/80 border border-border">
-                {children}
-              </td>
-            );
+            return <td className="px-3 sm:px-4 py-2 sm:py-3 border border-border text-sm sm:text-base">{children}</td>;
           },
         }}
       >
         {processedText}
       </ReactMarkdown>
     );
-  };
-
-
-  const isMobileView = typeof window !== 'undefined' && window.innerWidth < 640;
+  }, []);
 
   return (
     <motion.div
       ref={scrollContainerRef}
-      initial={isMobileView ? false : { opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: isMobileView ? 0 : 0.3 }}
-      className="w-full h-full overflow-y-auto custom-scrollbar"
+      initial={isMobileView ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="w-full h-full overflow-y-auto"
     >
-      <div className="max-w-4xl mx-auto px-2 sm:px-6 md:px-8 py-2 sm:py-4 md:py-6 space-y-1 sm:space-y-2">
-        {/* Companies Section - Non-collapsible, compact on mobile */}
+      <div className="max-w-3xl lg:max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 lg:py-8 space-y-2.5 sm:space-y-4 lg:space-y-5">
+        
+        {/* Companies - Compact inline */}
         {question.companies && question.companies.length > 0 && (
-          <div className="w-full mb-2 sm:mb-6 clear-both">
-            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-3 bg-primary/10 border border-primary/20 rounded-lg">
-              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
-              <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                <span className="text-[9px] sm:text-xs text-primary/70 uppercase tracking-wider">Asked at:</span>
-                {question.companies.map((company, idx) => (
-                  <span 
-                    key={idx}
-                    className="px-1.5 sm:px-2 py-0.5 bg-primary/20 text-primary text-[9px] sm:text-xs font-medium rounded-full border border-primary/30"
-                  >
-                    {company}
-                  </span>
-                ))}
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground">
+              <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="text-[10px] sm:text-xs uppercase tracking-wider">Asked at:</span>
+            </div>
+            {question.companies.map((company, idx) => (
+              <span 
+                key={idx}
+                className="px-2 sm:px-3 py-0.5 sm:py-1 bg-green-500/10 text-green-600 text-[11px] sm:text-sm font-medium rounded-full"
+              >
+                {company}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* TLDR - Always visible, highlighted */}
+        {question.answer && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="text-[10px] sm:text-xs uppercase tracking-wider text-primary font-semibold mb-1 sm:mb-2">TLDR</div>
+                <p className="text-sm sm:text-base lg:text-lg text-foreground/90 leading-relaxed">
+                  {question.answer}
+                </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Video Explanations - Collapsible, compact on mobile */}
+        {/* ELI5 - Compact card */}
+        {question.eli5 && (
+          <ExpandableCard
+            title="Explain Like I'm 5"
+            icon={<Baby className="w-4 h-4 sm:w-5 sm:h-5" />}
+            defaultExpanded={false}
+            variant="success"
+          >
+            <div className="flex items-start gap-2 sm:gap-3">
+              <span className="text-lg sm:text-xl">🧒</span>
+              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">{question.eli5}</p>
+            </div>
+          </ExpandableCard>
+        )}
+
+        {/* Videos */}
         {(question.videos?.shortVideo || question.videos?.longVideo) && (
-          <CollapsibleSection
-            id="videos"
-            title="Videos"
-            icon={<Code2 className="w-3 h-3 sm:w-4 sm:h-4" />}
-            accentColor="red"
-            onVisibilityChange={handleVisibilityChange}
+          <ExpandableCard
+            title="Video Explanation"
+            icon={<Zap className="w-4 h-4 sm:w-5 sm:h-5" />}
+            defaultExpanded={false}
+            variant="purple"
           >
             <YouTubePlayer 
               shortVideo={question.videos.shortVideo} 
               longVideo={question.videos.longVideo} 
             />
-          </CollapsibleSection>
+          </ExpandableCard>
         )}
 
-        {/* Diagram Section - Hidden on mobile, collapsible on desktop */}
-        {isValidMermaidDiagram(question.diagram) && (
-          <div className="hidden sm:block">
-            <CollapsibleSection
-              id="diagram"
-              title="Diagram"
-              icon={<Code2 className="w-3 h-3 sm:w-4 sm:h-4" />}
-              accentColor="primary"
-              onVisibilityChange={handleVisibilityChange}
-            >
-              <div className="w-full">
-                <EnhancedMermaid chart={question.diagram!} />
-              </div>
-            </CollapsibleSection>
-          </div>
-        )}
-
-        {/* TLDR Section - Collapsible, compact on mobile */}
-        {question.answer && question.answer !== question.explanation && (
-          <CollapsibleSection
-            id="quick-answer"
-            title="TLDR"
-            icon={<Lightbulb className="w-3 h-3 sm:w-4 sm:h-4" />}
-            accentColor="yellow"
-            onVisibilityChange={handleVisibilityChange}
+        {/* Diagram - Desktop only */}
+        {!isMobileView && isValidMermaidDiagram(question.diagram) && (
+          <ExpandableCard
+            title="Diagram"
+            icon={<List className="w-4 h-4 sm:w-5 sm:h-5" />}
+            defaultExpanded={true}
           >
-            <div className="p-2 sm:p-4 bg-primary/5 border border-primary/20 rounded-lg">
-              <p className="text-[11px] sm:text-sm text-foreground/90 leading-relaxed">
-                {question.answer}
-              </p>
-            </div>
-          </CollapsibleSection>
+            <EnhancedMermaid chart={question.diagram!} />
+          </ExpandableCard>
         )}
 
-        {/* ELI5 Section - Explain Like I'm 5 */}
-        {question.eli5 && (
-          <CollapsibleSection
-            id="eli5"
-            title="Explain Like I'm 5"
-            icon={<Baby className="w-3 h-3 sm:w-4 sm:h-4" />}
-            accentColor="green"
-            defaultExpanded={false}
-            onVisibilityChange={handleVisibilityChange}
-          >
-            <div className="p-2 sm:p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-              <div className="flex items-start gap-2 sm:gap-3">
-                <span className="text-lg sm:text-2xl shrink-0">🧒</span>
-                <p className="text-[11px] sm:text-sm text-foreground/90 leading-relaxed">
-                  {question.eli5}
-                </p>
-              </div>
-            </div>
-          </CollapsibleSection>
-        )}
-
-        {/* Detailed Explanation - Collapsible, compact on mobile */}
-        <CollapsibleSection
-          id="explanation"
-          title="Explanation"
-          icon={<BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />}
-          accentColor="primary"
-          onVisibilityChange={handleVisibilityChange}
+        {/* Full Explanation */}
+        <ExpandableCard
+          title="Full Explanation"
+          icon={<BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />}
+          defaultExpanded={true}
+          badge={question.explanation ? `${Math.ceil(question.explanation.split(' ').length / 200)} min read` : undefined}
         >
-          <div className="prose prose-invert max-w-none text-[11px] sm:text-sm leading-relaxed">
+          <div className="prose prose-sm sm:prose-base max-w-none">
             {renderMarkdown(question.explanation)}
           </div>
-        </CollapsibleSection>
+        </ExpandableCard>
 
-        {/* Tags - Non-collapsible, compact on mobile */}
+        {/* Tags */}
         {question.tags && question.tags.length > 0 && (
-          <div className="w-full pt-2 sm:pt-6 border-t border-border">
-            <div className="flex flex-wrap gap-1 sm:gap-2">
-              {question.tags.slice(0, window.innerWidth < 640 ? 4 : question.tags.length).map(tag => (
+          <div className="flex items-start gap-2 sm:gap-3 pt-2 sm:pt-3">
+            <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground mt-1 flex-shrink-0" />
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              {question.tags.map(tag => (
                 <span 
                   key={tag} 
-                  className="px-1.5 sm:px-3 py-0.5 sm:py-1 bg-muted hover:bg-muted/80 text-[9px] sm:text-xs font-mono text-muted-foreground border border-border rounded-full transition-colors"
+                  className="px-2 sm:px-3 py-0.5 sm:py-1 bg-muted text-[10px] sm:text-xs font-mono text-muted-foreground rounded-full border border-border"
                 >
                   {formatTag(tag)}
                 </span>
               ))}
-              {window.innerWidth < 640 && question.tags.length > 4 && (
-                <span className="text-[9px] text-muted-foreground py-0.5">+{question.tags.length - 4}</span>
-              )}
             </div>
           </div>
         )}
 
-        {/* Source Link - Non-collapsible, compact on mobile */}
+        {/* Source Link */}
         {question.sourceUrl && (
-          <div className="w-full pt-2 sm:pt-6 border-t border-border">
-            <a
-              href={question.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-muted hover:bg-muted/80 border border-border rounded-lg transition-colors group"
-            >
-              <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-[10px] sm:text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                Source
-              </span>
-            </a>
-          </div>
+          <a
+            href={question.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-muted hover:bg-muted/80 border border-border rounded-lg sm:rounded-xl transition-colors text-sm sm:text-base"
+          >
+            <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
+            <span className="text-muted-foreground">View Source</span>
+          </a>
         )}
 
-        {/* Discussion Section - Giscus Comments */}
-        <div className="w-full pt-2 sm:pt-6 border-t border-border">
+        {/* Discussion */}
+        <ExpandableCard
+          title="Discussion"
+          icon={<MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />}
+          defaultExpanded={false}
+        >
           <GiscusComments questionId={question.id} />
-        </div>
+        </ExpandableCard>
+
       </div>
     </motion.div>
   );

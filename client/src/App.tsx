@@ -22,6 +22,7 @@ import Tests from "@/pages/Tests";
 import CodingChallenge from "@/pages/CodingChallenge";
 import Profile from "@/pages/Profile";
 import Notifications from "@/pages/Notifications";
+import Bookmarks from "@/pages/Bookmarks";
 import { Onboarding } from "./components/Onboarding";
 import { MarvelIntro, useMarvelIntro } from "./components/MarvelIntro";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/channels" component={Channels} />
       <Route path="/profile" component={Profile} />
       <Route path="/notifications" component={Notifications} />
+      <Route path="/bookmarks" component={Bookmarks} />
       <Route path="/test/mermaid" component={MermaidTest} />
       <Route path="/channel/:id" component={QuestionViewer} />
       <Route path="/channel/:id/:index" component={QuestionViewer} />

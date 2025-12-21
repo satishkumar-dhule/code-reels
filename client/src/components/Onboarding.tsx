@@ -4,7 +4,8 @@ import { rolesConfig, getRecommendedChannels } from '../lib/channels-config';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 import { 
   Layout, Server, Layers, Smartphone, Activity, Shield, 
-  Cpu, Users, Database, Brain, Workflow, Box, Check, ChevronRight, Sparkles, X
+  Cpu, Users, Database, Brain, Workflow, Box, Check, ChevronRight, Sparkles, X,
+  ChevronLeft, Rocket
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -22,6 +23,36 @@ const iconMap: Record<string, React.ReactNode> = {
   'box': <Box className="w-6 h-6" />,
   'database': <Database className="w-6 h-6" />
 };
+
+// Step indicator component
+function StepIndicator({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) {
+  return (
+    <div className="flex items-center justify-center gap-2 mb-6">
+      {Array.from({ length: totalSteps }).map((_, i) => (
+        <div key={i} className="flex items-center">
+          <motion.div
+            className={`
+              w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+              ${i < currentStep 
+                ? 'bg-primary text-black' 
+                : i === currentStep 
+                  ? 'bg-primary/20 text-primary ring-2 ring-primary' 
+                  : 'bg-white/10 text-white/40'
+              }
+            `}
+            initial={false}
+            animate={{ scale: i === currentStep ? 1.1 : 1 }}
+          >
+            {i < currentStep ? <Check className="w-4 h-4" /> : i + 1}
+          </motion.div>
+          {i < totalSteps - 1 && (
+            <div className={`w-8 h-0.5 mx-1 ${i < currentStep ? 'bg-primary' : 'bg-white/10'}`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function Onboarding() {
   const { skipOnboarding } = useUserPreferences();
@@ -85,13 +116,44 @@ export function Onboarding() {
             exit={{ opacity: 0, y: -20 }}
             className="max-w-4xl w-full"
           >
+            {/* Progress indicator */}
+            <StepIndicator currentStep={0} totalSteps={2} />
+
             <div className="text-center mb-8">
-              <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+              <h1 className="text-2xl sm:text-4xl font-bold mb-2">
                 <span className="text-primary">&gt;</span> Welcome to Learn_Reels
               </h1>
               <p className="text-white/60 text-sm">
                 Select your role to get personalized channel recommendations
               </p>
+            </div>
+
+            {/* Quick start option for mobile */}
+            <div className="mb-6 sm:hidden">
+              <button
+                onClick={() => {
+                  // Quick start with popular channels
+                  const prefs = {
+                    role: 'fullstack',
+                    subscribedChannels: ['system-design', 'algorithms', 'frontend', 'backend', 'database'],
+                    onboardingComplete: true,
+                    createdAt: new Date().toISOString()
+                  };
+                  localStorage.setItem('user-preferences', JSON.stringify(prefs));
+                  window.location.href = '/';
+                }}
+                className="w-full p-4 bg-gradient-to-r from-primary/20 to-primary/10 border border-primary/30 rounded-xl flex items-center gap-3"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                  <Rocket className="w-5 h-5 text-black" />
+                </div>
+                <div className="text-left flex-1">
+                  <div className="font-bold text-sm">Quick Start</div>
+                  <div className="text-xs text-white/60">Jump in with popular topics</div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-primary" />
+              </button>
+              <div className="text-center text-xs text-white/40 mt-2">or choose your role below</div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
@@ -154,6 +216,9 @@ export function Onboarding() {
             exit={{ opacity: 0, y: -20 }}
             className="max-w-3xl w-full"
           >
+            {/* Progress indicator */}
+            <StepIndicator currentStep={1} totalSteps={2} />
+
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 text-primary mb-2">
                 <Sparkles className="w-5 h-5" />
