@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, ChevronDown, Loader2 } from 'lucide-react';
 
+// Giscus configuration - uses environment variables with fallbacks
+const GISCUS_REPO = import.meta.env.VITE_GISCUS_REPO || 'satishkumar-dhule/code-reels';
+const GISCUS_REPO_ID = import.meta.env.VITE_GISCUS_REPO_ID || 'R_kgDOQmWh6w';
+const GISCUS_CATEGORY = import.meta.env.VITE_GISCUS_CATEGORY || 'General';
+const GISCUS_CATEGORY_ID = import.meta.env.VITE_GISCUS_CATEGORY_ID || 'DIC_kwDOQmWh684C0ESo';
+
 interface GiscusCommentsProps {
   questionId: string;
 }
@@ -22,10 +28,10 @@ export function GiscusComments({ questionId }: GiscusCommentsProps) {
     // Create script element for Giscus
     const script = document.createElement('script');
     script.src = 'https://giscus.app/client.js';
-    script.setAttribute('data-repo', 'reel-interview/reel-interview.github.io');
-    script.setAttribute('data-repo-id', 'R_kgDOQmWfUw');
-    script.setAttribute('data-category', 'General');
-    script.setAttribute('data-category-id', 'DIC_kwDOQmWfU84Cz7Th');
+    script.setAttribute('data-repo', GISCUS_REPO);
+    script.setAttribute('data-repo-id', GISCUS_REPO_ID);
+    script.setAttribute('data-category', GISCUS_CATEGORY);
+    script.setAttribute('data-category-id', GISCUS_CATEGORY_ID);
     script.setAttribute('data-mapping', 'specific');
     script.setAttribute('data-term', questionId);
     script.setAttribute('data-strict', '0');

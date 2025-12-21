@@ -42,6 +42,7 @@ jobs:
           BATCH_SIZE: ${{ inputs.batch_size || '100' }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           CI: 'true'
 
       - name: Trigger deploy

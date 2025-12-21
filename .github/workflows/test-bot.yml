@@ -37,6 +37,7 @@ jobs:
           CHANNEL_ID: ${{ inputs.channel }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Trigger deploy
         if: success()

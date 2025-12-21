@@ -609,12 +609,15 @@ export function isDuplicate(question, existing, threshold = 0.6) {
 // OPENCODE INTEGRATION
 // ============================================
 
+// Use free models from OpenCode (no auth required)
+const OPENCODE_MODEL = process.env.OPENCODE_MODEL || 'opencode/big-pickle';
+
 export function runOpenCode(prompt) {
   return new Promise((resolve) => {
     let output = '';
     let resolved = false;
     
-    const proc = spawn('opencode', ['run', '--format', 'json', prompt], {
+    const proc = spawn('opencode', ['run', '--model', OPENCODE_MODEL, '--format', 'json', prompt], {
       timeout: TIMEOUT_MS,
       stdio: ['ignore', 'pipe', 'pipe']
     });
@@ -1001,9 +1004,10 @@ export async function getRecentBotActivity(limit = 50, botType = null) {
 // GISCUS/GITHUB DISCUSSIONS INTEGRATION
 // ============================================
 
-const GITHUB_REPO_OWNER = 'reel-interview';
-const GITHUB_REPO_NAME = 'reel-interview.github.io';
-const GISCUS_CATEGORY_ID = 'DIC_kwDOQmWfU84Cz7Th'; // General category
+// Get repo info from environment or use defaults
+const GITHUB_REPO_OWNER = process.env.GITHUB_REPOSITORY?.split('/')[0] || 'satishkumar-dhule';
+const GITHUB_REPO_NAME = process.env.GITHUB_REPOSITORY?.split('/')[1] || 'code-reels';
+const GISCUS_CATEGORY_ID = process.env.GISCUS_CATEGORY_ID || 'DIC_kwDOQmWh684C0ESo'; // General category
 
 /**
  * Post a comment to GitHub Discussions for a specific question
