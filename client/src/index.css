@@ -1478,9 +1478,11 @@ html {
   border-radius: var(--radius);
 }
 
-/* Giscus Comments Styling - Clean & Minimal */
+/* Giscus Comments Styling - Clean & Modern */
 .giscus-container {
   width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .giscus-container .giscus {
@@ -1491,19 +1493,23 @@ html {
   width: 100% !important;
   border: none !important;
   color-scheme: dark;
-  min-height: 150px;
+  min-height: 200px;
+  border-radius: 8px;
 }
 
 /* Make Giscus blend seamlessly with dark theme */
 .giscus-container iframe {
   color-scheme: dark;
-  background: transparent !important;
+  background: hsl(var(--card) / 0.5) !important;
+  border-radius: 8px;
 }
 
-/* Hide Giscus branding and extra elements for cleaner look */
+/* Override Giscus internal styles for better integration */
 .giscus-container .giscus-frame {
   --color-canvas-default: transparent !important;
   --color-canvas-subtle: hsl(var(--muted) / 0.3) !important;
+  --color-border-default: hsl(var(--border)) !important;
+  --color-border-muted: hsl(var(--border) / 0.5) !important;
 }
 
 

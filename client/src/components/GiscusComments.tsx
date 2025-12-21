@@ -58,20 +58,27 @@ export function GiscusComments({ questionId }: GiscusCommentsProps) {
   }, [isOpen, questionId]);
 
   return (
-    <div className="w-full">
-      {/* Compact Toggle Button */}
+    <div className="w-full mt-4">
+      {/* Discussion Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-muted/30 hover:bg-muted/50 rounded-lg transition-all group"
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/60 hover:to-muted/40 rounded-xl border border-border/50 transition-all duration-200 group"
       >
-        <div className="flex items-center gap-2">
-          <MessageCircle className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-          <span className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground font-medium transition-colors">
-            Discussion
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="p-1.5 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+            <MessageCircle className="w-4 h-4 text-primary" />
+          </div>
+          <div className="text-left">
+            <span className="text-sm font-medium text-foreground">
+              Discussion
+            </span>
+            <p className="text-xs text-muted-foreground">
+              Ask questions or share insights
+            </p>
+          </div>
         </div>
         <ChevronDown 
-          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+          className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} 
         />
       </button>
 
@@ -82,20 +89,20 @@ export function GiscusComments({ questionId }: GiscusCommentsProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="pt-3">
+            <div className="pt-4 pb-2">
               {isLoading && (
-                <div className="flex items-center justify-center py-6">
-                  <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-                  <span className="ml-2 text-xs text-muted-foreground">Loading...</span>
+                <div className="flex flex-col items-center justify-center py-8 gap-2">
+                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                  <span className="text-sm text-muted-foreground">Loading discussion...</span>
                 </div>
               )}
               
               <div 
                 ref={containerRef} 
-                className="giscus-container"
+                className="giscus-container rounded-xl overflow-hidden"
                 style={{ colorScheme: 'dark' }}
               />
             </div>
