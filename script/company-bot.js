@@ -1,24 +1,15 @@
 import {
   saveQuestion,
-  getAllUnifiedQuestions,
-  runWithRetries,
+  runWithCircuitBreaker,
   parseJson,
   writeGitHubOutput,
   normalizeCompanies,
-  dbClient,
-  getPendingWork,
-  startWorkItem,
-  completeWorkItem,
-  failWorkItem,
-  initWorkQueue,
-  postBotCommentToDiscussion
+  postBotCommentToDiscussion,
+  BaseBotRunner,
+  getQuestionsNeedingCompanies
 } from './utils.js';
 
-const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false'; // Default to true
-
-const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
-const RATE_LIMIT_MS = 2000; // NFR: Rate limiting between API calls
-const MIN_COMPANIES = 3; // Minimum companies per question
+const MIN_COMPANIES = 3;
 
 // Known tech companies for validation
 const KNOWN_COMPANIES = new Set([
@@ -36,49 +27,7 @@ const KNOWN_COMPANIES = new Set([
   'Twilio', 'Okta', 'CrowdStrike', 'Datadog', 'Palo Alto Networks'
 ]);
 
-// Load bot state from database
-async function loadState() {
-  try {
-    const result = await dbClient.execute({
-      sql: "SELECT value FROM bot_state WHERE bot_name = ?",
-      args: ['company-bot']
-    });
-    if (result.rows.length > 0) {
-      return JSON.parse(result.rows[0].value);
-    }
-  } catch (e) {
-    // Table might not exist yet
-  }
-  return {
-    lastProcessedIndex: 0,
-    lastRunDate: null,
-    totalProcessed: 0,
-    totalCompaniesAdded: 0,
-    questionsUpdated: 0
-  };
-}
-
-// Save bot state to database
-async function saveState(state) {
-  state.lastRunDate = new Date().toISOString();
-  try {
-    await dbClient.execute(`
-      CREATE TABLE IF NOT EXISTS bot_state (
-        bot_name TEXT PRIMARY KEY,
-        value TEXT,
-        updated_at TEXT
-      )
-    `);
-    await dbClient.execute({
-      sql: "INSERT OR REPLACE INTO bot_state (bot_name, value, updated_at) VALUES (?, ?, ?)",
-      args: ['company-bot', JSON.stringify(state), new Date().toISOString()]
-    });
-  } catch (e) {
-    console.error('Failed to save state:', e.message);
-  }
-}
-
-// NFR: Validate company data
+// Validate company data
 function validateCompanies(companies) {
   if (!companies || !Array.isArray(companies)) return [];
   
@@ -86,7 +35,6 @@ function validateCompanies(companies) {
     .filter(c => c && typeof c === 'string' && c.length >= 2)
     .map(c => c.trim())
     .filter(c => {
-      // Check if it's a known company or looks like a valid company name
       const isKnown = [...KNOWN_COMPANIES].some(
         known => known.toLowerCase() === c.toLowerCase()
       );
@@ -95,20 +43,47 @@ function validateCompanies(companies) {
     });
 }
 
-// Check if question needs company data
-function needsCompanyWork(question) {
-  const companies = question.companies || [];
-  const validCompanies = validateCompanies(companies);
-  
-  if (validCompanies.length === 0) return { needs: true, reason: 'missing' };
-  if (validCompanies.length < MIN_COMPANIES) return { needs: true, reason: 'insufficient' };
-  
-  return { needs: false, reason: 'valid', count: validCompanies.length };
-}
+/**
+ * Company Bot - Refactored to use BaseBotRunner
+ * Finds companies that ask specific interview questions
+ */
+class CompanyBot extends BaseBotRunner {
+  constructor() {
+    super('company-bot', {
+      workQueueBotType: 'company',
+      rateLimitMs: 2000,
+      defaultBatchSize: '100'
+    });
+    this.companiesAdded = 0;
+  }
 
-// Find companies that ask this type of question using AI
-async function findCompaniesForQuestion(question) {
-  const prompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
+  getEmoji() { return '🏢'; }
+  getDisplayName() { return 'Recruiter Bot - Who Asks This?'; }
+
+  getDefaultState() {
+    return {
+      lastProcessedIndex: 0,
+      lastRunDate: null,
+      totalProcessed: 0,
+      totalCompaniesAdded: 0,
+      questionsUpdated: 0
+    };
+  }
+
+  // Check if question needs company data
+  needsProcessing(question) {
+    const companies = question.companies || [];
+    const validCompanies = validateCompanies(companies);
+    
+    if (validCompanies.length === 0) return { needs: true, reason: 'missing' };
+    if (validCompanies.length < MIN_COMPANIES) return { needs: true, reason: `insufficient (${validCompanies.length}/${MIN_COMPANIES})` };
+    
+    return { needs: false, reason: `valid (${validCompanies.length} companies)` };
+  }
+
+  // Find companies that ask this type of question using AI
+  async findCompaniesForQuestion(question) {
+    const prompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
 
 Find real tech companies that ask this interview question or similar ones.
 
@@ -124,151 +99,37 @@ Output this exact JSON structure:
 
 IMPORTANT: Return ONLY the JSON object. No other text.`;
 
-  const response = await runWithRetries(prompt);
-  if (!response) return null;
-  
-  const data = parseJson(response);
-  if (!data || !data.companies) return null;
-  
-  // NFR: Validate and normalize companies
-  const validated = normalizeCompanies(data.companies);
-  
-  if (validated.length === 0) {
-    console.log('  ⚠️ No valid companies in response');
-    return null;
-  }
-  
-  return {
-    companies: validated,
-    confidence: data.confidence || 'low',
-    reasoning: data.reasoning || ''
-  };
-}
-
-// NFR: Rate limiting helper
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function main() {
-  console.log('=== 🏢 Recruiter Bot - Who Asks This? ===\n');
-  
-  await initWorkQueue();
-  
-  const state = await loadState();
-  const allQuestions = await getAllUnifiedQuestions();
-  
-  console.log(`📊 Database: ${allQuestions.length} questions`);
-  console.log(`📍 Last processed index: ${state.lastProcessedIndex}`);
-  console.log(`📅 Last run: ${state.lastRunDate || 'Never'}`);
-  console.log(`⚙️ Batch size: ${BATCH_SIZE}`);
-  console.log(`🏢 Min companies required: ${MIN_COMPANIES}\n`);
-  
-  let batch = [];
-  let startIndex = state.lastProcessedIndex;
-  let endIndex;
-  let usingWorkQueue = false;
-  
-  // First try work queue
-  if (USE_WORK_QUEUE) {
-    console.log('📋 Checking work queue for company tasks...');
-    const workItems = await getPendingWork('company', BATCH_SIZE);
-    if (workItems.length > 0) {
-      batch = workItems.map(w => ({ ...w.question, workId: w.workId, workReason: w.reason }));
-      endIndex = startIndex + batch.length;
-      usingWorkQueue = true;
-      console.log(`📦 Found ${batch.length} company tasks in work queue\n`);
-    }
-  }
-  
-  // Fallback to scanning if no work queue items
-  if (batch.length === 0) {
-    // Sort questions by ID for consistent ordering
-    const sortedQuestions = [...allQuestions].sort((a, b) => {
-      const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
-      const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
-      return numA - numB;
-    });
+    const response = await runWithCircuitBreaker(prompt);
+    if (!response) return null;
     
-    // Calculate start index (wrap around if needed)
-    if (startIndex >= sortedQuestions.length) {
-      startIndex = 0;
-      console.log('🔄 Wrapped around to beginning\n');
+    const data = parseJson(response);
+    if (!data || !data.companies) return null;
+    
+    const validated = normalizeCompanies(data.companies);
+    
+    if (validated.length === 0) {
+      console.log('  ⚠️ No valid companies in response');
+      return null;
     }
     
-    endIndex = Math.min(startIndex + BATCH_SIZE, sortedQuestions.length);
-    batch = sortedQuestions.slice(startIndex, endIndex);
-    
-    console.log(`📦 Processing: questions ${startIndex + 1} to ${endIndex} of ${sortedQuestions.length}\n`);
+    return {
+      companies: validated,
+      confidence: data.confidence || 'low',
+      reasoning: data.reasoning || ''
+    };
   }
-  
-  // Build a map from allQuestions for quick lookup (reuse already fetched data)
-  const questionsMap = {};
-  allQuestions.forEach(q => { questionsMap[q.id] = q; });
-  
-  const results = {
-    processed: 0,
-    companiesAdded: 0,
-    questionsUpdated: 0,
-    skipped: 0,
-    failed: 0
-  };
-  
-  for (let i = 0; i < batch.length; i++) {
-    const question = batch[i];
-    const workId = question.workId; // From work queue if applicable
-    
-    console.log(`\n--- [${i + 1}/${batch.length}] ${question.id} ---`);
-    console.log(`Q: ${question.question.substring(0, 50)}...`);
-    if (workId) console.log(`Work ID: ${workId} (${question.workReason})`);
-    
-    // Mark work as started
-    if (workId) await startWorkItem(workId);
-    
+
+  // Process a single question
+  async processItem(question) {
     const currentCompanies = question.companies || [];
     console.log(`Current companies: ${currentCompanies.length > 0 ? currentCompanies.join(', ') : 'none'}`);
+    console.log('🔍 Finding companies...');
     
-    const check = needsCompanyWork(question);
-    console.log(`Status: ${check.reason}${check.count ? ` (${check.count} companies)` : ''}`);
-    
-    if (!check.needs) {
-      console.log('✅ Company data is good, skipping');
-      if (workId) await completeWorkItem(workId, { status: 'already_valid', count: check.count });
-      results.skipped++;
-      results.processed++;
-      
-      // NFR: Update state after each question (only for non-work-queue mode)
-      if (!usingWorkQueue) {
-        await saveState({
-          ...state,
-          lastProcessedIndex: startIndex + i + 1,
-          totalProcessed: state.totalProcessed + results.processed
-        });
-      }
-      continue;
-    }
-    
-    console.log(`🔍 Finding companies (reason: ${check.reason})...`);
-    
-    // NFR: Rate limiting
-    if (i > 0) await sleep(RATE_LIMIT_MS);
-    
-    const found = await findCompaniesForQuestion(question);
+    const found = await this.findCompaniesForQuestion(question);
     
     if (!found) {
       console.log('❌ Failed to find companies');
-      if (workId) await failWorkItem(workId, 'Failed to find companies');
-      results.failed++;
-      results.processed++;
-      
-      if (!usingWorkQueue) {
-        await saveState({
-          ...state,
-          lastProcessedIndex: startIndex + i + 1,
-          totalProcessed: state.totalProcessed + results.processed
-        });
-      }
-      continue;
+      return false;
     }
     
     console.log(`✅ Found ${found.companies.length} companies (confidence: ${found.confidence})`);
@@ -277,21 +138,17 @@ async function main() {
     // Merge with existing companies (deduplicate)
     const existingNormalized = normalizeCompanies(currentCompanies);
     const mergedCompanies = [...new Set([...existingNormalized, ...found.companies])].sort();
-    
     const newCompaniesCount = mergedCompanies.length - existingNormalized.length;
     
     // Update question
     const oldCompanies = question.companies || [];
-    const updatedQuestion = {
-      ...questionsMap[question.id],
-      companies: mergedCompanies,
-      lastUpdated: new Date().toISOString()
-    };
-    questionsMap[question.id] = updatedQuestion;
+    question.companies = mergedCompanies;
+    question.lastUpdated = new Date().toISOString();
     
-    // NFR: Save immediately after each update
-    await saveQuestion(updatedQuestion);
+    await saveQuestion(question);
     console.log(`💾 Saved (added ${newCompaniesCount} new companies)`);
+    
+    this.companiesAdded += newCompaniesCount;
     
     // Post comment to Giscus discussion
     if (newCompaniesCount > 0) {
@@ -304,55 +161,31 @@ async function main() {
       });
     }
     
-    // Mark work as completed
-    if (workId) await completeWorkItem(workId, { 
-      companiesAdded: newCompaniesCount,
-      totalCompanies: mergedCompanies.length 
-    });
-    
-    results.companiesAdded += newCompaniesCount;
-    results.questionsUpdated++;
-    results.processed++;
-    
-    // NFR: Update state after each question (only for non-work-queue mode)
-    if (!usingWorkQueue) {
-      await saveState({
-        ...state,
-        lastProcessedIndex: startIndex + i + 1,
-        totalProcessed: state.totalProcessed + results.processed,
-        totalCompaniesAdded: state.totalCompaniesAdded + results.companiesAdded,
-        questionsUpdated: state.questionsUpdated + results.questionsUpdated
-      });
-    }
+    return true;
   }
+
+  // Custom summary
+  printSummary(state) {
+    console.log('\n\n=== SUMMARY ===');
+    console.log(`Processed: ${this.results.processed}`);
+    console.log(`Questions Updated: ${this.results.succeeded}`);
+    console.log(`Companies Added: ${this.companiesAdded}`);
+    console.log(`Skipped (valid): ${this.results.skipped}`);
+    console.log(`Failed: ${this.results.failed}`);
+    if (state.lastProcessedIndex !== undefined) {
+      console.log(`\nNext run starts at: ${state.lastProcessedIndex}`);
+    }
+    console.log('=== END ===\n');
+  }
+}
+
+// Main execution
+async function main() {
+  const bot = new CompanyBot();
   
-  const newState = {
-    lastProcessedIndex: endIndex >= allQuestions.length ? 0 : endIndex,
-    lastRunDate: new Date().toISOString(),
-    totalProcessed: state.totalProcessed + results.processed,
-    totalCompaniesAdded: state.totalCompaniesAdded + results.companiesAdded,
-    questionsUpdated: state.questionsUpdated + results.questionsUpdated
-  };
-  await saveState(newState);
-  
-  // Summary
-  console.log('\n\n=== SUMMARY ===');
-  console.log(`Processed: ${results.processed}`);
-  console.log(`Questions Updated: ${results.questionsUpdated}`);
-  console.log(`Companies Added: ${results.companiesAdded}`);
-  console.log(`Skipped (valid): ${results.skipped}`);
-  console.log(`Failed: ${results.failed}`);
-  console.log(`\nNext run starts at: ${newState.lastProcessedIndex}`);
-  console.log(`All-time companies added: ${newState.totalCompaniesAdded}`);
-  console.log('=== END ===\n');
-  
-  writeGitHubOutput({
-    processed: results.processed,
-    questions_updated: results.questionsUpdated,
-    companies_added: results.companiesAdded,
-    skipped: results.skipped,
-    failed: results.failed,
-    next_index: newState.lastProcessedIndex
+  await bot.run({
+    // Use targeted query instead of fetching all questions
+    fallbackQuery: getQuestionsNeedingCompanies
   });
 }
 

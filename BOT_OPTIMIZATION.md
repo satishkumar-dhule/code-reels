@@ -1,125 +1,92 @@
-# Bot Optimization Guide
+# Bot Optimization Summary
 
-## Optimized Schedule (UTC)
+## Changes Made
 
-| Time | Bot | LLM? | Purpose |
-|------|-----|------|---------|
-| 00:00 | generate-question | ✅ | Generate new questions |
-| 05:00 | motivation-bot | ✅ | Generate daily quotes |
-| 06:00 | improve-question | ✅ | Improve answer/explanation quality |
-| 08:00 | eli5-bot | ✅ | Add ELI5 explanations |
-| 10:00 | classify-bot | ✅ | Classify channels + create work queue |
-| 12:00 | video-bot | ❌ | Validate existing videos only |
-| 14:00 | mermaid-bot | ✅ | Generate diagrams |
-| 16:00 | company-bot | ✅ | Find company associations |
-| 18:00 | tldr-bot | ✅ | Add TLDR summaries |
+### 1. BaseBotRunner Class (utils.js)
+A reusable base class that handles common bot patterns:
+- State management (load/save to database)
+- Work queue integration
+- Rate limiting
+- Batch processing
+- Summary output
 
-## Bot Responsibilities (Single Responsibility)
+**Benefits:** Reduces each bot from ~200 lines to ~80 lines, easier maintenance.
 
-### 1. generate-question.js
-- **Uses LLM**: Yes
-- **Purpose**: Generate new interview questions
-- **Output**: Complete question with answer, explanation, diagram
+### 2. Circuit Breaker (utils.js)
+Protects against cascade failures when OpenCode CLI is down:
+- Opens after 5 consecutive failures
+- Auto-resets after 5 minutes
+- Prevents wasted API calls
 
-### 2. motivation-bot.js
-- **Uses LLM**: Yes
-- **Purpose**: Generate motivational quotes
-- **Note**: Doesn't need database, works with local JSON file
+**Usage:** `runWithCircuitBreaker(prompt)` instead of `runWithRetries(prompt)`
 
-### 3. improve-question.js
-- **Uses LLM**: Yes
-- **Purpose**: Improve answer and explanation quality ONLY
-- **Does NOT**: Generate diagrams, find videos, find companies (delegated to specialized bots)
+### 3. Targeted Database Queries (utils.js)
+New optimized queries that avoid fetching all questions:
+- `getQuestionsNeedingEli5(limit)` - Questions missing ELI5
+- `getQuestionsNeedingTldr(limit)` - Questions missing TLDR
+- `getQuestionsNeedingCompanies(limit)` - Questions with <3 companies
 
-### 4. eli5-bot.js
-- **Uses LLM**: Yes
-- **Purpose**: Add "Explain Like I'm 5" explanations
-- **Single field**: `eli5`
+**Benefits:** Faster execution, less memory usage.
 
-### 5. classify-bot.js
-- **Uses LLM**: Yes
-- **Purpose**: 
-  - Classify questions into correct channels
-  - Create work items for other bots
-- **Orchestrator**: Creates work queue items for video, mermaid, company, eli5 bots
-
-### 6. video-bot.js (add-videos.js)
-- **Uses LLM**: NO (removed - LLMs hallucinate video IDs)
-- **Purpose**: Validate existing YouTube videos
-- **Future**: Integrate YouTube Data API for real video search
-
-### 7. mermaid-bot.js
-- **Uses LLM**: Yes
-- **Purpose**: Generate Mermaid diagrams
-- **Single field**: `diagram`
-
-### 8. company-bot.js
-- **Uses LLM**: Yes
-- **Purpose**: Find companies that ask similar questions
-- **Single field**: `companies`
-
-### 9. tldr-bot.js
-- **Uses LLM**: Yes
-- **Purpose**: Generate concise one-liner summaries
-- **Single field**: `tldr`
-
-## Work Queue Architecture
-
-The `classify-bot` acts as an orchestrator:
-1. Scans questions for missing data
-2. Creates work items in `work_queue` table
-3. Other bots pick up work from queue
-
-```
-classify-bot (orchestrator)
-    ├── Creates work for: video-bot
-    ├── Creates work for: mermaid-bot
-    ├── Creates work for: company-bot
-    ├── Creates work for: eli5-bot
-    └── Creates work for: improve-bot
+### 4. Parallel Work Item Creation (classify-bot.js)
+Work items are now created in parallel using `Promise.all()`:
+```javascript
+await Promise.all([
+  addWorkItem(id, 'video', ...),
+  addWorkItem(id, 'mermaid', ...),
+  addWorkItem(id, 'company', ...),
+]);
 ```
 
-## LLM Usage Optimization
+### 5. Consolidated Deploy Workflow
+New `batch-deploy.yml` runs once at 20:00 UTC instead of after each bot.
 
-### What SHOULD use LLM:
-- ✅ Generating questions/answers/explanations
-- ✅ Creating ELI5 explanations
-- ✅ Generating Mermaid diagrams
-- ✅ Finding company associations (based on question topic)
-- ✅ Creating TLDR summaries
-- ✅ Classifying questions into channels
-- ✅ Generating motivational quotes
+**Old:** 8 deploys/day (one per bot)
+**New:** 1 deploy/day (consolidated)
 
-### What should NOT use LLM:
-- ❌ Finding YouTube videos (LLMs hallucinate video IDs)
-- ❌ Validating URLs (use HTTP requests)
-- ❌ Database operations
-- ❌ File operations
+### 6. Optimized Schedule
 
-## Batch Processing
+| Time (UTC) | Bots |
+|------------|------|
+| 00:00 | Creator Bot |
+| 04:00 | Ranker Bot |
+| 05:00 | Inspirer Bot |
+| 08:00 | Simplify Bot + Quickshot Bot (parallel) |
+| 12:00 | Sorter Bot (orchestrator) |
+| 16:00 | Visualizer Bot + Recruiter Bot (parallel) |
+| 20:00 | Batch Deploy |
 
-All bots support configurable batch sizes via `BATCH_SIZE` env var:
-- Default: 5 questions per run
-- Prevents rate limiting
-- Allows incremental processing
+## Refactored Bots
 
-## Rate Limiting
+The following bots now use `BaseBotRunner`:
+- ✅ eli5-bot.js
+- ✅ tldr-bot.js
+- ✅ company-bot.js
+- ✅ mermaid-bot.js
 
-All LLM-using bots implement:
-- 2 second delay between API calls (`RATE_LIMIT_MS = 2000`)
-- 3 retry attempts with 10 second delays
-- 5 minute timeout per call
+## Files Changed
 
-## Database Fields by Bot
+### Scripts
+- `script/utils.js` - Added BaseBotRunner, circuit breaker, targeted queries
+- `script/eli5-bot.js` - Refactored to use BaseBotRunner
+- `script/tldr-bot.js` - Refactored to use BaseBotRunner
+- `script/company-bot.js` - Refactored to use BaseBotRunner
+- `script/mermaid-bot.js` - Refactored to use BaseBotRunner
+- `script/classify-bot.js` - Parallel work item creation, circuit breaker
 
-| Field | Bot Responsible |
-|-------|-----------------|
-| question | generate-question, improve-question |
-| answer | generate-question, improve-question |
-| explanation | generate-question, improve-question |
-| diagram | mermaid-bot |
-| eli5 | eli5-bot |
-| tldr | tldr-bot |
-| companies | company-bot |
-| videos | video-bot (validation only) |
-| channel/subChannel | classify-bot |
+### Workflows
+- `.github/workflows/batch-deploy.yml` - NEW: Consolidated deploy
+- `.github/workflows/eli5-bot.yml` - Removed deploy trigger, added timeout
+- `.github/workflows/tldr-bot.yml` - Removed deploy trigger, new schedule
+- `.github/workflows/company-bot.yml` - Removed deploy trigger, added timeout
+- `.github/workflows/mermaid-bot.yml` - Removed deploy trigger, new schedule
+- `.github/workflows/classify-bot.yml` - Removed deploy trigger, new schedule
+
+## Future Improvements
+
+1. **Motivation Bot** - Move quotes to database instead of JSON file
+2. **Remaining Bots** - Refactor to use BaseBotRunner:
+   - relevance-bot.js
+   - improve-question.js
+   - generate-question.js
+   - coding-challenge-bot.js

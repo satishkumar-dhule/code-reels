@@ -1001,6 +1001,371 @@ export async function getRecentBotActivity(limit = 50, botType = null) {
 
 
 // ============================================
+// OPTIMIZED DATABASE QUERIES FOR BOTS
+// ============================================
+
+// Get questions needing ELI5 explanations (targeted query instead of fetching all)
+export async function getQuestionsNeedingEli5(limit = 100) {
+  const result = await dbClient.execute({
+    sql: `SELECT * FROM questions 
+          WHERE eli5 IS NULL OR LENGTH(eli5) < 50 
+          ORDER BY last_updated ASC 
+          LIMIT ?`,
+    args: [limit]
+  });
+  return result.rows.map(parseQuestionRow);
+}
+
+// Get questions needing TLDR summaries (targeted query)
+export async function getQuestionsNeedingTldr(limit = 100) {
+  const result = await dbClient.execute({
+    sql: `SELECT * FROM questions 
+          WHERE tldr IS NULL OR LENGTH(tldr) < 20 
+          ORDER BY last_updated ASC 
+          LIMIT ?`,
+    args: [limit]
+  });
+  return result.rows.map(parseQuestionRow);
+}
+
+// Get questions needing company data (targeted query)
+export async function getQuestionsNeedingCompanies(limit = 100, minCompanies = 3) {
+  const result = await dbClient.execute({
+    sql: `SELECT * FROM questions 
+          WHERE companies IS NULL 
+             OR companies = '[]' 
+             OR companies = 'null'
+             OR LENGTH(companies) < 10
+             OR (
+               LENGTH(companies) - LENGTH(REPLACE(companies, ',', '')) < ?
+             )
+          ORDER BY last_updated ASC 
+          LIMIT ?`,
+    args: [minCompanies - 1, limit]
+  });
+  return result.rows.map(parseQuestionRow);
+}
+
+// ============================================
+// CIRCUIT BREAKER FOR OPENCODE CLI
+// ============================================
+
+let _consecutiveFailures = 0;
+const CIRCUIT_BREAKER_THRESHOLD = 5;
+const CIRCUIT_BREAKER_RESET_MS = 300000; // 5 minutes
+let _circuitBreakerOpenedAt = null;
+
+// Check if circuit breaker is open
+export function isCircuitBreakerOpen() {
+  if (_consecutiveFailures < CIRCUIT_BREAKER_THRESHOLD) return false;
+  
+  // Check if enough time has passed to reset
+  if (_circuitBreakerOpenedAt && Date.now() - _circuitBreakerOpenedAt > CIRCUIT_BREAKER_RESET_MS) {
+    console.log('🔄 Circuit breaker reset after cooldown');
+    _consecutiveFailures = 0;
+    _circuitBreakerOpenedAt = null;
+    return false;
+  }
+  
+  return true;
+}
+
+// Run OpenCode with circuit breaker protection
+export async function runWithCircuitBreaker(prompt) {
+  if (isCircuitBreakerOpen()) {
+    console.log('⚠️ Circuit breaker OPEN - skipping API call to prevent cascade failures');
+    return null;
+  }
+  
+  const result = await runWithRetries(prompt);
+  
+  if (result) {
+    _consecutiveFailures = 0;
+    _circuitBreakerOpenedAt = null;
+  } else {
+    _consecutiveFailures++;
+    if (_consecutiveFailures >= CIRCUIT_BREAKER_THRESHOLD) {
+      _circuitBreakerOpenedAt = Date.now();
+      console.log(`🔴 Circuit breaker OPENED after ${_consecutiveFailures} consecutive failures`);
+    }
+  }
+  
+  return result;
+}
+
+// Reset circuit breaker manually
+export function resetCircuitBreaker() {
+  _consecutiveFailures = 0;
+  _circuitBreakerOpenedAt = null;
+}
+
+// ============================================
+// BASE BOT RUNNER CLASS
+// ============================================
+
+/**
+ * BaseBotRunner - Reusable base class for all bots
+ * Handles common patterns: state management, work queue, rate limiting, batch processing
+ */
+export class BaseBotRunner {
+  constructor(botName, options = {}) {
+    this.botName = botName;
+    this.batchSize = parseInt(process.env.BATCH_SIZE || options.defaultBatchSize || '100', 10);
+    this.rateLimitMs = options.rateLimitMs || 2000;
+    this.useWorkQueue = process.env.USE_WORK_QUEUE !== 'false';
+    this.workQueueBotType = options.workQueueBotType || botName;
+    this.results = {
+      processed: 0,
+      succeeded: 0,
+      skipped: 0,
+      failed: 0
+    };
+  }
+
+  // Load bot state from database
+  async loadState() {
+    try {
+      const result = await dbClient.execute({
+        sql: "SELECT value FROM bot_state WHERE bot_name = ?",
+        args: [this.botName]
+      });
+      if (result.rows.length > 0) {
+        return JSON.parse(result.rows[0].value);
+      }
+    } catch (e) {
+      // Table might not exist yet
+    }
+    return this.getDefaultState();
+  }
+
+  // Override in subclass to provide default state
+  getDefaultState() {
+    return {
+      lastProcessedIndex: 0,
+      lastRunDate: null,
+      totalProcessed: 0
+    };
+  }
+
+  // Save bot state to database
+  async saveState(state) {
+    state.lastRunDate = new Date().toISOString();
+    try {
+      await dbClient.execute(`
+        CREATE TABLE IF NOT EXISTS bot_state (
+          bot_name TEXT PRIMARY KEY,
+          value TEXT,
+          updated_at TEXT
+        )
+      `);
+      await dbClient.execute({
+        sql: "INSERT OR REPLACE INTO bot_state (bot_name, value, updated_at) VALUES (?, ?, ?)",
+        args: [this.botName, JSON.stringify(state), new Date().toISOString()]
+      });
+    } catch (e) {
+      console.error('Failed to save state:', e.message);
+    }
+  }
+
+  // Rate limiting helper
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms || this.rateLimitMs));
+  }
+
+  // Get batch from work queue or fallback query
+  async getBatch(state, fallbackQuery = null) {
+    await initWorkQueue();
+    
+    // First try work queue
+    if (this.useWorkQueue) {
+      console.log(`📋 Checking work queue for ${this.workQueueBotType} tasks...`);
+      const workItems = await getPendingWork(this.workQueueBotType, this.batchSize);
+      if (workItems.length > 0) {
+        console.log(`📦 Found ${workItems.length} tasks in work queue\n`);
+        return {
+          items: workItems.map(w => ({ 
+            ...w.question, 
+            workId: w.workId, 
+            workReason: w.reason 
+          })),
+          fromWorkQueue: true
+        };
+      }
+    }
+    
+    // Fallback to custom query or sequential processing
+    if (fallbackQuery) {
+      console.log('🔍 Using fallback query...');
+      const items = await fallbackQuery(this.batchSize);
+      console.log(`📦 Found ${items.length} items from fallback query\n`);
+      return { items, fromWorkQueue: false };
+    }
+    
+    // Default: get all questions and process sequentially
+    console.log('📊 Using sequential processing...');
+    const allQuestions = await getAllUnifiedQuestions();
+    const sorted = [...allQuestions].sort((a, b) => {
+      const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+      const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+      return numA - numB;
+    });
+    
+    let startIndex = state.lastProcessedIndex || 0;
+    if (startIndex >= sorted.length) {
+      startIndex = 0;
+      console.log('🔄 Wrapped around to beginning\n');
+    }
+    
+    const endIndex = Math.min(startIndex + this.batchSize, sorted.length);
+    const items = sorted.slice(startIndex, endIndex);
+    
+    console.log(`📦 Processing questions ${startIndex + 1} to ${endIndex} of ${sorted.length}\n`);
+    
+    return { 
+      items, 
+      fromWorkQueue: false, 
+      startIndex, 
+      endIndex, 
+      totalCount: sorted.length 
+    };
+  }
+
+  // Process a single item - override in subclass
+  async processItem(item, index, total) {
+    throw new Error('processItem must be implemented by subclass');
+  }
+
+  // Check if item needs processing - override in subclass
+  needsProcessing(item) {
+    return { needs: true, reason: 'default' };
+  }
+
+  // Main run method
+  async run(options = {}) {
+    const { fallbackQuery, onComplete } = options;
+    
+    console.log(`=== ${this.getEmoji()} ${this.getDisplayName()} ===\n`);
+    
+    await initWorkQueue();
+    const state = await this.loadState();
+    
+    console.log(`📊 Bot: ${this.botName}`);
+    console.log(`📅 Last run: ${state.lastRunDate || 'Never'}`);
+    console.log(`⚙️ Batch size: ${this.batchSize}\n`);
+    
+    const batch = await this.getBatch(state, fallbackQuery);
+    const { items, fromWorkQueue, startIndex, endIndex, totalCount } = batch;
+    
+    if (items.length === 0) {
+      console.log('✅ No items to process!');
+      writeGitHubOutput({ processed: 0, ...this.results });
+      return this.results;
+    }
+    
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const workId = item.workId;
+      
+      console.log(`\n--- [${i + 1}/${items.length}] ${item.id} ---`);
+      console.log(`Q: ${item.question?.substring(0, 60) || 'N/A'}...`);
+      if (workId) console.log(`Work ID: ${workId} (${item.workReason})`);
+      
+      // Mark work as started
+      if (workId) await startWorkItem(workId);
+      
+      // Check if needs processing
+      const check = this.needsProcessing(item);
+      if (!check.needs) {
+        console.log(`✅ Skipping: ${check.reason}`);
+        if (workId) await completeWorkItem(workId, { status: 'skipped', reason: check.reason });
+        this.results.skipped++;
+        this.results.processed++;
+        continue;
+      }
+      
+      // Rate limiting (skip for first item)
+      if (i > 0) await this.sleep();
+      
+      try {
+        const success = await this.processItem(item, i, items.length);
+        
+        if (success) {
+          if (workId) await completeWorkItem(workId, { status: 'success' });
+          this.results.succeeded++;
+        } else {
+          if (workId) await failWorkItem(workId, 'Processing failed');
+          this.results.failed++;
+        }
+      } catch (error) {
+        console.log(`❌ Error: ${error.message}`);
+        if (workId) await failWorkItem(workId, error.message);
+        this.results.failed++;
+      }
+      
+      this.results.processed++;
+      
+      // Update state after each item (for non-work-queue mode)
+      if (!fromWorkQueue && startIndex !== undefined) {
+        await this.saveState({
+          ...state,
+          lastProcessedIndex: startIndex + i + 1,
+          totalProcessed: (state.totalProcessed || 0) + 1
+        });
+      }
+    }
+    
+    // Final state update
+    const newState = {
+      ...state,
+      lastProcessedIndex: fromWorkQueue ? state.lastProcessedIndex : 
+        (endIndex >= totalCount ? 0 : endIndex),
+      lastRunDate: new Date().toISOString(),
+      totalProcessed: (state.totalProcessed || 0) + this.results.processed
+    };
+    await this.saveState(newState);
+    
+    // Summary
+    this.printSummary(newState);
+    
+    // Custom completion handler
+    if (onComplete) await onComplete(this.results, newState);
+    
+    writeGitHubOutput({
+      processed: this.results.processed,
+      succeeded: this.results.succeeded,
+      skipped: this.results.skipped,
+      failed: this.results.failed,
+      next_index: newState.lastProcessedIndex
+    });
+    
+    return this.results;
+  }
+
+  // Override for custom emoji
+  getEmoji() {
+    return '🤖';
+  }
+
+  // Override for custom display name
+  getDisplayName() {
+    return this.botName;
+  }
+
+  // Print summary
+  printSummary(state) {
+    console.log('\n\n=== SUMMARY ===');
+    console.log(`Processed: ${this.results.processed}`);
+    console.log(`Succeeded: ${this.results.succeeded}`);
+    console.log(`Skipped: ${this.results.skipped}`);
+    console.log(`Failed: ${this.results.failed}`);
+    if (state.lastProcessedIndex !== undefined) {
+      console.log(`\nNext run starts at: ${state.lastProcessedIndex}`);
+    }
+    console.log('=== END ===\n');
+  }
+}
+
+// ============================================
 // GISCUS/GITHUB DISCUSSIONS INTEGRATION
 // ============================================
 

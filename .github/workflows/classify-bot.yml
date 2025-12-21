@@ -2,7 +2,8 @@ name: 🗂️ Sorter Bot
 
 on:
   schedule:
-    - cron: '0 10 * * *'  # Daily at 10:00 UTC
+    # Runs at 12:00 UTC - orchestrator bot that creates work for others
+    - cron: '0 12 * * *'
   workflow_dispatch:
     inputs:
       batch_size:
@@ -14,6 +15,7 @@ on:
 jobs:
   classify:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
     
@@ -45,19 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           CI: 'true'
 
-      - name: Trigger deploy
-        if: success()
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GH_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'deploy-pages.yml',
-              ref: 'main'
-            });
-            console.log('Triggered deploy workflow');
+      # Deploy is now handled by batch-deploy.yml at 20:00 UTC
 
       - name: Summary
         if: always()
@@ -67,8 +57,9 @@ jobs:
           echo "### ✅ Organizing Into Channels" >> $GITHUB_STEP_SUMMARY
           echo "- Reviewed questions for correct channel/subchannel mapping" >> $GITHUB_STEP_SUMMARY
           echo "- Reclassified misplaced questions using AI" >> $GITHUB_STEP_SUMMARY
-          echo "- Confirmed correctly classified questions" >> $GITHUB_STEP_SUMMARY
+          echo "- Created work items for other bots (parallel)" >> $GITHUB_STEP_SUMMARY
           echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY
+          echo "- Deploy handled by batch-deploy workflow at 20:00 UTC" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Processed:** ${{ steps.classify-bot.outputs.processed || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Reclassified:** ${{ steps.classify-bot.outputs.reclassified || 'N/A' }}" >> $GITHUB_STEP_SUMMARY

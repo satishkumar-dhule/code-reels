@@ -2,7 +2,8 @@ name: 🧒 Simplify Bot
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # Daily at 08:00 UTC
+    # Runs at 08:00 UTC - can run in parallel with Quickshot Bot
+    - cron: '0 8 * * *'
   workflow_dispatch:
     inputs:
       batch_size:
@@ -13,6 +14,7 @@ on:
 jobs:
   add-eli5:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
     
@@ -44,19 +46,7 @@ jobs:
           CI: 'true'
         run: node script/eli5-bot.js
 
-      - name: Trigger deploy
-        if: success()
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GH_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'deploy-pages.yml',
-              ref: 'main'
-            });
-            console.log('Triggered deploy workflow');
+      # Deploy is now handled by batch-deploy.yml at 20:00 UTC
 
       - name: Summary
         if: always()
@@ -67,7 +57,8 @@ jobs:
           echo "- Processed questions in batch" >> $GITHUB_STEP_SUMMARY
           echo "- Added ELI5 explanations where missing" >> $GITHUB_STEP_SUMMARY
           echo "- Data saved directly to Turso database" >> $GITHUB_STEP_SUMMARY
+          echo "- Deploy handled by batch-deploy workflow at 20:00 UTC" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Processed:** ${{ steps.eli5.outputs.processed || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Simplified:** ${{ steps.eli5.outputs.eli5_added || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Succeeded:** ${{ steps.eli5.outputs.succeeded || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

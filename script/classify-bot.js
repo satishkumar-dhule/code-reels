@@ -1,7 +1,7 @@
 import {
   getAllUnifiedQuestions,
   saveQuestion,
-  runWithRetries,
+  runWithCircuitBreaker,
   parseJson,
   writeGitHubOutput,
   dbClient,
@@ -139,7 +139,7 @@ Output this exact JSON structure:
 
 IMPORTANT: Return ONLY the JSON object. No other text.`;
 
-  const response = await runWithRetries(prompt);
+  const response = await runWithCircuitBreaker(prompt);
   if (!response) return null;
   
   const data = parseJson(response);
@@ -177,37 +177,44 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Check what work is needed for a question and create work items
+// Check what work is needed for a question and create work items (OPTIMIZED: parallel creation)
 async function createWorkItemsForQuestion(question) {
-  const workItems = [];
+  const workItemPromises = [];
+  const workTypes = [];
   
   // Check if needs videos
   const videos = question.videos || {};
   const hasShort = videos.shortVideo && videos.shortVideo.length > 10;
   const hasLong = videos.longVideo && videos.longVideo.length > 10;
   if (!hasShort || !hasLong) {
-    await addWorkItem(question.id, 'video', `Missing ${!hasShort ? 'short' : ''}${!hasShort && !hasLong ? ' and ' : ''}${!hasLong ? 'long' : ''} video`, 'classify-bot', 5);
-    workItems.push('video');
+    workItemPromises.push(addWorkItem(question.id, 'video', `Missing ${!hasShort ? 'short' : ''}${!hasShort && !hasLong ? ' and ' : ''}${!hasLong ? 'long' : ''} video`, 'classify-bot', 5));
+    workTypes.push('video');
   }
   
   // Check if needs diagram
   const diagram = question.diagram;
   if (!diagram || diagram.length < 20) {
-    await addWorkItem(question.id, 'mermaid', 'Missing or short diagram', 'classify-bot', 4);
-    workItems.push('mermaid');
+    workItemPromises.push(addWorkItem(question.id, 'mermaid', 'Missing or short diagram', 'classify-bot', 4));
+    workTypes.push('mermaid');
   }
   
   // Check if needs companies
   const companies = question.companies || [];
   if (!Array.isArray(companies) || companies.length < 3) {
-    await addWorkItem(question.id, 'company', `Only ${companies.length || 0} companies`, 'classify-bot', 6);
-    workItems.push('company');
+    workItemPromises.push(addWorkItem(question.id, 'company', `Only ${companies.length || 0} companies`, 'classify-bot', 6));
+    workTypes.push('company');
   }
   
   // Check if needs ELI5
   if (!question.eli5 || question.eli5.length < 50) {
-    await addWorkItem(question.id, 'eli5', 'Missing ELI5 explanation', 'classify-bot', 7);
-    workItems.push('eli5');
+    workItemPromises.push(addWorkItem(question.id, 'eli5', 'Missing ELI5 explanation', 'classify-bot', 7));
+    workTypes.push('eli5');
+  }
+  
+  // Check if needs TLDR
+  if (!question.tldr || question.tldr.length < 20) {
+    workItemPromises.push(addWorkItem(question.id, 'tldr', 'Missing TLDR summary', 'classify-bot', 8));
+    workTypes.push('tldr');
   }
   
   // Check if needs general improvement (short answer/explanation)
@@ -215,11 +222,16 @@ async function createWorkItemsForQuestion(question) {
     (!question.answer || question.answer.length < 20) ||
     (!question.explanation || question.explanation.length < 50);
   if (needsImprove) {
-    await addWorkItem(question.id, 'improve', 'Short answer or explanation', 'classify-bot', 3);
-    workItems.push('improve');
+    workItemPromises.push(addWorkItem(question.id, 'improve', 'Short answer or explanation', 'classify-bot', 3));
+    workTypes.push('improve');
   }
   
-  return workItems;
+  // Execute all work item creations in parallel
+  if (workItemPromises.length > 0) {
+    await Promise.all(workItemPromises);
+  }
+  
+  return workTypes;
 }
 
 async function main() {
