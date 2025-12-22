@@ -66,6 +66,12 @@ async function analyzeNode(state) {
     if (result.answerQuality < 6) issues.push('weak_answer');
     if (result.conceptDepth < 5) issues.push('shallow_explanation');
     
+    // Check for short/high-level answers (need 150+ chars for interview-worthy answers)
+    if (!state.answer || state.answer.length < 150) {
+      issues.push('short_answer');
+      console.log(`   ⚠️ Answer too short (${state.answer?.length || 0} chars, need 150+)`);
+    }
+    
     // Check for missing content
     if (!state.eli5 || state.eli5.length < 50) issues.push('missing_eli5');
     if (!state.tldr || state.tldr.length < 20) issues.push('missing_tldr');

@@ -6,7 +6,7 @@ import { jsonOutputRule, buildSystemContext } from './base.js';
 
 export const schema = {
   question: "Specific, practical interview question ending with ?",
-  answer: "Concise answer under 150 chars",
+  answer: "Comprehensive interview answer (200-400 chars) demonstrating expertise with specific details",
   explanation: "Detailed explanation with sections",
   diagram: "flowchart TD\\n  A[Step] --> B[Step]",
   companies: ["Company1", "Company2"],
@@ -146,7 +146,9 @@ export const standardFormat = `## Why This Is Asked
 export const guidelines = [
   'Question must be SPECIFIC and PRACTICAL - something actually asked in interviews',
   'Include a realistic scenario or context when appropriate',
-  'Answer should be actionable and demonstrate expertise',
+  'Answer MUST be 200-400 characters - comprehensive enough to impress an interviewer',
+  'Answer should demonstrate technical depth with specific technologies, patterns, or trade-offs',
+  'Do NOT give high-level definitions - give answers that show expertise',
   'Create a MEANINGFUL diagram with 5-8 specific nodes',
   'DO NOT create trivial diagrams like "Start -> End"',
   'CRITICAL: Use proper markdown formatting - all ** bold markers must be properly paired',

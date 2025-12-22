@@ -6,7 +6,7 @@ import { jsonOutputRule, qualityRules, buildSystemContext } from './base.js';
 
 export const schema = {
   question: "improved question ending with ?",
-  answer: "concise answer under 150 chars",
+  answer: "comprehensive interview answer (200-400 chars) that demonstrates expertise",
   explanation: "detailed explanation with sections"
 };
 
@@ -69,7 +69,7 @@ export const examples = [
     },
     output: {
       question: "What is caching and when should you use it in a web application?",
-      answer: "Caching stores frequently accessed data in fast storage (memory) to reduce latency and database load.",
+      answer: "Caching stores frequently accessed data in fast storage (memory/Redis) to reduce latency and database load. Use it for read-heavy data that doesn't change often. Key strategies include cache-aside (lazy loading), write-through, and write-behind. Always consider TTL, invalidation strategy, and cache stampede prevention.",
       explanation: "## Why This Is Asked\nCaching is fundamental to building scalable systems..."
     }
   }
@@ -77,7 +77,9 @@ export const examples = [
 
 export const guidelines = [
   'Ensure question ends with a question mark',
-  'Answer should be 50-150 characters, direct and actionable',
+  'Answer MUST be 200-400 characters - comprehensive enough to impress an interviewer',
+  'Answer should demonstrate technical depth, not just define the concept',
+  'Include specific technologies, patterns, or trade-offs in the answer',
   'Explanation should include interview context',
   'Add code examples where relevant',
   'Include 2-3 follow-up questions interviewers might ask',

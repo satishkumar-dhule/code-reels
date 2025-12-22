@@ -86,8 +86,8 @@ export const scoringCriteria = {
   },
   answerQuality: {
     weight: '5%',
-    description: 'Is the provided answer accurate and helpful?',
-    scale: { 10: 'Excellent, comprehensive', 5: 'Adequate', 1: 'Incorrect or unhelpful' }
+    description: 'Is the provided answer comprehensive and interview-worthy (200+ chars with specific details)?',
+    scale: { 10: 'Excellent, comprehensive with specific technologies/patterns', 5: 'Too high-level or generic', 1: 'Incorrect, too short, or unhelpful' }
   }
 };
 

@@ -19,7 +19,7 @@ import { improveQuestion } from './ai/graphs/improvement-graph.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '5', 10);
 
-// Get questions that need improvement (low relevance score or missing content)
+// Get questions that need improvement (low relevance score, short answers, or missing content)
 async function getQuestionsNeedingImprovement(limit) {
   const result = await dbClient.execute({
     sql: `
@@ -29,9 +29,10 @@ async function getQuestionsNeedingImprovement(limit) {
         OR eli5 IS NULL OR LENGTH(eli5) < 50
         OR tldr IS NULL OR LENGTH(tldr) < 20
         OR diagram IS NULL OR LENGTH(diagram) < 50
-        OR LENGTH(answer) < 30
+        OR LENGTH(answer) < 150
         OR LENGTH(explanation) < 100
       ORDER BY 
+        LENGTH(answer) ASC,
         CASE WHEN relevance_score IS NULL THEN 0 ELSE relevance_score END ASC,
         last_updated ASC
       LIMIT ?

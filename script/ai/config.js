@@ -48,7 +48,7 @@ export default {
     tldr: { minLength: 20, maxLength: 150 },
     diagram: { minLength: 50, minNodes: 4 },
     explanation: { minLength: 100 },
-    answer: { minLength: 20, maxLength: 200 }
+    answer: { minLength: 150, maxLength: 500 }
   },
   
   // Logging
