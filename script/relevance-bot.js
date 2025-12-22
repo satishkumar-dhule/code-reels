@@ -1,25 +1,17 @@
 import {
-  runWithRetries,
-  parseJson,
   writeGitHubOutput,
   logBotActivity,
   dbClient,
   postBotCommentToDiscussion
 } from './utils.js';
+import ai from './ai/index.js';
+import { scoringWeights, calculateWeightedScore } from './ai/prompts/templates/relevance.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
 const RATE_LIMIT_MS = 2000;
 
-// Scoring criteria weights
-const SCORING_WEIGHTS = {
-  interviewFrequency: 0.25,    // How often asked in real interviews
-  practicalRelevance: 0.20,   // Real-world applicability
-  conceptDepth: 0.15,         // Tests deep understanding
-  industryDemand: 0.15,       // Current market demand for this skill
-  difficultyAppropriate: 0.10, // Matches stated difficulty
-  questionClarity: 0.10,      // Clear, well-formed question
-  answerQuality: 0.05         // Answer is accurate and helpful
-};
+// Scoring criteria weights - imported from template
+const SCORING_WEIGHTS = scoringWeights;
 
 // Initialize relevance columns if not exists
 async function initRelevanceColumns() {
@@ -42,120 +34,48 @@ async function initRelevanceColumns() {
   }
 }
 
-// Generate relevance score using AI with detailed improvement suggestions
+// Generate relevance score using AI framework with detailed improvement suggestions
 async function scoreQuestion(question) {
-  const prompt = `You are an expert technical interviewer and hiring manager. Analyze this interview question and score its relevance for real technical interviews.
-
-Question: "${question.question}"
-Answer: "${question.answer?.substring(0, 500) || 'N/A'}"
-Explanation: "${question.explanation?.substring(0, 300) || 'N/A'}"
-Channel: ${question.channel}
-Difficulty: ${question.difficulty}
-Tags: ${question.tags?.join(', ') || 'N/A'}
-Companies: ${question.companies?.join(', ') || 'N/A'}
-
-Score each criterion from 1-10:
-
-1. INTERVIEW_FREQUENCY (25%): How often is this exact question or similar asked in real FAANG/top-tier interviews?
-   - 10: Asked in almost every interview for this role
-   - 7-9: Commonly asked, appears frequently
-   - 4-6: Sometimes asked, moderate frequency
-   - 1-3: Rarely asked, niche topic
-
-2. PRACTICAL_RELEVANCE (20%): How applicable is this to real-world engineering work?
-   - 10: Essential daily skill
-   - 7-9: Frequently used in production
-   - 4-6: Occasionally useful
-   - 1-3: Mostly theoretical
-
-3. CONCEPT_DEPTH (15%): Does this test deep understanding vs surface knowledge?
-   - 10: Requires deep expertise and critical thinking
-   - 7-9: Tests solid understanding
-   - 4-6: Tests basic knowledge
-   - 1-3: Trivial/memorization only
-
-4. INDUSTRY_DEMAND (15%): Current market demand for this skill (2024-2025)?
-   - 10: Extremely hot skill, high demand
-   - 7-9: Strong demand
-   - 4-6: Moderate demand
-   - 1-3: Declining or niche demand
-
-5. DIFFICULTY_APPROPRIATE (10%): Does the question match its stated difficulty level?
-   - 10: Perfect match
-   - 5: Somewhat mismatched
-   - 1: Completely wrong difficulty
-
-6. QUESTION_CLARITY (10%): Is the question clear, specific, and well-formed?
-   - 10: Crystal clear, specific
-   - 5: Somewhat ambiguous
-   - 1: Confusing or vague
-
-7. ANSWER_QUALITY (5%): Is the provided answer accurate and helpful?
-   - 10: Excellent, comprehensive
-   - 5: Adequate
-   - 1: Incorrect or unhelpful
-
-Also provide specific improvement suggestions if the score is below 80.
-
-Output ONLY this JSON:
-{
-  "interviewFrequency":N,
-  "practicalRelevance":N,
-  "conceptDepth":N,
-  "industryDemand":N,
-  "difficultyAppropriate":N,
-  "questionClarity":N,
-  "answerQuality":N,
-  "reasoning":"Brief 1-2 sentence explanation of the overall assessment",
-  "recommendation":"keep|improve|retire",
-  "improvements":{
-    "questionIssues":["list of issues with the question text, empty if none"],
-    "answerIssues":["list of issues with the answer, empty if none"],
-    "missingTopics":["important topics that should be covered but aren't"],
-    "suggestedAdditions":["specific content to add like trade-offs, examples, edge cases"],
-    "difficultyAdjustment":"none|increase|decrease"
-  }
-}
-
-IMPORTANT: Return ONLY the JSON object. No other text.`;
-
   console.log('\n📝 Scoring question...');
   
-  const response = await runWithRetries(prompt);
-  if (!response) return null;
-  
-  const data = parseJson(response);
-  if (!data || !data.interviewFrequency) {
-    console.log('  ⚠️ Invalid scoring response');
+  try {
+    const data = await ai.run('relevance', {
+      question: question.question,
+      answer: question.answer,
+      explanation: question.explanation,
+      channel: question.channel,
+      difficulty: question.difficulty,
+      tags: question.tags,
+      companies: question.companies
+    });
+    
+    if (!data || !data.interviewFrequency) {
+      console.log('  ⚠️ Invalid scoring response');
+      return null;
+    }
+    
+    // Calculate weighted score using template function
+    const weightedScore = calculateWeightedScore(data);
+    
+    return {
+      score: weightedScore,
+      details: {
+        interviewFrequency: data.interviewFrequency,
+        practicalRelevance: data.practicalRelevance,
+        conceptDepth: data.conceptDepth,
+        industryDemand: data.industryDemand,
+        difficultyAppropriate: data.difficultyAppropriate,
+        questionClarity: data.questionClarity,
+        answerQuality: data.answerQuality,
+        reasoning: data.reasoning
+      },
+      recommendation: data.recommendation || 'keep',
+      improvements: data.improvements || null
+    };
+  } catch (error) {
+    console.log(`  ❌ AI error: ${error.message}`);
     return null;
   }
-  
-  // Calculate weighted score (0-100)
-  const weightedScore = Math.round(
-    (data.interviewFrequency * SCORING_WEIGHTS.interviewFrequency +
-     data.practicalRelevance * SCORING_WEIGHTS.practicalRelevance +
-     data.conceptDepth * SCORING_WEIGHTS.conceptDepth +
-     data.industryDemand * SCORING_WEIGHTS.industryDemand +
-     data.difficultyAppropriate * SCORING_WEIGHTS.difficultyAppropriate +
-     data.questionClarity * SCORING_WEIGHTS.questionClarity +
-     data.answerQuality * SCORING_WEIGHTS.answerQuality) * 10
-  );
-  
-  return {
-    score: weightedScore,
-    details: {
-      interviewFrequency: data.interviewFrequency,
-      practicalRelevance: data.practicalRelevance,
-      conceptDepth: data.conceptDepth,
-      industryDemand: data.industryDemand,
-      difficultyAppropriate: data.difficultyAppropriate,
-      questionClarity: data.questionClarity,
-      answerQuality: data.answerQuality,
-      reasoning: data.reasoning
-    },
-    recommendation: data.recommendation || 'keep',
-    improvements: data.improvements || null
-  };
 }
 
 function sleep(ms) {

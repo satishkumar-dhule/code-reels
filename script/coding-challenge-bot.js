@@ -12,34 +12,9 @@
  *   INPUT_COUNT - number of challenges to generate (default: 1)
  */
 
-import { runWithRetries, parseJson, writeGitHubOutput, dbClient } from './utils.js';
-
-const CATEGORIES = [
-  'arrays',
-  'strings', 
-  'hash-maps',
-  'two-pointers',
-  'stacks',
-  'math',
-  'sorting',
-  'searching',
-  'dynamic-programming',
-  'linked-lists',
-];
-
-const DIFFICULTIES = ['easy', 'medium'];
-
-// Top tech companies known for coding interviews
-const TOP_COMPANIES = [
-  'Google', 'Amazon', 'Meta', 'Apple', 'Microsoft', 'Netflix',
-  'Uber', 'Lyft', 'Airbnb', 'Stripe', 'Square', 'PayPal',
-  'LinkedIn', 'Twitter', 'Snap', 'Pinterest', 'Dropbox',
-  'Salesforce', 'Adobe', 'Oracle', 'Nvidia', 'Intel',
-  'Bloomberg', 'Goldman Sachs', 'Morgan Stanley', 'Citadel', 'Two Sigma',
-  'Databricks', 'Snowflake', 'Confluent', 'MongoDB', 'Elastic',
-  'Shopify', 'DoorDash', 'Instacart', 'Coinbase', 'Robinhood',
-  'Palantir', 'SpaceX', 'Tesla', 'OpenAI', 'Anthropic',
-];
+import { writeGitHubOutput, dbClient } from './utils.js';
+import ai from './ai/index.js';
+import { categories as CATEGORIES, difficulties as DIFFICULTIES, topCompanies as TOP_COMPANIES } from './ai/prompts/templates/coding-challenge.js';
 
 // Get 2-4 random companies
 function getRandomCompanies() {
@@ -133,6 +108,44 @@ async function getExistingTitlesForCategory(category) {
   return result.rows.map(r => r.title);
 }
 
+// Validate challenge structure
+function validateChallenge(data) {
+  if (!data) return false;
+  
+  const required = ['title', 'description', 'difficulty', 'starterCode', 'testCases', 'sampleSolution', 'complexity'];
+  for (const field of required) {
+    if (!data[field]) {
+      console.log(`❌ Missing required field: ${field}`);
+      return false;
+    }
+  }
+  
+  if (!data.starterCode.javascript || !data.starterCode.python) {
+    console.log('❌ Missing starter code for JS or Python');
+    return false;
+  }
+  
+  if (!data.sampleSolution.javascript || !data.sampleSolution.python) {
+    console.log('❌ Missing sample solution for JS or Python');
+    return false;
+  }
+  
+  if (!Array.isArray(data.testCases) || data.testCases.length < 2) {
+    console.log('❌ Need at least 2 test cases');
+    return false;
+  }
+  
+  // Validate test cases have required fields
+  for (const tc of data.testCases) {
+    if (!tc.input || tc.expectedOutput === undefined) {
+      console.log('❌ Test case missing input or expectedOutput');
+      return false;
+    }
+  }
+  
+  return true;
+}
+
 // Save challenge to database
 async function saveChallengeToDb(challenge) {
   const id = await generateChallengeId();
@@ -177,100 +190,6 @@ async function getChallengeCount() {
   return result.rows[0]?.count || 0;
 }
 
-const SYSTEM_PROMPT = `You are an expert coding interview question creator for a LeetCode-style platform.
-
-CRITICAL RULES:
-1. Generate problems solvable in 10-20 minutes
-2. Test case inputs/outputs MUST be valid JSON (arrays as [1,2,3], strings as "hello", booleans as true/false)
-3. Function names should be camelCase for JS (twoSum) and snake_case for Python (two_sum)
-4. Include 3-4 test cases covering normal cases AND edge cases
-5. Solutions must be CORRECT and produce exact expected outputs
-6. Starter code has function signature only with "// Your code here" comment
-
-OUTPUT: Return ONLY valid JSON (no markdown, no explanation):`;
-
-function buildPrompt(difficulty, category, companies, categoryTitles = []) {
-  const avoidTitlesSection = categoryTitles.length > 0 
-    ? `\nExisting ${category} challenges (create something DIFFERENT): ${categoryTitles.join(', ')}`
-    : '';
-
-  return `${SYSTEM_PROMPT}
-
-Generate a ${difficulty} coding challenge for category: ${category}
-Companies: ${companies.join(', ')}${avoidTitlesSection}
-
-Requirements:
-- Difficulty: ${difficulty} (${difficulty === 'easy' ? 'basic, 10 min' : 'medium, 15-20 min'})
-- Category: ${category}
-- 3-4 test cases with edge cases
-- Working JS and Python solutions
-- UNIQUE title not similar to existing ones
-
-Return JSON:
-{
-  "title": "Unique Problem Title",
-  "description": "Clear description with constraints.",
-  "difficulty": "${difficulty}",
-  "category": "${category}",
-  "tags": ["${category}", "tag2"],
-  "companies": ${JSON.stringify(companies)},
-  "starterCode": {
-    "javascript": "function solve(param) {\\n  // Your code here\\n}",
-    "python": "def solve(param):\\n    # Your code here\\n    pass"
-  },
-  "testCases": [
-    {"id": "1", "input": "[1,2,3]", "expectedOutput": "6", "description": "Basic"},
-    {"id": "2", "input": "[]", "expectedOutput": "0", "description": "Empty"},
-    {"id": "3", "input": "[5]", "expectedOutput": "5", "description": "Single"}
-  ],
-  "hints": ["Hint 1", "Hint 2"],
-  "sampleSolution": {
-    "javascript": "function solve(param) { return result; }",
-    "python": "def solve(param): return result"
-  },
-  "complexity": {"time": "O(n)", "space": "O(1)", "explanation": "Why"},
-  "timeLimit": ${difficulty === 'easy' ? 10 : 15}
-}`;
-}
-
-function validateChallenge(data) {
-  if (!data) return false;
-  
-  const required = ['title', 'description', 'difficulty', 'starterCode', 'testCases', 'sampleSolution', 'complexity'];
-  for (const field of required) {
-    if (!data[field]) {
-      console.log(`❌ Missing required field: ${field}`);
-      return false;
-    }
-  }
-  
-  if (!data.starterCode.javascript || !data.starterCode.python) {
-    console.log('❌ Missing starter code for JS or Python');
-    return false;
-  }
-  
-  if (!data.sampleSolution.javascript || !data.sampleSolution.python) {
-    console.log('❌ Missing sample solution for JS or Python');
-    return false;
-  }
-  
-  if (!Array.isArray(data.testCases) || data.testCases.length < 2) {
-    console.log('❌ Need at least 2 test cases');
-    return false;
-  }
-  
-  // Validate test cases have required fields
-  for (const tc of data.testCases) {
-    if (!tc.input || tc.expectedOutput === undefined) {
-      console.log('❌ Test case missing input or expectedOutput');
-      return false;
-    }
-  }
-  
-  return true;
-}
-
-
 async function generateChallenge(difficulty, category) {
   const companies = getRandomCompanies();
   const categoryTitles = await getExistingTitlesForCategory(category);
@@ -278,47 +197,48 @@ async function generateChallenge(difficulty, category) {
   console.log(`\n🎯 Generating ${difficulty} challenge for ${category}...`);
   console.log(`🏢 Target companies: ${companies.join(', ')}`);
   
-  const prompt = buildPrompt(difficulty, category, companies, categoryTitles);
-  
-  console.log('\n📝 Prompt sent to OpenCode');
+  console.log('\n📝 Using AI framework for generation');
   console.log('─'.repeat(50));
   
-  const response = await runWithRetries(prompt);
-  
-  if (!response) {
-    console.log('❌ OpenCode failed after all retries');
+  try {
+    const data = await ai.run('coding-challenge', {
+      difficulty,
+      category,
+      companies,
+      existingTitles: categoryTitles
+    });
+    
+    if (!validateChallenge(data)) {
+      console.log('❌ Invalid challenge format');
+      return null;
+    }
+    
+    // Ensure test case IDs
+    data.testCases = data.testCases.map((tc, i) => ({
+      ...tc,
+      id: tc.id || String(i + 1),
+    }));
+    
+    // Ensure tags array
+    if (!Array.isArray(data.tags)) {
+      data.tags = [category];
+    }
+    
+    // Ensure hints array
+    if (!Array.isArray(data.hints)) {
+      data.hints = ['Think about the problem step by step'];
+    }
+    
+    // Ensure companies array
+    if (!Array.isArray(data.companies)) {
+      data.companies = companies;
+    }
+    
+    return data;
+  } catch (error) {
+    console.log(`❌ AI error: ${error.message}`);
     return null;
   }
-  
-  const data = parseJson(response);
-  
-  if (!validateChallenge(data)) {
-    console.log('❌ Invalid challenge format');
-    return null;
-  }
-  
-  // Ensure test case IDs
-  data.testCases = data.testCases.map((tc, i) => ({
-    ...tc,
-    id: tc.id || String(i + 1),
-  }));
-  
-  // Ensure tags array
-  if (!Array.isArray(data.tags)) {
-    data.tags = [category];
-  }
-  
-  // Ensure hints array
-  if (!Array.isArray(data.hints)) {
-    data.hints = ['Think about the problem step by step'];
-  }
-  
-  // Ensure companies array
-  if (!Array.isArray(data.companies)) {
-    data.companies = companies;
-  }
-  
-  return data;
 }
 
 async function main() {

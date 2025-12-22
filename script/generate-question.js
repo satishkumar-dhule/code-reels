@@ -2,8 +2,6 @@ import {
   addUnifiedQuestion,
   generateUnifiedId,
   isDuplicateUnified,
-  runWithRetries,
-  parseJson,
   validateQuestion,
   writeGitHubOutput,
   logQuestionsAdded,
@@ -14,142 +12,14 @@ import {
   getQuestionCount,
   postBotCommentToDiscussion
 } from './utils.js';
+import ai from './ai/index.js';
+import { channelConfigs, topCompanies as TOP_TECH_COMPANIES, realScenarios as REAL_SCENARIOS } from './ai/prompts/templates/generate.js';
 
-// Channel configurations
-const channelConfigs = {
-  'system-design': [
-    { subChannel: 'infrastructure', tags: ['infra', 'scale', 'distributed'] },
-    { subChannel: 'distributed-systems', tags: ['dist-sys', 'cap-theorem', 'consensus'] },
-    { subChannel: 'api-design', tags: ['api', 'rest', 'grpc', 'graphql'] },
-    { subChannel: 'caching', tags: ['cache', 'redis', 'memcached', 'cdn'] },
-    { subChannel: 'load-balancing', tags: ['lb', 'traffic', 'nginx', 'haproxy'] },
-    { subChannel: 'message-queues', tags: ['kafka', 'rabbitmq', 'sqs', 'pubsub'] },
-  ],
-  'algorithms': [
-    { subChannel: 'data-structures', tags: ['arrays', 'linkedlist', 'hashtable', 'heap'] },
-    { subChannel: 'sorting', tags: ['quicksort', 'mergesort', 'complexity'] },
-    { subChannel: 'dynamic-programming', tags: ['dp', 'memoization', 'tabulation'] },
-    { subChannel: 'graphs', tags: ['bfs', 'dfs', 'dijkstra', 'topological'] },
-    { subChannel: 'trees', tags: ['bst', 'avl', 'trie', 'segment-tree'] },
-  ],
-  'frontend': [
-    { subChannel: 'react', tags: ['react', 'hooks', 'context', 'redux'] },
-    { subChannel: 'javascript', tags: ['js', 'es6', 'closures', 'promises'] },
-    { subChannel: 'css', tags: ['css', 'flexbox', 'grid', 'animations'] },
-    { subChannel: 'performance', tags: ['lighthouse', 'bundle', 'lazy-loading'] },
-    { subChannel: 'web-apis', tags: ['dom', 'fetch', 'websocket', 'service-worker'] },
-  ],
-  'backend': [
-    { subChannel: 'apis', tags: ['rest', 'graphql', 'grpc', 'openapi'] },
-    { subChannel: 'microservices', tags: ['saga', 'cqrs', 'event-sourcing'] },
-    { subChannel: 'caching', tags: ['redis', 'memcached', 'cache-invalidation'] },
-    { subChannel: 'authentication', tags: ['jwt', 'oauth2', 'oidc', 'saml'] },
-    { subChannel: 'server-architecture', tags: ['scaling', 'sharding', 'replication'] },
-  ],
-  'database': [
-    { subChannel: 'sql', tags: ['joins', 'indexes', 'normalization', 'postgres'] },
-    { subChannel: 'nosql', tags: ['mongodb', 'dynamodb', 'cassandra', 'redis'] },
-    { subChannel: 'indexing', tags: ['btree', 'hash-index', 'composite'] },
-    { subChannel: 'transactions', tags: ['acid', 'isolation-levels', 'mvcc'] },
-    { subChannel: 'query-optimization', tags: ['explain', 'query-plan', 'partitioning'] },
-  ],
-  'devops': [
-    { subChannel: 'cicd', tags: ['github-actions', 'jenkins', 'gitlab-ci'] },
-    { subChannel: 'docker', tags: ['dockerfile', 'compose', 'multi-stage'] },
-    { subChannel: 'automation', tags: ['ansible', 'puppet', 'chef'] },
-    { subChannel: 'gitops', tags: ['argocd', 'flux', 'declarative'] },
-  ],
-  'sre': [
-    { subChannel: 'observability', tags: ['prometheus', 'grafana', 'opentelemetry'] },
-    { subChannel: 'reliability', tags: ['slo', 'sli', 'error-budget'] },
-    { subChannel: 'incident-management', tags: ['pagerduty', 'runbooks', 'postmortem'] },
-    { subChannel: 'chaos-engineering', tags: ['chaos-monkey', 'litmus', 'gremlin'] },
-    { subChannel: 'capacity-planning', tags: ['forecasting', 'autoscaling', 'load-testing'] },
-  ],
-  'kubernetes': [
-    { subChannel: 'pods', tags: ['containers', 'init-containers', 'sidecars'] },
-    { subChannel: 'services', tags: ['clusterip', 'nodeport', 'loadbalancer', 'ingress'] },
-    { subChannel: 'deployments', tags: ['rolling-update', 'canary', 'blue-green'] },
-    { subChannel: 'helm', tags: ['charts', 'values', 'templating'] },
-    { subChannel: 'operators', tags: ['crds', 'controllers', 'reconciliation'] },
-  ],
-  'aws': [
-    { subChannel: 'compute', tags: ['ec2', 'ecs', 'eks', 'fargate'] },
-    { subChannel: 'storage', tags: ['s3', 'ebs', 'efs', 'glacier'] },
-    { subChannel: 'serverless', tags: ['lambda', 'api-gateway', 'step-functions'] },
-    { subChannel: 'database', tags: ['rds', 'aurora', 'dynamodb', 'elasticache'] },
-    { subChannel: 'networking', tags: ['vpc', 'route53', 'cloudfront', 'alb'] },
-  ],
-  'generative-ai': [
-    { subChannel: 'llm-fundamentals', tags: ['transformer', 'attention', 'tokenization'] },
-    { subChannel: 'fine-tuning', tags: ['lora', 'qlora', 'peft', 'adapter'] },
-    { subChannel: 'rag', tags: ['retrieval', 'embeddings', 'vector-db', 'chunking'] },
-    { subChannel: 'agents', tags: ['langchain', 'autogen', 'tool-use', 'planning'] },
-    { subChannel: 'evaluation', tags: ['hallucination', 'faithfulness', 'relevance'] },
-  ],
-  'machine-learning': [
-    { subChannel: 'algorithms', tags: ['regression', 'classification', 'clustering'] },
-    { subChannel: 'model-training', tags: ['hyperparameter', 'cross-validation', 'regularization'] },
-    { subChannel: 'deployment', tags: ['mlflow', 'kubeflow', 'sagemaker'] },
-    { subChannel: 'deep-learning', tags: ['cnn', 'rnn', 'transformer', 'attention'] },
-    { subChannel: 'evaluation', tags: ['precision', 'recall', 'auc-roc', 'f1'] },
-  ],
-  'security': [
-    { subChannel: 'application-security', tags: ['xss', 'csrf', 'sqli', 'ssrf'] },
-    { subChannel: 'owasp', tags: ['top10', 'asvs', 'samm'] },
-    { subChannel: 'encryption', tags: ['aes', 'rsa', 'tls', 'hashing'] },
-    { subChannel: 'authentication', tags: ['mfa', 'passkeys', 'zero-trust'] },
-  ],
-  'testing': [
-    { subChannel: 'unit-testing', tags: ['jest', 'mocha', 'pytest', 'junit'] },
-    { subChannel: 'integration-testing', tags: ['api-testing', 'database-testing', 'mocking'] },
-    { subChannel: 'tdd', tags: ['test-driven', 'red-green-refactor', 'test-first'] },
-    { subChannel: 'test-strategies', tags: ['test-pyramid', 'coverage', 'mutation-testing'] },
-  ],
-  'behavioral': [
-    { subChannel: 'star-method', tags: ['situation', 'task', 'action', 'result'] },
-    { subChannel: 'leadership-principles', tags: ['ownership', 'bias-for-action', 'customer-obsession'] },
-    { subChannel: 'soft-skills', tags: ['communication', 'collaboration', 'influence'] },
-    { subChannel: 'conflict-resolution', tags: ['negotiation', 'mediation', 'feedback'] },
-  ],
-};
+// Channel configurations - imported from AI framework template
 
 const difficulties = ['beginner', 'intermediate', 'advanced'];
 
-// Top 100 tech companies known for rigorous technical interviews
-const TOP_TECH_COMPANIES = [
-  // FAANG / MAANG
-  'Google', 'Amazon', 'Apple', 'Meta', 'Netflix', 'Microsoft',
-  // Big Tech
-  'Nvidia', 'Tesla', 'Salesforce', 'Adobe', 'Oracle', 'IBM', 'Intel', 'Cisco', 'SAP',
-  // Cloud & Infrastructure
-  'Snowflake', 'Databricks', 'Cloudflare', 'MongoDB', 'Elastic', 'HashiCorp', 'Confluent',
-  // Fintech
-  'Stripe', 'Square', 'PayPal', 'Plaid', 'Robinhood', 'Coinbase', 'Affirm', 'Chime',
-  // E-commerce & Retail
-  'Shopify', 'Instacart', 'DoorDash', 'Uber', 'Lyft', 'Airbnb', 'Booking.com', 'Expedia',
-  // Social & Communication
-  'LinkedIn', 'Twitter', 'Snap', 'Discord', 'Slack', 'Zoom', 'Twilio',
-  // Streaming & Entertainment
-  'Spotify', 'Disney+', 'Hulu', 'Warner Bros', 'Roblox', 'Epic Games', 'Unity',
-  // Enterprise & SaaS
-  'ServiceNow', 'Workday', 'Atlassian', 'Splunk', 'Datadog', 'New Relic', 'PagerDuty',
-  'Okta', 'CrowdStrike', 'Zscaler', 'Palo Alto Networks', 'Fortinet',
-  // AI & ML
-  'OpenAI', 'Anthropic', 'DeepMind', 'Hugging Face', 'Scale AI', 'Cohere', 'Stability AI',
-  // Hardware & Semiconductors
-  'AMD', 'Qualcomm', 'Broadcom', 'Micron', 'Western Digital', 'Seagate',
-  // Consulting & Services
-  'Accenture', 'Deloitte', 'McKinsey', 'BCG', 'Bain', 'Thoughtworks', 'Infosys', 'TCS', 'Wipro',
-  // Startups & Unicorns
-  'Figma', 'Notion', 'Canva', 'Miro', 'Airtable', 'Vercel', 'Supabase', 'PlanetScale',
-  'Linear', 'Retool', 'Webflow', 'Postman', 'GitLab', 'GitHub',
-  // Healthcare Tech
-  'Epic Systems', 'Cerner', 'Veeva', 'Tempus', 'Oscar Health',
-  // Other Notable
-  'Bloomberg', 'Two Sigma', 'Citadel', 'Jane Street', 'DE Shaw', 'HRT',
-  'Palantir', 'Anduril', 'SpaceX', 'Waymo', 'Cruise', 'Aurora'
-];
+// Top 100 tech companies - imported from AI framework template
 
 // Get random companies from the top list (2-4 companies)
 function getRandomTopCompanies(count = 3) {
@@ -504,102 +374,25 @@ function getScenarioHint(channel) {
 
 const scenarioHint = getScenarioHint(channel);
 
-const prompt = `You are a senior technical interviewer at ${targetCompanies[0]}. Generate a REAL interview question that you would actually ask candidates.
-
-CONTEXT:
-- Channel: ${channel}/${subChannelConfig.subChannel}
-- Difficulty: ${difficulty}
-- Topics: ${subChannelConfig.tags.join(', ')}
-- Target companies: ${targetCompanies.join(', ')}
-${scenarioHint ? `- Example scenario for inspiration (create something DIFFERENT but similar quality): ${scenarioHint}` : ''}
-
-REQUIREMENTS:
-1. Question must be SPECIFIC and PRACTICAL - something actually asked in interviews
-2. For ${difficulty} level:
-   - beginner: Fundamental concepts, basic implementation
-   - intermediate: Real-world scenarios, trade-offs, debugging
-   - advanced: System design at scale, complex algorithms, production issues
-3. Include a realistic scenario or context when appropriate
-4. The answer should be actionable and demonstrate expertise
-
-QUESTION TYPES TO CONSIDER:
-${channel === 'algorithms' ? '- Coding problem with clear input/output\n- Time/space complexity analysis\n- Edge case handling' : ''}
-${channel === 'system-design' ? '- Design a specific system with scale requirements\n- Architecture decisions and trade-offs\n- Handling failures and edge cases' : ''}
-${channel === 'frontend' ? '- Framework-specific implementation\n- Performance optimization\n- Browser/DOM concepts' : ''}
-${channel === 'behavioral' ? '- STAR method scenario\n- Leadership/conflict resolution\n- Technical decision making' : ''}
-${['devops', 'sre', 'kubernetes'].includes(channel) ? '- Production incident scenario\n- Infrastructure automation\n- Monitoring and alerting' : ''}
-
-DIAGRAM REQUIREMENTS (CRITICAL):
-- Create a MEANINGFUL diagram with 5-8 specific nodes showing the actual technical concept
-- DO NOT create trivial diagrams like "Start -> End" or "Step 1 -> Step 2 -> Step 3"
-- DO NOT use generic labels like "Concept", "Implementation", "Input", "Output", "Process"
-- Each node must have a specific, descriptive label related to the actual content
-- If you cannot create a meaningful diagram, set diagram to null
-
-${channel === 'system-design' ? `
-SYSTEM DESIGN EXPLANATION FORMAT (MANDATORY):
-For system design questions, the explanation MUST include these sections in order:
-
-## Functional Requirements
-- List 4-6 specific functional requirements (what the system must do)
-- Be specific: "Users can post tweets up to 280 characters" not "Users can post"
-
-## Non-Functional Requirements (NFRs)
-- Availability: Target uptime (e.g., 99.99%)
-- Latency: Response time targets (e.g., p99 < 200ms)
-- Scalability: Expected growth and peak loads
-- Consistency: Strong vs eventual consistency trade-offs
-- Durability: Data loss tolerance
-
-## Back-of-Envelope Calculations
-- Daily/Monthly Active Users (DAU/MAU)
-- Requests per second (read/write ratio)
-- Storage requirements (per user, total)
-- Bandwidth requirements
-- Cache size estimates
-- Show your math!
-
-## High-Level Design
-- Describe the main components and their interactions
-- Explain data flow for key operations
-
-## System Architecture Diagram
-(This will be in the diagram field)
-
-## Deep Dive: Key Components
-- Pick 2-3 critical components and explain in detail
-- Database schema design
-- API design
-- Caching strategy
-
-## Trade-offs & Considerations
-- CAP theorem implications
-- Cost vs performance trade-offs
-- Technology choices and alternatives
-
-## Failure Scenarios & Mitigations
-- What happens when X fails?
-- How to handle data center outages
-- Graceful degradation strategies
-` : ''}
-
-Output ONLY this JSON (no markdown, no explanation):
-{"question":"[Specific, practical interview question ending with ?]","answer":"[Concise answer under 150 chars that directly addresses the question]","explanation":"${channel === 'system-design' ? '## Functional Requirements\\n- [Requirement 1]\\n- [Requirement 2]\\n- [Requirement 3]\\n- [Requirement 4]\\n\\n## Non-Functional Requirements (NFRs)\\n- **Availability**: [Target]\\n- **Latency**: [Target]\\n- **Scalability**: [Target]\\n- **Consistency**: [Type and reasoning]\\n- **Durability**: [Requirements]\\n\\n## Back-of-Envelope Calculations\\n### Users & Traffic\\n- DAU: [Number]\\n- Peak QPS: [Number]\\n- Read:Write ratio: [Ratio]\\n\\n### Storage\\n- Per user: [Size]\\n- Total (5 years): [Size]\\n\\n### Bandwidth\\n- Ingress: [Size/sec]\\n- Egress: [Size/sec]\\n\\n## High-Level Design\\n[Description of main components]\\n\\n## Deep Dive: Key Components\\n### [Component 1]\\n[Details]\\n\\n### [Component 2]\\n[Details]\\n\\n## Trade-offs & Considerations\\n- [Trade-off 1]\\n- [Trade-off 2]\\n\\n## Failure Scenarios & Mitigations\\n- [Scenario 1]: [Mitigation]\\n- [Scenario 2]: [Mitigation]' : '## Why This Is Asked\\n[Why ' + targetCompanies[0] + ' asks this - what skills it tests]\\n\\n## Expected Answer\\n[What a strong candidate would say]\\n\\n## Code Example\\n```' + (channel === 'algorithms' ? 'python' : channel === 'frontend' ? 'javascript' : 'typescript') + '\\n[Working code example]\\n```\\n\\n## Follow-up Questions\\n- [Follow-up 1]\\n- [Follow-up 2]\\n- [Follow-up 3]'}","diagram":"flowchart TD\\n  A[Specific Technical Step] --> B[Another Specific Step]\\n  B --> C{Decision Point}\\n  C -->|Yes| D[Outcome 1]\\n  C -->|No| E[Outcome 2]\\n  D --> F[Final Result]\\n  E --> F","companies":${JSON.stringify(targetCompanies)},"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null}}`;
-
-    console.log('\n📝 PROMPT:');
+    // Use AI framework for question generation
+    console.log('\n📝 Generating question using AI framework...');
     console.log('─'.repeat(50));
-    console.log(prompt);
-    console.log('─'.repeat(50));
-
-    const response = await runWithRetries(prompt);
     
-    if (!response) {
-      console.log('❌ OpenCode failed after all retries.');
-      failedAttempts.push({ channel, reason: 'OpenCode timeout' });
+    let data;
+    try {
+      data = await ai.run('generate', {
+        channel,
+        subChannel: subChannelConfig.subChannel,
+        difficulty,
+        tags: subChannelConfig.tags,
+        targetCompanies,
+        scenarioHint
+      });
+    } catch (error) {
+      console.log(`❌ AI framework error: ${error.message}`);
+      failedAttempts.push({ channel, reason: `AI error: ${error.message}` });
       continue;
     }
-
-    const data = parseJson(response);
     
     if (!validateQuestion(data)) {
       console.log('❌ Invalid response format.');

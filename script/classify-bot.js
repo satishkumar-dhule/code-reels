@@ -1,53 +1,21 @@
 import {
   getAllUnifiedQuestions,
   saveQuestion,
-  runWithCircuitBreaker,
-  parseJson,
   writeGitHubOutput,
   dbClient,
   addWorkItem,
   initWorkQueue,
-  getWorkQueueStats
+  getWorkQueueStats,
+  postBotCommentToDiscussion
 } from './utils.js';
+import ai from './ai/index.js';
+import { channelStructure } from './ai/prompts/templates/classify.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
 const RATE_LIMIT_MS = 2000;
 
-// Channel structure for classification
-const CHANNEL_STRUCTURE = {
-  'system-design': ['infrastructure', 'distributed-systems', 'api-design', 'caching', 'load-balancing', 'message-queues'],
-  'algorithms': ['data-structures', 'sorting', 'dynamic-programming', 'graphs', 'trees'],
-  'frontend': ['react', 'javascript', 'css', 'performance', 'web-apis'],
-  'backend': ['apis', 'microservices', 'caching', 'authentication', 'server-architecture'],
-  'database': ['sql', 'nosql', 'indexing', 'transactions', 'query-optimization'],
-  'devops': ['cicd', 'docker', 'automation', 'gitops'],
-  'sre': ['observability', 'reliability', 'incident-management', 'chaos-engineering', 'capacity-planning'],
-  'kubernetes': ['pods', 'services', 'deployments', 'helm', 'operators'],
-  'aws': ['compute', 'storage', 'serverless', 'database', 'networking'],
-  'terraform': ['basics', 'modules', 'state-management', 'best-practices'],
-  'data-engineering': ['etl', 'data-pipelines', 'warehousing', 'streaming'],
-  'machine-learning': ['algorithms', 'model-training', 'deployment', 'deep-learning', 'evaluation'],
-  'generative-ai': ['llm-fundamentals', 'fine-tuning', 'rag', 'agents', 'evaluation'],
-  'prompt-engineering': ['techniques', 'optimization', 'safety', 'structured-output'],
-  'llm-ops': ['deployment', 'optimization', 'monitoring', 'infrastructure'],
-  'computer-vision': ['image-classification', 'object-detection', 'segmentation', 'multimodal'],
-  'nlp': ['text-processing', 'embeddings', 'sequence-models', 'transformers'],
-  'python': ['fundamentals', 'libraries', 'best-practices', 'async'],
-  'security': ['application-security', 'owasp', 'encryption', 'authentication'],
-  'networking': ['tcp-ip', 'dns', 'load-balancing', 'cdn'],
-  'operating-systems': ['processes', 'memory', 'file-systems', 'scheduling'],
-  'linux': ['commands', 'shell-scripting', 'system-administration', 'networking'],
-  'unix': ['fundamentals', 'commands', 'system-programming'],
-  'ios': ['swift', 'uikit', 'swiftui', 'architecture'],
-  'android': ['kotlin', 'jetpack-compose', 'architecture', 'lifecycle'],
-  'react-native': ['components', 'native-modules', 'performance', 'architecture'],
-  'testing': ['unit-testing', 'integration-testing', 'tdd', 'test-strategies'],
-  'e2e-testing': ['playwright', 'cypress', 'selenium', 'visual-testing'],
-  'api-testing': ['rest-testing', 'contract-testing', 'graphql-testing', 'mocking'],
-  'performance-testing': ['load-testing', 'stress-testing', 'profiling', 'benchmarking'],
-  'engineering-management': ['team-leadership', 'one-on-ones', 'hiring', 'project-management'],
-  'behavioral': ['star-method', 'leadership-principles', 'soft-skills', 'conflict-resolution']
-};
+// Channel structure imported from AI framework template
+const CHANNEL_STRUCTURE = channelStructure;
 
 // Load bot state from database
 async function loadState() {
@@ -108,68 +76,50 @@ function mightNeedReclassification(question) {
   return false;
 }
 
-// Classify a question using AI - supports multiple channels
+// Classify a question using AI framework - supports multiple channels
 async function classifyQuestion(question) {
-  const channelList = Object.entries(CHANNEL_STRUCTURE)
-    .map(([ch, subs]) => `${ch}: [${subs.join(', ')}]`)
-    .join('\n');
-
-  const prompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
-
-Analyze this technical interview question and determine ALL relevant channel and subchannel classifications.
-A question can belong to MULTIPLE channels if it spans different topics.
-
-Question: "${question.question}"
-Answer: "${(question.answer || '').substring(0, 200)}"
-Tags: ${(question.tags || []).slice(0, 5).join(', ')}
-Current Channel: ${question.channel || 'none'}
-Current SubChannel: ${question.subChannel || 'none'}
-
-Available channels and subchannels:
-${channelList}
-
-Rules:
-1. Return the PRIMARY channel first (most relevant)
-2. Include SECONDARY channels if the question genuinely spans multiple topics
-3. Maximum 3 channels per question
-4. Only add secondary channels if they are truly relevant (confidence > medium)
-
-Output this exact JSON structure:
-{"classifications":[{"channel":"channel-id","subChannel":"subchannel-id","isPrimary":true},{"channel":"secondary-channel","subChannel":"subchannel","isPrimary":false}],"confidence":"high|medium|low","reasoning":"brief explanation"}
-
-IMPORTANT: Return ONLY the JSON object. No other text.`;
-
-  const response = await runWithCircuitBreaker(prompt);
-  if (!response) return null;
-  
-  const data = parseJson(response);
-  if (!data || !data.classifications || !Array.isArray(data.classifications)) return null;
-  
-  // Validate and filter classifications
-  const validClassifications = data.classifications.filter(c => {
-    if (!CHANNEL_STRUCTURE[c.channel]) {
-      console.log(`  ⚠️ Invalid channel suggested: ${c.channel}`);
-      return false;
+  try {
+    const result = await ai.run('classify', {
+      question: question.question,
+      answer: question.answer,
+      tags: question.tags,
+      currentChannel: question.channel,
+      currentSubChannel: question.subChannel
+    });
+    
+    if (!result || !result.classifications || !Array.isArray(result.classifications)) {
+      return null;
     }
-    if (!CHANNEL_STRUCTURE[c.channel].includes(c.subChannel)) {
-      // Use first subchannel as fallback
-      c.subChannel = CHANNEL_STRUCTURE[c.channel][0];
+    
+    // Validate and filter classifications
+    const validClassifications = result.classifications.filter(c => {
+      if (!CHANNEL_STRUCTURE[c.channel]) {
+        console.log(`  ⚠️ Invalid channel suggested: ${c.channel}`);
+        return false;
+      }
+      if (!CHANNEL_STRUCTURE[c.channel].includes(c.subChannel)) {
+        // Use first subchannel as fallback
+        c.subChannel = CHANNEL_STRUCTURE[c.channel][0];
+      }
+      return true;
+    });
+    
+    if (validClassifications.length === 0) return null;
+    
+    // Ensure at least one is marked as primary
+    if (!validClassifications.some(c => c.isPrimary)) {
+      validClassifications[0].isPrimary = true;
     }
-    return true;
-  });
-  
-  if (validClassifications.length === 0) return null;
-  
-  // Ensure at least one is marked as primary
-  if (!validClassifications.some(c => c.isPrimary)) {
-    validClassifications[0].isPrimary = true;
+    
+    return {
+      classifications: validClassifications,
+      confidence: result.confidence,
+      reasoning: result.reasoning
+    };
+  } catch (error) {
+    console.log(`  ❌ AI error: ${error.message}`);
+    return null;
   }
-  
-  return {
-    classifications: validClassifications,
-    confidence: data.confidence,
-    reasoning: data.reasoning
-  };
 }
 
 // Rate limiting helper
@@ -365,6 +315,19 @@ async function main() {
       
       results.reclassified++;
       console.log(`💾 Saved to database (${classification.classifications.length} channel(s))`);
+      
+      // Post comment to Giscus discussion
+      const oldChannel = `${question.channel}/${question.subChannel}`;
+      await postBotCommentToDiscussion(question.id, 'Classify Bot', 'classified', {
+        summary: `Reclassified question to ${primary.channel}/${primary.subChannel}`,
+        changes: [
+          `Previous: ${oldChannel}`,
+          `New primary: ${primary.channel}/${primary.subChannel}`,
+          secondary.length > 0 ? `Secondary: ${secondary.map(s => `${s.channel}/${s.subChannel}`).join(', ')}` : null,
+          `Confidence: ${classification.confidence}`,
+          `Reasoning: ${classification.reasoning}`
+        ].filter(Boolean)
+      });
     } else {
       console.log('✅ Classification confirmed - no change needed');
       
