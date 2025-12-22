@@ -302,6 +302,17 @@ function ContinueLearningSection({
   onUnsubscribe: (id: string) => void;
   onSeeAll: () => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  
+  // Determine visible count based on screen size and expanded state
+  const mobileLimit = 4;
+  const desktopLimit = 6;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const limit = isMobile ? mobileLimit : desktopLimit;
+  const hasMore = channels.length > limit;
+  const visibleChannels = expanded ? channels : channels.slice(0, limit);
+  const hiddenCount = channels.length - limit;
+
   return (
     <section className="mx-3 sm:mx-0 mb-2 sm:mb-4">
       <div className="bg-card rounded-xl sm:rounded-2xl border border-border overflow-hidden">
@@ -317,7 +328,7 @@ function ContinueLearningSection({
         
         {/* Desktop: Grid layout, Mobile: List */}
         <div className="sm:hidden divide-y divide-border/50">
-          {channels.slice(0, 4).map((channel) => (
+          {visibleChannels.map((channel) => (
             <ChannelRow
               key={channel.id}
               channel={channel}
@@ -329,7 +340,7 @@ function ContinueLearningSection({
         </div>
         
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3 sm:p-4">
-          {channels.slice(0, 6).map((channel) => (
+          {visibleChannels.map((channel) => (
             <ChannelCard
               key={channel.id}
               channel={channel}
@@ -340,12 +351,21 @@ function ContinueLearningSection({
           ))}
         </div>
 
-        {channels.length > 4 && (
+        {hasMore && !expanded && (
           <button 
-            onClick={onSeeAll}
+            onClick={() => setExpanded(true)}
             className="w-full py-2 sm:py-3 text-xs sm:text-sm text-primary font-medium hover:bg-muted/50 border-t border-border/50"
           >
-            +{channels.length - (typeof window !== 'undefined' && window.innerWidth >= 640 ? 6 : 4)} more channels
+            +{hiddenCount} more channels
+          </button>
+        )}
+        
+        {expanded && hasMore && (
+          <button 
+            onClick={() => setExpanded(false)}
+            className="w-full py-2 sm:py-3 text-xs sm:text-sm text-muted-foreground font-medium hover:bg-muted/50 border-t border-border/50"
+          >
+            Show less
           </button>
         )}
       </div>
