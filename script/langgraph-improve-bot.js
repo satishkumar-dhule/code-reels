@@ -89,36 +89,39 @@ async function main() {
     console.log(`${'─'.repeat(60)}`);
     
     try {
-      // Run the LangGraph improvement pipeline
-      const result = await improveQuestion(question);
+      const originalScore = question.relevanceScore || 0;
+      
+      // Callback to save after each improvement step
+      const onImprovement = async (updatedQuestion, meta) => {
+        await saveQuestion(updatedQuestion);
+        
+        // Update relevance score in DB after each improvement
+        await dbClient.execute({
+          sql: `UPDATE questions SET relevance_score = ?, last_updated = ? WHERE id = ?`,
+          args: [meta.currentScore, new Date().toISOString(), question.id]
+        });
+      };
+      
+      // Run the LangGraph improvement pipeline with save callback
+      const result = await improveQuestion(question, { onImprovement });
       
       results.processed++;
       
       if (result.success && result.improvements.length > 0) {
-        // Save the improved question
-        const updated = result.updatedQuestion;
-        updated.lastUpdated = new Date().toISOString();
-        
-        await saveQuestion(updated);
-        
-        // Update relevance score
-        await dbClient.execute({
-          sql: `UPDATE questions SET relevance_score = ?, last_updated = ? WHERE id = ?`,
-          args: [result.score, new Date().toISOString(), question.id]
-        });
-        
         results.improved++;
         results.improvements.push({
           id: question.id,
-          score: result.score,
+          originalScore: result.originalScore,
+          finalScore: result.score,
+          scoreChange: result.scoreChange,
           types: result.improvements.map(i => i.type)
         });
         
-        console.log(`💾 Saved improvements for ${question.id}`);
+        console.log(`\n📊 Score: ${result.originalScore} → ${result.score} (${result.scoreChange >= 0 ? '+' : ''}${result.scoreChange})`);
         
         // Post to discussion
         await postBotCommentToDiscussion(question.id, 'LangGraph Improve Bot', 'improved', {
-          summary: `Improved question using adaptive pipeline (score: ${result.score}/100)`,
+          summary: `Improved question using adaptive pipeline (score: ${result.originalScore} → ${result.score}/100)`,
           changes: result.improvements.map(i => `Added/improved: ${i.type}`)
         });
       } else if (!result.success) {
@@ -143,7 +146,8 @@ async function main() {
   if (results.improvements.length > 0) {
     console.log('\nImprovements made:');
     results.improvements.forEach(imp => {
-      console.log(`  ${imp.id}: score ${imp.score}, types: ${imp.types.join(', ')}`);
+      const changeStr = imp.scoreChange >= 0 ? `+${imp.scoreChange}` : `${imp.scoreChange}`;
+      console.log(`  ${imp.id}: ${imp.originalScore} → ${imp.finalScore} (${changeStr}), types: ${imp.types.join(', ')}`);
     });
   }
   

@@ -29,6 +29,7 @@ const QuestionState = Annotation.Root({
   // Analysis results
   issues: Annotation({ reducer: (_, b) => b, default: () => [] }),
   relevanceScore: Annotation({ reducer: (_, b) => b, default: () => 0 }),
+  originalScore: Annotation({ reducer: (_, b) => b, default: () => 0 }),
   relevanceDetails: Annotation({ reducer: (_, b) => b, default: () => null }),
   
   // Processing state
@@ -397,15 +398,23 @@ export function createImprovementGraph() {
 
 /**
  * Run the improvement pipeline on a question
+ * @param {Object} question - The question to improve
+ * @param {Object} options - Options for the pipeline
+ * @param {Function} options.onImprovement - Callback called after each improvement step with updated question data
  */
-export async function improveQuestion(question) {
+export async function improveQuestion(question, options = {}) {
+  const { onImprovement } = options;
   const graph = createImprovementGraph();
+  
+  // Store the original score for before/after comparison
+  const originalScore = question.relevanceScore || 0;
   
   console.log('\n' + '═'.repeat(60));
   console.log('🚀 LANGGRAPH IMPROVEMENT PIPELINE');
   console.log('═'.repeat(60));
   console.log(`Question: ${question.question?.substring(0, 60)}...`);
   console.log(`Channel: ${question.channel}`);
+  console.log(`📊 BEFORE Score: ${originalScore}/100`);
   
   const initialState = {
     questionId: question.id,
@@ -419,43 +428,96 @@ export async function improveQuestion(question) {
     difficulty: question.difficulty,
     tags: question.tags || [],
     issues: [],
-    relevanceScore: 0,
+    relevanceScore: originalScore,
+    originalScore: originalScore,
     relevanceDetails: null,
     currentIssue: null,
     improvements: [],
     retryCount: 0,
     maxRetries: 3,
     status: 'pending',
-    error: null
+    error: null,
+    // Pass callback through state for node access
+    _onImprovement: onImprovement,
+    _originalQuestion: question
   };
   
   try {
-    const result = await graph.invoke(initialState);
+    // Use stream to process step by step and save after each improvement
+    let finalResult = initialState;
+    let lastImprovementCount = 0;
+    
+    for await (const step of await graph.stream(initialState)) {
+      // Get the node name and state from the step
+      const [nodeName, nodeState] = Object.entries(step)[0];
+      finalResult = { ...finalResult, ...nodeState };
+      
+      // Check if an improvement was made (improvements array grew)
+      const currentImprovementCount = finalResult.improvements?.length || 0;
+      if (currentImprovementCount > lastImprovementCount && onImprovement) {
+        const latestImprovement = finalResult.improvements[currentImprovementCount - 1];
+        console.log(`\n💾 [SAVE] Saving after ${latestImprovement.type} improvement...`);
+        
+        // Build updated question with current state
+        const updatedQuestion = {
+          ...question,
+          question: finalResult.question,
+          answer: finalResult.answer,
+          explanation: finalResult.explanation,
+          diagram: finalResult.diagram,
+          eli5: finalResult.eli5,
+          tldr: finalResult.tldr,
+          lastUpdated: new Date().toISOString()
+        };
+        
+        // Call the save callback
+        try {
+          await onImprovement(updatedQuestion, {
+            improvementType: latestImprovement.type,
+            currentScore: finalResult.relevanceScore,
+            improvementsMade: currentImprovementCount
+          });
+          console.log(`   ✅ Saved ${latestImprovement.type} improvement`);
+        } catch (saveError) {
+          console.log(`   ⚠️ Save failed: ${saveError.message}`);
+        }
+        
+        lastImprovementCount = currentImprovementCount;
+      }
+    }
+    
+    // Calculate score change
+    const scoreChange = finalResult.relevanceScore - originalScore;
+    const scoreChangeStr = scoreChange >= 0 ? `+${scoreChange}` : `${scoreChange}`;
     
     console.log('\n' + '═'.repeat(60));
     console.log('📋 PIPELINE RESULT');
     console.log('═'.repeat(60));
-    console.log(`Status: ${result.status}`);
-    console.log(`Final Score: ${result.relevanceScore}/100`);
-    console.log(`Improvements Made: ${result.improvements.length}`);
-    result.improvements.forEach(imp => {
+    console.log(`Status: ${finalResult.status}`);
+    console.log(`📊 BEFORE Score: ${originalScore}/100`);
+    console.log(`📊 AFTER Score:  ${finalResult.relevanceScore}/100`);
+    console.log(`📈 Change:       ${scoreChangeStr} points`);
+    console.log(`Improvements Made: ${finalResult.improvements.length}`);
+    finalResult.improvements.forEach(imp => {
       console.log(`   - ${imp.type} at ${imp.timestamp}`);
     });
     console.log('═'.repeat(60) + '\n');
     
     return {
-      success: result.status === 'completed' || result.status === 'max_retries',
-      status: result.status,
-      score: result.relevanceScore,
-      improvements: result.improvements,
+      success: finalResult.status === 'completed' || finalResult.status === 'max_retries',
+      status: finalResult.status,
+      score: finalResult.relevanceScore,
+      originalScore: originalScore,
+      scoreChange: scoreChange,
+      improvements: finalResult.improvements,
       updatedQuestion: {
         ...question,
-        question: result.question,
-        answer: result.answer,
-        explanation: result.explanation,
-        diagram: result.diagram,
-        eli5: result.eli5,
-        tldr: result.tldr
+        question: finalResult.question,
+        answer: finalResult.answer,
+        explanation: finalResult.explanation,
+        diagram: finalResult.diagram,
+        eli5: finalResult.eli5,
+        tldr: finalResult.tldr
       }
     };
   } catch (error) {
@@ -463,7 +525,8 @@ export async function improveQuestion(question) {
     return {
       success: false,
       status: 'error',
-      error: error.message
+      error: error.message,
+      originalScore: originalScore
     };
   }
 }
