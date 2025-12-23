@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   question: "Specific, practical interview question ending with ?",
@@ -143,17 +144,14 @@ export const standardFormat = `## Why This Is Asked
 - Follow-up 1
 - Follow-up 2`;
 
+// Use centralized guidelines from config, plus generate-specific rules
+const { answer: answerThresholds } = config.qualityThresholds;
+
 export const guidelines = [
-  'Question must be SPECIFIC and PRACTICAL - something actually asked in interviews',
-  'Include a realistic scenario or context when appropriate',
-  'Answer MUST be 200-400 characters - comprehensive enough to impress an interviewer',
-  'Answer should demonstrate technical depth with specific technologies, patterns, or trade-offs',
-  'Do NOT give high-level definitions - give answers that show expertise',
-  'Create a MEANINGFUL diagram with 5-8 specific nodes',
-  'DO NOT create trivial diagrams like "Start -> End"',
-  'CRITICAL: Use proper markdown formatting - all ** bold markers must be properly paired',
-  'Each section header must be on its own line with ## prefix',
-  'Bullet points must start with - on a new line, not inline'
+  `Answer MUST be ${answerThresholds.minLength}-${answerThresholds.maxLength} characters`,
+  ...config.guidelines.generate,
+  ...config.guidelines.answer,
+  ...config.guidelines.diagram.slice(0, 2)
 ];
 
 export function build(context) {

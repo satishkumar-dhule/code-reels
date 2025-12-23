@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, qualityRules, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   question: "improved question ending with ?",
@@ -75,18 +76,17 @@ export const examples = [
   }
 ];
 
+// Use centralized guidelines from config, plus improve-specific rules
+const { answer: answerThresholds, explanation: explanationThresholds } = config.qualityThresholds;
+
 export const guidelines = [
   'Ensure question ends with a question mark',
-  'Answer MUST be 200-400 characters - comprehensive enough to impress an interviewer',
-  'Answer should demonstrate technical depth, not just define the concept',
-  'Include specific technologies, patterns, or trade-offs in the answer',
-  'Explanation should include interview context',
-  'Add code examples where relevant',
-  'Include 2-3 follow-up questions interviewers might ask',
+  `Answer MUST be ${answerThresholds.minLength}-${answerThresholds.maxLength} characters`,
+  ...config.guidelines.answer,
+  ...config.guidelines.explanation,
   'For system design, use the NFR format with calculations',
   'CRITICAL: Use proper markdown formatting - ensure all ** bold markers are properly paired',
-  'Each section header should be on its own line with ## prefix',
-  'Bullet points should start with - on a new line'
+  'Each section header should be on its own line with ## prefix'
 ];
 
 export function build(context) {

@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   title: "Unique Problem Title",
@@ -56,14 +57,8 @@ export const topCompanies = [
   'OpenAI', 'Anthropic', 'SpaceX', 'Tesla'
 ];
 
-export const guidelines = [
-  'Generate problems solvable in 10-20 minutes',
-  'Test case inputs/outputs MUST be valid JSON',
-  'Function names: camelCase for JS, snake_case for Python',
-  'Include 3-4 test cases covering normal AND edge cases',
-  'Solutions must be CORRECT and produce exact expected outputs',
-  'Starter code has function signature only with "// Your code here"'
-];
+// Use centralized guidelines from config
+export const guidelines = config.guidelines.codingChallenge;
 
 export function build(context) {
   const { difficulty, category, companies, existingTitles } = context;

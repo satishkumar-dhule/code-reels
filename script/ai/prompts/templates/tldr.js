@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, qualityRules, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   tldr: "Your concise one-liner here"
@@ -23,13 +24,10 @@ export const examples = [
   }
 ];
 
+// Use centralized guidelines from config
 export const guidelines = [
-  'Maximum 100 characters',
-  'Start with a verb or key concept',
-  'Be direct and actionable',
-  'Focus on the "what" not the "why"',
-  'No filler words like "basically", "essentially", "simply"',
-  'Capture the single most important takeaway'
+  `Maximum ${config.qualityThresholds.tldr.maxLength} characters total - strict limit`,
+  ...config.guidelines.tldr
 ];
 
 export function build(context) {

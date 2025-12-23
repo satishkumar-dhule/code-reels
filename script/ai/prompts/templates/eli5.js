@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, qualityRules, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   eli5: "Your simple explanation here using everyday analogies"
@@ -19,13 +20,10 @@ export const examples = [
   }
 ];
 
+// Use centralized guidelines from config
 export const guidelines = [
-  'Use analogies from everyday life (toys, games, food, playground, school)',
-  'Avoid ALL technical jargon - if a 5-year-old wouldn\'t know the word, don\'t use it',
-  'Keep it under 200 words',
-  'Make it engaging and memorable',
-  'Start with "Imagine" or "Think of it like" to introduce analogies',
-  'Use short sentences'
+  `Keep it under ${config.qualityThresholds.eli5.maxLength} characters`,
+  ...config.guidelines.eli5
 ];
 
 export function build(context) {

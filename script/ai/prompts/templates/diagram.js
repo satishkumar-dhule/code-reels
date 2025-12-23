@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, qualityRules, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   diagram: "flowchart TD\\n  A[Step 1] --> B[Step 2]",
@@ -36,12 +37,10 @@ export const badExamples = [
   'A[Concept] --> B[Implementation]'
 ];
 
+// Use centralized guidelines from config
 export const guidelines = [
-  'Create a MEANINGFUL diagram with 5-8 specific nodes',
-  'Each node must have a descriptive label related to the actual content',
-  'Show the actual technical flow, architecture, or process',
-  'Include decision points, loops, or parallel paths where appropriate',
-  'Use proper Mermaid syntax (flowchart TD, sequenceDiagram, classDiagram, etc.)',
+  `Create a diagram with ${config.qualityThresholds.diagram.minNodes}-8 specific nodes`,
+  ...config.guidelines.diagram,
   'DO NOT create trivial diagrams like "Start -> End"',
   'DO NOT use generic labels like "Step 1", "Concept", "Implementation"'
 ];

@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   classifications: [
@@ -62,13 +63,8 @@ export const examples = [
   }
 ];
 
-export const guidelines = [
-  'Return the PRIMARY channel first (most relevant)',
-  'Include SECONDARY channels only if genuinely relevant',
-  'Maximum 3 channels per question',
-  'Only add secondary channels if confidence > medium',
-  'Use exact channel and subchannel IDs from the provided structure'
-];
+// Use centralized guidelines from config
+export const guidelines = config.guidelines.classify;
 
 export function build(context) {
   const { question, answer, tags, currentChannel, currentSubChannel } = context;

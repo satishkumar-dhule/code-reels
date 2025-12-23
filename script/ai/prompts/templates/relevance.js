@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   interviewFrequency: 8,
@@ -91,12 +92,8 @@ export const scoringCriteria = {
   }
 };
 
-export const guidelines = [
-  'Score each criterion from 1-10 based on the scale provided',
-  'Provide specific improvement suggestions if score is below 80',
-  'Recommendation should be: keep (80+), improve (40-79), retire (<40)',
-  'Be specific about what topics are missing or need improvement'
-];
+// Use centralized guidelines from config
+export const guidelines = config.guidelines.relevance;
 
 export function build(context) {
   const { question, answer, explanation, channel, difficulty, tags, companies } = context;

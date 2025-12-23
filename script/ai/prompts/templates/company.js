@@ -3,6 +3,7 @@
  */
 
 import { jsonOutputRule, qualityRules, buildSystemContext } from './base.js';
+import config from '../../config.js';
 
 export const schema = {
   companies: ["Company1", "Company2", "Company3", "Company4", "Company5"],
@@ -50,13 +51,8 @@ export const examples = [
   }
 ];
 
-export const guidelines = [
-  'Return 4-6 real tech companies known to ask this type of question',
-  'Prioritize FAANG and top-tier tech companies',
-  'Consider the question topic when selecting companies',
-  'Include a mix of company sizes (big tech + unicorns)',
-  'Only include companies that actually conduct technical interviews'
-];
+// Use centralized guidelines from config
+export const guidelines = config.guidelines.company;
 
 export function build(context) {
   const { question, tags, difficulty } = context;

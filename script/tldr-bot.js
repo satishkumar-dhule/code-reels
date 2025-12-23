@@ -3,7 +3,7 @@
  * Generates concise one-liner summaries for questions
  */
 
-import ai from './ai/index.js';
+import ai, { config } from './ai/index.js';
 import {
   saveQuestion,
   writeGitHubOutput,
@@ -56,9 +56,18 @@ class TldrBot extends BaseBotRunner {
       }
       
       let tldr = result.tldr;
-      // Truncate if too long
-      if (tldr.length > 150) {
-        tldr = tldr.substring(0, 147) + '...';
+      const maxLength = config.qualityThresholds.tldr.maxLength;
+      
+      // Truncate if too long, but at word boundary
+      if (tldr.length > maxLength) {
+        // Find the last space before the limit to avoid cutting mid-word
+        const truncateAt = tldr.lastIndexOf(' ', maxLength - 3);
+        if (truncateAt > maxLength * 0.6) {
+          tldr = tldr.substring(0, truncateAt) + '...';
+        } else {
+          // If no good word boundary, just truncate
+          tldr = tldr.substring(0, maxLength - 3) + '...';
+        }
       }
       
       console.log(`✅ Generated TLDR (${tldr.length} chars)`);
