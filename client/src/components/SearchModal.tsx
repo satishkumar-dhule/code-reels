@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { allChannelsConfig } from '../lib/channels-config';
 import { getQuestions } from '../lib/data';
 import { formatTag } from '../lib/utils';
-import { getAllChallenges } from '../lib/coding-challenges';
 
 type FilterType = 'all' | 'company' | 'video' | 'diagram' | 'coding';
 
@@ -116,9 +115,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   
   const navigateToResult = (result: UnifiedSearchResult) => {
     if (isCodingResult(result)) {
-      const challenges = getAllChallenges();
-      const challengeIndex = challenges.findIndex(c => c.id === result.challenge.id);
-      setLocation(`/coding/${challengeIndex >= 0 ? challengeIndex : 0}`);
+      // Use the actual challenge ID directly
+      setLocation(`/coding/${result.challenge.id}`);
       onClose();
       return;
     }
