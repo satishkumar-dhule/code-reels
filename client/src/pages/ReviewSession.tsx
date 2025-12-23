@@ -7,12 +7,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronLeft, Brain, Flame, Trophy, Eye, EyeOff,
-  ChevronRight, RotateCcw, Check, Zap, X, Sparkles
+  ChevronLeft, Brain, Flame, Trophy, Eye,
+  ChevronRight, RotateCcw, Check, Zap
 } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
 import { 
-  getDueCards, recordReview, getSRSStats, getCard,
+  getDueCards, recordReview, getSRSStats,
   getMasteryLabel, getMasteryColor, getNextReviewPreview,
   type ReviewCard, type ConfidenceRating 
 } from '../lib/spaced-repetition';
@@ -20,6 +20,69 @@ import { getQuestionById } from '../lib/questions-loader';
 import type { Question } from '../types';
 import { EnhancedMermaid } from '../components/EnhancedMermaid';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+/**
+ * Preprocess markdown text to fix common formatting issues
+ */
+function preprocessMarkdown(text: string): string {
+  if (!text) return '';
+  
+  let processed = text;
+  
+  // Fix broken bold markers - standalone ** on their own line
+  processed = processed.replace(/^\*\*\s*$/gm, '');
+  
+  // Fix bold markers that are split across lines
+  processed = processed.replace(/\*\*\s*\n\s*([^*]+)\*\*/g, '**$1**');
+  
+  // Fix unclosed bold markers
+  const lines = processed.split('\n');
+  const fixedLines: string[] = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    const boldMarkers = (line.match(/\*\*/g) || []).length;
+    
+    if (boldMarkers % 2 === 1) {
+      if (line.trim().startsWith('**') && boldMarkers === 1) {
+        line = line.replace(/^\s*\*\*\s*/, '');
+      } else if (line.trim().endsWith('**') && boldMarkers === 1) {
+        line = line.replace(/\s*\*\*\s*$/, '');
+      }
+    }
+    
+    fixedLines.push(line);
+  }
+  processed = fixedLines.join('\n');
+  
+  // Fix inline bullet points
+  processed = processed.replace(/^[•·]\s*/gm, '- ');
+  
+  if (processed.includes('•') || processed.includes('·')) {
+    const bulletLines = processed.split('\n');
+    const processedLines = bulletLines.map(line => {
+      const bulletCount = (line.match(/[•·]/g) || []).length;
+      if (bulletCount > 1 || (bulletCount === 1 && !line.trim().startsWith('•') && !line.trim().startsWith('·'))) {
+        const parts = line.split(/[•·]/).map(p => p.trim()).filter(p => p);
+        if (parts.length > 1) {
+          return parts.map(p => `- ${p}`).join('\n');
+        }
+      }
+      return line.replace(/^[•·]\s*/, '- ');
+    });
+    processed = processedLines.join('\n');
+  }
+  
+  processed = processed.replace(/(\d+[.)]\s+[^0-9]+?)(?=\s+\d+[.)])/g, '$1\n');
+  processed = processed.replace(/(?<!\n)(\d+[.)]\s+)/g, '\n$1');
+  processed = processed.replace(/\n{3,}/g, '\n\n');
+  processed = processed.replace(/^\n+/, '');
+  
+  return processed;
+}
 
 type SessionState = 'loading' | 'reviewing' | 'reveal' | 'completed';
 
@@ -243,26 +306,107 @@ export default function ReviewSession() {
                           {/* Answer */}
                           <div>
                             <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Answer</h3>
-                            <p className="text-base sm:text-lg">{currentQuestion.answer}</p>
+                            <p className="text-base sm:text-lg leading-relaxed text-foreground/90">{currentQuestion.answer}</p>
                           </div>
 
                           {/* Diagram */}
                           {currentQuestion.diagram && (
                             <div>
                               <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Diagram</h3>
-                              <div className="bg-muted/30 rounded-lg p-4">
+                              <div className="bg-muted/30 rounded-lg p-4 overflow-x-auto">
                                 <EnhancedMermaid chart={currentQuestion.diagram} />
                               </div>
                             </div>
                           )}
 
-                          {/* Explanation preview */}
+                          {/* Full Explanation */}
                           {currentQuestion.explanation && (
                             <div>
-                              <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-2">Key Points</h3>
-                              <div className="prose prose-sm dark:prose-invert max-w-none">
-                                <ReactMarkdown>
-                                  {currentQuestion.explanation.substring(0, 500) + (currentQuestion.explanation.length > 500 ? '...' : '')}
+                              <h3 className="text-sm font-semibold text-muted-foreground uppercase mb-3">Explanation</h3>
+                              <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none">
+                                <ReactMarkdown
+                                  remarkPlugins={[remarkGfm]}
+                                  components={{
+                                    code({ className, children }) {
+                                      const match = /language-(\w+)/.exec(className || '');
+                                      const language = match ? match[1] : '';
+                                      const codeContent = String(children).replace(/\n$/, '');
+                                      const isInline = !match && !String(children).includes('\n');
+                                      
+                                      if (isInline) {
+                                        return (
+                                          <code className="px-1.5 py-0.5 bg-primary/10 text-primary rounded text-[0.85em] font-mono">
+                                            {children}
+                                          </code>
+                                        );
+                                      }
+                                      
+                                      return (
+                                        <div className="my-3 rounded-lg overflow-hidden border border-border">
+                                          <SyntaxHighlighter
+                                            language={language || 'text'}
+                                            style={vscDarkPlus}
+                                            customStyle={{ 
+                                              margin: 0, 
+                                              padding: '1rem', 
+                                              background: '#1e1e1e',
+                                              fontSize: '0.8rem',
+                                              lineHeight: '1.5',
+                                            }}
+                                            wrapLines={true}
+                                            wrapLongLines={true}
+                                          >
+                                            {codeContent}
+                                          </SyntaxHighlighter>
+                                        </div>
+                                      );
+                                    },
+                                    p({ children }) {
+                                      return <p className="mb-3 leading-relaxed text-foreground/90 text-sm sm:text-base">{children}</p>;
+                                    },
+                                    h1({ children }) {
+                                      return <h1 className="text-lg font-bold mb-3 mt-4 text-foreground border-b border-border pb-2">{children}</h1>;
+                                    },
+                                    h2({ children }) {
+                                      return <h2 className="text-base font-bold mb-2 mt-4 text-foreground">{children}</h2>;
+                                    },
+                                    h3({ children }) {
+                                      return <h3 className="text-sm font-semibold mb-2 mt-3 text-foreground/90">{children}</h3>;
+                                    },
+                                    strong({ children }) {
+                                      return <strong className="font-semibold text-foreground">{children}</strong>;
+                                    },
+                                    ul({ children }) {
+                                      return <ul className="space-y-1.5 mb-3 ml-1">{children}</ul>;
+                                    },
+                                    ol({ children }) {
+                                      return <ol className="space-y-1.5 mb-3 ml-1 list-decimal list-inside">{children}</ol>;
+                                    },
+                                    li({ children }) {
+                                      return (
+                                        <li className="flex gap-2 text-foreground/90 text-sm sm:text-base">
+                                          <span className="shrink-0 text-primary mt-0.5">•</span>
+                                          <span className="flex-1">{children}</span>
+                                        </li>
+                                      );
+                                    },
+                                    a({ href, children }) {
+                                      return (
+                                        <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                                          {children}
+                                        </a>
+                                      );
+                                    },
+                                    blockquote({ children }) {
+                                      return (
+                                        <blockquote className="border-l-4 border-primary/50 pl-4 py-1 my-3 bg-primary/5 text-muted-foreground italic">
+                                          {children}
+                                        </blockquote>
+                                      );
+                                    },
+                                  }}
+                                >
+                                  {preprocessMarkdown(currentQuestion.explanation)}
                                 </ReactMarkdown>
                               </div>
                             </div>
@@ -306,7 +450,13 @@ export default function ReviewSession() {
                     setCurrentIndex(0);
                     setReviewedCount(0);
                     setSessionStats({ again: 0, hard: 0, good: 0, easy: 0 });
-                    loadQuestion(cards[0]);
+                    // Load first card directly
+                    const question = getQuestionById(cards[0].questionId);
+                    if (question) {
+                      setCurrentQuestion(question);
+                      setCurrentCard(cards[0]);
+                      setSessionState('reviewing');
+                    }
                   }
                 }}
               />
