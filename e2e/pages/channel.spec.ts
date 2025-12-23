@@ -58,17 +58,38 @@ test.describe('Channel Page', () => {
     }
   });
 
-  test('has difficulty filter', async ({ page }) => {
+  test('has difficulty filter', async ({ page, isMobile }) => {
     await page.goto('/channel/system-design');
     await page.waitForTimeout(2000);
     
-    const difficultyFilter = page.locator('button').filter({ hasText: /Difficulty|All Levels|Beginner|Intermediate|Advanced/i }).first();
-    const hasFilter = await difficultyFilter.isVisible().catch(() => false);
+    // On mobile, filters are collapsed by default - expand them first
+    if (isMobile) {
+      // Find all buttons in header, the filter toggle is before the search button
+      const headerButtons = page.locator('header button');
+      const buttonCount = await headerButtons.count();
+      
+      // Try clicking the second-to-last button in header (filter toggle, before search)
+      if (buttonCount >= 3) {
+        await headerButtons.nth(buttonCount - 2).click();
+        await page.waitForTimeout(500);
+      }
+    }
+    
+    // Check for difficulty filter using getByRole for better reliability
+    const levelButton = page.getByRole('button', { name: /Level/i });
+    const difficultyButton = page.getByRole('button', { name: /Difficulty/i });
+    const allLevelsButton = page.getByRole('button', { name: /All Levels/i });
+    
+    const hasLevel = await levelButton.first().isVisible().catch(() => false);
+    const hasDifficulty = await difficultyButton.first().isVisible().catch(() => false);
+    const hasAllLevels = await allLevelsButton.first().isVisible().catch(() => false);
+    
+    // Also check for difficulty icons
     const hasTarget = await page.locator('svg.lucide-target').first().isVisible().catch(() => false);
     const hasZap = await page.locator('svg.lucide-zap').first().isVisible().catch(() => false);
     const hasFlame = await page.locator('svg.lucide-flame').first().isVisible().catch(() => false);
     
-    expect(hasFilter || hasTarget || hasZap || hasFlame).toBeTruthy();
+    expect(hasLevel || hasDifficulty || hasAllLevels || hasTarget || hasZap || hasFlame).toBeTruthy();
   });
 
   test('navigates back to home', async ({ page }) => {

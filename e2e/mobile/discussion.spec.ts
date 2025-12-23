@@ -65,7 +65,13 @@ test.describe('Mobile Discussion Section', () => {
     });
     await page.waitForTimeout(500);
     
-    // Verify giscus container exists and is visible
+    // Discussion is collapsed by default - click to expand
+    const discussionButton = page.getByRole('button', { name: /Discussion/i }).first();
+    await expect(discussionButton).toBeVisible({ timeout: 5000 });
+    await discussionButton.click();
+    await page.waitForTimeout(500);
+    
+    // Verify giscus container exists and is visible after expanding
     const giscusContainer = page.locator('.giscus:visible').first();
     await expect(giscusContainer).toBeVisible({ timeout: 5000 });
   });
@@ -108,6 +114,12 @@ test.describe('Mobile Discussion Section', () => {
     });
     await page.waitForTimeout(500);
     
+    // Discussion is collapsed by default - click to expand
+    const discussionButton = page.getByRole('button', { name: /Discussion/i }).first();
+    await expect(discussionButton).toBeVisible({ timeout: 5000 });
+    await discussionButton.click();
+    await page.waitForTimeout(500);
+    
     // Verify the giscus container exists
     const giscusContainer = page.locator('.giscus:visible').first();
     await expect(giscusContainer).toBeVisible({ timeout: 5000 });
@@ -139,8 +151,13 @@ test.describe('Mobile Discussion Section', () => {
     await page.waitForTimeout(500);
     
     const discussionButton = page.getByRole('button', { name: /Discussion/i }).first();
+    await expect(discussionButton).toBeVisible({ timeout: 5000 });
     
-    // Initially should be expanded (default state) - find visible giscus
+    // Initially collapsed by default - click to expand first
+    await discussionButton.click();
+    await page.waitForTimeout(500);
+    
+    // Should be visible now
     const giscusContainer = page.locator('.giscus:visible').first();
     await expect(giscusContainer).toBeVisible({ timeout: 5000 });
     

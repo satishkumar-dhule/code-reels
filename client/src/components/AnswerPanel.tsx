@@ -23,6 +23,10 @@ function preprocessMarkdown(text: string): string {
   
   let processed = text;
   
+  // Wrap Big-O notation in code spans to protect from markdown parsing
+  // Matches O(n), O(n²), O(n log n), O(1), O(n^2), Θ(n), Ω(n), etc.
+  processed = processed.replace(/([OΘΩ])\(([^)]+)\)/g, '`$1($2)`');
+  
   // Fix code fences that are not on their own line
   // Pattern: text followed by ``` on same line (but not at start of line)
   // This handles cases like "Example: ```yaml" -> "Example:\n```yaml"
