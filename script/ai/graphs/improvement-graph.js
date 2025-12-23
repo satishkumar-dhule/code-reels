@@ -11,6 +11,7 @@
 import { StateGraph, END, START } from '@langchain/langgraph';
 import { Annotation } from '@langchain/langgraph';
 import ai from '../index.js';
+import { validateMermaidDiagram, fixCommonIssues } from '../utils/mermaid-validator.js';
 
 // Define the state schema using Annotation
 const QuestionState = Annotation.Root({
@@ -244,31 +245,80 @@ async function addTldrNode(state) {
 }
 
 /**
- * Node: Add diagram
+ * Node: Add diagram with validation
  */
 async function addDiagramNode(state) {
   console.log('\n📊 [ADD_DIAGRAM] Creating visualization...');
   
-  try {
-    const result = await ai.run('diagram', {
-      question: state.question,
-      answer: state.answer
-    });
-    
-    console.log(`   Diagram: ${result.diagram?.substring(0, 80)}...`);
-    
-    const remainingIssues = state.issues.filter(i => i !== 'missing_diagram');
-    
-    return {
-      diagram: result.diagram,
-      issues: remainingIssues,
-      currentIssue: remainingIssues[0] || null,
-      improvements: [{ type: 'diagram', timestamp: new Date().toISOString() }]
-    };
-  } catch (error) {
-    console.log(`   ❌ Failed: ${error.message}`);
-    return { error: error.message };
+  const MAX_RETRIES = 3;
+  let lastError = null;
+  
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      console.log(`   Attempt ${attempt}/${MAX_RETRIES}...`);
+      
+      const result = await ai.run('diagram', {
+        question: state.question,
+        answer: state.answer
+      });
+      
+      if (!result.diagram) {
+        console.log(`   ⚠️ No diagram generated`);
+        lastError = 'No diagram generated';
+        continue;
+      }
+      
+      // Fix common issues first
+      const { fixed, changes } = fixCommonIssues(result.diagram);
+      if (changes.length > 0) {
+        console.log(`   🔧 Fixed: ${changes.join(', ')}`);
+      }
+      
+      // Validate the diagram
+      const validation = validateMermaidDiagram(fixed);
+      
+      if (!validation.valid) {
+        console.log(`   ❌ Validation failed: ${validation.error}`);
+        lastError = validation.error;
+        continue;
+      }
+      
+      // Log warnings if any
+      if (validation.warnings) {
+        validation.warnings.forEach(w => console.log(`   ⚠️ Warning: ${w}`));
+      }
+      
+      // Log stats
+      if (validation.stats) {
+        console.log(`   ✅ Valid diagram: ${validation.stats.nodeCount} nodes, ${validation.stats.lineCount} lines`);
+      }
+      
+      console.log(`   Diagram: ${fixed.substring(0, 80)}...`);
+      
+      const remainingIssues = state.issues.filter(i => i !== 'missing_diagram');
+      
+      return {
+        diagram: fixed,
+        issues: remainingIssues,
+        currentIssue: remainingIssues[0] || null,
+        improvements: [{ type: 'diagram', timestamp: new Date().toISOString() }]
+      };
+      
+    } catch (error) {
+      console.log(`   ❌ Attempt ${attempt} failed: ${error.message}`);
+      lastError = error.message;
+    }
   }
+  
+  // All retries failed - remove from issues to prevent infinite loop
+  console.log(`   ❌ All ${MAX_RETRIES} attempts failed. Last error: ${lastError}`);
+  const remainingIssues = state.issues.filter(i => i !== 'missing_diagram');
+  
+  return { 
+    issues: remainingIssues,
+    currentIssue: remainingIssues[0] || null,
+    error: `Diagram generation failed after ${MAX_RETRIES} attempts: ${lastError}` 
+  };
 }
 
 /**
