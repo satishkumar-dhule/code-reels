@@ -74,7 +74,13 @@ export default {
       'Keep diagrams focused on key concepts',
       'Use appropriate diagram type (flowchart, sequence, etc.)',
       'Each node must have a descriptive label related to the actual content',
-      'Show the actual technical flow, architecture, or process'
+      'Show the actual technical flow, architecture, or process',
+      'ADD STYLING: Use different node shapes (rounded [], stadium ([]), cylinder [()] for databases, diamond {} for decisions)',
+      'ADD COLORS: Use style classes or inline styles (style A fill:#f9f,stroke:#333)',
+      'Use subgraphs to group related components',
+      'Add icons/emojis in labels where appropriate (🔒 for security, 💾 for storage, 🌐 for network)',
+      'Make edges descriptive with action verbs (--sends-->, --validates--, --returns-->)',
+      'For flowcharts: use TD (top-down) or LR (left-right) based on flow complexity'
     ],
     answer: [
       'Be technically accurate and precise',
