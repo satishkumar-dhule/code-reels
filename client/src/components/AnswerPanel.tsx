@@ -9,11 +9,13 @@ import remarkGfm from 'remark-gfm';
 import { 
   BookOpen, Code2, Lightbulb, ExternalLink,
   ChevronDown, Baby, Copy, Check, Tag,
-  Zap, List
+  GitBranch, Play
 } from 'lucide-react';
 import type { Question } from '../lib/data';
 import { GiscusComments } from './GiscusComments';
 import { formatTag } from '../lib/utils';
+
+type MediaTab = 'diagram' | 'eli5' | 'video';
 
 /**
  * Preprocess markdown text to fix common formatting issues
@@ -257,9 +259,116 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
   );
 }
 
+// Tabbed Media Panel for Diagram, ELI5, and Video
+function TabbedMediaPanel({ 
+  question,
+  hasDiagram,
+  hasEli5,
+  hasVideo
+}: { 
+  question: Question;
+  hasDiagram: boolean;
+  hasEli5: boolean;
+  hasVideo: boolean;
+}) {
+  const availableTabs: MediaTab[] = [];
+  if (hasDiagram) availableTabs.push('diagram');
+  if (hasEli5) availableTabs.push('eli5');
+  if (hasVideo) availableTabs.push('video');
+  
+  const [activeTab, setActiveTab] = useState<MediaTab>(availableTabs[0]);
+  
+  if (availableTabs.length === 0) return null;
+
+  const tabConfig = {
+    diagram: { label: 'Diagram', icon: <GitBranch className="w-4 h-4" />, color: 'text-primary' },
+    eli5: { label: 'ELI5', icon: <Baby className="w-4 h-4" />, color: 'text-green-500' },
+    video: { label: 'Video', icon: <Play className="w-4 h-4" />, color: 'text-purple-500' },
+  };
+
+  return (
+    <div className="rounded-xl sm:rounded-2xl border border-border bg-card overflow-hidden">
+      {/* Tab Headers */}
+      <div className="flex border-b border-border bg-muted/30">
+        {availableTabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 sm:py-3 text-sm font-medium transition-colors relative ${
+              activeTab === tab 
+                ? `${tabConfig[tab].color} bg-card` 
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            }`}
+          >
+            <span className={activeTab === tab ? tabConfig[tab].color : ''}>{tabConfig[tab].icon}</span>
+            <span>{tabConfig[tab].label}</span>
+            {activeTab === tab && (
+              <motion.div
+                layoutId="activeTabIndicator"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-current"
+              />
+            )}
+          </button>
+        ))}
+      </div>
+      
+      {/* Tab Content */}
+      <div className="p-3 sm:p-4 lg:p-5">
+        <AnimatePresence mode="wait">
+          {activeTab === 'diagram' && hasDiagram && (
+            <motion.div
+              key="diagram"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <EnhancedMermaid chart={question.diagram!} />
+            </motion.div>
+          )}
+          
+          {activeTab === 'eli5' && hasEli5 && (
+            <motion.div
+              key="eli5"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-start gap-3"
+            >
+              <span className="text-2xl flex-shrink-0">🧒</span>
+              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">{question.eli5}</p>
+            </motion.div>
+          )}
+          
+          {activeTab === 'video' && hasVideo && (
+            <motion.div
+              key="video"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <YouTubePlayer 
+                shortVideo={question.videos?.shortVideo} 
+                longVideo={question.videos?.longVideo} 
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
 export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobileView = typeof window !== 'undefined' && window.innerWidth < 640;
+
+  const hasDiagram = isValidMermaidDiagram(question.diagram);
+  const hasEli5 = !!question.eli5;
+  const hasVideo = !!(question.videos?.shortVideo || question.videos?.longVideo);
+  const hasMediaContent = hasDiagram || hasEli5 || hasVideo;
 
   const renderMarkdown = useCallback((text: string) => {
     const processedText = preprocessMarkdown(text);
@@ -389,45 +498,14 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
           </div>
         )}
 
-        {/* ELI5 - Compact card */}
-        {question.eli5 && (
-          <ExpandableCard
-            title="Explain Like I'm 5"
-            icon={<Baby className="w-4 h-4 sm:w-5 sm:h-5" />}
-            defaultExpanded={false}
-            variant="success"
-          >
-            <div className="flex items-start gap-2 sm:gap-3">
-              <span className="text-lg sm:text-xl">🧒</span>
-              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">{question.eli5}</p>
-            </div>
-          </ExpandableCard>
-        )}
-
-        {/* Videos */}
-        {(question.videos?.shortVideo || question.videos?.longVideo) && (
-          <ExpandableCard
-            title="Video Explanation"
-            icon={<Zap className="w-4 h-4 sm:w-5 sm:h-5" />}
-            defaultExpanded={false}
-            variant="purple"
-          >
-            <YouTubePlayer 
-              shortVideo={question.videos.shortVideo} 
-              longVideo={question.videos.longVideo} 
-            />
-          </ExpandableCard>
-        )}
-
-        {/* Diagram - Desktop only */}
-        {!isMobileView && isValidMermaidDiagram(question.diagram) && (
-          <ExpandableCard
-            title="Diagram"
-            icon={<List className="w-4 h-4 sm:w-5 sm:h-5" />}
-            defaultExpanded={true}
-          >
-            <EnhancedMermaid chart={question.diagram!} />
-          </ExpandableCard>
+        {/* Tabbed Media Panel - Diagram, ELI5, Video */}
+        {hasMediaContent && (
+          <TabbedMediaPanel
+            question={question}
+            hasDiagram={hasDiagram}
+            hasEli5={hasEli5}
+            hasVideo={hasVideo}
+          />
         )}
 
         {/* Full Explanation */}

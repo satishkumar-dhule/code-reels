@@ -209,9 +209,9 @@ export const COMPANY_ALIASES: Record<string, string> = {
 // DEFAULT VALUES
 // ============================================
 export const DEFAULTS = {
-  THEME: 'clean-dark',
+  THEME: 'premium-dark',
   ROLE: null,
   SUBSCRIBED_CHANNELS: ['system-design', 'algorithms', 'frontend', 'backend', 'database', 'devops'],
   TIMER_DURATION: 60,
-  AUTO_ROTATE_ENABLED: true,
+  AUTO_ROTATE_ENABLED: false,
 } as const;

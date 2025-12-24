@@ -6,10 +6,8 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme, Theme } from '../../context/ThemeContext';
 import {
-  ArrowLeft, Search, Bell, MessageSquare, Code, Settings,
-  Sun, Moon, Palette, ChevronDown, X
+  ArrowLeft, Search, Bell, Code, Settings, X
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
@@ -29,17 +27,7 @@ export function MobileHeader({
   showSearch = true 
 }: MobileHeaderProps) {
   const [location, setLocation] = useLocation();
-  const { theme, setTheme } = useTheme();
   const [showNotifications, setShowNotifications] = useState(false);
-
-  const themeOptions: { id: Theme; name: string; icon: typeof Sun }[] = [
-    { id: 'clean', name: 'Light', icon: Sun },
-    { id: 'clean-dark', name: 'Dark', icon: Moon },
-    { id: 'playful', name: 'Playful', icon: Palette },
-    { id: 'playful-dark', name: 'Playful Dark', icon: Palette },
-    { id: 'dracula', name: 'Dracula', icon: Palette },
-    { id: 'nord', name: 'Nord', icon: Palette },
-  ];
 
   const handleLogoClick = () => {
     setLocation('/');
@@ -127,34 +115,6 @@ export function MobileHeader({
                   sideOffset={8}
                   align="end"
                 >
-                  {/* Theme Section */}
-                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Appearance
-                  </div>
-                  {themeOptions.map(t => {
-                    const Icon = t.icon;
-                    return (
-                      <DropdownMenu.Item
-                        key={t.id}
-                        onClick={() => setTheme(t.id)}
-                        className={`
-                          flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer outline-none
-                          ${theme === t.id ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}
-                        `}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="text-sm font-medium">{t.name}</span>
-                        {theme === t.id && (
-                          <span className="ml-auto text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">
-                            Active
-                          </span>
-                        )}
-                      </DropdownMenu.Item>
-                    );
-                  })}
-                  
-                  <DropdownMenu.Separator className="h-px bg-border my-2" />
-                  
                   {/* Links */}
                   <DropdownMenu.Item
                     onClick={() => setLocation('/about')}

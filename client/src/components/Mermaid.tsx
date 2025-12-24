@@ -102,10 +102,7 @@ const mermaidThemeConfigs: Record<MermaidTheme, object> = {
 
 // Map app themes to mermaid themes
 const appThemeToMermaid: Record<string, MermaidTheme> = {
-  unix: 'dark',
-  cyberpunk: 'dark',
-  dracula: 'dark',
-  light: 'default',
+  'premium-dark': 'dark',
 };
 
 // Track current mermaid theme

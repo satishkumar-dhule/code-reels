@@ -6,10 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import { mermaidThemeConfigs, type MermaidTheme } from './Mermaid';
 
 const appThemeToMermaid: Record<string, MermaidTheme> = {
-  unix: 'dark',
-  cyberpunk: 'dark',
-  dracula: 'dark',
-  light: 'default',
+  'premium-dark': 'dark',
 };
 
 let currentMermaidTheme: MermaidTheme | null = null;

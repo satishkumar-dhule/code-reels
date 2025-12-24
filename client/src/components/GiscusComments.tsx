@@ -7,7 +7,7 @@ const GISCUS_REPO_ID = import.meta.env.VITE_GISCUS_REPO_ID || 'R_kgDOQuSz7g';
 const GISCUS_CATEGORY = import.meta.env.VITE_GISCUS_CATEGORY || 'General';
 const GISCUS_CATEGORY_ID = import.meta.env.VITE_GISCUS_CATEGORY_ID || 'DIC_kwDOQuSz7s4C0NCw';
 
-const LIGHT_THEMES = ['clean', 'light', 'macos-light', 'ios-light', 'playful', 'aqua', 'solarized'];
+const LIGHT_THEMES: string[] = []; // Only premium-dark theme now
 
 interface GiscusCommentsProps {
   questionId: string;

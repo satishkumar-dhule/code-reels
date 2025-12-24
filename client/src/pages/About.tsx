@@ -3,18 +3,16 @@ import { useLocation } from 'wouter';
 import { 
   ArrowLeft, Brain, Code, Target, Flame, Lock, Unlock, Volume2, VolumeX,
   Github, Star, MessageSquare, Bug, Sparkles, Zap, BookOpen, Users, 
-  Palette, Terminal, Globe, Heart, Coffee, Rocket, ExternalLink, User,
+  Terminal, Globe, Heart, Coffee, Rocket, ExternalLink, User,
   Linkedin, Mail, MapPin, Briefcase, Bot
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SEOHead } from '../components/SEOHead';
 import { trackEasterEggUnlocked } from '../hooks/use-analytics';
-import { useTheme } from '../context/ThemeContext';
 import { getAllQuestions, channels } from '../lib/data';
 
 export default function About() {
   const [_, setLocation] = useLocation();
-  const { theme, cycleTheme } = useTheme();
   const [easterEgg1, setEasterEgg1] = useState(false);
   const [easterEgg2, setEasterEgg2] = useState(false);
   const [easterEgg3, setEasterEgg3] = useState(false);
@@ -98,34 +96,6 @@ export default function About() {
     { name: 'GitHub Actions', color: '#2088ff' },
   ];
 
-  const themeColors: Record<string, string> = {
-    unix: '#22c55e',
-    cyberpunk: '#ff00ff',
-    dracula: '#bd93f9',
-    light: '#000000',
-    matrix: '#00ff00',
-    'blade-runner': '#ff8c00',
-    tron: '#00d4ff',
-    fallout: '#9acd32',
-    witcher: '#ffd700',
-    dune: '#00bfff',
-    solarized: '#2aa198',
-    nord: '#88c0d0',
-    monokai: '#a6e22e',
-    synthwave: '#ff6ad5',
-    gruvbox: '#fe8019',
-    catppuccin: '#cba6f7',
-    hacker: '#00ff00',
-    midnight: '#3b82f6',
-    // Apple themes
-    'macos-light': '#007aff',
-    'macos-dark': '#0a84ff',
-    'ios-light': '#007aff',
-    'ios-dark': '#0a84ff',
-    'visionos': '#64d2ff',
-    'aqua': '#0066cc',
-    'graphite': '#8e8e93',
-  };
 
   return (
     <>
@@ -144,9 +114,6 @@ export default function About() {
                 <ArrowLeft className="w-4 h-4" /> Back
               </button>
               <div className="flex items-center gap-2">
-                <button onClick={cycleTheme} className="p-2 hover:bg-muted rounded transition-colors" title={`Theme: ${theme}`}>
-                  <Palette className="w-4 h-4" style={{ color: themeColors[theme] }} />
-                </button>
                 <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-2 hover:bg-muted rounded transition-colors" title={soundEnabled ? "Mute" : "Unmute"}>
                   {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                 </button>
