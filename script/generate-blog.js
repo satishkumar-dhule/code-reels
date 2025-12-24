@@ -730,6 +730,51 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 3r
 .diff-filter.intermediate { background: rgba(245,158,11,0.1); color: #f59e0b; }
 .diff-filter.advanced { background: rgba(239,68,68,0.1); color: #ef4444; }
 .diff-filter:hover, .diff-filter.active { border-color: currentColor; }
+
+/* Stats Bar */
+.stats-bar { padding: 0; margin-top: -3rem; position: relative; z-index: 10; }
+.stats-grid { display: flex; justify-content: center; align-items: center; gap: 2.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 1.5rem 3rem; max-width: 700px; margin: 0 auto; }
+.stat-item { text-align: center; }
+.stat-value { font-size: 1.75rem; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; letter-spacing: -0.02em; }
+.stat-label { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.25rem; display: block; }
+.stat-divider { width: 1px; height: 40px; background: var(--border); }
+
+/* Featured Grid */
+.featured-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem; }
+.featured-main { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 2rem; position: relative; overflow: hidden; transition: all 0.3s ease; }
+.featured-main:hover { border-color: var(--border-hover); box-shadow: var(--shadow-lg); }
+.featured-main::before { content: ''; position: absolute; top: 0; right: 0; width: 60%; height: 100%; background: var(--gradient-subtle); opacity: 0.5; pointer-events: none; }
+.featured-side { display: flex; flex-direction: column; gap: 1.25rem; }
+.featured-side-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; text-decoration: none; transition: all 0.3s ease; display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
+.featured-side-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.featured-side-card .tag { width: fit-content; }
+.featured-side-card h3 { font-size: 0.9375rem; font-weight: 600; color: var(--text); line-height: 1.4; margin: 0; letter-spacing: -0.01em; }
+
+/* Topics Section */
+.topics-section { padding: 4rem 0 2rem; }
+.topics-title { font-size: 1.125rem; font-weight: 600; text-align: center; margin-bottom: 1.5rem; color: var(--text); letter-spacing: -0.02em; }
+
+/* Hero Actions */
+.hero-actions { display: flex; gap: 1rem; justify-content: center; align-items: center; }
+.hero-cta-secondary { color: var(--text-secondary); text-decoration: none; font-size: 0.9375rem; font-weight: 500; padding: 0.875rem 1.5rem; border: 1px solid var(--border); border-radius: 100px; transition: all 0.2s ease; }
+.hero-cta-secondary:hover { border-color: var(--border-hover); color: var(--text); background: var(--bg-card); }
+
+/* Responsive - Stats & Featured */
+@media (max-width: 768px) {
+  .stats-grid { flex-wrap: wrap; gap: 1.5rem 2rem; padding: 1.25rem 1.5rem; }
+  .stat-divider { display: none; }
+  .stat-value { font-size: 1.5rem; }
+  .featured-grid { grid-template-columns: 1fr; }
+  .featured-side { flex-direction: row; }
+  .featured-side-card { flex: 1; }
+  .featured-side-card h3 { font-size: 0.8125rem; }
+  .hero-actions { flex-direction: column; gap: 0.75rem; }
+  .hero-cta, .hero-cta-secondary { width: 100%; max-width: 280px; justify-content: center; }
+}
+@media (max-width: 480px) {
+  .featured-side { flex-direction: column; }
+  .stats-grid { gap: 1rem; }
+}
 `;
 }
 
@@ -906,23 +951,37 @@ function generateIndexPage(articles) {
       <p class="excerpt">${escapeHtml((a.blogIntro || '').substring(0, 100))}...</p>
     </div>`).join('');
   
-  // Featured article
+  // Calculate reading time estimate (avg 5 min per article)
+  const totalReadingMins = totalArticles * 5;
+  const readingHours = Math.floor(totalReadingMins / 60);
+  
+  // Featured articles (top 3)
+  const featuredArticles = articles.slice(0, 3);
   let featuredHtml = '';
-  if (featuredArticle) {
-    const emoji = getCategoryEmoji(getCategoryForChannel(featuredArticle.channel));
+  if (featuredArticles.length > 0) {
+    const mainFeatured = featuredArticles[0];
+    const sideFeatured = featuredArticles.slice(1, 3);
+    
     featuredHtml = `
     <section class="featured"><div class="container">
-      <div class="featured-card">
-        <div class="featured-content">
+      <div class="featured-grid">
+        <div class="featured-main">
           <span class="featured-label">✦ Latest</span>
-          <h2 class="featured-title"><a href="/posts/${featuredArticle.id}/${featuredArticle.blogSlug}/">${escapeHtml(featuredArticle.blogTitle)}</a></h2>
-          <p class="featured-excerpt">${escapeHtml((featuredArticle.blogIntro || '').substring(0, 180))}...</p>
+          <h2 class="featured-title"><a href="/posts/${mainFeatured.id}/${mainFeatured.blogSlug}/">${escapeHtml(mainFeatured.blogTitle)}</a></h2>
+          <p class="featured-excerpt">${escapeHtml((mainFeatured.blogIntro || '').substring(0, 200))}...</p>
           <div class="featured-meta">
-            <span class="tag">${formatChannelName(featuredArticle.channel)}</span>
-            <span class="difficulty ${featuredArticle.difficulty}">${featuredArticle.difficulty}</span>
+            <span class="tag">${formatChannelName(mainFeatured.channel)}</span>
+            <span class="difficulty ${mainFeatured.difficulty}">${mainFeatured.difficulty}</span>
           </div>
         </div>
-        <div class="featured-visual">${emoji}</div>
+        <div class="featured-side">
+          ${sideFeatured.map(a => `
+            <a href="/posts/${a.id}/${a.blogSlug}/" class="featured-side-card">
+              <span class="tag">${formatChannelName(a.channel)}</span>
+              <h3>${escapeHtml(a.blogTitle)}</h3>
+            </a>
+          `).join('')}
+        </div>
       </div>
     </div></section>`;
   }
@@ -931,24 +990,47 @@ function generateIndexPage(articles) {
 ${generateHeader()}
 <main>
   <section class="hero"><div class="container">
-    <div class="hero-badge"><span class="pulse"></span> ${totalArticles} deep dives published</div>
-    <h1>Engineering knowledge<br>that actually ships</h1>
-    <p>No fluff. No basics. Deep technical insights for developers building production systems at scale.</p>
-    <a href="/categories/" class="hero-cta">Explore Topics <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
-    <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-value">${totalArticles}</div><div class="hero-stat-label">Articles</div></div>
-      <div class="hero-stat"><div class="hero-stat-value">${totalCategories}</div><div class="hero-stat-label">Topics</div></div>
-      <div class="hero-stat"><div class="hero-stat-value">Senior</div><div class="hero-stat-label">Level</div></div>
+    <div class="hero-badge"><span class="pulse"></span> New articles weekly</div>
+    <h1>Deep dives into<br>real engineering</h1>
+    <p>Battle-tested insights from production systems. Learn what actually works at scale.</p>
+    <div class="hero-actions">
+      <a href="#articles" class="hero-cta">Browse Articles <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+      <a href="/categories/" class="hero-cta-secondary">All Topics</a>
+    </div>
+  </div></section>
+  
+  <section class="stats-bar"><div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-value">${totalArticles}</span>
+        <span class="stat-label">Deep Dives</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">${totalCategories}</span>
+        <span class="stat-label">Topics</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">${readingHours}h+</span>
+        <span class="stat-label">Of Content</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value">Free</span>
+        <span class="stat-label">Forever</span>
+      </div>
     </div>
   </div></section>
   
   ${featuredHtml}
   
-  <section style="padding:2rem 0 3rem"><div class="container">
+  <section class="topics-section"><div class="container">
+    <h2 class="topics-title">Explore by Topic</h2>
     <div class="category-pills">${categoryPills}</div>
   </div></section>
   
-  <section class="article-list"><div class="container">
+  <section class="article-list" id="articles"><div class="container">
     <div class="section-header">
       <h2 class="section-title">All Articles</h2>
       <div class="diff-filters">
@@ -963,9 +1045,9 @@ ${generateHeader()}
   
   <section class="newsletter"><div class="container">
     <div class="newsletter-card">
-      <h2>Ready to level up?</h2>
-      <p>Practice with real interview questions from top tech companies</p>
-      <a href="https://open-interview.github.io" target="_blank" class="newsletter-btn">Start Practicing →</a>
+      <h2>Ready to ace your interviews?</h2>
+      <p>Practice with 1000+ real interview questions from FAANG companies</p>
+      <a href="https://open-interview.github.io" target="_blank" class="newsletter-btn">Start Practicing Free →</a>
     </div>
   </div></section>
 </main>
