@@ -9,7 +9,7 @@ This project includes a feature to deploy the client application to GitHub Pages
    pnpm install
    ```
 
-2. **Deploy to GitHub Pages** (configured for reel-interview.github.io):
+2. **Deploy to GitHub Pages** (configured for open-interview.github.io):
    ```bash
    pnpm run deploy:pages
    ```

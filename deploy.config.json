@@ -1,5 +1,5 @@
 {
-  "targetRepo": "reel-interview/reel-interview.github.io",
+  "targetRepo": "open-interview/open-interview.github.io",
   "branch": "gh-pages",
   "message": "Deploy from main branch"
 }

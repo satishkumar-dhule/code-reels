@@ -33,8 +33,8 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           REPO_OWNER: satishkumar-dhule
           REPO_NAME: code-reels
-          PAGES_REPO_OWNER: reel-interview
-          PAGES_REPO_NAME: reel-interview.github.io
+          PAGES_REPO_OWNER: open-interview
+          PAGES_REPO_NAME: open-interview.github.io
 
       - name: Summary
         if: always()

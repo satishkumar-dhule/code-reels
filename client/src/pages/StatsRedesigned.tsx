@@ -143,7 +143,7 @@ export default function StatsRedesigned() {
       <SEOHead
         title="Track Your Interview Prep Progress - Stats & Analytics | Code Reels"
         description="Monitor your technical interview preparation progress with detailed analytics."
-        canonical="https://reel-interview.github.io/stats"
+        canonical="https://open-interview.github.io/stats"
       />
 
       <AppLayout title="Statistics">

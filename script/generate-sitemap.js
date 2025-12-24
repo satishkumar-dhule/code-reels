@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const OUTPUT_DIR = 'client/public';
-const BASE_URL = 'https://reel-interview.github.io';
+const BASE_URL = 'https://open-interview.github.io';
 
 // All channels from channels-config.ts with SEO metadata
 const channels = [
@@ -89,7 +89,7 @@ ${urls}
 // Generate robots.txt
 function generateRobotsTxt() {
   return `# Code Reels - Technical Interview Prep
-# https://reel-interview.github.io
+# https://open-interview.github.io
 
 User-agent: *
 Allow: /

@@ -7,7 +7,7 @@
 
 import https from 'https';
 
-const SITE_URL = 'https://reel-interview.github.io';
+const SITE_URL = 'https://open-interview.github.io';
 const SITEMAP_URL = `${SITE_URL}/sitemap.xml`;
 
 const searchEngines = [
@@ -56,7 +56,7 @@ async function main() {
   
   console.log('\n📋 Next Steps:');
   console.log('1. Go to Google Search Console: https://search.google.com/search-console');
-  console.log('2. Add property: https://reel-interview.github.io');
+  console.log('2. Add property: https://open-interview.github.io');
   console.log('3. Verify ownership with HTML meta tag');
   console.log('4. Submit sitemap: sitemap.xml');
   console.log('5. Use URL Inspection to request indexing for key pages');

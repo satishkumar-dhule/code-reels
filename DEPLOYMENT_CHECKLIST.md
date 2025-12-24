@@ -244,7 +244,7 @@ npm run build && npm run deploy
 
 **Expected Result**: Successful deployment to GitHub Pages
 
-**Verification URL**: https://reel-interview.github.io/
+**Verification URL**: https://open-interview.github.io/
 
 ---
 

@@ -17,8 +17,8 @@ const REPO_OWNER = process.env.REPO_OWNER || 'satishkumar-dhule';
 const REPO_NAME = process.env.REPO_NAME || 'code-reels';
 
 // Also track the deployed site repo
-const PAGES_REPO_OWNER = process.env.PAGES_REPO_OWNER || 'reel-interview';
-const PAGES_REPO_NAME = process.env.PAGES_REPO_NAME || 'reel-interview.github.io';
+const PAGES_REPO_OWNER = process.env.PAGES_REPO_OWNER || 'open-interview';
+const PAGES_REPO_NAME = process.env.PAGES_REPO_NAME || 'open-interview.github.io';
 
 const db = createClient({
   url: process.env.TURSO_DATABASE_URL,

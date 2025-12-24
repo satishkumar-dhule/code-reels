@@ -3,15 +3,15 @@
   <channel>
     <title>Code Reels - Interview Questions</title>
     <description>Master technical interviews with 325 questions across 32 channels. System design, algorithms, frontend, backend, DevOps, and more.</description>
-    <link>https://reel-interview.github.io</link>
-    <atom:link href="https://reel-interview.github.io/rss.xml" rel="self" type="application/rss+xml"/>
+    <link>https://open-interview.github.io</link>
+    <atom:link href="https://open-interview.github.io/rss.xml" rel="self" type="application/rss+xml"/>
     <language>en-us</language>
     <lastBuildDate>Fri, 19 Dec 2025 04:05:45 GMT</lastBuildDate>
     <ttl>60</ttl>
     <image>
-      <url>https://reel-interview.github.io/favicon.svg</url>
+      <url>https://open-interview.github.io/favicon.svg</url>
       <title>Code Reels</title>
-      <link>https://reel-interview.github.io</link>
+      <link>https://open-interview.github.io</link>
     </image>
     
     <item>
@@ -19,7 +19,7 @@
       <description><![CDATA[Practice 16 interview questions in algorithms. Difficulty breakdown: 4 beginner, 9 intermediate, 3 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">algorithms-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/algorithms</link>
+      <link>https://open-interview.github.io/channel/algorithms</link>
       <category>algorithms</category>
     </item>
     <item>
@@ -27,7 +27,7 @@
       <description><![CDATA[Practice 3 interview questions in android. Difficulty breakdown: 1 beginner, 2 intermediate, 0 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">android-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/android</link>
+      <link>https://open-interview.github.io/channel/android</link>
       <category>android</category>
     </item>
     <item>
@@ -35,7 +35,7 @@
       <description><![CDATA[Practice 2 interview questions in api-testing. Difficulty breakdown: 0 beginner, 1 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">api-testing-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/api-testing</link>
+      <link>https://open-interview.github.io/channel/api-testing</link>
       <category>api-testing</category>
     </item>
     <item>
@@ -43,7 +43,7 @@
       <description><![CDATA[Practice 16 interview questions in aws. Difficulty breakdown: 5 beginner, 7 intermediate, 4 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">aws-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/aws</link>
+      <link>https://open-interview.github.io/channel/aws</link>
       <category>aws</category>
     </item>
     <item>
@@ -51,7 +51,7 @@
       <description><![CDATA[Practice 6 interview questions in backend. Difficulty breakdown: 4 beginner, 1 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">backend-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/backend</link>
+      <link>https://open-interview.github.io/channel/backend</link>
       <category>backend</category>
     </item>
     <item>
@@ -59,7 +59,7 @@
       <description><![CDATA[Practice 6 interview questions in behavioral. Difficulty breakdown: 3 beginner, 1 intermediate, 2 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">behavioral-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/behavioral</link>
+      <link>https://open-interview.github.io/channel/behavioral</link>
       <category>behavioral</category>
     </item>
     <item>
@@ -67,7 +67,7 @@
       <description><![CDATA[Practice 3 interview questions in computer-vision. Difficulty breakdown: 2 beginner, 0 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">computer-vision-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/computer-vision</link>
+      <link>https://open-interview.github.io/channel/computer-vision</link>
       <category>computer-vision</category>
     </item>
     <item>
@@ -75,7 +75,7 @@
       <description><![CDATA[Practice 3 interview questions in data-engineering. Difficulty breakdown: 1 beginner, 1 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">data-engineering-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/data-engineering</link>
+      <link>https://open-interview.github.io/channel/data-engineering</link>
       <category>data-engineering</category>
     </item>
     <item>
@@ -83,7 +83,7 @@
       <description><![CDATA[Practice 18 interview questions in database. Difficulty breakdown: 6 beginner, 6 intermediate, 6 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">database-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/database</link>
+      <link>https://open-interview.github.io/channel/database</link>
       <category>database</category>
     </item>
     <item>
@@ -91,7 +91,7 @@
       <description><![CDATA[Practice 49 interview questions in devops. Difficulty breakdown: 21 beginner, 11 intermediate, 17 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">devops-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/devops</link>
+      <link>https://open-interview.github.io/channel/devops</link>
       <category>devops</category>
     </item>
     <item>
@@ -99,7 +99,7 @@
       <description><![CDATA[Practice 4 interview questions in e2e-testing. Difficulty breakdown: 3 beginner, 0 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">e2e-testing-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/e2e-testing</link>
+      <link>https://open-interview.github.io/channel/e2e-testing</link>
       <category>e2e-testing</category>
     </item>
     <item>
@@ -107,7 +107,7 @@
       <description><![CDATA[Practice 4 interview questions in engineering-management. Difficulty breakdown: 1 beginner, 2 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">engineering-management-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/engineering-management</link>
+      <link>https://open-interview.github.io/channel/engineering-management</link>
       <category>engineering-management</category>
     </item>
     <item>
@@ -115,7 +115,7 @@
       <description><![CDATA[Practice 18 interview questions in frontend. Difficulty breakdown: 6 beginner, 7 intermediate, 5 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">frontend-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/frontend</link>
+      <link>https://open-interview.github.io/channel/frontend</link>
       <category>frontend</category>
     </item>
     <item>
@@ -123,7 +123,7 @@
       <description><![CDATA[Practice 6 interview questions in generative-ai. Difficulty breakdown: 2 beginner, 3 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">generative-ai-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/generative-ai</link>
+      <link>https://open-interview.github.io/channel/generative-ai</link>
       <category>generative-ai</category>
     </item>
     <item>
@@ -131,7 +131,7 @@
       <description><![CDATA[Practice 4 interview questions in ios. Difficulty breakdown: 2 beginner, 1 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">ios-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/ios</link>
+      <link>https://open-interview.github.io/channel/ios</link>
       <category>ios</category>
     </item>
     <item>
@@ -139,7 +139,7 @@
       <description><![CDATA[Practice 20 interview questions in kubernetes. Difficulty breakdown: 7 beginner, 4 intermediate, 9 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">kubernetes-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/kubernetes</link>
+      <link>https://open-interview.github.io/channel/kubernetes</link>
       <category>kubernetes</category>
     </item>
     <item>
@@ -147,7 +147,7 @@
       <description><![CDATA[Practice 2 interview questions in linux. Difficulty breakdown: 1 beginner, 0 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">linux-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/linux</link>
+      <link>https://open-interview.github.io/channel/linux</link>
       <category>linux</category>
     </item>
     <item>
@@ -155,7 +155,7 @@
       <description><![CDATA[Practice 2 interview questions in llm-ops. Difficulty breakdown: 1 beginner, 0 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">llm-ops-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/llm-ops</link>
+      <link>https://open-interview.github.io/channel/llm-ops</link>
       <category>llm-ops</category>
     </item>
     <item>
@@ -163,7 +163,7 @@
       <description><![CDATA[Practice 10 interview questions in machine-learning. Difficulty breakdown: 3 beginner, 4 intermediate, 3 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">machine-learning-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/machine-learning</link>
+      <link>https://open-interview.github.io/channel/machine-learning</link>
       <category>machine-learning</category>
     </item>
     <item>
@@ -171,7 +171,7 @@
       <description><![CDATA[Practice 6 interview questions in networking. Difficulty breakdown: 1 beginner, 4 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">networking-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/networking</link>
+      <link>https://open-interview.github.io/channel/networking</link>
       <category>networking</category>
     </item>
     <item>
@@ -179,7 +179,7 @@
       <description><![CDATA[Practice 1 interview questions in nlp. Difficulty breakdown: 1 beginner, 0 intermediate, 0 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">nlp-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/nlp</link>
+      <link>https://open-interview.github.io/channel/nlp</link>
       <category>nlp</category>
     </item>
     <item>
@@ -187,7 +187,7 @@
       <description><![CDATA[Practice 1 interview questions in operating-systems. Difficulty breakdown: 0 beginner, 1 intermediate, 0 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">operating-systems-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/operating-systems</link>
+      <link>https://open-interview.github.io/channel/operating-systems</link>
       <category>operating-systems</category>
     </item>
     <item>
@@ -195,7 +195,7 @@
       <description><![CDATA[Practice 5 interview questions in performance-testing. Difficulty breakdown: 2 beginner, 3 intermediate, 0 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">performance-testing-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/performance-testing</link>
+      <link>https://open-interview.github.io/channel/performance-testing</link>
       <category>performance-testing</category>
     </item>
     <item>
@@ -203,7 +203,7 @@
       <description><![CDATA[Practice 3 interview questions in prompt-engineering. Difficulty breakdown: 1 beginner, 1 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">prompt-engineering-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/prompt-engineering</link>
+      <link>https://open-interview.github.io/channel/prompt-engineering</link>
       <category>prompt-engineering</category>
     </item>
     <item>
@@ -211,7 +211,7 @@
       <description><![CDATA[Practice 3 interview questions in python. Difficulty breakdown: 0 beginner, 2 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">python-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/python</link>
+      <link>https://open-interview.github.io/channel/python</link>
       <category>python</category>
     </item>
     <item>
@@ -219,7 +219,7 @@
       <description><![CDATA[Practice 3 interview questions in react-native. Difficulty breakdown: 2 beginner, 0 intermediate, 1 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">react-native-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/react-native</link>
+      <link>https://open-interview.github.io/channel/react-native</link>
       <category>react-native</category>
     </item>
     <item>
@@ -227,7 +227,7 @@
       <description><![CDATA[Practice 15 interview questions in security. Difficulty breakdown: 3 beginner, 5 intermediate, 7 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">security-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/security</link>
+      <link>https://open-interview.github.io/channel/security</link>
       <category>security</category>
     </item>
     <item>
@@ -235,7 +235,7 @@
       <description><![CDATA[Practice 45 interview questions in sre. Difficulty breakdown: 21 beginner, 10 intermediate, 14 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">sre-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/sre</link>
+      <link>https://open-interview.github.io/channel/sre</link>
       <category>sre</category>
     </item>
     <item>
@@ -243,7 +243,7 @@
       <description><![CDATA[Practice 35 interview questions in system-design. Difficulty breakdown: 9 beginner, 7 intermediate, 19 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">system-design-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/system-design</link>
+      <link>https://open-interview.github.io/channel/system-design</link>
       <category>system-design</category>
     </item>
     <item>
@@ -251,7 +251,7 @@
       <description><![CDATA[Practice 8 interview questions in terraform. Difficulty breakdown: 4 beginner, 1 intermediate, 3 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">terraform-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/terraform</link>
+      <link>https://open-interview.github.io/channel/terraform</link>
       <category>terraform</category>
     </item>
     <item>
@@ -259,7 +259,7 @@
       <description><![CDATA[Practice 7 interview questions in testing. Difficulty breakdown: 0 beginner, 2 intermediate, 5 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">testing-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/testing</link>
+      <link>https://open-interview.github.io/channel/testing</link>
       <category>testing</category>
     </item>
     <item>
@@ -267,7 +267,7 @@
       <description><![CDATA[Practice 1 interview questions in unix. Difficulty breakdown: 1 beginner, 0 intermediate, 0 advanced.]]></description>
       <pubDate>Fri, 19 Dec 2025 04:05:44 GMT</pubDate>
       <guid isPermaLink="false">unix-2025-12-19T04:05:44.361Z</guid>
-      <link>https://reel-interview.github.io/channel/unix</link>
+      <link>https://open-interview.github.io/channel/unix</link>
       <category>unix</category>
     </item>
   </channel>

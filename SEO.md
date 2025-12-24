@@ -104,7 +104,7 @@ The `SEOHead` component (`client/src/components/SEOHead.tsx`) provides:
   title="Page Title"
   description="Page description"
   keywords="keyword1, keyword2"
-  canonical="https://reel-interview.github.io/page"
+  canonical="https://open-interview.github.io/page"
 />
 ```
 

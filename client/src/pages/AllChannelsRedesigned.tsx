@@ -88,7 +88,7 @@ export default function AllChannelsRedesigned() {
         <SEOHead
           title="Browse 30+ Interview Prep Channels | Code Reels"
           description="Explore 30+ technical interview prep channels: System Design, Algorithms, Frontend, Backend, DevOps, and more."
-          canonical="https://reel-interview.github.io/channels"
+          canonical="https://open-interview.github.io/channels"
         />
         <AppLayout title="Explore" fullWidth>
           <MobileChannels />
@@ -103,7 +103,7 @@ export default function AllChannelsRedesigned() {
       <SEOHead
         title="Browse 30+ Interview Prep Channels | Code Reels"
         description="Explore 30+ technical interview prep channels: System Design, Algorithms, Frontend, Backend, DevOps, and more."
-        canonical="https://reel-interview.github.io/channels"
+        canonical="https://open-interview.github.io/channels"
       />
 
       <AppLayout title="All Channels">

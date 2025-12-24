@@ -18,7 +18,7 @@ const defaultStructuredData = {
   "name": "Code Reels",
   "alternateName": "CodeReels Interview Prep",
   "description": "Free interactive platform for practicing technical interview questions. Master system design, algorithms, frontend, backend, DevOps, and AI interview prep.",
-  "url": "https://reel-interview.github.io/",
+  "url": "https://open-interview.github.io/",
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Web Browser",
   "browserRequirements": "Requires JavaScript",
@@ -39,7 +39,7 @@ const defaultStructuredData = {
     "name": "Code Reels",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://reel-interview.github.io/favicon.svg"
+      "url": "https://open-interview.github.io/favicon.svg"
     }
   },
   "aggregateRating": {
@@ -65,7 +65,7 @@ export function SEOHead({
   title,
   description,
   keywords,
-  ogImage = 'https://reel-interview.github.io/opengraph.jpg',
+  ogImage = 'https://open-interview.github.io/opengraph.jpg',
   ogType = 'website',
   canonical,
   noindex = false,

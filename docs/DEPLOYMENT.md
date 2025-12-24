@@ -14,14 +14,14 @@ Code Reels uses a staged deployment process with manual approval for production 
 ## Environments
 
 ### Staging
-- **URL:** https://stage-reel-interview.github.io
-- **Repository:** `stage-reel-interview/stage-reel-interview.github.io`
+- **URL:** https://stage-open-interview.github.io
+- **Repository:** `stage-open-interview/stage-open-interview.github.io`
 - **Deployment:** Automatic after tests pass
 - **Purpose:** Preview and validate changes before production
 
 ### Production
-- **URL:** https://reel-interview.github.io
-- **Repository:** `reel-interview/reel-interview.github.io`
+- **URL:** https://open-interview.github.io
+- **Repository:** `open-interview/open-interview.github.io`
 - **Deployment:** Requires manual approval
 - **Purpose:** Live site for end users
 
@@ -29,7 +29,7 @@ Code Reels uses a staged deployment process with manual approval for production 
 
 ### 1. Create the Staging Repository
 
-1. Go to GitHub and create a new repository: `stage-reel-interview/stage-reel-interview.github.io`
+1. Go to GitHub and create a new repository: `stage-open-interview/stage-open-interview.github.io`
 2. Initialize with a README or leave empty
 3. Enable GitHub Pages in repository settings:
    - Go to Settings → Pages
@@ -69,8 +69,8 @@ Ensure these secrets are available at the repository level:
 ### 4. Grant Token Access
 
 The `GH_TOKEN` needs access to push to both repositories:
-- `stage-reel-interview/stage-reel-interview.github.io`
-- `reel-interview/reel-interview.github.io`
+- `stage-open-interview/stage-open-interview.github.io`
+- `open-interview/open-interview.github.io`
 
 If using a Fine-grained PAT, ensure it has:
 - Repository access to both repos

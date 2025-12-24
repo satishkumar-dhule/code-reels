@@ -181,7 +181,7 @@ export const APP_METADATA = {
   NAME: 'Code Reels',
   VERSION: '2.2.0',
   DESCRIPTION: 'Free technical interview prep platform with 1000+ questions',
-  CANONICAL_URL: 'https://reel-interview.github.io',
+  CANONICAL_URL: 'https://open-interview.github.io',
 } as const;
 
 // ============================================

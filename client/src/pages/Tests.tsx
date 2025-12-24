@@ -41,7 +41,7 @@ export default function Tests() {
       <SEOHead
         title="Knowledge Tests - Test Your Interview Prep | Code Reels"
         description="Test your technical interview knowledge with quizzes for each topic. Track your progress and earn shareable badges."
-        canonical="https://reel-interview.github.io/tests"
+        canonical="https://open-interview.github.io/tests"
       />
 
       <div className="min-h-screen bg-background text-foreground p-3 sm:p-4 font-mono">

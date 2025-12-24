@@ -171,7 +171,7 @@ export default function WhatsNew() {
         title="What's New - Daily Updates & Changelog | Code Reels Interview Prep"
         description="Stay updated with daily AI-generated interview questions, improvements, and new features. See the latest additions to System Design, Algorithms, Frontend, Backend, DevOps, and AI/ML channels."
         keywords="code reels updates, changelog, new interview questions, daily updates, interview prep news, new features, AI generated questions"
-        canonical="https://reel-interview.github.io/whats-new"
+        canonical="https://open-interview.github.io/whats-new"
       />
       <div className="min-h-screen bg-background text-foreground font-mono overflow-y-auto">
         {/* Header */}

@@ -30,7 +30,7 @@ export function StagingBanner() {
         </div>
         <div className="flex items-center gap-4">
           <a
-            href="https://reel-interview.github.io"
+            href="https://open-interview.github.io"
             className="text-xs font-bold underline hover:no-underline"
           >
             Go to Production →

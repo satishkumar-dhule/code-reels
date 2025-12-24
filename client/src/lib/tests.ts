@@ -194,7 +194,7 @@ export function generateShareableBadge(
 ): string {
   const badge = passed ? '✅' : '📊';
   const text = `${badge} I scored ${score}% on the ${channelName} test on Code Reels!`;
-  const url = 'https://reel-interview.github.io/';
+  const url = 'https://open-interview.github.io/';
   
   return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
 }
@@ -205,7 +205,7 @@ export function generateSocialShare(
   score: number,
   passed: boolean
 ): string {
-  const url = 'https://reel-interview.github.io/';
+  const url = 'https://open-interview.github.io/';
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
 }
 

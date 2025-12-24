@@ -208,7 +208,7 @@ export default function Badges() {
         title="Achievement Badges - Track Your Interview Prep Progress | Code Reels"
         description="Earn badges as you master technical interview questions. Track your streaks, completion milestones, and explore different topics to unlock achievements."
         keywords="achievement badges, gamification, interview prep progress, study streaks, learning milestones"
-        canonical="https://reel-interview.github.io/badges"
+        canonical="https://open-interview.github.io/badges"
       />
       
       <AppLayout title="Badges" showBackOnMobile>

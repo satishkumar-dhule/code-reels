@@ -194,7 +194,7 @@ export default function BotActivity() {
         title="AI Bot Activity - Automated Interview Question Improvements | Code Reels" 
         description="Track our AI bots that continuously improve interview questions. See real-time updates from Simplify, Quickshot, Recruiter, Visualizer, and other bots enhancing 1000+ questions."
         keywords="AI bots, automated improvements, interview questions, ELI5 explanations, TLDR summaries, company data, mermaid diagrams, question quality"
-        canonical="https://reel-interview.github.io/bot-activity"
+        canonical="https://open-interview.github.io/bot-activity"
       />
       <div className="min-h-screen bg-background text-foreground p-3 sm:p-4 font-mono overflow-y-auto">
         <div className="max-w-5xl mx-auto">

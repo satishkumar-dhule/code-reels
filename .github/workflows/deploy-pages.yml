@@ -82,7 +82,7 @@ jobs:
     needs: test
     environment:
       name: staging
-      url: https://stage-reel-interview.github.io
+      url: https://stage-open-interview.github.io
     
     steps:
     - name: Checkout
@@ -135,7 +135,7 @@ jobs:
       
     - name: Deploy to Staging (GitHub Pages)
       env:
-        DEPLOY_REPO: stage-reel-interview/stage-reel-interview.github.io
+        DEPLOY_REPO: stage-open-interview/stage-open-interview.github.io
         DEPLOY_BRANCH: main
         GIT_USER_NAME: ${{ github.actor }}
         GIT_USER_EMAIL: ${{ github.actor }}@users.noreply.github.com
@@ -174,7 +174,7 @@ jobs:
       run: |
         echo "## 🚀 Staging Deployment Complete" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Staging URL:** https://stage-reel-interview.github.io" >> $GITHUB_STEP_SUMMARY
+        echo "**Staging URL:** https://stage-open-interview.github.io" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
         echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
@@ -191,7 +191,7 @@ jobs:
     needs: deploy-staging
     environment:
       name: production
-      url: https://reel-interview.github.io
+      url: https://open-interview.github.io
     
     steps:
     - name: Checkout
@@ -242,7 +242,7 @@ jobs:
       
     - name: Deploy to Production (GitHub Pages)
       env:
-        DEPLOY_REPO: reel-interview/reel-interview.github.io
+        DEPLOY_REPO: open-interview/open-interview.github.io
         DEPLOY_BRANCH: gh-pages
         GIT_USER_NAME: ${{ github.actor }}
         GIT_USER_EMAIL: ${{ github.actor }}@users.noreply.github.com
@@ -261,7 +261,7 @@ jobs:
       run: |
         echo "## ✅ Production Deployment Complete" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Production URL:** https://reel-interview.github.io" >> $GITHUB_STEP_SUMMARY
+        echo "**Production URL:** https://open-interview.github.io" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
         echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

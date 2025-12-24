@@ -1,11 +1,11 @@
 # Code Reels - Technical Interview Prep
-# https://reel-interview.github.io
+# https://open-interview.github.io
 
 User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://reel-interview.github.io/sitemap.xml
+Sitemap: https://open-interview.github.io/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1

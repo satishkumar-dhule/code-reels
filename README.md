@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://reel-interview.github.io/">🚀 Try it now</a> •
+  <a href="https://open-interview.github.io/">🚀 Try it now</a> •
   <a href="#features">Features</a> •
   <a href="#screenshots">Screenshots</a> •
   <a href="#getting-started">Get Started</a>
@@ -138,7 +138,7 @@ For the light mode enthusiasts (we don't judge... much 😏)
 ## 🚀 Getting Started
 
 ### Use it Online (Easiest)
-Just go to **[reel-interview.github.io](https://reel-interview.github.io/)** and start swiping. No signup needed.
+Just go to **[open-interview.github.io](https://open-interview.github.io/)** and start swiping. No signup needed.
 
 ### Run Locally
 

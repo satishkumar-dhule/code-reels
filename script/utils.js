@@ -1637,7 +1637,7 @@ async function graphqlRequest(token, query) {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(postData),
-        'User-Agent': 'reel-interview-bot'
+        'User-Agent': 'open-interview-bot'
       }
     };
     

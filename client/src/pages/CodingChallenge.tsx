@@ -323,7 +323,7 @@ export default function CodingChallenge() {
       <SEOHead
         title="Coding Challenges - Practice Interview Problems | Code Reels"
         description="Practice coding interview problems with instant feedback. Test your solutions in the browser and learn optimal approaches."
-        canonical="https://reel-interview.github.io/coding"
+        canonical="https://open-interview.github.io/coding"
       />
 
       <div className="min-h-screen bg-background text-foreground">

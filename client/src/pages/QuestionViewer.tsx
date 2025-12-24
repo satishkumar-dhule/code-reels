@@ -255,7 +255,7 @@ export default function QuestionViewer() {
       <SEOHead
         title={`${currentQuestion.question.substring(0, 55)}... | ${channel.name} - Code Reels`}
         description={currentQuestion.answer?.substring(0, 120) || 'Practice interview questions'}
-        canonical={`https://reel-interview.github.io/channel/${channelId}/${currentIndex}`}
+        canonical={`https://open-interview.github.io/channel/${channelId}/${currentIndex}`}
       />
 
       <div className="h-screen flex flex-col bg-background overflow-hidden">

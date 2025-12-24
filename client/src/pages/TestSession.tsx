@@ -161,7 +161,7 @@ export default function TestSession() {
       <SEOHead
         title={`${test.title} | Code Reels`}
         description={test.description}
-        canonical={`https://reel-interview.github.io/test/${channelId}`}
+        canonical={`https://open-interview.github.io/test/${channelId}`}
       />
 
       <div className="min-h-screen bg-background text-foreground font-mono">

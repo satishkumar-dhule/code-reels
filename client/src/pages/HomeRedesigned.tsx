@@ -14,7 +14,7 @@ export default function HomeRedesigned() {
       <SEOHead
         title="Code Reels - Free Technical Interview Prep | System Design, Algorithms, Frontend, DevOps"
         description="Master technical interviews with 1000+ free practice questions. System design, algorithms, frontend, backend, DevOps, SRE, AI/ML interview prep."
-        canonical="https://reel-interview.github.io/"
+        canonical="https://open-interview.github.io/"
       />
       
       <AppLayout>
