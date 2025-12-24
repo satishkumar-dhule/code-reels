@@ -1,59 +1,74 @@
 /**
  * Blog Article Generation Prompt Template
- * Transforms Q&A content into professional blog articles
+ * Transforms Q&A content into engaging, story-driven blog articles
  */
 
 import { jsonOutputRule, buildSystemContext } from './base.js';
 
 export const schema = {
-  title: "Catchy, memorable title (not a question) - make it fun!",
-  introduction: "Hook with a relatable real-world scenario or analogy (2-3 sentences)",
+  title: "Compelling story-driven title that creates curiosity",
+  introduction: "Opening hook that draws readers in with a story, problem, or provocative question (3-4 sentences)",
   sections: [
     {
-      heading: "Section heading",
-      content: "Section content in markdown with lists, tables, callouts, and real examples"
+      heading: "Section heading that advances the narrative",
+      content: "Section content in markdown - story-driven with real scenarios, code examples, and insights"
     }
   ],
   realWorldExample: {
     company: "Famous company name (Netflix, Uber, Spotify, etc.)",
-    scenario: "How they use this concept in production",
-    lesson: "Key takeaway from their approach"
+    scenario: "The story of how they faced this challenge and what happened",
+    lesson: "The insight they gained that changed their approach"
   },
-  diagram: "Mermaid diagram code showing architecture/flow/dependencies (without ```mermaid wrapper)",
+  diagram: "Mermaid diagram code showing architecture/flow (without ```mermaid wrapper)",
   glossary: [
-    { term: "Technical term used in article", definition: "Simple 1-line explanation for 3-year dev" }
+    { term: "Technical term", definition: "Simple explanation" }
   ],
   sources: [
-    { title: "Source title or article name", url: "https://example.com/article", type: "documentation|blog|paper|video" }
+    { title: "Source title", url: "https://example.com", type: "documentation|blog|paper|video" }
   ],
-  quickReference: ["Key point 1", "Key point 2", "Key point 3"],
-  funFact: "Interesting trivia or surprising fact about this topic",
-  conclusion: "Wrap-up with actionable next steps",
+  quickReference: ["Key insight 1", "Key insight 2", "Key insight 3"],
+  funFact: "Surprising story or historical context about this topic",
+  conclusion: "The moral of the story and what to do next",
   metaDescription: "SEO meta description (150-160 chars)"
 };
 
 export const guidelines = [
-  'Write for a developer with ~3 years experience - skip basics, dive into the good stuff',
-  'Title should be catchy and memorable, maybe even a bit playful',
-  'Start with a relatable scenario: "Ever had your API crash at 3am because..."',
-  'Use analogies from everyday life to explain complex concepts',
-  'Include a REAL company example (Netflix, Uber, Airbnb, Stripe, etc.) showing how they solved this',
-  'Keep it concise - respect the readers time, no fluff',
-  'Add humor where appropriate - tech doesnt have to be boring',
-  'Use "you" and "we" to make it conversational',
-  'Include gotchas and "things I wish I knew earlier" insights',
-  'Add a fun fact or surprising trivia about the topic',
-  'ALWAYS use bullet lists for complex concepts',
-  'ALWAYS include comparison tables when comparing approaches',
-  'ALWAYS add a Mermaid diagram for visual learners',
-  'Generate glossary terms for technical jargon used in the article',
-  'ALWAYS include 2-4 credible sources (official docs, engineering blogs, research papers)',
-  'Prefer sources from: official documentation, company engineering blogs (Netflix, Uber, etc.), academic papers, reputable tech blogs',
-  'Use callouts: 💡 Pro Tip, ⚠️ Gotcha, 🔥 Hot Take, 🎯 Key Insight',
-  'End with concrete next steps the reader can take TODAY',
-  'For system design: include scale numbers (requests/sec, data size)',
-  'For algorithms: include Big O and when to actually use it',
-  'Make the reader feel smarter after reading, not overwhelmed'
+  // STORYTELLING FOCUS
+  'Write like youre telling a story to a friend over coffee, not writing documentation',
+  'Start with a HOOK: a problem, a failure, a "picture this" moment, or a provocative question',
+  'Example hooks: "It was 3am when the pager went off...", "Picture this: your CEO just tweeted about the new feature...", "Everyone told me this was the right approach. They were wrong."',
+  'Build TENSION: what could go wrong? what are the stakes? why should they care?',
+  'Use the "hero journey" structure: Problem → Struggle → Discovery → Solution → Transformation',
+  'Include "plot twists" - counterintuitive insights that challenge assumptions',
+  'End sections with cliffhangers or questions that pull readers forward',
+  
+  // VOICE & TONE
+  'Write for a developer with ~3 years experience - they know the basics, show them the nuances',
+  'Be conversational: use "you", "we", "I" - like youre pair programming',
+  'Add personality: opinions, hot takes, things that surprised you',
+  'Include "confession" moments: "I used to think X, until I learned Y"',
+  'Use humor and wit naturally - dont force it, but dont be dry either',
+  
+  // REAL-WORLD GROUNDING
+  'Every concept needs a "when would I actually use this?" answer',
+  'Include a REAL company war story (Netflix, Uber, Stripe, etc.) - what broke, how they fixed it',
+  'Add "battle scars" - common mistakes and how to avoid them',
+  'Include specific numbers: latency, throughput, cost savings, team size',
+  
+  // STRUCTURE & FORMAT
+  'Sections should flow like chapters in a story, not disconnected topics',
+  'Use bullet lists for "heres what you need to know" moments',
+  'Use tables for comparisons: "Option A vs Option B - heres the real tradeoff"',
+  'Include a Mermaid diagram that tells the visual story',
+  'Use callouts strategically: 💡 Insight, ⚠️ Watch Out, 🔥 Hot Take, 🎯 Key Point',
+  
+  // SOURCES & CREDIBILITY
+  'Include 2-4 credible sources (engineering blogs, official docs, papers)',
+  'Reference specific incidents or case studies when possible',
+  
+  // ENDING
+  'Conclude with the "so what?" - what should they do differently tomorrow?',
+  'Leave them with one memorable insight they can share with their team'
 ];
 
 export function build(context) {
@@ -61,7 +76,9 @@ export function build(context) {
 
   return `${buildSystemContext('blog')}
 
-Transform this interview Q&A into a professional blog article.
+Transform this interview Q&A into an ENGAGING, STORY-DRIVEN blog article.
+
+Your goal: Make the reader feel like theyre on a journey of discovery, not reading a textbook.
 
 ORIGINAL CONTENT:
 Question: ${question}
@@ -71,8 +88,16 @@ Topic: ${channel}
 Difficulty: ${difficulty}
 Tags: ${(tags || []).join(', ')}
 
-REQUIREMENTS:
+STORYTELLING REQUIREMENTS:
 ${guidelines.map(g => `- ${g}`).join('\n')}
+
+STRUCTURE YOUR STORY:
+1. HOOK: Start with a compelling scenario, problem, or question that creates tension
+2. CONTEXT: Set the stage - why does this matter? what are the stakes?
+3. THE JOURNEY: Walk through the concepts as discoveries, not lectures
+4. THE TWIST: Include counterintuitive insights or "aha moments"
+5. REAL-WORLD PROOF: Show how a real company dealt with this
+6. THE PAYOFF: Concrete takeaways and next steps
 
 Output this exact JSON structure:
 ${JSON.stringify(schema, null, 2)}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Olympics: When Your Security System Needs to Drink from the Firehose | DevInsights</title>
+  <meta name="description" content="Build a bulletproof security monitoring system using DynamoDB, Aurora, and ElastiCache. Learn partitioning strategies and real-world scale patterns from Netflix.">
+  <meta name="theme-color" content="#050505">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#7c3aed',primaryTextColor:'#fafafa',primaryBorderColor:'rgba(255,255,255,0.1)',lineColor:'#00d4ff',secondaryColor:'#111',tertiaryColor:'#161616'}});</script>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
+</head>
+<body>
+<style>
+.related-articles { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.related-articles h3 { font-size: 1rem; margin-bottom: 1rem; color: var(--text); }
+.related-grid { display: grid; gap: 0.75rem; }
+.related-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); text-decoration: none; transition: all 0.2s; }
+.related-card:hover { border-color: var(--border-hover); transform: translateX(4px); }
+.related-title { color: var(--text); font-size: 0.875rem; font-weight: 500; }
+.related-meta { color: var(--text-muted); font-size: 0.75rem; text-transform: capitalize; }
+</style>
+<header><div class="container header-content">
+    <a href="/" class="logo">DevInsights</a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/categories/">Topics</a>
+      <button class="search-btn" onclick="openSearch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search<kbd>⌘K</kbd></button>
+      <a href="https://reel-interview.github.io" target="_blank" class="nav-cta">Practice →</a>
+    </nav>
+  </div></header>
+<main><article class="article"><div class="container">
+  <a href="/categories/devops-infrastructure/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← DevOps & Infrastructure</a>
+  <div class="article-header">
+    <h1>Database Olympics: When Your Security System Needs to Drink from the Firehose</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Aws</span><span class="difficulty intermediate">intermediate</span><span class="tag">rds</span> <span class="tag">aurora</span> <span class="tag">dynamodb</span></div>
+  </div>
+  <p class="article-intro">Ever had your API crash at 3am because your database couldn't handle the security event tsunami? We've all been there - watching monitoring graphs spike while frantically trying to keep the lights on. Let's talk about building a database architecture that laughs at 10M+ daily events instead of crying.</p>
+  <div class="article-content">
+    <h2>The Three-Headed Database Dragon</h2>When you're drowning in security events, you need more than just one database. Think of it like a kitchen: you wouldn't use a butter knife to chop vegetables, debone a chicken, and frost a cake. Each AWS service has its sweet spot:</p><p>💡 <strong>Pro Tip</strong>: The magic isn't in choosing ONE database - it's in orchestrating all three like a symphony conductor.</p><p><table><thead><tr><th>Service</th><th>Best For</th><th>When It Screams "Help Me"</th></tr></thead><tbody><tr><td>DynamoDB</td><td>High-velocity writes, simple reads</td><td>You need complex joins or ad-hoc queries</td></tr><tr><td>Aurora</td><td>Analytics, complex queries</td><td>Your write throughput exceeds 100K/sec</td></tr><tr><td>ElastiCache</td><td>Hot data, caching</td><td>Your cache hit rate drops below 80%</td></tr></tbody></table>
+🔥 <strong>Hot Take</strong>: Most engineers over-engineer with Aurora from day one. Start with DynamoDB and add Aurora only when your analytics queries start timing out.<h2>Partitioning Strategy: The Art of Not Creating Hot Spots</h2>Hot partitions are the silent killers of scalable systems. They're like that one checkout lane at the grocery store that always has 20 people while others are empty.</p><p>⚠️ <strong>Gotcha</strong>: Using just the date as your <span class="glossary-term" data-tooltip="The primary key component that determines which physical partition stores your data in distributed databases.">partition key</span> is a rookie mistake. Everyone's security events for October 15th end up in the same partition, creating a massive bottleneck.</p><p>Here's the battle-tested strategy:</p><p><pre><code class="language-typescript">// Smart partitioning that distributes load
+const partitionKey = `security-events#${date.slice(0, 7)}#${hash(event.sourceIP) % 100}`;
+const sortKey = `${event.timestamp}#${event.eventType}`;
+
+// Hot partition for recent data (last 24h)
+if (isRecentEvent(timestamp)) {
+  const hotPartition = `security-events#hot#${date.slice(0, 10)}#${hash(event.sourceIP) % 50}`;
+  // Write to both hot and regular partition for read performance
+}</code></pre></p><p>🎯 <strong>Key Insight</strong>: The hash modulo distributes events across 100 partitions, preventing any single partition from becoming the bottleneck.<h2>Real-World Scale Numbers</h2>Let's talk actual scale, not theoretical fluff:</p><p><ul><li><strong>Events per second</strong>: ~116 (10M / 24h / 3600s)</li>
+<li><strong>Peak bursts</strong>: Up to 1,000 events/sec during attacks</li>
+<li><strong>Storage needed</strong>: ~50GB/day (assuming 5KB per event)</li>
+<li><strong>Read latency requirement</strong>: <5ms for security rules lookup</li></p><p>The architecture that actually works at scale:</p><p><li>DynamoDB: Handles the write firehose with auto-scaling</li>
+<li>ElastiCache: Stores security rules with 99.9% hit rate</li>
+<li>Aurora: Runs nightly analytics jobs (not real-time queries)</li></ul>
+    <div class="real-world-example">
+      <h3>🏢 Real-World Case Study</h3>
+      <div class="company">Netflix</div>
+      <p class="scenario">Netflix processes billions of viewing events daily using a similar multi-database approach. They use DynamoDB for real-time event ingestion, Cassandra (similar to Aurora) for analytics, and Redis (ElastiCache) for user session data and recommendations caching.</p>
+      <div class="lesson"><strong>Key Takeaway:</strong> The key insight from Netflix is separating real-time processing from analytics. They don't try to make one database do everything - each service has a specific job, and they orchestrate data flow between them.</div>
+    </div><h2>Architecture Overview</h2><div class="mermaid">graph TD
+    A[Security Events] --> B[DynamoDB - Raw Events]
+    B --> C[Time-based Partitions]
+    B --> D[Hot Partitions - 24h]
+    D --> E[ElastiCache - Security Rules]
+    B --> F[Aurora - Analytics]
+    F --> G[Daily Reports]
+    E --> H[Real-time Alerts]
+    C --> I[Historical Queries]</div><div class="fun-fact"><span class="fun-fact-icon">💡</span><p><strong>Did you know?</strong> DynamoDB can handle over 20 million requests per second at its peak - that's like processing every Harry Potter book ever sold in just 3 seconds!</p></div><div class="quick-ref"><h3>📌 Key Takeaways</h3><ul><li>Start with DynamoDB for high-throughput writes, add services as needed</li><li>Use hash-based partitioning to avoid hot spots</li><li>Separate real-time processing from analytics concerns</li><li>Cache frequently accessed data in ElastiCache for sub-millisecond reads</li></ul></div><div class="sources"><h3>Further Reading</h3><ul><li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html" target="_blank" rel="noopener">AWS DynamoDB Best Practices</a><span class="source-type">documentation</span></li><li><a href="https://netflixtechblog.com/" target="_blank" rel="noopener">Netflix Engineering Blog - Event Processing</a><span class="source-type">blog</span></li><li><a href="https://aws.amazon.com/blogs/database/" target="_blank" rel="noopener">AWS Database Migration Patterns</a><span class="source-type">blog</span></li></ul></div>
+    <h2>Wrapping Up</h2>
+    <p>Ready to build a security monitoring system that doesn't buckle under pressure? Start today: 1) Implement DynamoDB with smart partitioning, 2) Add ElastiCache for your security rules lookup, 3) Set up Aurora for analytics when you need it. Your 3am self will thank you.</p>
+  </div>
+  
+  <div class="cta-box">
+    <p>Ready to put this into practice?</p>
+    <a href="https://reel-interview.github.io/channel/aws" class="cta-button">Practice Questions →</a>
+  </div>
+</div></article></main>
+
+<!-- Search Modal -->
+<div class="search-modal" id="searchModal" onclick="if(event.target===this)closeSearch()">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search articles..." autocomplete="off">
+      <button class="search-close" onclick="closeSearch()">✕</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<footer><div class="container">
+  <div class="footer-content">
+    <div class="footer-brand">DevInsights</div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/categories/">Topics</a>
+      <a href="https://reel-interview.github.io" target="_blank">Practice</a>
+    </div>
+  </div>
+  <div class="footer-copy">
+    <p>© 2025 DevInsights · Built for developers who ship · <a href="https://reel-interview.github.io">Reel Interview</a></p>
+  </div>
+</div></footer>
+
+<script>
+const searchData = [{"id":"q-255","slug":"the-3am-pager-that-changed-everything-how-netflix-learned-to-stop-trusting-json","title":"The 3am Pager That Changed Everything: How Netflix Learned to Stop Trusting JSON","intro":"It was 3am when the pager went off. Again. Netflix's streaming service was buckling under a wave of malformed JSON payloads that were slipping through","channel":"security","difficulty":"intermediate","tags":["top10","asvs","samm"]},{"id":"q-346","slug":"the-night-10000-kubernetes-resources-almost-broke-production","title":"The Night 10,000 Kubernetes Resources Almost Broke Production","intro":"It was 3am when the pager went off. Our brand new Kubernetes operator, designed to manage a fleet of microservices, was consuming memory like a black ","channel":"kubernetes","difficulty":"advanced","tags":["crds","controllers","reconciliation"]},{"id":"q-466","slug":"the-midnight-mystery-why-your-linux-server-lies-about-memory","title":"The Midnight Mystery: Why Your Linux Server Lies About Memory","intro":"It was 3am when the pager went off. Production services were crashing, but `free -m` showed 8GB available RAM. I stared at the screen, confused. How c","channel":"linux","difficulty":"advanced","tags":["linux"]},{"id":"q-467","slug":"the-3am-pager-that-changed-everything-building-llm-services-that-dont-break","title":"The 3AM Pager That Changed Everything: Building LLM Services That Don't Break","intro":"It was 3:17 AM when the pager went off. Our 'unbreakable' LLM service was melting down, costing us $47,000 in unexpected GPU bills while users stared ","channel":"llm-ops","difficulty":"intermediate","tags":["llm-ops"]},{"id":"q-358","slug":"the-2m-mistake-when-linear-regression-almost-killed-a-startup","title":"The $2M Mistake: When Linear Regression Almost Killed a Startup","intro":"It was 2am when Sarah's Slack lit up. 'Churn prediction is broken,' read the message from their VP of Engineering. Their fancy new ML model was predic","channel":"machine-learning","difficulty":"beginner","tags":["regression","classification","clustering"]},{"id":"q-328","slug":"the-million-dollar-grid-how-netflix-solved-the-path-problem-that-saved-them-mill","title":"The Million-Dollar Grid: How Netflix Solved the Path Problem That Saved Them Millions","intro":"Ever had your API crash at 3am because your routing algorithm went haywire? Netflix faced exactly this nightmare when their content delivery network s","channel":"algorithms","difficulty":"intermediate","tags":["dp","memoization","tabulation"]},{"id":"q-464","slug":"the-collection-view-layout-whisperer-taming-dynamic-heights-like-a-boss","title":"The Collection View Layout Whisperer: Taming Dynamic Heights Like a Boss","intro":"Ever had your beautiful collection view layout crash at 3am because dynamic cell heights went haywire? You're not alone. Creating smooth-scrolling col","channel":"ios","difficulty":"intermediate","tags":["ios"]},{"id":"q-357","slug":"database-olympics-when-your-security-system-needs-to-drink-from-the-firehose","title":"Database Olympics: When Your Security System Needs to Drink from the Firehose","intro":"Ever had your API crash at 3am because your database couldn't handle the security event tsunami? We've all been there - watching monitoring graphs spi","channel":"aws","difficulty":"intermediate","tags":["rds","aurora","dynamodb","elasticache"]},{"id":"q-344","slug":"docker-diets-how-to-shrink-your-850mb-container-without-losing-your-mind","title":"Docker Diets: How to Shrink Your 850MB Container Without Losing Your Mind","intro":"Ever had your CI/CD pipeline fail at 3am because your Docker image hit the registry size limit? We've all been there - staring at that bloated 850MB c","channel":"devops","difficulty":"intermediate","tags":["dockerfile","compose","multi-stage"]},{"id":"sy-132","slug":"rate-limiting-roulette-how-to-win-at-1m-requests-without-crashing","title":"Rate Limiting Roulette: How to Win at 1M+ Requests Without Crashing","intro":"Ever had your API crash at 3am because a viral tweet sent 10x your normal traffic? We've all been there. Building a rate limiter that handles millions","channel":"system-design","difficulty":"advanced","tags":["api","rest"]},{"id":"sy-139","slug":"token-bucket-tango-dancing-with-100m-api-requests-without-breaking-a-sweat","title":"Token Bucket Tango - Dancing With 100M API Requests Without Breaking a Sweat","intro":"Ever had your API crash at 3am because a 'small' client decided to test your limits with 50K requests per second? We've all been there - staring at er","channel":"system-design","difficulty":"advanced","tags":["api","rest"]},{"id":"sd-2","slug":"the-ring-master-how-netflix-survives-the-midnight-cache-apocalypse","title":"The Ring Master: How Netflix Survives the Midnight Cache Apocalypse","intro":"Ever had your API crash at 3am because a single cache node went down and took 10% of your data with it? You're not alone. When your traffic suddenly s","channel":"system-design","difficulty":"advanced","tags":["hashing","dist-sys","caching"]},{"id":"q-313","slug":"building-slacks-brain-how-real-time-chat-survives-the-chaos","title":"Building Slack's Brain: How Real-Time Chat Survives the Chaos","intro":"Ever had your chat app go dark during a team crisis at 3am because messages started appearing out of order? That's when you realize building a distrib","channel":"system-design","difficulty":"advanced","tags":["dist-sys","cap-theorem","consensus"]},{"id":"sy-138","slug":"rate-limiting-like-a-boss-surviving-the-10m-request-apocalypse","title":"Rate Limiting Like a Boss: Surviving the 10M Request Apocalypse","intro":"Ever had your API crash at 3am because a viral tweet sent 10M requests your way? We've all been there - watching our beautiful architecture crumble un","channel":"system-design","difficulty":"advanced","tags":["api","rest"]},{"id":"q-260","slug":"selenium-grid-survival-guide-taming-the-10k-session-beast","title":"Selenium Grid Survival Guide - Taming the 10K Session Beast","intro":"Ever had your test suite crash at 3am because Selenium Grid decided to hoard memory like a dragon with gold? You're not alone. Building a grid that ha","channel":"system-design","difficulty":"advanced","tags":["selenium","webdriver","grid"]},{"id":"sy-158","slug":"mastering-distributed-rate-limiting-scaling-to-1m-requests-per-second","title":"Mastering Distributed Rate Limiting: Scaling to 1M Requests Per Second","intro":"In today's hyper-connected world, distributed systems must handle massive traffic loads while maintaining fairness and preventing abuse. Designing a r","channel":"system-design","difficulty":"advanced","tags":["dist-sys","architecture"]},{"id":"gh-103","slug":"mastering-self-healing-systems-in-distributed-architectures","title":"Mastering Self-Healing Systems in Distributed Architectures","intro":"In today's complex distributed systems, failures aren't just possible—they're inevitable. Self-healing systems represent the pinnacle of operational e","channel":"system-design","difficulty":"advanced","tags":["advanced","cloud"]},{"id":"sy-141","slug":"mastering-real-time-collaboration-building-a-global-serverless-document-platform","title":"Mastering Real-Time Collaboration: Building a Global Serverless Document Platform","intro":"In today's hyper-connected world, teams expect seamless collaboration across continents with zero latency. Building a globally distributed document ed","channel":"system-design","difficulty":"advanced","tags":["infra","scale"]},{"id":"sy-144","slug":"mastering-distributed-rate-limiting-at-scale","title":"Mastering Distributed Rate Limiting at Scale","intro":"In today's hyper-connected world, protecting your services from overload while maintaining fair access is crucial. A robust distributed rate limiting ","channel":"system-design","difficulty":"advanced","tags":["dist-sys","architecture"]},{"id":"q-352","slug":"mastering-distributed-order-processing-with-saga-pattern-in-high-frequency-tradi","title":"Mastering Distributed Order Processing with Saga Pattern in High-Frequency Trading","intro":"In the world of high-frequency trading, where millions of transactions occur every second, system reliability isn't just important—it's everything. A ","channel":"system-design","difficulty":"advanced","tags":["saga","cqrs","event-sourcing"]},{"id":"q-213","slug":"mastering-multi-tier-caching-building-999-available-e-commerce-platforms","title":"Mastering Multi-Tier Caching: Building 99.9% Available E-Commerce Platforms","intro":"In today's hyper-competitive e-commerce landscape, every millisecond counts. A robust multi-tier caching strategy isn't just a performance optimizatio","channel":"system-design","difficulty":"advanced","tags":["cache","redis","memcached","cdn"]}];
+
+function openSearch() {
+  document.getElementById('searchModal').classList.add('active');
+  document.getElementById('searchInput').focus();
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSearch() {
+  document.getElementById('searchModal').classList.remove('active');
+  document.body.style.overflow = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+}
+
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    openSearch();
+  }
+  if (e.key === 'Escape') closeSearch();
+});
+
+document.getElementById('searchInput')?.addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  const results = document.getElementById('searchResults');
+  
+  if (!query) {
+    results.innerHTML = '';
+    return;
+  }
+  
+  const matches = searchData.filter(a => 
+    a.title.toLowerCase().includes(query) ||
+    a.intro.toLowerCase().includes(query) ||
+    a.channel.toLowerCase().includes(query) ||
+    a.tags.some(t => t.toLowerCase().includes(query))
+  ).slice(0, 8);
+  
+  if (matches.length === 0) {
+    results.innerHTML = '<div class="search-empty">No articles found</div>';
+    return;
+  }
+  
+  results.innerHTML = matches.map(a => {
+    const highlight = (text) => text.replace(new RegExp('(' + query + ')', 'gi'), '<span class="search-highlight">$1</span>');
+    return `<a href="/posts/${a.id}/${a.slug}/" class="search-result">
+      <div class="search-result-title">${highlight(a.title)}</div>
+      <div class="search-result-meta">
+        <span class="tag">${a.channel.replace(/-/g, ' ')}</span>
+        <span class="difficulty ${a.difficulty}">${a.difficulty}</span>
+      </div>
+      <div class="search-result-excerpt">${highlight(a.intro)}...</div>
+    </a>`;
+  }).join('');
+});
+</script>
+</body></html>
