@@ -326,7 +326,7 @@ export default function QuestionViewer() {
             </div>
             {/* Mobile Content - Swipeable */}
             <div 
-              className="flex-1 overflow-y-auto overflow-x-hidden bg-background relative z-0"
+              className="flex-1 overflow-y-auto overflow-x-hidden bg-background relative z-0 pb-20"
               onTouchStart={swipeHandlers.onTouchStart}
               onTouchMove={swipeHandlers.onTouchMove}
               onTouchEnd={swipeHandlers.onTouchEnd}
@@ -534,41 +534,102 @@ function FilterDropdown({ label, options, selected, onSelect }: FilterDropdownPr
   );
 }
 
-// Navigation Footer Component
+// Navigation Footer Component - Minimal floating controls
 function NavigationFooter({ currentIndex, totalQuestions, onPrev, onNext, onShare, isMarked, onToggleMark }: any) {
+  const progress = Math.round(((currentIndex + 1) / totalQuestions) * 100);
+  
   return (
-    <footer className="h-16 bg-card border-t border-border flex items-center justify-between px-4 shrink-0">
-      <button
-        onClick={onPrev}
-        disabled={currentIndex === 0}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        <ChevronLeft className="w-5 h-5" />
-        <span className="hidden sm:inline">Previous</span>
-      </button>
+    <>
+      {/* Mobile: Minimal horizontal pill at bottom center */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none lg:hidden">
+        <div className="pointer-events-auto flex items-center gap-0.5 p-1 bg-black/60 backdrop-blur-md border border-white/10 rounded-full shadow-xl">
+          {/* Previous button */}
+          <button
+            onClick={onPrev}
+            disabled={currentIndex === 0}
+            className="p-2 rounded-full hover:bg-white/10 transition-all disabled:opacity-20 active:scale-90"
+          >
+            <ChevronLeft className="w-5 h-5 text-white/80" />
+          </button>
 
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onToggleMark}
-          className={`p-2 rounded-lg transition-colors ${
-            isMarked ? 'bg-blue-500/10 text-blue-500' : 'hover:bg-muted'
-          }`}
-        >
-          <Bookmark className={`w-5 h-5 ${isMarked ? 'fill-current' : ''}`} />
-        </button>
-        <button onClick={onShare} className="p-2 hover:bg-muted rounded-lg transition-colors">
-          <Share2 className="w-5 h-5" />
-        </button>
+          {/* Progress pill */}
+          <div className="flex items-center gap-1.5 px-2 py-1">
+            <div className="relative w-10 h-1 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="text-[10px] text-white/60 tabular-nums">
+              {currentIndex + 1}/{totalQuestions}
+            </span>
+          </div>
+
+          {/* Next button - Primary */}
+          <button
+            onClick={onNext}
+            disabled={currentIndex === totalQuestions - 1}
+            className="p-2 bg-primary text-white rounded-full hover:bg-primary/80 transition-all disabled:opacity-20 active:scale-90"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
-      <button
-        onClick={onNext}
-        disabled={currentIndex === totalQuestions - 1}
-        className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        <span className="hidden sm:inline">Next</span>
-        <ChevronRight className="w-5 h-5" />
-      </button>
-    </footer>
+      {/* Desktop: Horizontal pill at bottom center */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none hidden lg:block">
+        <div className="pointer-events-auto flex items-center gap-1 px-2 py-1.5 bg-black/50 backdrop-blur-xl border border-white/10 rounded-full shadow-xl">
+          {/* Previous button */}
+          <button
+            onClick={onPrev}
+            disabled={currentIndex === 0}
+            className="p-2 rounded-full hover:bg-white/10 transition-all disabled:opacity-20 active:scale-95"
+          >
+            <ChevronLeft className="w-5 h-5 text-white/80" />
+          </button>
+
+          {/* Progress indicator */}
+          <div className="flex items-center gap-2 px-2">
+            <div className="relative w-16 h-1 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="absolute inset-y-0 left-0 bg-primary rounded-full transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="text-xs text-white/60 tabular-nums">
+              {currentIndex + 1}/{totalQuestions}
+            </span>
+          </div>
+
+          {/* Bookmark */}
+          <button
+            onClick={onToggleMark}
+            className={`p-2 rounded-full transition-all active:scale-95 ${
+              isMarked ? 'text-primary' : 'hover:bg-white/10 text-white/60'
+            }`}
+          >
+            <Bookmark className={`w-4 h-4 ${isMarked ? 'fill-current' : ''}`} />
+          </button>
+
+          {/* Share */}
+          <button 
+            onClick={onShare} 
+            className="p-2 rounded-full hover:bg-white/10 text-white/60 transition-all active:scale-95"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+
+          {/* Next button */}
+          <button
+            onClick={onNext}
+            disabled={currentIndex === totalQuestions - 1}
+            className="flex items-center gap-1 pl-3 pr-2 py-1.5 bg-primary text-white rounded-full hover:bg-primary/80 transition-all disabled:opacity-20 active:scale-95 text-sm font-medium"
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </>
   );
 }
