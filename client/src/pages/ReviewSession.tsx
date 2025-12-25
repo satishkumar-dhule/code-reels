@@ -28,6 +28,32 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 /**
+ * Renders text with inline code (backticks) as styled code elements
+ */
+function renderWithInlineCode(text: string): React.ReactNode {
+  if (!text) return null;
+  
+  // Split by backticks, alternating between text and code
+  const parts = text.split(/`([^`]+)`/g);
+  
+  return parts.map((part, index) => {
+    // Odd indices are code (content between backticks)
+    if (index % 2 === 1) {
+      return (
+        <code 
+          key={index}
+          className="px-1.5 py-0.5 mx-0.5 bg-cyan-500/20 text-cyan-300 rounded text-[0.9em] font-mono"
+        >
+          {part}
+        </code>
+      );
+    }
+    // Even indices are regular text
+    return part;
+  });
+}
+
+/**
  * Preprocess markdown text to fix common formatting issues
  */
 function preprocessMarkdown(text: string): string {
@@ -372,7 +398,7 @@ export default function ReviewSession() {
                                 </div>
                                 <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">TL;DR</span>
                               </div>
-                              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">{currentQuestion.tldr}</p>
+                              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">{renderWithInlineCode(currentQuestion.tldr)}</p>
                             </motion.div>
                           )}
 
@@ -389,7 +415,7 @@ export default function ReviewSession() {
                               </div>
                               <span className="text-xs font-bold text-green-400 uppercase tracking-wider">Answer</span>
                             </div>
-                            <p className="text-base sm:text-lg leading-relaxed text-foreground/90">{currentQuestion.answer}</p>
+                            <p className="text-base sm:text-lg leading-relaxed text-foreground/90">{renderWithInlineCode(currentQuestion.answer)}</p>
                           </motion.div>
 
                           {/* Diagram Card - Vibrant purple */}

@@ -404,24 +404,38 @@ function ChannelCard({
 
   if (confirmingUnsubscribe) {
     return (
-      <div className="p-4 bg-destructive/10 rounded-xl border border-destructive/30 text-center">
-        <p className="text-sm font-medium mb-3">Remove {channel.name}?</p>
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={() => setConfirmingUnsubscribe(false)}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              onUnsubscribe();
-              setConfirmingUnsubscribe(false);
-            }}
-            className="px-3 py-1.5 text-xs font-medium rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
-          >
-            Remove
-          </button>
+      <div className="relative p-4 rounded-xl border border-border bg-card overflow-hidden">
+        {/* Animated gradient border */}
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-destructive/20 via-destructive/10 to-destructive/20 animate-pulse" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+              {iconMap[channel.icon] || <Code className="w-5 h-5" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate">{channel.name}</p>
+              <p className="text-xs text-muted-foreground">Will be removed from your feed</p>
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={() => setConfirmingUnsubscribe(false)}
+              className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg bg-muted/80 hover:bg-muted transition-all duration-200 active:scale-[0.98]"
+            >
+              Keep
+            </button>
+            <button
+              onClick={() => {
+                onUnsubscribe();
+                setConfirmingUnsubscribe(false);
+              }}
+              className="flex-1 px-4 py-2.5 text-sm font-medium rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all duration-200 active:scale-[0.98] shadow-lg shadow-destructive/25"
+            >
+              Remove
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -495,24 +509,37 @@ function ChannelRow({
 
   if (confirmingUnsubscribe) {
     return (
-      <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-destructive/10">
-        <span className="text-sm font-medium truncate">Remove {channel.name}?</span>
-        <div className="flex gap-2 flex-shrink-0">
-          <button
-            onClick={() => setConfirmingUnsubscribe(false)}
-            className="px-2.5 py-1 text-xs font-medium rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              onUnsubscribe();
-              setConfirmingUnsubscribe(false);
-            }}
-            className="px-2.5 py-1 text-xs font-medium rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
-          >
-            Remove
-          </button>
+      <div className="relative px-3 py-3 overflow-hidden">
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-destructive/5 via-destructive/10 to-destructive/5" />
+        
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive flex-shrink-0">
+            {iconMap[channel.icon] || <Code className="w-4 h-4" />}
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{channel.name}</p>
+            <p className="text-[11px] text-muted-foreground">Remove from your channels?</p>
+          </div>
+          
+          <div className="flex gap-2 flex-shrink-0">
+            <button
+              onClick={() => setConfirmingUnsubscribe(false)}
+              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-muted/80 hover:bg-muted transition-all duration-200 active:scale-[0.97]"
+            >
+              Keep
+            </button>
+            <button
+              onClick={() => {
+                onUnsubscribe();
+                setConfirmingUnsubscribe(false);
+              }}
+              className="px-3 py-1.5 text-xs font-medium rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all duration-200 active:scale-[0.97] shadow-md shadow-destructive/20"
+            >
+              Remove
+            </button>
+          </div>
         </div>
       </div>
     );
