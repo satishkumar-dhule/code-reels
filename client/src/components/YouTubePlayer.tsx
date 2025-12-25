@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Play, X, Youtube, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface YouTubePlayerProps {
   shortVideo?: string;
@@ -32,7 +32,6 @@ function isYouTubeShort(url: string): boolean {
 export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
   const [activeVideo, setActiveVideo] = useState<'short' | 'long' | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const isMobile = useIsMobile();
   
   const shortVideoId = shortVideo ? extractVideoId(shortVideo) : null;
   const longVideoId = longVideo ? extractVideoId(longVideo) : null;
@@ -40,25 +39,6 @@ export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
   if (!shortVideoId && !longVideoId) return null;
 
   const closePlayer = () => setActiveVideo(null);
-  
-  // Request fullscreen on mobile when video opens
-  useEffect(() => {
-    if (activeVideo && isMobile && iframeRef.current) {
-      // Small delay to ensure iframe is rendered
-      const timer = setTimeout(() => {
-        const iframe = iframeRef.current;
-        if (iframe) {
-          // Try to request fullscreen on the iframe
-          if (iframe.requestFullscreen) {
-            iframe.requestFullscreen().catch(() => {});
-          } else if ((iframe as HTMLIFrameElement & { webkitRequestFullscreen?: () => void }).webkitRequestFullscreen) {
-            (iframe as HTMLIFrameElement & { webkitRequestFullscreen: () => void }).webkitRequestFullscreen();
-          }
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [activeVideo, isMobile]);
 
   // Handle Escape key to close video modal
   useEffect(() => {
@@ -114,68 +94,63 @@ export function YouTubePlayer({ shortVideo, longVideo }: YouTubePlayerProps) {
         </div>
       </div>
 
-      {/* Video Modal - Fullscreen on mobile */}
-      <AnimatePresence>
-        {activeVideo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className={`fixed inset-0 z-[100] bg-black flex items-center justify-center ${
-              isMobile ? 'p-0' : 'p-4 bg-black/90 backdrop-blur-sm'
-            }`}
-            onClick={closePlayer}
-          >
+      {/* Video Modal - Rendered via Portal to escape overflow:hidden containers */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {activeVideo && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className={`relative ${isMobile ? 'w-full h-full' : 'w-full max-w-4xl'}`}
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 lg:p-12"
+              onClick={closePlayer}
             >
-              {/* Close Button - Always visible on mobile */}
-              <button
-                onClick={closePlayer}
-                className={`absolute z-10 p-2 text-white/70 hover:text-white transition-colors bg-black/50 rounded-full ${
-                  isMobile ? 'top-4 right-4' : '-top-12 right-0 bg-transparent'
-                }`}
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="relative w-full max-w-5xl mx-auto"
+                onClick={(e) => e.stopPropagation()}
               >
-                <X className="w-6 h-6" />
-                <span className="sr-only">Close</span>
-              </button>
+                {/* Close Button - positioned outside video */}
+                <button
+                  onClick={closePlayer}
+                  className="absolute -top-12 right-0 z-20 p-2 text-white hover:text-white/80 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                  <span className="sr-only">Close</span>
+                </button>
 
-              {/* Video Container - Full screen on mobile */}
-              <div className={`relative bg-black overflow-hidden ${
-                isMobile 
-                  ? 'w-full h-full' // Full screen on mobile
-                  : activeVideo === 'short' && isYouTubeShort(shortVideo || '')
-                    ? 'max-w-sm mx-auto aspect-[9/16] rounded-lg border border-white/20' // Vertical for shorts on desktop
-                    : 'aspect-video rounded-lg border border-white/20' // 16:9 for regular videos on desktop
-              }`}>
-                <iframe
-                  ref={iframeRef}
-                  src={`https://www.youtube.com/embed/${
-                    activeVideo === 'short' ? shortVideoId : longVideoId
-                  }?autoplay=1&rel=0&playsinline=0`}
-                  title={activeVideo === 'short' ? 'Quick Explanation' : 'Deep Dive Video'}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                />
-              </div>
+                {/* Video Container - proper aspect ratio */}
+                <div className={`relative bg-black rounded-lg overflow-hidden border border-white/20 shadow-2xl ${
+                  activeVideo === 'short' && isYouTubeShort(shortVideo || '')
+                    ? 'max-w-sm mx-auto aspect-[9/16]'
+                    : 'w-full aspect-video'
+                }`}>
+                  <iframe
+                    ref={iframeRef}
+                    src={`https://www.youtube.com/embed/${
+                      activeVideo === 'short' ? shortVideoId : longVideoId
+                    }?autoplay=1&rel=0&playsinline=1`}
+                    title={activeVideo === 'short' ? 'Quick Explanation' : 'Deep Dive Video'}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
 
-              {/* Video Type Label - Hidden on mobile fullscreen */}
-              {!isMobile && (
+                {/* Video Type Label */}
                 <div className="mt-4 text-center">
                   <span className="text-xs font-bold uppercase tracking-widest text-white/50">
                     {activeVideo === 'short' ? '⚡ Quick Explanation' : '📚 Deep Dive'}
                   </span>
                 </div>
-              )}
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
