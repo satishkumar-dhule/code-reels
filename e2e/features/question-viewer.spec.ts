@@ -73,9 +73,17 @@ test.describe('Question Navigation', () => {
     await page.goto('/channel/algorithms/0');
     await expect(page.getByTestId('question-panel').first()).toBeVisible({ timeout: 10000 });
     
+    // Get initial URL (will be redirected to question ID format like /channel/algorithms/q-XXX)
+    await page.waitForTimeout(500);
+    const initialUrl = page.url();
+    
     await page.keyboard.press('ArrowDown');
     await page.waitForTimeout(500);
-    await expect(page).toHaveURL(/\/channel\/algorithms\/1/);
+    
+    // URL should change to a different question ID
+    const newUrl = page.url();
+    expect(newUrl).toContain('/channel/algorithms/');
+    expect(newUrl).not.toBe(initialUrl);
   });
 
   test('should preserve filter state when navigating', async ({ page }) => {

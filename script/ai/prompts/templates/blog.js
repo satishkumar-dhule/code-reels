@@ -20,6 +20,8 @@ export const schema = {
     lesson: "The insight they gained that changed their approach"
   },
   diagram: "Mermaid diagram code showing architecture/flow (without ```mermaid wrapper)",
+  diagramType: "Type of diagram: flowchart|sequence|state|class|er|gantt|pie|mindmap|timeline|architecture",
+  diagramLabel: "Human-readable label for the diagram (e.g., 'System Flow', 'Event Sequence', 'State Transitions')",
   glossary: [
     { term: "Technical term", definition: "Simple explanation" }
   ],
@@ -33,7 +35,8 @@ export const schema = {
   socialSnippet: {
     hook: "Attention-grabbing first line with emoji (max 100 chars)",
     body: "3-4 punchy bullet points with insights/stats that create FOMO",
-    cta: "Compelling call-to-action to read the full article"
+    cta: "Compelling call-to-action to read the full article",
+    hashtags: "5-8 relevant hashtags for LinkedIn (e.g., #SoftwareEngineering #SystemDesign #TechCareers)"
   }
 };
 
@@ -92,7 +95,36 @@ export const guidelines = [
   'Body: 3-4 bullet points that create urgency/FOMO - use numbers, percentages, bold claims',
   'CTA: End with curiosity gap - hint at what they will learn without giving it away',
   'Use line breaks for readability, keep it under 300 words total',
-  'Make it feel like insider knowledge being shared'
+  'Make it feel like insider knowledge being shared',
+  'Hashtags: Include 5-8 relevant LinkedIn hashtags based on the topic, channel, and tags',
+  'Common hashtags to consider: #SoftwareEngineering #SystemDesign #TechCareers #CodingInterview #BackendDevelopment #Frontend #DevOps #CloudComputing #DataEngineering #MachineLearning #AI #WebDevelopment #Programming #TechTips #CareerGrowth',
+  
+  // DIAGRAM TYPE DETECTION
+  'Analyze the mermaid diagram syntax to determine diagramType:',
+  '  - "flowchart" or "graph" → flowchart',
+  '  - "sequenceDiagram" → sequence',
+  '  - "stateDiagram" → state',
+  '  - "classDiagram" → class',
+  '  - "erDiagram" → er (entity relationship)',
+  '  - "gantt" → gantt',
+  '  - "pie" → pie',
+  '  - "mindmap" → mindmap',
+  '  - "timeline" → timeline',
+  '  - Default to "architecture" if unclear',
+  'Set diagramLabel to a human-friendly name like "System Flow", "Event Sequence", "State Machine", "Class Hierarchy", "Data Model", "Project Timeline", etc.',
+  
+  // HUMAN TOUCH - Make it feel authentic
+  'Add personal touches that make the content feel human-written:',
+  '  - Include "confession" moments: "I used to think X until I learned Y"',
+  '  - Add relatable struggles: "We have all been there - staring at a 500 error at 2am"',
+  '  - Use conversational transitions: "Here is the thing though...", "But wait, it gets better"',
+  '  - Include mild opinions: "Honestly, this is my favorite pattern because..."',
+  '  - Add empathy: "If this feels overwhelming, you are not alone"',
+  '  - Use rhetorical questions: "Sound familiar?", "Ever wondered why...?"',
+  '  - Include "pro tips" from experience: "After debugging this 100 times, here is what I learned"',
+  '  - Add humor where appropriate: light jokes, relatable dev memes references',
+  '  - Use varied sentence lengths - mix short punchy sentences with longer explanations',
+  '  - Avoid robotic phrases like "In this article we will explore" or "Let us delve into"'
 ];
 
 export function build(context) {

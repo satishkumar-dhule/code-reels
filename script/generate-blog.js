@@ -184,7 +184,9 @@ async function initBlogPostsTable() {
     { name: 'real_world_example', type: 'TEXT' },
     { name: 'fun_fact', type: 'TEXT' },
     { name: 'sources', type: 'TEXT' },
-    { name: 'social_snippet', type: 'TEXT' }
+    { name: 'social_snippet', type: 'TEXT' },
+    { name: 'diagram_type', type: 'TEXT' },
+    { name: 'diagram_label', type: 'TEXT' }
   ];
   
   for (const col of newColumns) {
@@ -248,6 +250,8 @@ async function getAllBlogPosts() {
     difficulty: row.difficulty,
     tags: row.tags ? JSON.parse(row.tags) : [],
     diagram: row.diagram,
+    diagramType: row.diagram_type,
+    diagramLabel: row.diagram_label,
     quickReference: row.quick_reference ? JSON.parse(row.quick_reference) : [],
     glossary: row.glossary ? JSON.parse(row.glossary) : [],
     realWorldExample: row.real_world_example ? JSON.parse(row.real_world_example) : null,
@@ -266,8 +270,9 @@ async function saveBlogPost(questionId, blogContent, question) {
     sql: `INSERT INTO blog_posts 
           (question_id, title, slug, introduction, sections, conclusion, 
            meta_description, channel, difficulty, tags, diagram, quick_reference,
-           glossary, real_world_example, fun_fact, sources, social_snippet, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           glossary, real_world_example, fun_fact, sources, social_snippet, 
+           diagram_type, diagram_label, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       questionId,
       blogContent.title,
@@ -286,6 +291,8 @@ async function saveBlogPost(questionId, blogContent, question) {
       blogContent.funFact || null,
       JSON.stringify(blogContent.sources || []),
       JSON.stringify(blogContent.socialSnippet || null),
+      blogContent.diagramType || null,
+      blogContent.diagramLabel || null,
       now
     ]
   });
@@ -663,6 +670,7 @@ nav a.nav-cta:hover { border-color: var(--accent); box-shadow: var(--shadow-glow
 .snippet-hook { font-weight: 600; color: var(--text); margin-bottom: 0.75rem; font-size: 1rem; }
 .snippet-body { color: var(--text-secondary); margin-bottom: 0.75rem; white-space: pre-line; }
 .snippet-cta { color: var(--accent); font-weight: 500; margin-bottom: 0.5rem; }
+.snippet-hashtags { color: var(--accent-secondary); font-size: 0.875rem; margin-bottom: 0.5rem; word-wrap: break-word; }
 .snippet-link { font-size: 0.8125rem; color: var(--text-muted); word-break: break-all; }
 
 /* CTA - Gradient */
@@ -1190,7 +1198,31 @@ function generateArticlePage(article, allArticles) {
   
   // Diagram section
   if (article.diagram) {
-    sectionsHtml += `<h2>Architecture Overview</h2><div class="mermaid">${article.diagram}</div>`;
+    // Determine diagram label - use AI-generated label or detect from mermaid syntax
+    let diagramLabel = article.diagramLabel || 'Architecture Overview';
+    if (!article.diagramLabel && article.diagram) {
+      const diagramCode = article.diagram.toLowerCase().trim();
+      if (diagramCode.startsWith('sequencediagram')) {
+        diagramLabel = 'Event Sequence';
+      } else if (diagramCode.startsWith('statediagram')) {
+        diagramLabel = 'State Transitions';
+      } else if (diagramCode.startsWith('classdiagram')) {
+        diagramLabel = 'Class Structure';
+      } else if (diagramCode.startsWith('erdiagram')) {
+        diagramLabel = 'Data Model';
+      } else if (diagramCode.startsWith('gantt')) {
+        diagramLabel = 'Project Timeline';
+      } else if (diagramCode.startsWith('pie')) {
+        diagramLabel = 'Distribution Chart';
+      } else if (diagramCode.startsWith('mindmap')) {
+        diagramLabel = 'Concept Map';
+      } else if (diagramCode.startsWith('timeline')) {
+        diagramLabel = 'Timeline';
+      } else if (diagramCode.startsWith('flowchart') || diagramCode.startsWith('graph')) {
+        diagramLabel = 'System Flow';
+      }
+    }
+    sectionsHtml += `<h2>${escapeHtml(diagramLabel)}</h2><div class="mermaid">${article.diagram}</div>`;
   }
   
   // Fun fact
@@ -1216,7 +1248,9 @@ function generateArticlePage(article, allArticles) {
   // Social snippet - shareable section
   const socialSnippet = article.socialSnippet;
   if (socialSnippet) {
-    const snippetText = `${socialSnippet.hook}\n\n${socialSnippet.body}\n\n${socialSnippet.cta}`;
+    // Include hashtags in the snippet text for LinkedIn
+    const hashtags = socialSnippet.hashtags || '';
+    const snippetText = `${socialSnippet.hook}\n\n${socialSnippet.body}\n\n${socialSnippet.cta}${hashtags ? '\n\n' + hashtags : ''}`;
     const encodedText = encodeURIComponent(snippetText + `\n\n🔗 `);
     const articleUrl = `https://open-interview.github.io/posts/${article.id}/${article.blogSlug}/`;
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`;
@@ -1243,6 +1277,7 @@ function generateArticlePage(article, allArticles) {
         <p class="snippet-hook">${escapeHtml(socialSnippet.hook)}</p>
         <p class="snippet-body">${escapeHtml(socialSnippet.body).replace(/\n/g, '<br>')}</p>
         <p class="snippet-cta">${escapeHtml(socialSnippet.cta)}</p>
+        ${hashtags ? `<p class="snippet-hashtags">${escapeHtml(hashtags)}</p>` : ''}
         <p class="snippet-link">🔗 ${articleUrl}</p>
       </div>
     </div>
