@@ -12,6 +12,7 @@ import {
   parseJson,
   logBotActivity
 } from './utils.js';
+import videoTemplate from './ai/prompts/templates/video.js';
 
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '100', 10);
 const USE_WORK_QUEUE = process.env.USE_WORK_QUEUE !== 'false';
@@ -28,24 +29,12 @@ function needsVideoWork(question) {
 async function extractKeywords(question) {
   console.log('  🔑 Step 1: Extracting keywords...');
   
-  const prompt = `You are a keyword extractor. Output ONLY valid JSON, no explanations.
-
-Extract 3-5 search keywords from this technical interview question that would help find relevant YouTube tutorial videos.
-
-Question: "${question.question}"
-Topic: ${question.channel}/${question.subChannel || 'general'}
-Tags: ${(question.tags || []).join(', ')}
-
-Focus on:
-- Core technical concepts
-- Technology names
-- Programming patterns
-- Specific terms interviewers care about
-
-Output this exact JSON structure:
-{"keywords":["keyword1","keyword2","keyword3"],"searchQuery":"best youtube search query for tutorials"}
-
-IMPORTANT: Return ONLY the JSON object.`;
+  const prompt = videoTemplate.buildKeywordPrompt({
+    question: question.question,
+    channel: question.channel,
+    subChannel: question.subChannel,
+    tags: question.tags
+  });
 
   const response = await runWithRetries(prompt);
   if (!response) return null;
@@ -65,37 +54,13 @@ IMPORTANT: Return ONLY the JSON object.`;
 async function findVideosWithKeywords(question, keywordData) {
   console.log('  🎬 Step 2: Finding videos with keywords...');
   
-  const { keywords, searchQuery } = keywordData;
-  
-  const prompt = `You are a YouTube video finder. Output ONLY valid JSON, no explanations.
-
-Find real, educational YouTube videos for this technical topic.
-
-Topic: ${question.channel} - ${question.subChannel || 'general'}
-Keywords: ${keywords.join(', ')}
-Search Query: ${searchQuery}
-Question Context: ${question.question.substring(0, 100)}
-
-CRITICAL RULES:
-1. ONLY suggest videos from well-known tech educators:
-   - Fireship, Traversy Media, The Net Ninja, Web Dev Simplified
-   - TechWorld with Nana, freeCodeCamp, Academind, Hussein Nasser
-   - ByteByteGo, System Design Interview, Gaurav Sen
-   - Corey Schafer, Sentdex, Tech With Tim (Python)
-   - Java Brains, Amigoscode (Java/Spring)
-   - Ben Awad, Theo, ThePrimeagen (Web dev)
-   
-2. Video IDs must be EXACTLY 11 characters (letters, numbers, - and _)
-3. DO NOT make up video IDs - only suggest if you're confident it exists
-4. If unsure, return null for that video type
-
-Output this exact JSON structure:
-{"shortVideo":{"id":"xxxxxxxxxxx","title":"Short explanation title","channel":"Channel Name"},"longVideo":{"id":"xxxxxxxxxxx","title":"Deep dive title","channel":"Channel Name"},"confidence":"high|medium|low"}
-
-If you cannot find a reliable video, use null:
-{"shortVideo":null,"longVideo":null,"confidence":"low"}
-
-IMPORTANT: Return ONLY the JSON object.`;
+  const prompt = videoTemplate.buildVideoSearchPrompt({
+    question: question.question,
+    channel: question.channel,
+    subChannel: question.subChannel,
+    keywords: keywordData.keywords,
+    searchQuery: keywordData.searchQuery
+  });
 
   const response = await runWithRetries(prompt);
   if (!response) return null;

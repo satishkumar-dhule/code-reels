@@ -130,13 +130,19 @@ export function QuestionPanel({
 
   // Load or create SRS card when question changes
   useEffect(() => {
-    if (question) {
+    if (question?.id) {
       const card = getCard(question.id, question.channel, question.difficulty);
-      setSrsCard(card);
+      // Only update state if the card is different (compare by questionId)
+      setSrsCard(prev => {
+        if (prev?.questionId === card.questionId && prev?.totalReviews === card.totalReviews) {
+          return prev;
+        }
+        return card;
+      });
       setHasRated(false);
       setShowRatingButtons(card.totalReviews > 0);
     }
-  }, [question.id]);
+  }, [question?.id, question?.channel, question?.difficulty]);
 
   // Handle SRS rating
   const handleSRSRate = (rating: ConfidenceRating) => {

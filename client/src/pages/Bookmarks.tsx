@@ -38,13 +38,13 @@ interface BookmarkedQuestion extends Question {
 export default function Bookmarks() {
   const [, setLocation] = useLocation();
   const { getSubscribedChannels } = useUserPreferences();
-  const subscribedChannels = getSubscribedChannels();
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<BookmarkedQuestion[]>([]);
   const [filterChannel, setFilterChannel] = useState<string>('all');
   const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
 
   // Load all bookmarked questions
   useEffect(() => {
+    const subscribedChannels = getSubscribedChannels();
     const allQuestions = getAllQuestions();
     const bookmarked: BookmarkedQuestion[] = [];
 
@@ -73,7 +73,7 @@ export default function Bookmarks() {
     });
 
     setBookmarkedQuestions(bookmarked);
-  }, [subscribedChannels]);
+  }, []); // Run once on mount - bookmarks are loaded from localStorage
 
   // Get unique channels from bookmarked questions
   const channelsWithBookmarks = useMemo(() => {

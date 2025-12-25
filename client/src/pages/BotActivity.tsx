@@ -29,23 +29,11 @@ interface BotStats {
 }
 
 const BOT_CONFIG: Record<string, { name: string; icon: typeof Bot; color: string; description: string }> = {
-  'eli5': { 
-    name: 'Simplify 🧒', 
-    icon: Brain, 
-    color: 'text-pink-500 bg-pink-500/10 border-pink-500/30',
-    description: 'Makes complex concepts simple'
-  },
-  'tldr': { 
-    name: 'Quickshot ⚡', 
-    icon: FileText, 
-    color: 'text-blue-500 bg-blue-500/10 border-blue-500/30',
-    description: 'One-liner summaries'
-  },
-  'company': { 
-    name: 'Recruiter 🏢', 
-    icon: Building2, 
-    color: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
-    description: 'Who asks this question?'
+  'improve': { 
+    name: 'Polisher ✨', 
+    icon: Zap, 
+    color: 'text-green-500 bg-green-500/10 border-green-500/30',
+    description: 'Makes good answers great'
   },
   'mermaid': { 
     name: 'Visualizer 🎨', 
@@ -53,11 +41,11 @@ const BOT_CONFIG: Record<string, { name: string; icon: typeof Bot; color: string
     color: 'text-purple-500 bg-purple-500/10 border-purple-500/30',
     description: 'Draws it out for you'
   },
-  'improve': { 
-    name: 'Polisher ✨', 
-    icon: Zap, 
-    color: 'text-green-500 bg-green-500/10 border-green-500/30',
-    description: 'Makes good answers great'
+  'company': { 
+    name: 'Recruiter 🏢', 
+    icon: Building2, 
+    color: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
+    description: 'Who asks this question?'
   },
   'video': { 
     name: 'Tutor 🎬', 
@@ -65,29 +53,35 @@ const BOT_CONFIG: Record<string, { name: string; icon: typeof Bot; color: string
     color: 'text-red-500 bg-red-500/10 border-red-500/30',
     description: 'Finds learning videos'
   },
+  'classify': { 
+    name: 'Sorter 🗂️', 
+    icon: Bot, 
+    color: 'text-teal-500 bg-teal-500/10 border-teal-500/30',
+    description: 'Organizes into channels'
+  },
   'generate': { 
     name: 'Creator 🚀', 
     icon: Bot, 
     color: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/30',
     description: 'Crafts new questions'
   },
-  'motivation': { 
-    name: 'Inspirer 💪', 
-    icon: Sparkles, 
-    color: 'text-orange-500 bg-orange-500/10 border-orange-500/30',
-    description: 'Daily dose of motivation'
+  'coding-challenge': { 
+    name: 'Coder 💻', 
+    icon: Brain, 
+    color: 'text-pink-500 bg-pink-500/10 border-pink-500/30',
+    description: 'Creates coding challenges'
   },
-  'relevance': { 
-    name: 'Ranker 📊', 
+  'blog': { 
+    name: 'Blogger 📝', 
+    icon: FileText, 
+    color: 'text-blue-500 bg-blue-500/10 border-blue-500/30',
+    description: 'Generates blog posts'
+  },
+  'test': { 
+    name: 'Tester 🧪', 
     icon: TrendingUp, 
     color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30',
-    description: 'Interview likelihood score'
-  },
-  'classify': { 
-    name: 'Sorter 🗂️', 
-    icon: Bot, 
-    color: 'text-teal-500 bg-teal-500/10 border-teal-500/30',
-    description: 'Organizes into channels'
+    description: 'Creates test questions'
   }
 };
 

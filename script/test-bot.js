@@ -13,6 +13,7 @@
 import 'dotenv/config';
 import { createClient } from '@libsql/client';
 import { runWithRetries, parseJson } from './utils.js';
+import testTemplate from './ai/prompts/templates/test.js';
 
 const db = createClient({
   url: process.env.TURSO_DATABASE_URL,
@@ -130,28 +131,9 @@ async function getChannelQuestionCount(channelId) {
   return result.rows[0]?.count || 0;
 }
 
-// Generate MCQs using opencode run
+// Generate MCQs using centralized template
 async function generateBatchMCQs(questions) {
-  const summaries = questions.map((q, i) => 
-    `${i + 1}. Q: ${q.question.substring(0, 100)} A: ${q.answer.substring(0, 150)}`
-  ).join('\n');
-
-  const prompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown.
-
-Create ${questions.length} multiple choice questions (MCQs) from these Q&As:
-
-${summaries}
-
-Return a JSON array with this exact structure:
-[{"q":"question text","o":["option a","option b","option c","option d"],"c":[0],"e":"brief explanation"}]
-
-Where:
-- q = question text (rephrase slightly for variety)
-- o = array of 4 plausible options (make wrong options realistic)
-- c = array of correct option indices (0-based)
-- e = brief explanation of why the answer is correct
-
-IMPORTANT: Return ONLY the JSON array. No other text.`;
+  const prompt = testTemplate.build({ questions });
 
   const response = await runWithRetries(prompt);
   if (!response) {

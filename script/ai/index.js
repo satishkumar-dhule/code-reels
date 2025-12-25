@@ -26,6 +26,10 @@ import generateTemplate from './prompts/templates/generate.js';
 import relevanceTemplate from './prompts/templates/relevance.js';
 import codingChallengeTemplate from './prompts/templates/coding-challenge.js';
 import blogTemplate from './prompts/templates/blog.js';
+import intakeTemplate from './prompts/templates/intake.js';
+import videoTemplate from './prompts/templates/video.js';
+import testTemplate from './prompts/templates/test.js';
+import blogInputTemplate from './prompts/templates/blog-input.js';
 
 // Template registry
 const templates = {
@@ -38,7 +42,11 @@ const templates = {
   generate: generateTemplate,
   relevance: relevanceTemplate,
   'coding-challenge': codingChallengeTemplate,
-  blog: blogTemplate
+  blog: blogTemplate,
+  intake: intakeTemplate,
+  video: videoTemplate,
+  test: testTemplate,
+  'blog-input': blogInputTemplate
 };
 
 // Provider registry

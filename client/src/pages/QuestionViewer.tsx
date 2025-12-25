@@ -80,29 +80,27 @@ export default function QuestionViewer() {
   );
 
   // Handle question ID from URL or search - find index in the list
+  const [isInitialized, setIsInitialized] = useState(false);
+  
   useEffect(() => {
-    if (targetQuestionId && questions.length > 0) {
+    if (loading || questions.length === 0) return;
+    
+    if (targetQuestionId) {
       const foundIndex = questions.findIndex(q => q.id === targetQuestionId);
-      if (foundIndex >= 0) {
-        if (foundIndex !== currentIndex) {
-          setCurrentIndex(foundIndex);
-        }
-        // Update URL to use question ID format (clear query params if present)
-        if (questionIdFromSearch) {
-          setLocation(`/channel/${channelId}/${targetQuestionId}`, { replace: true });
-        }
-      } else {
-        // Question not found in current filter, go to first question
-        if (questions[0]) {
-          setCurrentIndex(0);
-          setLocation(`/channel/${channelId}/${questions[0].id}`, { replace: true });
-        }
+      if (foundIndex >= 0 && foundIndex !== currentIndex) {
+        setCurrentIndex(foundIndex);
       }
-    } else if (!targetQuestionId && questions.length > 0 && !loading) {
-      // No question ID in URL, set to first question
+      // Update URL to use question ID format (clear query params if present)
+      if (questionIdFromSearch) {
+        setLocation(`/channel/${channelId}/${targetQuestionId}`, { replace: true });
+      }
+      setIsInitialized(true);
+    } else if (questions[0] && !isInitialized) {
+      // No question ID in URL, set to first question (only on initial load)
       setLocation(`/channel/${channelId}/${questions[0].id}`, { replace: true });
+      setIsInitialized(true);
     }
-  }, [targetQuestionId, questions, channelId, loading]);
+  }, [targetQuestionId, questions.length, channelId, loading, questionIdFromSearch]);
 
   const { completed, markCompleted, saveLastVisitedIndex } = useProgress(channelId || '');
   const { isSubscribed, subscribeChannel } = useUserPreferences();
@@ -137,16 +135,17 @@ export default function QuestionViewer() {
     }
   }, [totalQuestions, currentIndex]);
 
-  // Update URL when navigating to a new question
+  // Update URL when navigating to a new question (only when user navigates, not on initial load)
   useEffect(() => {
-    if (channelId && currentQuestion && !loading) {
-      const currentUrlQuestionId = targetQuestionId;
-      if (currentQuestion.id !== currentUrlQuestionId) {
-        setLocation(`/channel/${channelId}/${currentQuestion.id}`, { replace: true });
-      }
-      saveLastVisitedIndex(currentIndex);
+    // Skip if not initialized or still loading
+    if (!isInitialized || loading || !channelId || !currentQuestion) return;
+    
+    // Only update URL if the current question doesn't match the URL
+    if (currentQuestion.id !== targetQuestionId) {
+      setLocation(`/channel/${channelId}/${currentQuestion.id}`, { replace: true });
     }
-  }, [currentQuestion?.id, channelId, loading]);
+    saveLastVisitedIndex(currentIndex);
+  }, [currentIndex, isInitialized]);
 
   // Track question view
   useEffect(() => {

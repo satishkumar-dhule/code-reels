@@ -1,0 +1,120 @@
+name: 📝 Generate Blog Post
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Question or topic to generate blog from'
+        required: true
+        type: string
+      channel:
+        description: 'Blog category/channel'
+        required: false
+        type: choice
+        default: 'general'
+        options:
+          - general
+          - system-design
+          - algorithms
+          - frontend
+          - backend
+          - database
+          - devops
+          - kubernetes
+          - aws
+          - security
+          - machine-learning
+          - generative-ai
+      difficulty:
+        description: 'Content difficulty level'
+        required: false
+        type: choice
+        default: 'intermediate'
+        options:
+          - beginner
+          - intermediate
+          - advanced
+      publish:
+        description: 'Publish to blog site after generation'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  generate-blog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install dotenv @libsql/client
+
+      - name: Install OpenCode CLI
+        run: npm install -g opencode-ai
+
+      - name: Generate blog post from input
+        id: generate
+        run: node script/generate-blog-from-input.js
+        env:
+          INPUT_TOPIC: ${{ inputs.topic }}
+          INPUT_CHANNEL: ${{ inputs.channel }}
+          INPUT_DIFFICULTY: ${{ inputs.difficulty }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Trigger publish workflow
+        if: success() && inputs.publish == true
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'publish-blog.yml',
+              ref: 'main'
+            });
+            console.log('Triggered publish-blog workflow');
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## �  Blog Post Generator" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Input" >> $GITHUB_STEP_SUMMARY
+          echo "**Topic:** ${{ inputs.topic }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Channel:** ${{ inputs.channel }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Difficulty:** ${{ inputs.difficulty }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Result" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.generate.outputs.success }}" == "true" ]; then
+            echo "✅ **Status:** Success" >> $GITHUB_STEP_SUMMARY
+            echo "**Blog ID:** ${{ steps.generate.outputs.blog_id }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Title:** ${{ steps.generate.outputs.title }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Slug:** ${{ steps.generate.outputs.slug }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Total Posts:** ${{ steps.generate.outputs.total_posts }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status:** Failed" >> $GITHUB_STEP_SUMMARY
+            echo "**Reason:** ${{ steps.generate.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.publish }}" == "true" ]; then
+            echo "🚀 **Publish:** Triggered" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "📋 **Publish:** Not requested (run publish-blog workflow manually)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

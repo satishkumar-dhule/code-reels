@@ -287,7 +287,7 @@ function TabbedMediaPanel({
   if (hasVideo) availableTabs.push('video');
   
   // Default to first available tab, but prefer non-diagram if diagram hasn't rendered yet
-  const getDefaultTab = (): MediaTab => {
+  const getDefaultTab = useCallback((): MediaTab => {
     if (hasTldr) return 'tldr';
     if (diagramRenderSuccess === null && hasDiagram) {
       // Diagram is still loading, prefer other tabs if available
@@ -296,9 +296,14 @@ function TabbedMediaPanel({
       return 'diagram';
     }
     return availableTabs[0] || 'tldr';
-  };
+  }, [hasTldr, hasDiagram, hasEli5, hasVideo, diagramRenderSuccess, availableTabs]);
   
-  const [activeTab, setActiveTab] = useState<MediaTab>(getDefaultTab);
+  const [activeTab, setActiveTab] = useState<MediaTab>(() => {
+    if (hasTldr) return 'tldr';
+    if (hasEli5) return 'eli5';
+    if (hasVideo) return 'video';
+    return 'diagram';
+  });
   
   // Switch away from diagram tab if it fails
   useEffect(() => {

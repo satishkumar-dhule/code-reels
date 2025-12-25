@@ -13,25 +13,9 @@ import {
   getUnderservedChannels,
   getQuestionCount
 } from './utils.js';
+import intakeTemplate from './ai/prompts/templates/intake.js';
 
-// Channel structure for mapping
-const CHANNEL_STRUCTURE = {
-  'system-design': ['infrastructure', 'distributed-systems', 'api-design', 'caching', 'load-balancing', 'message-queues'],
-  'algorithms': ['data-structures', 'sorting', 'dynamic-programming', 'graphs', 'trees'],
-  'frontend': ['react', 'javascript', 'css', 'performance', 'web-apis'],
-  'backend': ['apis', 'microservices', 'caching', 'authentication', 'server-architecture'],
-  'database': ['sql', 'nosql', 'indexing', 'transactions', 'query-optimization'],
-  'devops': ['cicd', 'docker', 'automation', 'gitops'],
-  'sre': ['observability', 'reliability', 'incident-management', 'chaos-engineering', 'capacity-planning'],
-  'kubernetes': ['pods', 'services', 'deployments', 'helm', 'operators'],
-  'aws': ['compute', 'storage', 'serverless', 'database', 'networking'],
-  'generative-ai': ['llm-fundamentals', 'fine-tuning', 'rag', 'agents', 'evaluation'],
-  'machine-learning': ['algorithms', 'model-training', 'deployment', 'deep-learning', 'evaluation'],
-  'security': ['application-security', 'owasp', 'encryption', 'authentication'],
-  'testing': ['unit-testing', 'integration-testing', 'tdd', 'test-strategies'],
-  'behavioral': ['star-method', 'leadership-principles', 'soft-skills', 'conflict-resolution']
-};
-
+const { CHANNEL_STRUCTURE } = intakeTemplate;
 const difficulties = ['beginner', 'intermediate', 'advanced'];
 
 async function main() {
@@ -73,34 +57,18 @@ async function main() {
   }
   console.log('');
   
-  const channelList = Object.entries(CHANNEL_STRUCTURE)
-    .map(([ch, subs]) => `${ch} (${statsMap[ch] || 0} questions): [${subs.join(', ')}]`)
-    .join('\n');
-  
-  // Build priority hint for underserved channels
-  const priorityChannels = underserved.length > 0 
-    ? `\n\nPRIORITY: These channels need more questions: ${underserved.map(c => c.channel).join(', ')}`
-    : '';
-  
   console.log('🔄 Mapping to channel and refining question...\n');
   
-  const mappingPrompt = `You are a JSON generator. Output ONLY valid JSON, no explanations, no markdown, no text before or after.
-
-Analyze this interview question and map it to the best channel/subchannel, refine it, and generate a complete answer.
-
-Input Question: "${inputQuestion}"
-
-Available channels and subchannels (with current question counts):
-${channelList}${priorityChannels}
-
-Output this exact JSON structure:
-{"channel":"channel-id","subChannel":"subchannel-id","question":"refined professional interview question ending with ?","answer":"concise answer under 150 chars","explanation":"## Why Asked\\nInterview context\\n## Key Concepts\\nCore knowledge\\n## Code Example\\n\`\`\`\\nImplementation if applicable\\n\`\`\`\\n## Follow-up Questions\\nCommon follow-ups","diagram":"flowchart TD\\n  A[Start] --> B[End]","companies":["Google","Amazon","Meta"],"difficulty":"beginner|intermediate|advanced","tags":["tag1","tag2","tag3"],"sourceUrl":null,"videos":{"shortVideo":null,"longVideo":null},"relatedChannels":["other-channel-1","other-channel-2"]}
-
-IMPORTANT: Return ONLY the JSON object. No other text.`;
+  // Use centralized template
+  const mappingPrompt = intakeTemplate.build({
+    inputQuestion,
+    channelStats: statsMap,
+    underservedChannels: underserved.map(c => c.channel)
+  });
 
   console.log('📝 PROMPT:');
   console.log('─'.repeat(50));
-  console.log(mappingPrompt);
+  console.log(mappingPrompt.substring(0, 500) + '...');
   console.log('─'.repeat(50));
   
   const response = await runWithRetries(mappingPrompt);
