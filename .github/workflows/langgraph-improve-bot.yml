@@ -10,6 +10,20 @@ on:
         description: 'Number of questions to process'
         required: false
         default: '10'
+      review_only:
+        description: 'Only review (update status), do not improve'
+        required: false
+        type: boolean
+        default: false
+      mark_all_for_review:
+        description: 'Mark all questions for review first'
+        required: false
+        type: boolean
+        default: false
+      channel:
+        description: 'Filter by channel (optional)'
+        required: false
+        type: string
 
 jobs:
   improve:
@@ -41,6 +55,9 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           BATCH_SIZE: ${{ github.event.inputs.batch_size || '10' }}
+          REVIEW_ONLY: ${{ github.event.inputs.review_only || 'false' }}
+          MARK_ALL_FOR_REVIEW: ${{ github.event.inputs.mark_all_for_review || 'false' }}
+          CHANNEL: ${{ github.event.inputs.channel || '' }}
         run: node script/langgraph-improve-bot.js
         
       - name: Summary
@@ -49,3 +66,5 @@ jobs:
           echo "## 🧠 LangGraph Improve Bot Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Processed questions using adaptive improvement pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ github.event.inputs.review_only == 'true' && 'Review Only' || 'Review + Improve' }}" >> $GITHUB_STEP_SUMMARY

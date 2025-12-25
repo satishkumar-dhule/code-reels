@@ -33,7 +33,7 @@ const BOT_CONFIG: Record<string, { name: string; icon: typeof Bot; color: string
     name: 'Polisher ✨', 
     icon: Zap, 
     color: 'text-green-500 bg-green-500/10 border-green-500/30',
-    description: 'Makes good answers great'
+    description: 'Reviews & improves answers'
   },
   'mermaid': { 
     name: 'Visualizer 🎨', 
