@@ -479,7 +479,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
       ref={scrollContainerRef}
       initial={isMobileView ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full h-full overflow-y-auto"
+      className="w-full h-full overflow-y-auto bg-background"
     >
       <div className="max-w-3xl lg:max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 lg:py-8 space-y-2.5 sm:space-y-4 lg:space-y-5">
 
