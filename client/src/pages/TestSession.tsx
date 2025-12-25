@@ -17,6 +17,32 @@ import {
 } from '../lib/tests';
 import { mascotEvents } from '../components/PixelMascot';
 
+/**
+ * Renders text with inline code (backticks) as styled code elements
+ */
+function renderWithInlineCode(text: string): React.ReactNode {
+  if (!text) return null;
+  
+  // Split by backticks, alternating between text and code
+  const parts = text.split(/`([^`]+)`/g);
+  
+  return parts.map((part, index) => {
+    // Odd indices are code (content between backticks)
+    if (index % 2 === 1) {
+      return (
+        <code 
+          key={index}
+          className="px-1.5 py-0.5 mx-0.5 bg-primary/15 text-primary rounded text-[0.9em] font-mono"
+        >
+          {part}
+        </code>
+      );
+    }
+    // Even indices are regular text
+    return part;
+  });
+}
+
 type SessionState = 'loading' | 'ready' | 'in-progress' | 'review' | 'completed';
 
 // Auto-submit preference storage
@@ -353,7 +379,7 @@ export default function TestSession() {
                     </div>
 
                     {/* Question text */}
-                    <h2 className="text-lg font-bold mb-6">{currentQuestion.question}</h2>
+                    <h2 className="text-lg font-bold mb-6">{renderWithInlineCode(currentQuestion.question)}</h2>
 
                     {/* Options */}
                     <div className="space-y-2">
@@ -391,7 +417,7 @@ export default function TestSession() {
                                 {showWrong && <X className="w-4 h-4 text-white" />}
                                 {!showFeedback && isSelected && <Check className="w-4 h-4 text-primary-foreground" />}
                               </div>
-                              <span className="text-sm">{option.text}</span>
+                              <span className="text-sm">{renderWithInlineCode(option.text)}</span>
                             </div>
                           </button>
                         );
@@ -503,7 +529,7 @@ export default function TestSession() {
                             {item.question.difficulty}
                           </span>
                         </div>
-                        <p className="text-sm font-medium">{item.question.question}</p>
+                        <p className="text-sm font-medium">{renderWithInlineCode(item.question.question)}</p>
                       </div>
                     </div>
 
@@ -527,7 +553,7 @@ export default function TestSession() {
                             {isCorrectOption && <CheckCircle className="w-3 h-3" />}
                             {wasSelected && !isCorrectOption && <XCircle className="w-3 h-3" />}
                             {!isCorrectOption && !wasSelected && <span className="w-3" />}
-                            <span>{opt.text}</span>
+                            <span>{renderWithInlineCode(opt.text)}</span>
                             {wasSelected && <span className="ml-auto text-[10px] opacity-70">(your answer)</span>}
                           </div>
                         );
