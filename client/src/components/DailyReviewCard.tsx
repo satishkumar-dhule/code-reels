@@ -16,16 +16,33 @@ import {
 } from '../lib/spaced-repetition';
 import { ProgressRing } from './ProgressRing';
 
+// Event emitter for SRS updates
+const srsUpdateListeners = new Set<() => void>();
+
+export function notifySRSUpdate() {
+  srsUpdateListeners.forEach(listener => listener());
+}
+
 export function DailyReviewCard() {
   const [, setLocation] = useLocation();
   const [stats, setStats] = useState<SRSStats | null>(null);
   const [dueCards, setDueCards] = useState<ReviewCard[]>([]);
   const [userXP, setUserXP] = useState({ totalXP: 0, level: 1, xpToNext: 100, progress: 0 });
 
-  useEffect(() => {
+  const loadData = () => {
     setStats(getSRSStats());
     setDueCards(getDueCards());
     setUserXP(getUserXP());
+  };
+
+  useEffect(() => {
+    loadData();
+    
+    // Subscribe to SRS updates
+    srsUpdateListeners.add(loadData);
+    return () => {
+      srsUpdateListeners.delete(loadData);
+    };
   }, []);
 
   if (!stats || stats.totalCards === 0) {

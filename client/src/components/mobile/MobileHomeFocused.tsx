@@ -10,8 +10,9 @@ import { useChannelStats } from '../../hooks/use-stats';
 import { useUserPreferences } from '../../context/UserPreferencesContext';
 import { useProgress, useGlobalStats } from '../../hooks/use-progress';
 import { ProgressStorage } from '../../services/storage.service';
-import { DailyReviewCard } from '../DailyReviewCard';
+import { DailyReviewCard, notifySRSUpdate } from '../DailyReviewCard';
 import { loadTests, TestQuestion, Test, getSessionQuestions } from '../../lib/tests';
+import { addToSRS } from '../../lib/spaced-repetition';
 import {
   Cpu, Terminal, Layout, Database, Activity, GitBranch, Server,
   Layers, Smartphone, Shield, Brain, Workflow, Box, Cloud, Code,
@@ -202,6 +203,13 @@ function QuickQuizCard({
     setTotalAnswered(prev => prev + 1);
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
+    } else {
+      // Add wrong answer's question to SRS for spaced repetition review
+      if (currentQuestion.questionId && currentTest) {
+        addToSRS(currentQuestion.questionId, currentTest.channelId, currentQuestion.difficulty);
+        // Notify DailyReviewCard to refresh
+        notifySRSUpdate();
+      }
     }
     
     // Auto-advance after feedback
