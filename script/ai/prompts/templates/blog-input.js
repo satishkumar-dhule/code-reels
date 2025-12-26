@@ -14,7 +14,7 @@ export const schema = {
   sections: [
     {
       heading: "Section heading that advances the narrative",
-      content: "Detailed content with code examples if relevant, use markdown formatting"
+      content: "Detailed content with code examples if relevant, use markdown formatting. Include inline citations like [1], [2] referencing sources array"
     }
   ],
   conclusion: "Key takeaways and call to action",
@@ -35,6 +35,14 @@ export const schema = {
   diagramLabel: "Diagram title",
   sources: [
     { title: "Source title", url: "https://example.com", type: "documentation" }
+  ],
+  images: [
+    { 
+      url: "https://images.unsplash.com/photo-xxx or other free image URL",
+      alt: "Descriptive alt text for accessibility",
+      caption: "Optional caption explaining the image",
+      placement: "after-intro|after-section-1|after-section-2|before-conclusion"
+    }
   ],
   socialSnippet: {
     hook: "Attention-grabbing first line with emoji (max 100 chars)",
@@ -59,7 +67,10 @@ export const guidelines = [
   'Include at least 3-4 sections',
   'Use markdown in content (headers, code blocks, lists)',
   'Auto-detect the most appropriate channel based on the topic',
-  'Auto-detect difficulty: beginner (basics), intermediate (practical), advanced (deep dive)'
+  'Auto-detect difficulty: beginner (basics), intermediate (practical), advanced (deep dive)',
+  'ADD INLINE CITATIONS throughout using [1], [2], [3] format referencing sources array',
+  'Include at least 8-12 credible sources with real URLs (Wikipedia, MDN, GitHub, official docs)',
+  'Include 2-3 relevant images from Unsplash or Pexels with proper placement'
 ];
 
 export function build(context) {

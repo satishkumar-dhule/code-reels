@@ -34,7 +34,9 @@ export function buildSystemContext(taskType) {
     classify: 'You are an expert at categorizing technical interview questions into appropriate channels.',
     improve: 'You are a senior technical interviewer who creates high-quality interview content.',
     generate: 'You are a senior technical interviewer at a top tech company creating realistic interview questions.',
-    relevance: 'You are an expert at evaluating interview question quality and relevance.'
+    relevance: 'You are an expert at evaluating interview question quality and relevance.',
+    blog: 'You are a senior tech writer who creates engaging, story-driven technical blog posts that developers love to read.',
+    'real-world-case': 'You are a tech industry analyst with deep knowledge of how major companies solve technical challenges. You know the famous incidents, scaling stories, and engineering decisions at companies like Netflix, Uber, Stripe, and others.'
   };
   
   return contexts[taskType] || 'You are a helpful AI assistant.';

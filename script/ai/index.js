@@ -30,6 +30,7 @@ import intakeTemplate from './prompts/templates/intake.js';
 import videoTemplate from './prompts/templates/video.js';
 import testTemplate from './prompts/templates/test.js';
 import blogInputTemplate from './prompts/templates/blog-input.js';
+import realWorldCaseTemplate from './prompts/templates/real-world-case.js';
 
 // Template registry
 const templates = {
@@ -46,7 +47,8 @@ const templates = {
   intake: intakeTemplate,
   video: videoTemplate,
   test: testTemplate,
-  'blog-input': blogInputTemplate
+  'blog-input': blogInputTemplate,
+  'realWorldCase': realWorldCaseTemplate
 };
 
 // Provider registry

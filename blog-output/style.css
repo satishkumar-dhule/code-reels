@@ -118,8 +118,9 @@ nav a.nav-cta:hover { border-color: var(--accent); box-shadow: var(--shadow-glow
 .article-header .tag { background: var(--bg-elevated); color: var(--text-secondary); padding: 0.375rem 0.875rem; border-radius: 100px; font-weight: 500; font-size: 0.75rem; text-transform: capitalize; letter-spacing: 0.02em; border: 1px solid var(--border); transition: all 0.2s; }
 .article-header .tag:hover { border-color: var(--accent); color: var(--text); }
 .article-header .difficulty { padding: 0.375rem 0.875rem; border-radius: 100px; font-weight: 600; font-size: 0.75rem; text-transform: capitalize; letter-spacing: 0.02em; }
-.article-intro { font-size: 1.1875rem; color: var(--text-secondary); line-height: 1.85; margin-bottom: 2.5rem; padding: 1.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); position: relative; }
-.article-intro::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.article-intro { font-size: 1.2rem; color: #2c2c2c; line-height: 1.8; margin-bottom: 2.5rem; padding: 2rem 2.5rem; background: #faf8f0; border: none; border-radius: 0; position: relative; font-family: 'Caveat', cursive; box-shadow: 2px 3px 12px rgba(0,0,0,0.12); clip-path: polygon(0% 0%, 100% 0.5%, 99.5% 99%, 0.5% 100%); }
+.article-intro::before { content: ''; position: absolute; top: 0; right: 0; width: 30px; height: 30px; background: linear-gradient(135deg, transparent 50%, #e8e4d4 50%); }
+.article-intro::after { content: ''; position: absolute; bottom: -5px; left: 10%; right: 10%; height: 10px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'%3E%3Cpath d='M0,5 Q10,0 20,5 T40,5 T60,5 T80,5 T100,5' fill='none' stroke='%23d4cfc0' stroke-width='2'/%3E%3C/svg%3E") repeat-x; }
 
 /* Article content - Clean Typography */
 .article-content { font-size: 1rem; line-height: 1.85; color: var(--text-secondary); }
@@ -206,6 +207,16 @@ nav a.nav-cta:hover { border-color: var(--accent); box-shadow: var(--shadow-glow
 .sources a { color: var(--accent); text-decoration: none; }
 .sources a:hover { text-decoration: underline; }
 .sources .source-type { font-size: 0.6875rem; color: var(--text-muted); margin-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.sources .source-num { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; background: var(--accent); color: var(--bg); font-size: 0.625rem; font-weight: 700; border-radius: 50%; margin-right: 0.5rem; flex-shrink: 0; }
+
+/* Inline Citations */
+.citation { display: inline-flex; align-items: center; justify-content: center; width: 1rem; height: 1rem; background: var(--accent); color: var(--bg); font-size: 0.5625rem; font-weight: 700; border-radius: 50%; margin: 0 0.125rem; vertical-align: super; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.citation:hover { transform: scale(1.2); background: var(--accent-secondary); }
+
+/* Article Images */
+.article-image { margin: 2rem 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border); }
+.article-image img { width: 100%; height: auto; display: block; object-fit: cover; max-height: 400px; }
+.article-image figcaption { padding: 0.75rem 1rem; font-size: 0.8125rem; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border); background: var(--bg-secondary); }
 
 /* Share Snippet - Social Ready */
 .share-snippet { background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated)); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin: 2.5rem 0; position: relative; overflow: hidden; }
@@ -256,7 +267,7 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 3r
   .featured-visual { display: none; }
   .featured-title { font-size: 1.25rem; }
   .article-header h1 { font-size: 1.625rem; background: linear-gradient(180deg, #fff 0%, #ddd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } 
-  .article-intro { padding: 1.25rem; font-size: 1.0625rem; }
+  .article-intro { padding: 2rem 1.5rem 1.5rem 1.5rem; font-size: 1rem; }
   nav { gap: 0.25rem; } 
   nav a { padding: 0.5rem 0.75rem; font-size: 0.8125rem; }
   .category-grid, .articles-grid { grid-template-columns: 1fr; }

@@ -2,17 +2,18 @@
  * Blog Generator Script
  * Generates 1 new blog post per run from interview questions dataset
  * Maintains a blog_posts table to track converted questions
- * Uses AI to transform Q&A content into engaging blog articles
+ * Uses LangGraph pipeline to find real-world cases and generate engaging articles
  */
 
 import 'dotenv/config';
 import { createClient } from '@libsql/client';
 import fs from 'fs';
 import path from 'path';
-import ai from './ai/index.js';
+import { generateBlogPost } from './ai/graphs/blog-graph.js';
 
 const OUTPUT_DIR = 'blog-output';
 const MIN_SOURCES = 8;
+const MAX_SKIP_ATTEMPTS = 5; // Max questions to try before giving up
 
 // Database connection
 const url = process.env.TURSO_DATABASE_URL_RO || process.env.TURSO_DATABASE_URL;
@@ -186,7 +187,8 @@ async function initBlogPostsTable() {
     { name: 'sources', type: 'TEXT' },
     { name: 'social_snippet', type: 'TEXT' },
     { name: 'diagram_type', type: 'TEXT' },
-    { name: 'diagram_label', type: 'TEXT' }
+    { name: 'diagram_label', type: 'TEXT' },
+    { name: 'images', type: 'TEXT' }
   ];
   
   for (const col of newColumns) {
@@ -202,9 +204,10 @@ async function initBlogPostsTable() {
 }
 
 // Get next question to convert
-async function getNextQuestionForBlog() {
+async function getNextQuestionForBlog(limit = 1) {
   // First, find channels that have the least blog posts to ensure variety
-  const result = await client.execute(`
+  const result = await client.execute({
+    sql: `
     SELECT q.id, q.question, q.answer, q.explanation, q.diagram, 
            q.difficulty, q.tags, q.channel, q.sub_channel, q.companies
     FROM questions q
@@ -215,13 +218,14 @@ async function getNextQuestionForBlog() {
     ORDER BY 
       (SELECT COUNT(*) FROM blog_posts WHERE channel = q.channel) ASC,
       RANDOM()
-    LIMIT 1
-  `);
+    LIMIT ?
+  `,
+    args: [limit]
+  });
   
-  if (result.rows.length === 0) return null;
+  if (result.rows.length === 0) return [];
   
-  const row = result.rows[0];
-  return {
+  return result.rows.map(row => ({
     id: row.id,
     question: row.question,
     answer: row.answer,
@@ -232,7 +236,7 @@ async function getNextQuestionForBlog() {
     channel: row.channel,
     subChannel: row.sub_channel,
     companies: row.companies ? JSON.parse(row.companies) : [],
-  };
+  }));
 }
 
 // Get all existing blog posts
@@ -257,6 +261,7 @@ async function getAllBlogPosts() {
     realWorldExample: row.real_world_example ? JSON.parse(row.real_world_example) : null,
     funFact: row.fun_fact,
     sources: row.sources ? JSON.parse(row.sources) : [],
+    images: row.images ? JSON.parse(row.images) : [],
     socialSnippet: row.social_snippet ? JSON.parse(row.social_snippet) : null,
     createdAt: row.created_at
   }));
@@ -271,8 +276,8 @@ async function saveBlogPost(questionId, blogContent, question) {
           (question_id, title, slug, introduction, sections, conclusion, 
            meta_description, channel, difficulty, tags, diagram, quick_reference,
            glossary, real_world_example, fun_fact, sources, social_snippet, 
-           diagram_type, diagram_label, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           diagram_type, diagram_label, images, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       questionId,
       blogContent.title,
@@ -293,6 +298,7 @@ async function saveBlogPost(questionId, blogContent, question) {
       JSON.stringify(blogContent.socialSnippet || null),
       blogContent.diagramType || null,
       blogContent.diagramLabel || null,
+      JSON.stringify(blogContent.images || []),
       now
     ]
   });
@@ -394,6 +400,9 @@ function markdownToHtml(md, glossary = []) {
     }
   }
   
+  // Convert inline citations [1], [2], etc. to clickable links
+  html = html.replace(/\[(\d+)\]/g, '<a href="#source-$1" class="citation" title="View source">$1</a>');
+  
   // Restore code blocks
   codeBlocks.forEach((block, index) => {
     const langClass = block.lang ? ` class="language-${block.lang}"` : '';
@@ -409,42 +418,22 @@ function markdownToHtml(md, glossary = []) {
 }
 
 
-// Transform Q&A to blog using AI
+// Transform Q&A to blog using LangGraph pipeline
 async function transformToBlogArticle(question) {
-  console.log('🤖 Transforming with AI...');
+  console.log('🤖 Running LangGraph blog pipeline...');
   
-  try {
-    const result = await ai.run('blog', {
-      question: question.question,
-      answer: question.answer,
-      explanation: question.explanation,
-      channel: question.channel,
-      difficulty: question.difficulty,
-      tags: question.tags
-    });
-    console.log('✅ AI transformation complete');
-    return result;
-  } catch (error) {
-    console.log(`⚠️ AI failed: ${error.message}, using fallback`);
-    const cleanQuestion = question.question.replace(/\?$/, '');
-    return {
-      title: `The ${cleanQuestion.substring(0, 50)} Guide You Actually Need`,
-      introduction: `Let's be real - ${cleanQuestion.toLowerCase()} is one of those topics that sounds simple until you're debugging it at 2am. Here's what you actually need to know.`,
-      sections: [
-        { heading: 'The TL;DR', content: question.answer || '' },
-        { heading: 'The Deep Dive', content: question.explanation || '' }
-      ],
-      realWorldExample: { company: 'Netflix', scenario: 'Uses similar patterns at scale', lesson: 'Start simple, optimize when needed' },
-      glossary: [],
-      sources: [
-        { title: 'Official Documentation', url: 'https://developer.mozilla.org', type: 'documentation' }
-      ],
-      quickReference: ['Key concept to remember', 'Common gotcha to avoid', 'Best practice to follow'],
-      funFact: 'This concept has been around since the early days of computing!',
-      conclusion: `Now you know the essentials. Go build something cool with it!`,
-      metaDescription: (question.answer || '').substring(0, 155)
-    };
+  const result = await generateBlogPost(question);
+  
+  if (!result.success) {
+    if (result.skipped) {
+      console.log(`⏭️ Skipped: ${result.skipReason}`);
+      return { skipped: true, skipReason: result.skipReason };
+    }
+    throw new Error(result.error || 'Blog generation failed');
   }
+  
+  console.log('✅ LangGraph pipeline complete');
+  return result.blogContent;
 }
 
 // CSS Generation - Premium UI/UX inspired by Linear, Stripe, Vercel
@@ -569,8 +558,9 @@ nav a.nav-cta:hover { border-color: var(--accent); box-shadow: var(--shadow-glow
 .article-header .tag { background: var(--bg-elevated); color: var(--text-secondary); padding: 0.375rem 0.875rem; border-radius: 100px; font-weight: 500; font-size: 0.75rem; text-transform: capitalize; letter-spacing: 0.02em; border: 1px solid var(--border); transition: all 0.2s; }
 .article-header .tag:hover { border-color: var(--accent); color: var(--text); }
 .article-header .difficulty { padding: 0.375rem 0.875rem; border-radius: 100px; font-weight: 600; font-size: 0.75rem; text-transform: capitalize; letter-spacing: 0.02em; }
-.article-intro { font-size: 1.1875rem; color: var(--text-secondary); line-height: 1.85; margin-bottom: 2.5rem; padding: 1.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); position: relative; }
-.article-intro::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.article-intro { font-size: 1.1rem; color: #1a1a1a; line-height: 1.85; margin-bottom: 2.5rem; padding: 1.75rem 2rem; background: linear-gradient(135deg, #fffef5 0%, #faf6e8 100%); border: none; border-left: 4px solid #e67e22; border-radius: 0 8px 8px 0; position: relative; font-family: 'Georgia', 'Times New Roman', serif; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.article-intro::before { content: '📌'; position: absolute; top: -8px; left: -8px; font-size: 1.25rem; }
+.article-intro::after { content: ''; position: absolute; top: 0; right: 0; border-width: 0 20px 20px 0; border-style: solid; border-color: #e8e4d4 #0a0a0a #e8e4d4 transparent; }
 
 /* Article content - Clean Typography */
 .article-content { font-size: 1rem; line-height: 1.85; color: var(--text-secondary); }
@@ -588,7 +578,10 @@ nav a.nav-cta:hover { border-color: var(--accent); box-shadow: var(--shadow-glow
 .article-content ol { counter-reset: item; }
 .article-content ol > li { counter-increment: item; }
 .article-content ol > li::before { content: counter(item); position: absolute; left: -1.5rem; top: 0; color: var(--accent); font-weight: 600; font-size: 0.875rem; }
-.article-content .mermaid { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; margin: 2rem 0; }
+.article-content .mermaid { background: #ffffff; border: 2px solid #2c3e50; border-radius: 12px; padding: 2rem; margin: 2rem 0; box-shadow: 4px 4px 0 #2c3e50; position: relative; overflow-x: auto; }
+.article-content .mermaid::before { content: '📊'; position: absolute; top: -14px; left: 20px; background: #ffffff; padding: 0 8px; font-size: 1.25rem; }
+.article-content .mermaid svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+.article-content .mermaid text { fill: #1a1a1a !important; font-size: 14px !important; }
 
 /* Premium Table Styling */
 .article-content table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 2rem 0; font-size: 0.875rem; background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); }
@@ -657,6 +650,16 @@ nav a.nav-cta:hover { border-color: var(--accent); box-shadow: var(--shadow-glow
 .sources a { color: var(--accent); text-decoration: none; }
 .sources a:hover { text-decoration: underline; }
 .sources .source-type { font-size: 0.6875rem; color: var(--text-muted); margin-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.sources .source-num { display: inline-flex; align-items: center; justify-content: center; width: 1.25rem; height: 1.25rem; background: var(--accent); color: var(--bg); font-size: 0.625rem; font-weight: 700; border-radius: 50%; margin-right: 0.5rem; flex-shrink: 0; }
+
+/* Inline Citations */
+.citation { display: inline-flex; align-items: center; justify-content: center; width: 1rem; height: 1rem; background: var(--accent); color: var(--bg); font-size: 0.5625rem; font-weight: 700; border-radius: 50%; margin: 0 0.125rem; vertical-align: super; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.citation:hover { transform: scale(1.2); background: var(--accent-secondary); }
+
+/* Article Images */
+.article-image { margin: 2rem 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border); }
+.article-image img { width: 100%; height: auto; display: block; object-fit: cover; max-height: 400px; }
+.article-image figcaption { padding: 0.75rem 1rem; font-size: 0.8125rem; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border); background: var(--bg-secondary); }
 
 /* Share Snippet - Social Ready */
 .share-snippet { background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated)); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin: 2.5rem 0; position: relative; overflow: hidden; }
@@ -707,7 +710,7 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 3r
   .featured-visual { display: none; }
   .featured-title { font-size: 1.25rem; }
   .article-header h1 { font-size: 1.625rem; background: linear-gradient(180deg, #fff 0%, #ddd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } 
-  .article-intro { padding: 1.25rem; font-size: 1.0625rem; }
+  .article-intro { padding: 2rem 1.5rem 1.5rem 1.5rem; font-size: 1rem; }
   nav { gap: 0.25rem; } 
   nav a { padding: 0.5rem 0.75rem; font-size: 0.8125rem; }
   .category-grid, .articles-grid { grid-template-columns: 1fr; }
@@ -822,7 +825,7 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 3r
 function generateHead(title, description, includeMermaid = false) {
   const mermaidScript = includeMermaid ? `
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#7c3aed',primaryTextColor:'#fafafa',primaryBorderColor:'rgba(255,255,255,0.1)',lineColor:'#00d4ff',secondaryColor:'#111',tertiaryColor:'#161616'}});</script>` : '';
+  <script>mermaid.initialize({startOnLoad:true,theme:'base',look:'handDrawn',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>` : '';
   
   return `<!DOCTYPE html>
 <html lang="en">
@@ -834,7 +837,7 @@ function generateHead(title, description, includeMermaid = false) {
   <meta name="theme-color" content="#050505">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">${mermaidScript}
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">${mermaidScript}
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
 </head>
@@ -848,7 +851,7 @@ function generateHeader() {
       <a href="/">Home</a>
       <a href="/categories/">Topics</a>
       <button class="search-btn" onclick="openSearch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search<kbd>⌘K</kbd></button>
-      <a href="https://open-interview.github.io" target="_blank" class="nav-cta">Practice →</a>
+      <a href="https://openstackdaily.github.io" target="_blank" class="nav-cta">Practice →</a>
     </nav>
   </div></header>`;
 }
@@ -884,11 +887,11 @@ function generateFooter(articles = []) {
     <div class="footer-links">
       <a href="/">Home</a>
       <a href="/categories/">Topics</a>
-      <a href="https://open-interview.github.io" target="_blank">Practice</a>
+      <a href="https://openstackdaily.github.io" target="_blank">Practice</a>
     </div>
   </div>
   <div class="footer-copy">
-    <p>© ${new Date().getFullYear()} DevInsights · Built for developers who ship · <a href="https://open-interview.github.io">Reel Interview</a></p>
+    <p>© ${new Date().getFullYear()} DevInsights · Built for developers who ship · <a href="https://openstackdaily.github.io">Reel Interview</a></p>
   </div>
 </div></footer>
 
@@ -1116,7 +1119,7 @@ ${generateHeader()}
     <div class="newsletter-card">
       <h2>Ready to ace your interviews?</h2>
       <p>Practice with 1000+ real interview questions from FAANG companies</p>
-      <a href="https://open-interview.github.io" target="_blank" class="newsletter-btn">Start Practicing Free →</a>
+      <a href="https://openstackdaily.github.io" target="_blank" class="newsletter-btn">Start Practicing Free →</a>
     </div>
   </div></section>
 </main>
@@ -1186,9 +1189,42 @@ function generateArticlePage(article, allArticles) {
     .filter(a => a.channel === article.channel && a.id !== article.id)
     .slice(0, 3);
   
-  let sectionsHtml = (article.blogSections || []).map(s => 
-    `<h2>${escapeHtml(s.heading)}</h2>${markdownToHtml(s.content, glossary)}`
-  ).join('');
+  // Images by placement
+  const images = article.images || [];
+  const imagesByPlacement = {};
+  images.forEach(img => {
+    if (img && img.url && img.placement) {
+      imagesByPlacement[img.placement] = img;
+    }
+  });
+  
+  // Helper to generate image HTML
+  const generateImageHtml = (img) => {
+    if (!img) return '';
+    return `<figure class="article-image">
+      <img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.alt || '')}" loading="lazy">
+      ${img.caption ? `<figcaption>${escapeHtml(img.caption)}</figcaption>` : ''}
+    </figure>`;
+  };
+  
+  // Build sections with images
+  let sectionsHtml = '';
+  
+  // Add image after intro if specified
+  if (imagesByPlacement['after-intro']) {
+    sectionsHtml += generateImageHtml(imagesByPlacement['after-intro']);
+  }
+  
+  // Add sections with images
+  (article.blogSections || []).forEach((s, idx) => {
+    sectionsHtml += `<h2>${escapeHtml(s.heading)}</h2>${markdownToHtml(s.content, glossary)}`;
+    
+    // Check for image after this section
+    const placement = `after-section-${idx + 1}`;
+    if (imagesByPlacement[placement]) {
+      sectionsHtml += generateImageHtml(imagesByPlacement[placement]);
+    }
+  });
   
   // Real-world example section
   if (article.realWorldExample) {
@@ -1242,13 +1278,13 @@ function generateArticlePage(article, allArticles) {
     sectionsHtml += `<div class="quick-ref"><h3>📌 Key Takeaways</h3><ul>${quickRef.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`;
   }
   
-  // Sources
+  // Sources with numbered references
   const sources = article.sources || [];
   if (sources.length > 0) {
-    const sourceItems = sources.map(s => 
-      `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.title)}</a><span class="source-type">${s.type || 'article'}</span></li>`
+    const sourceItems = sources.map((s, idx) => 
+      `<li id="source-${idx + 1}"><span class="source-num">${idx + 1}</span><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.title)}</a><span class="source-type">${s.type || 'article'}</span></li>`
     ).join('');
-    sectionsHtml += `<div class="sources"><h3>Further Reading</h3><ul>${sourceItems}</ul></div>`;
+    sectionsHtml += `<div class="sources"><h3>📚 References</h3><ul>${sourceItems}</ul></div>`;
   }
   
   // Social snippet - shareable section
@@ -1258,7 +1294,7 @@ function generateArticlePage(article, allArticles) {
     const hashtags = socialSnippet.hashtags || '';
     const snippetText = `${socialSnippet.hook}\n\n${socialSnippet.body}\n\n${socialSnippet.cta}${hashtags ? '\n\n' + hashtags : ''}`;
     const encodedText = encodeURIComponent(snippetText + `\n\n🔗 `);
-    const articleUrl = `https://open-interview.github.io/posts/${article.id}/${article.blogSlug}/`;
+    const articleUrl = `https://openstackdaily.github.io/posts/${article.id}/${article.blogSlug}/`;
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(articleUrl)}`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodeURIComponent(articleUrl)}`;
     
@@ -1339,13 +1375,14 @@ ${generateHeader()}
   <p class="article-intro">${escapeHtml(article.blogIntro)}</p>
   <div class="article-content">
     ${sectionsHtml}
+    ${imagesByPlacement['before-conclusion'] ? generateImageHtml(imagesByPlacement['before-conclusion']) : ''}
     <h2>Wrapping Up</h2>
     <p>${escapeHtml(article.blogConclusion)}</p>
   </div>
   ${relatedHtml}
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/channel/${article.channel}" class="cta-button">Practice Questions →</a>
+    <a href="https://openstackdaily.github.io/channel/${article.channel}" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 ${generateFooter(allArticles)}`;
@@ -1371,7 +1408,7 @@ ${generateFooter(articles)}`;
 
 // Main function
 async function main() {
-  console.log('=== 🚀 Blog Generator ===\n');
+  console.log('=== 🚀 Blog Generator (LangGraph) ===\n');
   
   await initBlogPostsTable();
   
@@ -1383,36 +1420,66 @@ async function main() {
     if (stats.byChannel.length > 5) console.log(`     ... and ${stats.byChannel.length - 5} more`);
   }
   
-  console.log('\n🔍 Finding next question to convert...');
-  const question = await getNextQuestionForBlog();
+  console.log('\n🔍 Finding questions with interesting real-world cases...');
   
-  if (!question) {
+  // Get multiple candidates to try
+  const candidates = await getNextQuestionForBlog(MAX_SKIP_ATTEMPTS);
+  
+  if (candidates.length === 0) {
     console.log('✅ All questions have been converted!');
   } else {
-    console.log(`   Found: ${question.id} (${question.channel})`);
-    console.log(`   Q: ${question.question.substring(0, 60)}...`);
+    let blogGenerated = false;
+    let skippedCount = 0;
     
-    const blogContent = await transformToBlogArticle(question);
-    console.log(`   Title: ${blogContent.title}`);
+    for (const question of candidates) {
+      console.log(`\n📝 Trying: ${question.id} (${question.channel})`);
+      console.log(`   Q: ${question.question.substring(0, 60)}...`);
+      
+      try {
+        const blogContent = await transformToBlogArticle(question);
+        
+        // Check if skipped due to no interesting real-world case
+        if (blogContent.skipped) {
+          skippedCount++;
+          console.log(`   ⏭️ Skipped (${skippedCount}/${MAX_SKIP_ATTEMPTS}): ${blogContent.skipReason}`);
+          continue;
+        }
+        
+        console.log(`   Title: ${blogContent.title}`);
+        
+        // Validate sources - remove 404s
+        const validatedSources = await validateSources(blogContent.sources || []);
+        blogContent.sources = validatedSources;
+        
+        // Check minimum sources requirement
+        if (validatedSources.length < MIN_SOURCES) {
+          console.log(`   ⚠️ Only ${validatedSources.length} valid sources (need ${MIN_SOURCES})`);
+          console.log(`   🔄 Skipping - insufficient sources`);
+          skippedCount++;
+          continue;
+        }
+        
+        console.log(`   ✅ ${validatedSources.length} valid sources`);
+        console.log('💾 Saving to database...');
+        await saveBlogPost(question.id, blogContent, question);
+        console.log('✅ Blog post saved!\n');
+        blogGenerated = true;
+        break;
+        
+      } catch (error) {
+        console.log(`   ❌ Error: ${error.message}`);
+        skippedCount++;
+        continue;
+      }
+    }
     
-    // Validate sources - remove 404s
-    const validatedSources = await validateSources(blogContent.sources || []);
-    blogContent.sources = validatedSources;
-    
-    // Check minimum sources requirement
-    if (validatedSources.length < MIN_SOURCES) {
-      console.log(`   ⚠️ Only ${validatedSources.length} valid sources (need ${MIN_SOURCES})`);
-      console.log(`   🔄 Skipping this article - insufficient sources`);
-      // Don't save, will try different question next run
-    } else {
-      console.log(`   ✅ ${validatedSources.length} valid sources`);
-      console.log('💾 Saving to database...');
-      await saveBlogPost(question.id, blogContent, question);
-      console.log('✅ Blog post saved!\n');
+    if (!blogGenerated) {
+      console.log(`\n⚠️ Could not generate blog after trying ${skippedCount} questions`);
+      console.log('   All candidates either lacked interesting real-world cases or had insufficient sources');
     }
   }
   
-  console.log('📄 Regenerating static site...');
+  console.log('\n📄 Regenerating static site...');
   
   fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
