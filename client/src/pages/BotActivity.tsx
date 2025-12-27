@@ -11,9 +11,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { 
-  ArrowLeft, Bot, Sparkles, CheckCircle, XCircle, RefreshCw, Filter,
-  TrendingUp, Activity, Clock, Play, Pause, AlertTriangle, Trash2,
-  FileText, ListTodo, History, Zap, Eye, Wrench
+  ArrowLeft, Bot, Sparkles, CheckCircle, RefreshCw,
+  Activity, Clock, Trash2, FileText, ListTodo, History, Zap, Eye, Wrench
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SEOHead } from "../components/SEOHead";
