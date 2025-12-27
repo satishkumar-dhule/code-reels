@@ -18,6 +18,8 @@ import {
   type ReviewCard, type ConfidenceRating 
 } from '../lib/spaced-repetition';
 import { getQuestionById } from '../lib/questions-loader';
+import { useCredits } from '../context/CreditsContext';
+import { ListenButton } from '../components/ListenButton';
 import type { Question } from '../types';
 import { EnhancedMermaid } from '../components/EnhancedMermaid';
 import { Confetti } from '../components/Confetti';
@@ -158,8 +160,11 @@ export default function ReviewSession() {
   const [reviewedCount, setReviewedCount] = useState(0);
   const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
   const [sessionXP, setSessionXP] = useState(0);
+  const [sessionCredits, setSessionCredits] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [xpPopup, setXpPopup] = useState<{ amount: number; show: boolean }>({ amount: 0, show: false });
+  const [creditPopup, setCreditPopup] = useState<{ amount: number; show: boolean }>({ amount: 0, show: false });
+  const { onSRSReview, config } = useCredits();
 
   // Load due cards
   useEffect(() => {
@@ -208,6 +213,14 @@ export default function ReviewSession() {
     // Show XP popup
     setXpPopup({ amount: xpEarned, show: true });
     setTimeout(() => setXpPopup({ amount: 0, show: false }), 1000);
+
+    // Process credits for SRS review
+    const creditResult = onSRSReview(rating);
+    if (creditResult.amount !== 0) {
+      setSessionCredits(prev => prev + creditResult.amount);
+      setCreditPopup({ amount: creditResult.amount, show: true });
+      setTimeout(() => setCreditPopup({ amount: 0, show: false }), 1200);
+    }
 
     // Update session stats
     setSessionStats(prev => ({ ...prev, [rating]: prev[rating] + 1 }));
@@ -278,6 +291,24 @@ export default function ReviewSession() {
             className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-purple-500 text-white rounded-full font-bold shadow-lg"
           >
             +{xpPopup.amount} XP ⚡
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Credit Popup */}
+      <AnimatePresence>
+        {creditPopup.show && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-32 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full font-bold shadow-lg ${
+              creditPopup.amount > 0 
+                ? 'bg-amber-500 text-white' 
+                : 'bg-red-500 text-white'
+            }`}
+          >
+            {creditPopup.amount > 0 ? '+' : ''}{creditPopup.amount} 💰
           </motion.div>
         )}
       </AnimatePresence>
@@ -409,11 +440,18 @@ export default function ReviewSession() {
                             transition={{ delay: 0.15 }}
                             className="p-4 bg-gradient-to-br from-green-500/10 via-emerald-500/10 to-teal-500/10 border border-green-500/30 rounded-2xl backdrop-blur-sm"
                           >
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="p-1.5 bg-green-500/20 rounded-lg">
-                                <Check className="w-4 h-4 text-green-400" />
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-green-500/20 rounded-lg">
+                                  <Check className="w-4 h-4 text-green-400" />
+                                </div>
+                                <span className="text-xs font-bold text-green-400 uppercase tracking-wider">Answer</span>
                               </div>
-                              <span className="text-xs font-bold text-green-400 uppercase tracking-wider">Answer</span>
+                              <ListenButton 
+                                text={`${currentQuestion.answer}${currentQuestion.explanation ? '. ' + currentQuestion.explanation : ''}`}
+                                label="Listen"
+                                size="sm"
+                              />
                             </div>
                             <p className="text-base sm:text-lg leading-relaxed text-foreground/90">{renderWithInlineCode(currentQuestion.answer)}</p>
                           </motion.div>
@@ -562,6 +600,7 @@ export default function ReviewSession() {
                 stats={sessionStats} 
                 totalReviewed={reviewedCount}
                 sessionXP={sessionXP}
+                sessionCredits={sessionCredits}
                 onGoHome={() => setLocation('/')}
                 onContinue={() => {
                   // Reload to check for more due cards
@@ -572,6 +611,7 @@ export default function ReviewSession() {
                     setReviewedCount(0);
                     setSessionStats({ again: 0, hard: 0, good: 0, easy: 0 });
                     setSessionXP(0);
+                    setSessionCredits(0);
                     setShowConfetti(false);
                     // Load first card directly
                     const question = getQuestionById(cards[0].questionId);
@@ -594,12 +634,13 @@ export default function ReviewSession() {
 // Rating buttons component
 function RatingButtons({ card, onRate }: { card: ReviewCard; onRate: (rating: ConfidenceRating) => void }) {
   const previews = getNextReviewPreview(card);
+  const { config } = useCredits();
 
-  const buttons: { rating: ConfidenceRating; label: string; preview: string; icon: React.ReactNode; color: string; key: string }[] = [
-    { rating: 'again', label: 'Again', preview: previews.again, icon: <RotateCcw className="w-4 h-4" />, color: 'bg-red-500 hover:bg-red-600', key: '1' },
-    { rating: 'hard', label: 'Hard', preview: previews.hard, icon: <Brain className="w-4 h-4" />, color: 'bg-orange-500 hover:bg-orange-600', key: '2' },
-    { rating: 'good', label: 'Good', preview: previews.good, icon: <Check className="w-4 h-4" />, color: 'bg-green-500 hover:bg-green-600', key: '3' },
-    { rating: 'easy', label: 'Easy', preview: previews.easy, icon: <Zap className="w-4 h-4" />, color: 'bg-blue-500 hover:bg-blue-600', key: '4' },
+  const buttons: { rating: ConfidenceRating; label: string; preview: string; icon: React.ReactNode; color: string; key: string; credits: number }[] = [
+    { rating: 'again', label: 'Again', preview: previews.again, icon: <RotateCcw className="w-4 h-4" />, color: 'bg-red-500 hover:bg-red-600', key: '1', credits: config.SRS_AGAIN },
+    { rating: 'hard', label: 'Hard', preview: previews.hard, icon: <Brain className="w-4 h-4" />, color: 'bg-orange-500 hover:bg-orange-600', key: '2', credits: config.SRS_HARD },
+    { rating: 'good', label: 'Good', preview: previews.good, icon: <Check className="w-4 h-4" />, color: 'bg-green-500 hover:bg-green-600', key: '3', credits: config.SRS_GOOD },
+    { rating: 'easy', label: 'Easy', preview: previews.easy, icon: <Zap className="w-4 h-4" />, color: 'bg-blue-500 hover:bg-blue-600', key: '4', credits: config.SRS_EASY },
   ];
 
   return (
@@ -617,6 +658,11 @@ function RatingButtons({ card, onRate }: { card: ReviewCard; onRate: (rating: Co
             {btn.icon}
             <span className="text-xs font-medium">{btn.label}</span>
             <span className="text-[10px] opacity-70">{btn.preview}</span>
+            {btn.credits !== 0 && (
+              <span className={`text-[9px] font-bold ${btn.credits > 0 ? 'text-amber-200' : 'text-red-200'}`}>
+                {btn.credits > 0 ? '+' : ''}{btn.credits} 💰
+              </span>
+            )}
             <span className="text-[10px] opacity-50">({btn.key})</span>
           </button>
         ))}
@@ -630,12 +676,14 @@ function CompletedScreen({
   stats, 
   totalReviewed,
   sessionXP,
+  sessionCredits,
   onGoHome,
   onContinue
 }: { 
   stats: { again: number; hard: number; good: number; easy: number };
   totalReviewed: number;
   sessionXP: number;
+  sessionCredits: number;
   onGoHome: () => void;
   onContinue: () => void;
 }) {
@@ -690,16 +738,32 @@ function CompletedScreen({
           }
         </motion.p>
 
-        {/* XP Earned */}
-        {sessionXP > 0 && (
+        {/* XP and Credits Earned */}
+        {(sessionXP > 0 || sessionCredits !== 0) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-purple-500/20 rounded-full mb-4 sm:mb-6"
+            className="flex items-center justify-center gap-3 mb-4 sm:mb-6"
           >
-            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
-            <span className="text-base sm:text-lg font-bold text-purple-400">+{sessionXP} XP</span>
+            {sessionXP > 0 && (
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-purple-500/20 rounded-full">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                <span className="text-base sm:text-lg font-bold text-purple-400">+{sessionXP} XP</span>
+              </div>
+            )}
+            {sessionCredits !== 0 && (
+              <div className={`inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full ${
+                sessionCredits > 0 ? 'bg-amber-500/20' : 'bg-red-500/20'
+              }`}>
+                <span className="text-base sm:text-lg">💰</span>
+                <span className={`text-base sm:text-lg font-bold ${
+                  sessionCredits > 0 ? 'text-amber-400' : 'text-red-400'
+                }`}>
+                  {sessionCredits > 0 ? '+' : ''}{sessionCredits}
+                </span>
+              </div>
+            )}
           </motion.div>
         )}
 

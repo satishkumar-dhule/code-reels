@@ -18,6 +18,14 @@ export const CREDIT_CONFIG = {
   VOICE_SUCCESS_BONUS: 25, // Additional for hire/strong-hire
   QUESTION_VIEW_COST: 2,
   SWIPES_BEFORE_REMINDER: 5,
+  // Quick Quiz credits
+  QUIZ_CORRECT: 1,
+  QUIZ_WRONG: -1,
+  // SRS Review credits
+  SRS_AGAIN: -2,  // Forgot - lose credits
+  SRS_HARD: 0,    // Struggled - no change
+  SRS_GOOD: 2,    // Remembered - earn credits
+  SRS_EASY: 3,    // Easy recall - earn more
 };
 
 // Valid coupon codes (in production, this would be server-side)
@@ -271,4 +279,59 @@ export function deductQuestionViewCredits(): {
 // Format credits for display - always show full number
 export function formatCredits(amount: number): string {
   return String(amount);
+}
+
+// Award/deduct credits for Quick Quiz answer
+export function processQuizAnswer(isCorrect: boolean): {
+  amount: number;
+  newBalance: number;
+} {
+  const amount = isCorrect ? CREDIT_CONFIG.QUIZ_CORRECT : CREDIT_CONFIG.QUIZ_WRONG;
+  const description = isCorrect ? 'Quick Quiz correct answer' : 'Quick Quiz wrong answer';
+  
+  if (amount > 0) {
+    const newBalance = earnCredits(amount, description);
+    return { amount, newBalance };
+  } else if (amount < 0) {
+    const state = getCreditsState();
+    // Don't go below 0
+    const actualDeduction = Math.min(Math.abs(amount), state.balance);
+    if (actualDeduction > 0) {
+      const result = spendCredits(actualDeduction, description);
+      return { amount: -actualDeduction, newBalance: result.balance };
+    }
+    return { amount: 0, newBalance: state.balance };
+  }
+  return { amount: 0, newBalance: getBalance() };
+}
+
+// Award/deduct credits for SRS review rating
+export function processSRSReview(rating: 'again' | 'hard' | 'good' | 'easy'): {
+  amount: number;
+  newBalance: number;
+} {
+  const amounts: Record<string, number> = {
+    again: CREDIT_CONFIG.SRS_AGAIN,
+    hard: CREDIT_CONFIG.SRS_HARD,
+    good: CREDIT_CONFIG.SRS_GOOD,
+    easy: CREDIT_CONFIG.SRS_EASY,
+  };
+  
+  const amount = amounts[rating];
+  const description = `SRS review: ${rating}`;
+  
+  if (amount > 0) {
+    const newBalance = earnCredits(amount, description);
+    return { amount, newBalance };
+  } else if (amount < 0) {
+    const state = getCreditsState();
+    // Don't go below 0
+    const actualDeduction = Math.min(Math.abs(amount), state.balance);
+    if (actualDeduction > 0) {
+      const result = spendCredits(actualDeduction, description);
+      return { amount: -actualDeduction, newBalance: result.balance };
+    }
+    return { amount: 0, newBalance: state.balance };
+  }
+  return { amount: 0, newBalance: getBalance() };
 }

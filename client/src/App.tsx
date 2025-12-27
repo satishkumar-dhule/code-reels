@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { MascotToaster } from "./components/MascotToaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { StagingBanner } from "./components/StagingBanner";
@@ -14,7 +15,6 @@ import WhatsNew from "@/pages/WhatsNew";
 import QuestionViewer from "@/pages/QuestionViewer";
 import Stats from "@/pages/StatsRedesigned";
 import Channels from "@/pages/AllChannelsRedesigned";
-import MermaidTest from "@/pages/MermaidTest";
 import BotActivity from "@/pages/BotActivity";
 import Badges from "@/pages/Badges";
 import TestSession from "@/pages/TestSession";
@@ -84,7 +84,6 @@ function Router() {
       <Route path="/bookmarks" component={Bookmarks} />
       <Route path="/review" component={ReviewSession} />
       <Route path="/voice-interview" component={VoiceInterview} />
-      <Route path="/test/mermaid" component={MermaidTest} />
       <Route path="/channel/:id" component={QuestionViewer} />
       <Route path="/channel/:id/:index" component={QuestionViewer} />
       <Route component={NotFound} />
@@ -132,6 +131,7 @@ function AppContent() {
     <>
       <Router />
       <PixelMascot />
+      <MascotToaster />
       <BackgroundMascots />
       <GlobalCreditSplash />
     </>

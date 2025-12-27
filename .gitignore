@@ -57,4 +57,4 @@ coverage/
 # Local development
 .local/
 .cache/
-playwright-report/blog-output/
+playwright-report/

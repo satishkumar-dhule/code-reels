@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, production ]
   workflow_dispatch:
 
 concurrency:
@@ -10,7 +10,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # ============================================
+  # TEST (runs on main branch only)
+  # ============================================
   test:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     
@@ -75,9 +79,10 @@ jobs:
           retention-days: 3
 
   # ============================================
-  # STAGING DEPLOYMENT
+  # STAGING DEPLOYMENT (main branch only)
   # ============================================
   deploy-staging:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: test
     environment:
@@ -144,27 +149,17 @@ jobs:
         git config --global user.name "$GIT_USER_NAME"
         git config --global user.email "$GIT_USER_EMAIL"
         
-        # Build output directory
         BUILD_DIR="dist/public"
         
-        # Clone staging repo
         git clone --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${DEPLOY_REPO}.git" staging-deploy
         
-        # Clear old files (except .git)
         cd staging-deploy
         find . -maxdepth 1 ! -name '.git' ! -name '.' -exec rm -rf {} +
         cd ..
         
-        # Copy new build
         cp -r ${BUILD_DIR}/* staging-deploy/
-        
-        # Add CNAME if needed (for custom domain)
-        # echo "staging.yourdomain.com" > staging-deploy/CNAME
-        
-        # Add .nojekyll to bypass Jekyll processing
         touch staging-deploy/.nojekyll
         
-        # Commit and push
         cd staging-deploy
         git add -A
         git diff --staged --quiet || git commit -m "Deploy to staging: ${{ github.sha }}"
@@ -181,14 +176,14 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
         echo "1. Review the staging deployment" >> $GITHUB_STEP_SUMMARY
-        echo "2. Approve the 'production' environment to promote to production" >> $GITHUB_STEP_SUMMARY
+        echo "2. Run 'Promote to Production' workflow to deploy to production" >> $GITHUB_STEP_SUMMARY
 
   # ============================================
-  # PRODUCTION DEPLOYMENT (Requires Manual Approval)
+  # PRODUCTION DEPLOYMENT (production branch only)
   # ============================================
   deploy-production:
+    if: github.ref == 'refs/heads/production'
     runs-on: ubuntu-latest
-    needs: deploy-staging
     environment:
       name: production
       url: https://open-interview.github.io
@@ -265,9 +260,3 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
         echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### Deployment Flow" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Tests passed" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Deployed to staging" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Approved for production" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Deployed to production" >> $GITHUB_STEP_SUMMARY

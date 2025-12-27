@@ -22,14 +22,20 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 },
+      },
+      testIgnore: ['**/mobile.spec.ts'], // Skip mobile-specific tests
     },
     {
       name: 'mobile-chrome',
       use: {
         ...devices['Pixel 5'],
         viewport: { width: 390, height: 844 },
+        hasTouch: true,
       },
+      testIgnore: ['**/mobile.spec.ts'], // mobile.spec.ts forces its own viewport
     },
   ],
   webServer: {

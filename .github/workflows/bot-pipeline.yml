@@ -1,0 +1,161 @@
+name: Bot Pipeline
+
+on:
+  schedule:
+    # Run Creator Bot daily at 2 AM UTC
+    - cron: '0 2 * * *'
+    # Run Verifier Bot daily at 4 AM UTC
+    - cron: '0 4 * * *'
+    # Run Processor Bot daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      bot:
+        description: 'Which bot to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - creator
+          - verifier
+          - processor
+      count:
+        description: 'Number of items to process'
+        required: false
+        default: '5'
+
+jobs:
+  creator:
+    if: github.event_name == 'workflow_dispatch' && (inputs.bot == 'all' || inputs.bot == 'creator') || github.event.schedule == '0 2 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install --filter ./script
+        
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install.sh | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          
+      - name: Run Creator Bot
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          COUNT: ${{ inputs.count || '5' }}
+        run: node script/bots/creator-bot.js
+
+  verifier:
+    if: github.event_name == 'workflow_dispatch' && (inputs.bot == 'all' || inputs.bot == 'verifier') || github.event.schedule == '0 4 * * *'
+    runs-on: ubuntu-latest
+    needs: [creator]
+    # Allow verifier to run even if creator is skipped
+    if: always() && (github.event_name == 'workflow_dispatch' && (inputs.bot == 'all' || inputs.bot == 'verifier') || github.event.schedule == '0 4 * * *')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install --filter ./script
+        
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install.sh | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          
+      - name: Run Verifier Bot
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          MODE: scan
+          LIMIT: ${{ inputs.count || '10' }}
+        run: node script/bots/verifier-bot.js
+
+  processor:
+    if: github.event_name == 'workflow_dispatch' && (inputs.bot == 'all' || inputs.bot == 'processor') || github.event.schedule == '0 6 * * *'
+    runs-on: ubuntu-latest
+    needs: [verifier]
+    # Allow processor to run even if verifier is skipped
+    if: always() && (github.event_name == 'workflow_dispatch' && (inputs.bot == 'all' || inputs.bot == 'processor') || github.event.schedule == '0 6 * * *')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install --filter ./script
+        
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install.sh | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+          
+      - name: Run Processor Bot
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          MAX_ITEMS: ${{ inputs.count || '10' }}
+        run: node script/bots/processor-bot.js
+
+  update-monitor-data:
+    runs-on: ubuntu-latest
+    needs: [processor]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install --filter ./script
+        
+      - name: Generate bot monitor data
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: node script/fetch-bot-monitor-data.js
+        
+      - name: Commit and push data
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add client/public/data/bot-monitor.json
+          git diff --staged --quiet || git commit -m "Update bot monitor data [skip ci]"
+          git push

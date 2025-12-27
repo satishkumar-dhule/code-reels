@@ -15,6 +15,8 @@ import {
   markVoiceReminderShown,
   awardVoiceInterviewCredits,
   deductQuestionViewCredits,
+  processQuizAnswer,
+  processSRSReview,
   formatCredits,
   CREDIT_CONFIG,
   type CreditsState,
@@ -37,6 +39,9 @@ interface CreditsContextType {
   onQuestionSwipe: () => { shouldRemind: boolean };
   dismissVoiceReminder: () => void;
   shouldShowVoiceReminder: boolean;
+  // Quiz & SRS actions
+  onQuizAnswer: (isCorrect: boolean) => { amount: number };
+  onSRSReview: (rating: 'again' | 'hard' | 'good' | 'easy') => { amount: number };
   // Helpers
   formatCredits: (amount: number) => string;
   canAfford: (amount: number) => boolean;
@@ -128,6 +133,26 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     setShowVoiceReminder(false);
   }, []);
 
+  const onQuizAnswer = useCallback((isCorrect: boolean) => {
+    const result = processQuizAnswer(isCorrect);
+    if (result.amount !== 0) {
+      setBalance(result.newBalance);
+      showCreditSplash(result.amount);
+      refreshBalance();
+    }
+    return { amount: result.amount };
+  }, [refreshBalance, showCreditSplash]);
+
+  const onSRSReview = useCallback((rating: 'again' | 'hard' | 'good' | 'easy') => {
+    const result = processSRSReview(rating);
+    if (result.amount !== 0) {
+      setBalance(result.newBalance);
+      showCreditSplash(result.amount);
+      refreshBalance();
+    }
+    return { amount: result.amount };
+  }, [refreshBalance, showCreditSplash]);
+
   const canAffordCheck = useCallback((amount: number) => {
     return balance >= amount;
   }, [balance]);
@@ -147,6 +172,8 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
         onQuestionSwipe,
         dismissVoiceReminder,
         shouldShowVoiceReminder: showVoiceReminder,
+        onQuizAnswer,
+        onSRSReview,
         formatCredits,
         canAfford: canAffordCheck,
         config: CREDIT_CONFIG,

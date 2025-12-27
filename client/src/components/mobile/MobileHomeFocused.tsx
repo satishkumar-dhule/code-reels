@@ -12,6 +12,7 @@ import { useProgress, useGlobalStats } from '../../hooks/use-progress';
 import { useCredits } from '../../context/CreditsContext';
 import { ProgressStorage } from '../../services/storage.service';
 import { DailyReviewCard, notifySRSUpdate } from '../DailyReviewCard';
+import { ListenIconButton } from '../ListenButton';
 import { loadTests, TestQuestion, Test, getSessionQuestions } from '../../lib/tests';
 import { addToSRS } from '../../lib/spaced-repetition';
 import {
@@ -125,6 +126,11 @@ export function MobileHomeFocused() {
       {/* Daily Review - Spaced Repetition */}
       {hasChannels && <DailyReviewCard />}
 
+      {/* Voice Interview CTA - Primary feature for earning credits */}
+      {hasChannels && (
+        <VoiceInterviewCard onStart={() => setLocation('/voice-interview')} />
+      )}
+
       {/* Continue Learning - show more channels */}
       {hasChannels && (
         <ContinueLearningSection 
@@ -139,11 +145,6 @@ export function MobileHomeFocused() {
       {/* Coding Challenge CTA */}
       {hasChannels && (
         <CodingChallengeCard onStart={() => setLocation('/coding')} />
-      )}
-
-      {/* Voice Interview CTA */}
-      {hasChannels && (
-        <VoiceInterviewCard onStart={() => setLocation('/voice-interview')} />
       )}
 
       {/* Quick Start Topics for new users */}
@@ -170,6 +171,8 @@ function QuickQuizCard({
   const [correctCount, setCorrectCount] = useState(0);
   const [totalAnswered, setTotalAnswered] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [creditChange, setCreditChange] = useState<number | null>(null);
+  const { onQuizAnswer, config } = useCredits();
 
   // Load test questions from subscribed channels
   useEffect(() => {
@@ -230,6 +233,15 @@ function QuickQuizCard({
     
     setShowFeedback(isCorrect ? 'correct' : 'incorrect');
     setTotalAnswered(prev => prev + 1);
+    
+    // Process credits for quiz answer
+    const creditResult = onQuizAnswer(isCorrect);
+    if (creditResult.amount !== 0) {
+      setCreditChange(creditResult.amount);
+      // Clear credit change display after animation
+      setTimeout(() => setCreditChange(null), 1500);
+    }
+    
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
     } else {
@@ -309,11 +321,27 @@ function QuickQuizCard({
             <span className="text-[10px] sm:text-xs text-muted-foreground">
               {currentIndex + 1}/{questions.length}
             </span>
-            <span className="text-[9px] text-amber-400 flex items-center gap-0.5 ml-1">
-              <Coins className="w-2.5 h-2.5" />Free
+            <span className="text-[9px] flex items-center gap-0.5 ml-1">
+              <Coins className="w-2.5 h-2.5 text-amber-400" />
+              <span className="text-green-400">+{config.QUIZ_CORRECT}</span>
+              <span className="text-muted-foreground">/</span>
+              <span className="text-red-400">{config.QUIZ_WRONG}</span>
             </span>
           </div>
           <div className="flex items-center gap-2">
+            {/* Credit change animation */}
+            <AnimatePresence>
+              {creditChange !== null && (
+                <motion.span
+                  initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`text-xs font-bold ${creditChange > 0 ? 'text-green-400' : 'text-red-400'}`}
+                >
+                  {creditChange > 0 ? '+' : ''}{creditChange}
+                </motion.span>
+              )}
+            </AnimatePresence>
             {totalAnswered > 0 && (
               <span className="text-[10px] sm:text-xs text-muted-foreground">
                 {correctCount}/{totalAnswered} correct
@@ -418,8 +446,17 @@ function QuickQuizCard({
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-3 p-3 bg-muted/30 rounded-lg text-xs sm:text-sm text-muted-foreground"
                 >
-                  <span className="font-medium text-foreground">💡 </span>
-                  {currentQuestion.explanation}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <span className="font-medium text-foreground">💡 </span>
+                      {currentQuestion.explanation}
+                    </div>
+                    <ListenIconButton 
+                      text={currentQuestion.explanation} 
+                      size="sm"
+                      className="flex-shrink-0 mt-0.5"
+                    />
+                  </div>
                 </motion.div>
               )}
             </motion.div>
@@ -812,26 +849,47 @@ function CodingChallengeCard({ onStart }: { onStart: () => void }) {
   );
 }
 
-// Voice Interview CTA
+// Voice Interview CTA - Primary feature for earning credits
 function VoiceInterviewCard({ onStart }: { onStart: () => void }) {
   return (
-    <section className="mx-3 sm:mx-0 mb-2 sm:mb-4">
+    <section className="mx-3 sm:mx-0 mb-3 sm:mb-4">
       <button
         onClick={onStart}
-        className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl sm:rounded-2xl border border-emerald-500/20 p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:from-emerald-500/15 hover:to-teal-500/15 transition-colors"
+        className="w-full bg-gradient-to-r from-primary/20 via-primary/15 to-emerald-500/20 rounded-xl sm:rounded-2xl border-2 border-primary/30 p-4 sm:p-5 flex items-center gap-4 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all group"
       >
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-500/20 flex items-center justify-center">
-          <Mic className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />
+        {/* Animated mic icon */}
+        <div className="relative">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform">
+            <Mic className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+          </div>
+          {/* Pulse animation */}
+          <div className="absolute inset-0 rounded-2xl bg-primary/30 animate-ping opacity-30" />
         </div>
+        
         <div className="flex-1 text-left">
-          <h3 className="font-semibold text-sm sm:text-base">Voice Interview</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground">Practice answering out loud</p>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-bold text-base sm:text-lg">Voice Interview</h3>
+            <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-[10px] font-bold rounded-full">
+              EARN CREDITS
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-muted-foreground mb-2">
+            Practice answering questions out loud with AI feedback
+          </p>
+          <div className="flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1 text-amber-400 font-semibold">
+              <Coins className="w-3.5 h-3.5" />+5 per attempt
+            </span>
+            <span className="flex items-center gap-1 text-green-400 font-semibold">
+              +15 bonus on success
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <span className="text-[10px] font-bold text-green-400 flex items-center gap-0.5">
-            <Coins className="w-3 h-3" />+10
-          </span>
-          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+        
+        <div className="flex-shrink-0">
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+            <ArrowRight className="w-5 h-5 text-primary" />
+          </div>
         </div>
       </button>
     </section>

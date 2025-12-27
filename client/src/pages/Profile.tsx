@@ -3,7 +3,7 @@
  * User stats, achievements, and settings
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -15,8 +15,18 @@ import { SEOHead } from '../components/SEOHead';
 import {
   Code, Trophy, Target, Flame, BookOpen, ChevronRight,
   Bell, HelpCircle, Zap, Calendar, TrendingUp, Bookmark, Shuffle, Eye,
-  Coins, Gift, History, Mic
+  Coins, Gift, History, Mic, Volume2, Play
 } from 'lucide-react';
+import {
+  isTTSSupported,
+  getVoices,
+  getSavedVoiceName,
+  saveVoicePreference,
+  getSavedRate,
+  saveRatePreference,
+  speak,
+  stop
+} from '../lib/text-to-speech';
 
 export default function Profile() {
   const [, setLocation] = useLocation();
@@ -335,6 +345,22 @@ export default function Profile() {
               />
             </div>
           </motion.section>
+
+          {/* Voice Settings */}
+          {isTTSSupported() && (
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="bg-card rounded-2xl border border-border overflow-hidden"
+            >
+              <div className="px-4 py-3 border-b border-border/50 flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-muted-foreground">Voice Settings</h3>
+              </div>
+              <VoiceSettings />
+            </motion.section>
+          )}
         </div>
       </AppLayout>
     </>
@@ -433,4 +459,172 @@ function ToggleItem({
       </div>
     </button>
   );
+}
+
+// Voice Settings Component
+function VoiceSettings() {
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<string>('');
+  const [rate, setRate] = useState(0.9);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Load voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = getVoices();
+      setVoices(availableVoices);
+      
+      // Set initial selection
+      const saved = getSavedVoiceName();
+      if (saved && availableVoices.find(v => v.name === saved)) {
+        setSelectedVoice(saved);
+      } else if (availableVoices.length > 0) {
+        // Default to first English voice
+        const englishVoice = availableVoices.find(v => v.lang.startsWith('en'));
+        setSelectedVoice(englishVoice?.name || availableVoices[0].name);
+      }
+    };
+
+    loadVoices();
+    setRate(getSavedRate());
+
+    // Chrome loads voices async
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
+  const handleVoiceChange = (voiceName: string) => {
+    setSelectedVoice(voiceName);
+    saveVoicePreference(voiceName);
+  };
+
+  const handleRateChange = (newRate: number) => {
+    setRate(newRate);
+    saveRatePreference(newRate);
+  };
+
+  const testVoice = () => {
+    if (isPlaying) {
+      stop();
+      setIsPlaying(false);
+      return;
+    }
+
+    setIsPlaying(true);
+    speak(
+      "Hello! This is how I will read the answers for you. You can adjust the speed using the slider below.",
+      {
+        onEnd: () => setIsPlaying(false),
+        onError: () => setIsPlaying(false),
+      }
+    );
+  };
+
+  // Group voices by language
+  const groupedVoices = voices.reduce((acc, voice) => {
+    const lang = voice.lang;
+    const langName = getLangDisplayName(lang);
+    if (!acc[langName]) {
+      acc[langName] = [];
+    }
+    acc[langName].push(voice);
+    return acc;
+  }, {} as Record<string, SpeechSynthesisVoice[]>);
+
+  // Sort: English first, then alphabetically
+  const sortedLangs = Object.keys(groupedVoices).sort((a, b) => {
+    if (a.startsWith('English') && !b.startsWith('English')) return -1;
+    if (!a.startsWith('English') && b.startsWith('English')) return 1;
+    return a.localeCompare(b);
+  });
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Voice Selection */}
+      <div>
+        <label className="text-xs font-medium text-muted-foreground mb-2 block">
+          Voice
+        </label>
+        <select
+          value={selectedVoice}
+          onChange={(e) => handleVoiceChange(e.target.value)}
+          className="w-full px-3 py-2.5 bg-muted/50 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+        >
+          {sortedLangs.map(lang => (
+            <optgroup key={lang} label={lang}>
+              {groupedVoices[lang].map(voice => (
+                <option key={voice.name} value={voice.name}>
+                  {voice.name}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </div>
+
+      {/* Speed Slider */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs font-medium text-muted-foreground">
+            Speed
+          </label>
+          <span className="text-xs text-muted-foreground">
+            {rate.toFixed(1)}x
+          </span>
+        </div>
+        <input
+          type="range"
+          min="0.5"
+          max="1.5"
+          step="0.1"
+          value={rate}
+          onChange={(e) => handleRateChange(parseFloat(e.target.value))}
+          className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+        />
+        <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+          <span>Slower</span>
+          <span>Faster</span>
+        </div>
+      </div>
+
+      {/* Test Button */}
+      <button
+        onClick={testVoice}
+        className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-colors ${
+          isPlaying
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-primary/10 text-primary hover:bg-primary/20'
+        }`}
+      >
+        <Play className={`w-4 h-4 ${isPlaying ? 'animate-pulse' : ''}`} />
+        {isPlaying ? 'Playing...' : 'Test Voice'}
+      </button>
+    </div>
+  );
+}
+
+// Helper to get display name for language code
+function getLangDisplayName(langCode: string): string {
+  const langMap: Record<string, string> = {
+    'en-US': 'English (US)',
+    'en-GB': 'English (UK)',
+    'en-AU': 'English (Australia)',
+    'en-IN': 'English (India)',
+    'en-ZA': 'English (South Africa)',
+    'en-IE': 'English (Ireland)',
+    'en-NZ': 'English (New Zealand)',
+    'en': 'English',
+    'hi-IN': 'Hindi',
+    'ta-IN': 'Tamil',
+    'te-IN': 'Telugu',
+    'mr-IN': 'Marathi',
+    'bn-IN': 'Bengali',
+    'gu-IN': 'Gujarati',
+    'kn-IN': 'Kannada',
+    'ml-IN': 'Malayalam',
+    'pa-IN': 'Punjabi',
+  };
+  
+  return langMap[langCode] || langCode;
 }

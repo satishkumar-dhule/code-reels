@@ -17,6 +17,7 @@ import { SEOHead } from '../components/SEOHead';
 import { getAllQuestionsAsync } from '../lib/questions-loader';
 import { useCredits } from '../context/CreditsContext';
 import { CreditsDisplay } from '../components/CreditsDisplay';
+import { ListenButton } from '../components/ListenButton';
 import type { Question } from '../types';
 
 interface EvaluationResult {
@@ -603,8 +604,17 @@ export default function VoiceInterview() {
                     <Volume2 className="w-4 h-4" />
                     View Ideal Answer
                   </summary>
-                  <div className="mt-4 text-sm text-muted-foreground whitespace-pre-wrap">
-                    {currentQuestion?.answer}
+                  <div className="mt-4 space-y-3">
+                    <div className="flex justify-end">
+                      <ListenButton 
+                        text={currentQuestion?.answer || ''} 
+                        label="Listen to Answer"
+                        size="sm"
+                      />
+                    </div>
+                    <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                      {currentQuestion?.answer}
+                    </div>
                   </div>
                 </details>
               </motion.div>

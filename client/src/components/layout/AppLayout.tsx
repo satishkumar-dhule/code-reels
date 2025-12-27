@@ -1,13 +1,10 @@
 /**
  * Mobile-First App Layout
- * Bottom nav on mobile, sidebar on desktop
+ * Uses unified navigation for consistent experience
  */
 
 import { useState, useEffect } from 'react';
-import { Sidebar } from './Sidebar';
-import { TopBar } from './TopBar';
-import { MobileNav } from './MobileNav';
-import { MobileHeader } from './MobileHeader';
+import { DesktopSidebar, MobileBottomNav, UnifiedMobileHeader } from './UnifiedNav';
 import { UnifiedSearch } from '../UnifiedSearch';
 
 interface AppLayoutProps {
@@ -25,7 +22,6 @@ export function AppLayout({
   hideNav = false,
   showBackOnMobile = false 
 }: AppLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
   // Handle keyboard shortcuts
@@ -40,11 +36,6 @@ export function AppLayout({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Close sidebar on route change (mobile)
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [title]);
-
   if (hideNav) {
     return <>{children}</>;
   }
@@ -53,42 +44,29 @@ export function AppLayout({
     <div className="min-h-screen min-h-dvh bg-background">
       {/* Desktop Sidebar - hidden on mobile */}
       <div className="hidden lg:block">
-        <Sidebar
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-          onSearch={() => setSearchOpen(true)}
-        />
+        <DesktopSidebar onSearchClick={() => setSearchOpen(true)} />
       </div>
 
       {/* Mobile Header - visible only on mobile */}
-      <MobileHeader 
+      <UnifiedMobileHeader 
         title={title}
         showBack={showBackOnMobile}
         onSearchClick={() => setSearchOpen(true)}
       />
 
-      {/* Desktop Top bar - hidden on mobile */}
-      <div className="hidden lg:block lg:pl-[72px]">
-        <TopBar
-          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-          onSearchClick={() => setSearchOpen(true)}
-          title={title}
-        />
-      </div>
-
       {/* Main content area */}
-      <div className="lg:pl-[72px] transition-all duration-300">
+      <div className="lg:pl-64 transition-all duration-300">
         {/* Page content with bottom padding for mobile nav */}
         <main className={`
           pb-24 lg:pb-6
-          ${fullWidth ? '' : 'max-w-7xl mx-auto px-4 lg:px-6 py-4 lg:py-6'}
+          ${fullWidth ? '' : 'max-w-5xl mx-auto px-4 lg:px-6 py-4 lg:py-6'}
         `}>
           {children}
         </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <MobileNav onCreateClick={() => setSearchOpen(true)} />
+      <MobileBottomNav />
 
       {/* Search Modal */}
       <UnifiedSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
