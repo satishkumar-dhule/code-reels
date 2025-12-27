@@ -245,7 +245,23 @@ jobs:
       run: |
         git config --global user.name "$GIT_USER_NAME"
         git config --global user.email "$GIT_USER_EMAIL"
-        pnpm run deploy:pages
+        
+        BUILD_DIR="dist/public"
+        
+        git clone --depth 1 --branch ${DEPLOY_BRANCH} "https://x-access-token:${GITHUB_TOKEN}@github.com/${DEPLOY_REPO}.git" prod-deploy || git clone "https://x-access-token:${GITHUB_TOKEN}@github.com/${DEPLOY_REPO}.git" prod-deploy
+        
+        cd prod-deploy
+        git checkout ${DEPLOY_BRANCH} 2>/dev/null || git checkout -b ${DEPLOY_BRANCH}
+        find . -maxdepth 1 ! -name '.git' ! -name '.' ! -name 'CNAME' -exec rm -rf {} +
+        cd ..
+        
+        cp -r ${BUILD_DIR}/* prod-deploy/
+        touch prod-deploy/.nojekyll
+        
+        cd prod-deploy
+        git add -A
+        git diff --staged --quiet || git commit -m "Deploy to production: ${{ github.sha }}"
+        git push origin ${DEPLOY_BRANCH}
         
     - name: Ping search engines
       run: node script/ping-search-engines.js
