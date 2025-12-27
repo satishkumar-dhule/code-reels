@@ -1,7 +1,375 @@
 {
-  "stats": [],
-  "runs": [],
-  "queue": [],
-  "ledger": [],
-  "generatedAt": "2025-12-27T12:45:57.639Z"
+  "stats": [
+    {
+      "botName": "creator",
+      "totalRuns": 1,
+      "successfulRuns": 1,
+      "totalCreated": 2,
+      "totalUpdated": 0,
+      "totalDeleted": 0,
+      "lastRun": "2025-12-27T12:57:55.632Z"
+    },
+    {
+      "botName": "processor",
+      "totalRuns": 1,
+      "successfulRuns": 1,
+      "totalCreated": 0,
+      "totalUpdated": 5,
+      "totalDeleted": 0,
+      "lastRun": "2025-12-27T13:00:17.028Z"
+    },
+    {
+      "botName": "verifier",
+      "totalRuns": 2,
+      "successfulRuns": 2,
+      "totalCreated": 5,
+      "totalUpdated": 0,
+      "totalDeleted": 0,
+      "lastRun": "2025-12-27T12:59:30.958Z"
+    }
+  ],
+  "runs": [
+    {
+      "id": 4,
+      "botName": "processor",
+      "startedAt": "2025-12-27T13:00:17.028Z",
+      "completedAt": "2025-12-27T13:01:58.276Z",
+      "status": "completed",
+      "itemsProcessed": 5,
+      "itemsCreated": 0,
+      "itemsUpdated": 5,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 5,
+        "updated": 5,
+        "deleted": 0,
+        "failed": 0
+      }
+    },
+    {
+      "id": 3,
+      "botName": "verifier",
+      "startedAt": "2025-12-27T12:59:30.958Z",
+      "completedAt": "2025-12-27T12:59:50.077Z",
+      "status": "completed",
+      "itemsProcessed": 5,
+      "itemsCreated": 2,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Verifier Bot completed",
+        "flagged": 2
+      }
+    },
+    {
+      "id": 2,
+      "botName": "creator",
+      "startedAt": "2025-12-27T12:57:55.632Z",
+      "completedAt": "2025-12-27T12:58:59.471Z",
+      "status": "completed",
+      "itemsProcessed": 5,
+      "itemsCreated": 2,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Creator Bot completed successfully"
+      }
+    },
+    {
+      "id": 1,
+      "botName": "verifier",
+      "startedAt": "2025-12-27T12:51:21.687Z",
+      "completedAt": "2025-12-27T12:53:10.744Z",
+      "status": "completed",
+      "itemsProcessed": 10,
+      "itemsCreated": 3,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Verifier Bot completed",
+        "flagged": 3
+      }
+    }
+  ],
+  "queue": [
+    {
+      "id": 7,
+      "itemType": "question",
+      "itemId": "gh-95",
+      "action": "improve",
+      "priority": 2,
+      "status": "completed",
+      "reason": "placeholder_content | Feedback: Add concrete examples of common SLIs (latency, error rate, availability) and mention how they differ from SLOs and SLAs.",
+      "createdBy": "verifier",
+      "createdAt": "2025-12-27T12:59:49.311Z"
+    },
+    {
+      "id": 6,
+      "itemType": "question",
+      "itemId": "q-594",
+      "action": "improve",
+      "priority": 2,
+      "status": "completed",
+      "reason": "placeholder_content | Feedback: Add specific examples of scheduling predicates and priorities, and mention priority classes and resource quotas for comprehensive coverage.",
+      "createdBy": "verifier",
+      "createdAt": "2025-12-27T12:59:34.882Z"
+    },
+    {
+      "id": 3,
+      "itemType": "question",
+      "itemId": "q-255",
+      "action": "improve",
+      "priority": 2,
+      "status": "completed",
+      "reason": "placeholder_content",
+      "createdBy": "verifier",
+      "createdAt": "2025-12-27T12:52:44.142Z"
+    },
+    {
+      "id": 2,
+      "itemType": "question",
+      "itemId": "q-203",
+      "action": "improve",
+      "priority": 2,
+      "status": "completed",
+      "reason": "placeholder_content",
+      "createdBy": "verifier",
+      "createdAt": "2025-12-27T12:52:31.827Z"
+    },
+    {
+      "id": 1,
+      "itemType": "question",
+      "itemId": "q-414",
+      "action": "improve",
+      "priority": 2,
+      "status": "completed",
+      "reason": "placeholder_content",
+      "createdBy": "verifier",
+      "createdAt": "2025-12-27T12:51:44.881Z"
+    },
+    {
+      "id": 5,
+      "itemType": "question",
+      "itemId": "q-611",
+      "action": "verify",
+      "priority": 3,
+      "status": "pending",
+      "reason": null,
+      "createdBy": "creator",
+      "createdAt": "2025-12-27T12:58:47.999Z"
+    },
+    {
+      "id": 4,
+      "itemType": "question",
+      "itemId": "q-610",
+      "action": "verify",
+      "priority": 3,
+      "status": "pending",
+      "reason": null,
+      "createdBy": "creator",
+      "createdAt": "2025-12-27T12:58:11.157Z"
+    }
+  ],
+  "ledger": [
+    {
+      "id": 22,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "gh-95",
+      "reason": "Processed: placeholder_content | Feedback: Add concrete examples of common SLIs (latency, error rate, availability) and mention how they differ from SLOs and SLAs.",
+      "createdAt": "2025-12-27T13:01:55.393Z"
+    },
+    {
+      "id": 21,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-594",
+      "reason": "Processed: placeholder_content | Feedback: Add specific examples of scheduling predicates and priorities, and mention priority classes and resource quotas for comprehensive coverage.",
+      "createdAt": "2025-12-27T13:01:02.677Z"
+    },
+    {
+      "id": 20,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-255",
+      "reason": "Processed: placeholder_content",
+      "createdAt": "2025-12-27T13:00:54.954Z"
+    },
+    {
+      "id": 19,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-203",
+      "reason": "Processed: placeholder_content",
+      "createdAt": "2025-12-27T13:00:45.751Z"
+    },
+    {
+      "id": 18,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-414",
+      "reason": "Processed: placeholder_content",
+      "createdAt": "2025-12-27T13:00:30.319Z"
+    },
+    {
+      "id": 17,
+      "botName": "verifier",
+      "action": "flag",
+      "itemType": "question",
+      "itemId": "gh-95",
+      "reason": "Flagged for improve: 1 issues found",
+      "createdAt": "2025-12-27T12:59:49.770Z"
+    },
+    {
+      "id": 16,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-493",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:59:45.660Z"
+    },
+    {
+      "id": 15,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-274",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:59:42.213Z"
+    },
+    {
+      "id": 14,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-513",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:59:38.587Z"
+    },
+    {
+      "id": 13,
+      "botName": "verifier",
+      "action": "flag",
+      "itemType": "question",
+      "itemId": "q-594",
+      "reason": "Flagged for improve: 1 issues found",
+      "createdAt": "2025-12-27T12:59:35.035Z"
+    },
+    {
+      "id": 12,
+      "botName": "creator",
+      "action": "create",
+      "itemType": "question",
+      "itemId": "q-611",
+      "reason": "Created by Creator Bot",
+      "createdAt": "2025-12-27T12:58:47.371Z"
+    },
+    {
+      "id": 11,
+      "botName": "creator",
+      "action": "create",
+      "itemType": "question",
+      "itemId": "q-610",
+      "reason": "Created by Creator Bot",
+      "createdAt": "2025-12-27T12:58:10.486Z"
+    },
+    {
+      "id": 10,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-324",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:53:10.198Z"
+    },
+    {
+      "id": 9,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-238",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:52:50.224Z"
+    },
+    {
+      "id": 8,
+      "botName": "verifier",
+      "action": "flag",
+      "itemType": "question",
+      "itemId": "q-255",
+      "reason": "Flagged for improve: 1 issues found",
+      "createdAt": "2025-12-27T12:52:44.526Z"
+    },
+    {
+      "id": 7,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-562",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:52:38.521Z"
+    },
+    {
+      "id": 6,
+      "botName": "verifier",
+      "action": "flag",
+      "itemType": "question",
+      "itemId": "q-203",
+      "reason": "Flagged for improve: 1 issues found",
+      "createdAt": "2025-12-27T12:52:32.275Z"
+    },
+    {
+      "id": 5,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-267",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:52:24.867Z"
+    },
+    {
+      "id": 4,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "gh-20",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:52:08.034Z"
+    },
+    {
+      "id": 3,
+      "botName": "verifier",
+      "action": "flag",
+      "itemType": "question",
+      "itemId": "q-414",
+      "reason": "Flagged for improve: 1 issues found",
+      "createdAt": "2025-12-27T12:51:45.348Z"
+    },
+    {
+      "id": 2,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-572",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:51:39.233Z"
+    },
+    {
+      "id": 1,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "da-156",
+      "reason": "Passed verification",
+      "createdAt": "2025-12-27T12:51:32.682Z"
+    }
+  ],
+  "generatedAt": "2025-12-27T13:02:18.711Z"
 }
