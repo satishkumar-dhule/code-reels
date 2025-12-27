@@ -14,6 +14,22 @@ const OUTPUT_DIR = 'docs/screenshots';
 // Ensure output directory exists
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
+// Default user preferences (skip onboarding, set role and channels)
+const DEFAULT_USER_PREFS = {
+  role: 'fullstack',
+  subscribedChannels: ['system-design', 'algorithms', 'frontend', 'backend', 'devops'],
+  onboardingComplete: true,
+  createdAt: new Date().toISOString(),
+};
+
+const DEFAULT_CREDITS = {
+  balance: 500,
+  totalEarned: 500,
+  totalSpent: 0,
+  usedCoupons: [],
+  initialized: true,
+};
+
 const screenshots = [
   // Desktop screenshots (1280x800)
   { name: 'home-desktop.png', url: '/', viewport: { width: 1280, height: 800 }, wait: 2000 },
@@ -48,12 +64,15 @@ async function takeScreenshots() {
     
     const page = await context.newPage();
     
-    // Set localStorage for theme if needed
-    if (shot.theme === 'light') {
-      await page.addInitScript(() => {
+    // Set localStorage to skip intro, complete onboarding, and set user preferences
+    await page.addInitScript(({ prefs, credits, theme }) => {
+      localStorage.setItem('marvel-intro-seen', 'true');
+      localStorage.setItem('user-preferences', JSON.stringify(prefs));
+      localStorage.setItem('user-credits', JSON.stringify(credits));
+      if (theme === 'light') {
         localStorage.setItem('theme', 'light');
-      });
-    }
+      }
+    }, { prefs: DEFAULT_USER_PREFS, credits: DEFAULT_CREDITS, theme: shot.theme });
     
     try {
       await page.goto(`${BASE_URL}${shot.url}`, { waitUntil: 'networkidle' });
