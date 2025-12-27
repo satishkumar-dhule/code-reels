@@ -42,17 +42,20 @@ We built Code Reels because we wanted interview prep that fits how we actually c
 ### 📱 Swipe-Based Learning
 Scroll through questions like your favorite social app. Each card = one concept. No fluff.
 
+### 🎤 Voice Interview Practice
+Practice answering questions out loud with a sarcastic AI interviewer. Get real-time feedback on your responses.
+
+### 🧠 Spaced Repetition (SRS)
+Smart review system that brings back questions you need to practice. Science-backed retention.
+
 ### 🎯 30+ Topics
 System Design, Algorithms, Frontend, Backend, DevOps, AI/ML, Kubernetes, AWS... we got you.
-
-### 🌙 Dark Mode (obvi)
-Easy on the eyes for those late-night grind sessions.
 
 </td>
 <td width="50%">
 
-### 📊 Track Your Progress
-See your streaks, completion rates, and flex on your consistency.
+### 💰 Credits & Gamification
+Earn credits for every question you answer. Unlock achievements and flex your progress.
 
 ### 🏆 Earn Badges
 Gamified learning because dopamine hits > boring checkboxes.
@@ -60,11 +63,11 @@ Gamified learning because dopamine hits > boring checkboxes.
 ### 💻 Coding Challenges
 Practice real coding problems with an in-browser editor. Python & JavaScript supported.
 
+### 📝 Knowledge Tests
+Timed quizzes to test your understanding. Multiple choice, instant feedback.
+
 ### 🔍 Instant Search
 Find any question instantly with Pagefind-powered search. Filter by topic, difficulty, or company.
-
-### 🤖 AI-Powered Content
-Fresh questions added daily by our AI bots. Always something new.
 
 </td>
 </tr>
@@ -75,7 +78,7 @@ Fresh questions added daily by our AI bots. Always something new.
 ## 📸 Screenshots
 
 ### Home Dashboard
-Your personalized command center. Subscribe to channels that match your goals.
+Your personalized command center with Quick Quiz. Subscribe to channels that match your goals.
 
 <p align="center">
   <img src="docs/screenshots/home-desktop.png" alt="Home Dashboard" width="80%" />
@@ -88,6 +91,27 @@ The main event. Swipe through questions, reveal answers, track progress.
   <img src="docs/screenshots/reels-desktop.png" alt="Question Reels" width="80%" />
 </p>
 
+### Voice Interview Practice
+Practice speaking your answers with a sarcastic AI interviewer. Get scored on key points coverage.
+
+<p align="center">
+  <img src="docs/screenshots/voice-interview-desktop.png" alt="Voice Interview" width="80%" />
+</p>
+
+### Coding Challenges
+In-browser code editor with Python & JavaScript. Run tests, get instant feedback.
+
+<p align="center">
+  <img src="docs/screenshots/coding-desktop.png" alt="Coding Challenges" width="80%" />
+</p>
+
+### Knowledge Tests
+Timed quizzes with multiple choice questions. Track your scores.
+
+<p align="center">
+  <img src="docs/screenshots/tests-desktop.png" alt="Knowledge Tests" width="80%" />
+</p>
+
 ### All Channels
 30+ topics organized by category. Pick your poison.
 
@@ -96,10 +120,17 @@ The main event. Swipe through questions, reveal answers, track progress.
 </p>
 
 ### Stats & Progress
-Data nerds, this one's for you. Track everything.
+Data nerds, this one's for you. Track everything including GitHub traffic.
 
 <p align="center">
   <img src="docs/screenshots/stats-desktop.png" alt="Stats Dashboard" width="80%" />
+</p>
+
+### Profile & Credits
+Your profile with credits balance, achievements, and settings.
+
+<p align="center">
+  <img src="docs/screenshots/profile-desktop.png" alt="Profile" width="80%" />
 </p>
 
 ### Mobile Experience
@@ -168,16 +199,18 @@ For the keyboard warriors:
 | `→` | Reveal answer |
 | `←` `Esc` | Go back |
 | `T` | Toggle theme |
+| `Cmd/Ctrl + K` | Open search |
 
 ---
 
-## 🤖 AI-Powered Content
+## 🤖 AI-Powered Content Pipeline
 
 Our bots work 24/7 so you don't have to:
 
-- **Daily Question Bot** — Adds 5 fresh questions every day
-- **Improvement Bot** — Enhances existing content with better explanations
-- **Deduplication Bot** — Keeps the question bank clean
+- **Creator Bot** — Generates fresh questions daily across all channels
+- **Verifier Bot** — Quality checks content and flags issues
+- **Processor Bot** — Improves flagged content with AI feedback
+- **Blog Bot** — Generates in-depth articles from questions
 
 All powered by AI. All automatic. All free.
 
@@ -193,7 +226,8 @@ Built with the good stuff:
 - **Search**: Pagefind (static search)
 - **Code Editor**: Monaco Editor
 - **Diagrams**: Mermaid.js
-- **Testing**: Playwright (216 E2E tests)
+- **Voice**: Web Speech API
+- **Testing**: Playwright E2E tests
 - **CI/CD**: GitHub Actions
 
 ---

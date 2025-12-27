@@ -162,6 +162,7 @@
     "esbuild": "^0.25.0",
     "gh-pages": "^6.1.1",
     "pagefind": "^1.4.0",
+    "playwright": "^1.57.0",
     "postcss": "^8.5.6",
     "serve": "^14.2.5",
     "tailwindcss": "^4.1.14",
