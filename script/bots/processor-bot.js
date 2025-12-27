@@ -120,6 +120,15 @@ async function executeNode(state) {
   let updatedItem = { ...item };
   let deleted = false;
   
+  // Extract feedback from reason if present
+  let feedback = '';
+  if (workItem.reason) {
+    const feedbackMatch = workItem.reason.match(/Feedback:\s*([^|]+)/);
+    if (feedbackMatch) {
+      feedback = feedbackMatch[1].trim();
+    }
+  }
+  
   for (const action of subActions) {
     console.log(`   → ${action}`);
     
@@ -130,11 +139,11 @@ async function executeNode(state) {
         break;
         
       case 'improve_content':
-        updatedItem = await improveContent(updatedItem);
+        updatedItem = await improveContent(updatedItem, feedback);
         break;
         
       case 'rewrite':
-        updatedItem = await rewriteContent(updatedItem);
+        updatedItem = await rewriteContent(updatedItem, feedback);
         break;
         
       case 'fix_formatting':
@@ -217,8 +226,10 @@ async function updateStatusNode(state) {
 // ACTION IMPLEMENTATIONS
 // ============================================
 
-async function improveContent(item) {
-  const prompt = `Improve this interview question content. Keep the same topic but enhance quality.
+async function improveContent(item, feedback = '') {
+  const feedbackInstruction = feedback ? `\nImprovement suggestions: ${feedback}` : '';
+  
+  const prompt = `Improve this interview question content. Keep the same topic but enhance quality.${feedbackInstruction}
 
 Current Question: "${item.question}"
 Current Answer: "${item.answer}"
@@ -243,8 +254,10 @@ Return ONLY JSON:
   return item;
 }
 
-async function rewriteContent(item) {
-  const prompt = `Completely rewrite this interview question to be clearer and more relevant.
+async function rewriteContent(item, feedback = '') {
+  const feedbackInstruction = feedback ? `\nImprovement suggestions: ${feedback}` : '';
+  
+  const prompt = `Completely rewrite this interview question to be clearer and more relevant.${feedbackInstruction}
 
 Original Question: "${item.question}"
 Channel: ${item.channel}

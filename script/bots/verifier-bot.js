@@ -227,12 +227,26 @@ async function createWorkItemsNode(state) {
   }
   
   if (action) {
+    // Build reason with issue types and feedback
+    const issueTypes = currentAnalysis.issues.map(i => i.type).join(', ');
+    const feedback = currentAnalysis.scores?.feedback || '';
+    const issueDetails = currentAnalysis.issues
+      .filter(i => i.details)
+      .map(i => i.details)
+      .join('; ');
+    
+    // Combine all feedback into reason (truncate if too long)
+    let reason = issueTypes;
+    if (feedback) reason += ` | Feedback: ${feedback}`;
+    if (issueDetails) reason += ` | Details: ${issueDetails}`;
+    if (reason.length > 500) reason = reason.substring(0, 497) + '...';
+    
     await addToQueue({
       itemType: 'question',
       itemId: item.id,
       action,
       priority,
-      reason: currentAnalysis.issues.map(i => i.type).join(', '),
+      reason,
       createdBy: BOT_NAME,
       assignedTo: 'processor'
     });

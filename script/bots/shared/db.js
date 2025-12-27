@@ -17,17 +17,11 @@ export function getDb() {
   return dbClient;
 }
 
-// Initialize all bot tables
+// Initialize all bot tables (creates if not exists, preserves data)
 export async function initBotTables() {
   const db = getDb();
   
-  // Drop and recreate bot tables to ensure correct schema
-  // These tables only contain bot tracking data, safe to recreate
-  await db.execute(`DROP TABLE IF EXISTS work_queue`);
-  await db.execute(`DROP TABLE IF EXISTS bot_ledger`);
-  await db.execute(`DROP TABLE IF EXISTS bot_runs`);
-  
-  // Work queue table
+  // Work queue table - CREATE IF NOT EXISTS (preserves existing data)
   await db.execute(`
     CREATE TABLE IF NOT EXISTS work_queue (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +39,7 @@ export async function initBotTables() {
     )
   `);
   
-  // Bot ledger table
+  // Bot ledger table - CREATE IF NOT EXISTS (preserves existing data)
   await db.execute(`
     CREATE TABLE IF NOT EXISTS bot_ledger (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,7 +54,7 @@ export async function initBotTables() {
     )
   `);
   
-  // Bot runs table
+  // Bot runs table - CREATE IF NOT EXISTS (preserves existing data)
   await db.execute(`
     CREATE TABLE IF NOT EXISTS bot_runs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,4 +80,19 @@ export async function initBotTables() {
   console.log('✓ Bot tables initialized');
 }
 
-export default { getDb, initBotTables };
+// Reset bot tables (use only when schema changes are needed)
+export async function resetBotTables() {
+  const db = getDb();
+  
+  console.log('⚠️ Resetting bot tables (all data will be lost)...');
+  
+  await db.execute(`DROP TABLE IF EXISTS work_queue`);
+  await db.execute(`DROP TABLE IF EXISTS bot_ledger`);
+  await db.execute(`DROP TABLE IF EXISTS bot_runs`);
+  
+  await initBotTables();
+  
+  console.log('✓ Bot tables reset complete');
+}
+
+export default { getDb, initBotTables, resetBotTables };
