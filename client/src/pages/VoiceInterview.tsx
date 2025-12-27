@@ -3,6 +3,7 @@
  * - Uses Web Speech API for browser-based transcription
  * - Compares spoken answer with ideal answer
  * - Provides hire/no-hire feedback with detailed scoring
+ * - Sarcastic interviewer personality for entertainment
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -11,14 +12,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic, MicOff, Play, Square, RotateCcw, Home, ChevronRight,
   CheckCircle, XCircle, AlertCircle, Volume2, Loader2, Sparkles,
-  ThumbsUp, ThumbsDown, Minus, Clock, Target, MessageSquare, Coins, Edit3
+  ThumbsUp, ThumbsDown, Minus, Clock, Target, MessageSquare, Coins, Edit3,
+  SkipForward, ExternalLink, Shuffle, ChevronLeft, MoreHorizontal, User
 } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
 import { getAllQuestionsAsync } from '../lib/questions-loader';
 import { useCredits } from '../context/CreditsContext';
+import { useUserPreferences } from '../hooks/use-user-preferences';
 import { CreditsDisplay } from '../components/CreditsDisplay';
 import { ListenButton } from '../components/ListenButton';
 import type { Question } from '../types';
+
+// Interviewer comments type
+interface InterviewerComments {
+  skip: string[];
+  shuffle: string[];
+  quick_answer: string[];
+  long_pause: string[];
+  retry: string[];
+  good_score: string[];
+  bad_score: string[];
+  first_question: string[];
+  last_question: string[];
+  idle: string[];
+}
 
 interface EvaluationResult {
   score: number; // 0-100
@@ -36,6 +53,11 @@ type InterviewState = 'loading' | 'ready' | 'recording' | 'editing' | 'processin
 const isSpeechSupported = typeof window !== 'undefined' && 
   ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
+// Get random comment from category
+function getRandomComment(comments: string[]): string {
+  return comments[Math.floor(Math.random() * comments.length)];
+}
+
 export default function VoiceInterview() {
   const [, setLocation] = useLocation();
   const [state, setState] = useState<InterviewState>('loading');
@@ -47,23 +69,59 @@ export default function VoiceInterview() {
   const [recordingTime, setRecordingTime] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [earnedCredits, setEarnedCredits] = useState<{ total: number; bonus: number } | null>(null);
+  const [interviewerComment, setInterviewerComment] = useState<string | null>(null);
+  const [comments, setComments] = useState<InterviewerComments | null>(null);
+  const [showActions, setShowActions] = useState(false);
   
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const commentTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const { onVoiceInterview, config } = useCredits();
+  const { preferences } = useUserPreferences();
 
   const currentQuestion = questions[currentIndex];
 
-  // Load random questions for interview practice
+  // Load interviewer comments
+  useEffect(() => {
+    fetch('/data/interviewer-comments.json')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => setComments(data))
+      .catch(() => setComments(null));
+  }, []);
+
+  // Show interviewer comment with auto-dismiss
+  const showComment = useCallback((category: keyof InterviewerComments) => {
+    if (!comments || !comments[category]) return;
+    
+    // Clear any existing timeout
+    if (commentTimeoutRef.current) {
+      clearTimeout(commentTimeoutRef.current);
+    }
+    
+    const comment = getRandomComment(comments[category]);
+    setInterviewerComment(comment);
+    
+    // Auto-dismiss after 4 seconds
+    commentTimeoutRef.current = setTimeout(() => {
+      setInterviewerComment(null);
+    }, 4000);
+  }, [comments]);
+
+  // Load random questions for interview practice (only from subscribed channels)
   useEffect(() => {
     async function loadQuestions() {
       try {
         const allQuestions = await getAllQuestionsAsync();
         
-        // Filter to questions suitable for voice interview
-        // Prioritize questions with voiceSuitable=true and voiceKeywords
+        // Get subscribed channel IDs
+        const subscribedChannelIds = preferences.subscribedChannels;
+        
+        // Filter to questions suitable for voice interview from subscribed channels only
         const suitable = allQuestions.filter((q: Question) => {
+          // Must be from a subscribed channel
+          if (!subscribedChannelIds.includes(q.channel)) return false;
+          
           // If voiceSuitable is explicitly set, use it
           if (q.voiceSuitable === false) return false;
           if (q.voiceSuitable === true && q.voiceKeywords && q.voiceKeywords.length > 0) return true;
@@ -83,7 +141,17 @@ export default function VoiceInterview() {
       }
     }
     loadQuestions();
-  }, []);
+  }, [preferences.subscribedChannels]);
+
+  // Show first question comment when ready
+  useEffect(() => {
+    if (state === 'ready' && currentIndex === 0 && questions.length > 0 && comments) {
+      const timer = setTimeout(() => {
+        showComment('first_question');
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [state, currentIndex, questions.length, comments, showComment]);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -153,6 +221,7 @@ export default function VoiceInterview() {
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (commentTimeoutRef.current) clearTimeout(commentTimeoutRef.current);
     };
   }, [state]);
 
@@ -199,9 +268,16 @@ export default function VoiceInterview() {
       const credits = onVoiceInterview(result.verdict);
       setEarnedCredits({ total: credits.totalCredits, bonus: credits.bonusCredits });
       
+      // Show appropriate comment based on score
+      if (result.score >= 60) {
+        showComment('good_score');
+      } else {
+        showComment('bad_score');
+      }
+      
       setState('evaluated');
     }, 500);
-  }, [transcript, currentQuestion, onVoiceInterview]);
+  }, [transcript, currentQuestion, onVoiceInterview, showComment]);
 
   const nextQuestion = useCallback(() => {
     if (currentIndex < questions.length - 1) {
@@ -215,13 +291,66 @@ export default function VoiceInterview() {
     }
   }, [currentIndex, questions.length]);
 
+  const previousQuestion = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+      setTranscript('');
+      setInterimTranscript('');
+      setEvaluation(null);
+      setEarnedCredits(null);
+      setRecordingTime(0);
+      setState('ready');
+      setShowActions(false);
+    }
+  }, [currentIndex]);
+
+  const skipQuestion = useCallback(() => {
+    // Stop recording if active
+    if (recognitionRef.current && state === 'recording') {
+      recognitionRef.current.stop();
+    }
+    
+    if (currentIndex < questions.length - 1) {
+      showComment('skip');
+      setCurrentIndex(prev => prev + 1);
+      setTranscript('');
+      setInterimTranscript('');
+      setEvaluation(null);
+      setEarnedCredits(null);
+      setRecordingTime(0);
+      setState('ready');
+      setShowActions(false);
+    }
+  }, [currentIndex, questions.length, state, showComment]);
+
+  const goToOriginalQuestion = useCallback(() => {
+    if (currentQuestion) {
+      setLocation(`/channel/${currentQuestion.channel}/${currentQuestion.id}`);
+    }
+  }, [currentQuestion, setLocation]);
+
+  const shuffleQuestions = useCallback(() => {
+    showComment('shuffle');
+    const shuffled = [...questions].sort(() => Math.random() - 0.5);
+    setQuestions(shuffled);
+    setCurrentIndex(0);
+    setTranscript('');
+    setInterimTranscript('');
+    setEvaluation(null);
+    setEarnedCredits(null);
+    setRecordingTime(0);
+    setState('ready');
+    setShowActions(false);
+  }, [questions, showComment]);
+
   const retryQuestion = useCallback(() => {
+    showComment('retry');
     setTranscript('');
     setInterimTranscript('');
     setEvaluation(null);
     setRecordingTime(0);
     setState('ready');
-  }, []);
+  }, [showComment]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -322,10 +451,25 @@ export default function VoiceInterview() {
                 }`}>
                   {currentQuestion?.difficulty}
                 </span>
-                <span className="px-2 py-1 text-xs bg-primary/20 text-primary rounded">
+                <button
+                  onClick={goToOriginalQuestion}
+                  className="px-2 py-1 text-xs bg-primary/20 text-primary rounded hover:bg-primary/30 transition-colors"
+                  title={`View in ${currentQuestion?.channel} channel`}
+                >
                   {currentQuestion?.channel}
-                </span>
+                </button>
               </div>
+            </div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="max-w-4xl mx-auto mt-3">
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                className="h-full bg-primary rounded-full"
+              />
             </div>
           </div>
         </header>
@@ -338,17 +482,129 @@ export default function VoiceInterview() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-card border border-border rounded-lg p-6 mb-6"
           >
-            <div className="flex items-start gap-3 mb-4">
-              <MessageSquare className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-              <h2 className="text-lg font-medium">{currentQuestion?.question}</h2>
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="flex items-start gap-3 flex-1">
+                <MessageSquare className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                <h2 className="text-lg font-medium">{currentQuestion?.question}</h2>
+              </div>
+              
+              {/* View Original Question Link */}
+              <button
+                onClick={goToOriginalQuestion}
+                className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-primary hover:bg-muted/20 rounded transition-colors flex-shrink-0"
+                title="View full question details"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">View Details</span>
+              </button>
+            </div>
+            
+            {/* Question Controls Bar */}
+            <div className="flex items-center justify-between pt-3 border-t border-border/50">
+              <div className="flex items-center gap-2">
+                {/* Question navigation info */}
+                <span className="text-xs text-muted-foreground">
+                  Q{currentIndex + 1}/{questions.length}
+                </span>
+                
+                {/* More Actions Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowActions(!showActions)}
+                    className="flex items-center gap-1 px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/20 rounded transition-colors"
+                    title="More options"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                  
+                  <AnimatePresence>
+                    {showActions && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        className="absolute left-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg py-1 z-10 min-w-[140px]"
+                      >
+                        <button
+                          onClick={previousQuestion}
+                          disabled={currentIndex === 0}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-muted/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                          Previous
+                        </button>
+                        <button
+                          onClick={skipQuestion}
+                          disabled={currentIndex >= questions.length - 1}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-muted/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <SkipForward className="w-3.5 h-3.5" />
+                          Skip Question
+                        </button>
+                        <button
+                          onClick={shuffleQuestions}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-muted/20 transition-colors"
+                        >
+                          <Shuffle className="w-3.5 h-3.5" />
+                          Shuffle All
+                        </button>
+                        <div className="border-t border-border my-1" />
+                        <button
+                          onClick={goToOriginalQuestion}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left hover:bg-muted/20 transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          View Full Question
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {/* Listen to Question */}
+                <ListenButton 
+                  text={currentQuestion?.question || ''} 
+                  label="Listen"
+                  size="sm"
+                />
+                
+                {/* Keywords hint */}
+                {currentQuestion?.voiceKeywords && currentQuestion.voiceKeywords.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    {currentQuestion.voiceKeywords.length} key terms
+                  </span>
+                )}
+              </div>
             </div>
             
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm mb-4">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm mt-4">
                 {error}
               </div>
             )}
           </motion.div>
+
+          {/* Sarcastic Interviewer Comment */}
+          <AnimatePresence>
+            {interviewerComment && (
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="mb-4 flex items-start gap-3"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 p-3 bg-muted/30 border border-border/50 rounded-lg rounded-tl-none">
+                  <p className="text-sm italic text-muted-foreground">"{interviewerComment}"</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">— Your Interviewer</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Recording Interface */}
           <div className="bg-card border border-border rounded-lg p-6 mb-6">
