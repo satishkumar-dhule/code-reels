@@ -207,7 +207,7 @@ function QuickQuizCard({
   }, [channels]);
 
   const handleRefresh = useCallback(() => {
-    // Re-shuffle questions first, then reset state
+    // Re-shuffle questions first, then reset state in a single batch
     if (tests.length > 0) {
       const allQuestions: TestQuestion[] = [];
       tests.forEach(test => {
@@ -217,13 +217,15 @@ function QuickQuizCard({
       const shuffled = allQuestions.sort(() => Math.random() - 0.5);
       const newQuestions = shuffled.slice(0, 10);
       
-      // Batch all state updates together
-      setQuestions(newQuestions);
+      // Reset index first to 0, then set new questions
+      // This prevents the animation from seeing intermediate states
       setCurrentIndex(0);
       setSelectedAnswer(null);
       setShowFeedback(null);
       setCorrectCount(0);
       setTotalAnswered(0);
+      // Set questions last to trigger single re-render
+      setQuestions(newQuestions);
     }
   }, [tests]);
 
@@ -256,26 +258,24 @@ function QuickQuizCard({
       }
     }
     
-    // Auto-advance after feedback - use longer delay and single state update
+    // Auto-advance after feedback
     const advanceDelay = isCorrect ? 800 : 1500;
     setIsTransitioning(true);
     
     setTimeout(() => {
+      setShowFeedback(null);
+      setSelectedAnswer(null);
+      
       if (currentIndex < questions.length - 1) {
-        // Move to next question - batch state updates
-        setShowFeedback(null);
-        setSelectedAnswer(null);
+        // Move to next question
         setCurrentIndex(prev => prev + 1);
         setIsTransitioning(false);
       } else {
-        // Quiz complete - show brief completion state then refresh
-        setShowFeedback(null);
-        setSelectedAnswer(null);
-        // Small delay before refreshing to prevent flicker
+        // Quiz complete - refresh with new questions after brief delay
         setTimeout(() => {
           handleRefresh();
           setIsTransitioning(false);
-        }, 100);
+        }, 200);
       }
     }, advanceDelay);
   };
@@ -374,11 +374,11 @@ function QuickQuizCard({
         <div className="p-3 sm:p-5">
           <AnimatePresence mode="wait">
             <motion.div
-              key={currentQuestion.id}
+              key={`question-${currentIndex}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
             >
               {/* Channel & Difficulty badges */}
               <div className="flex items-center gap-2 mb-2 sm:mb-3 flex-wrap">
