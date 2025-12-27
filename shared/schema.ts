@@ -25,6 +25,7 @@ export const questions = sqliteTable("questions", {
   tldr: text("tldr"),
   relevanceScore: integer("relevance_score"), // 0-100 interview relevance score
   relevanceDetails: text("relevance_details"), // JSON with detailed scoring breakdown
+  voiceKeywords: text("voice_keywords"), // JSON array of mandatory keywords for voice interview evaluation
   lastUpdated: text("last_updated"),
   createdAt: text("created_at").$defaultFn(() => new Date().toISOString()),
 });

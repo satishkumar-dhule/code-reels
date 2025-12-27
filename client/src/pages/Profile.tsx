@@ -3,16 +3,19 @@
  * User stats, achievements, and settings
  */
 
+import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useChannelStats } from '../hooks/use-stats';
 import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useProgress, useGlobalStats } from '../hooks/use-progress';
+import { useCredits } from '../context/CreditsContext';
 import { SEOHead } from '../components/SEOHead';
 import {
   Code, Trophy, Target, Flame, BookOpen, ChevronRight,
-  Bell, HelpCircle, Zap, Calendar, TrendingUp, Bookmark, Shuffle, Eye
+  Bell, HelpCircle, Zap, Calendar, TrendingUp, Bookmark, Shuffle, Eye,
+  Coins, Gift, History, Mic
 } from 'lucide-react';
 
 export default function Profile() {
@@ -20,7 +23,11 @@ export default function Profile() {
   const { stats: channelStats } = useChannelStats();
   const { getSubscribedChannels, preferences, toggleShuffleQuestions, togglePrioritizeUnvisited } = useUserPreferences();
   const { stats: activityStats } = useGlobalStats();
+  const { balance, state: creditsState, history, onRedeemCoupon, formatCredits, config } = useCredits();
   const subscribedChannels = getSubscribedChannels();
+  
+  const [couponCode, setCouponCode] = useState('');
+  const [couponMessage, setCouponMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Calculate stats
   const totalQuestions = channelStats.reduce((sum, s) => sum + s.total, 0);
@@ -126,6 +133,104 @@ export default function Profile() {
               color="text-purple-500"
               bgColor="bg-purple-500/10"
             />
+          </motion.section>
+
+          {/* Credits Section */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 rounded-2xl border border-amber-500/20 p-4"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                  <Coins className="w-6 h-6 text-amber-500" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">{formatCredits(balance)} Credits</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Earned: {formatCredits(creditsState.totalEarned)} · Spent: {formatCredits(creditsState.totalSpent)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* How to earn */}
+            <div className="bg-black/10 rounded-lg p-3 mb-4">
+              <h4 className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1">
+                <Mic className="w-3 h-3" /> Earn Credits
+              </h4>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <div className="flex justify-between">
+                  <span>Voice interview attempt</span>
+                  <span className="text-amber-400">+{config.VOICE_ATTEMPT}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Successful interview (hire)</span>
+                  <span className="text-amber-400">+{config.VOICE_SUCCESS_BONUS} bonus</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>View question</span>
+                  <span className="text-red-400">-{config.QUESTION_VIEW_COST}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Coupon Redemption */}
+            <div>
+              <h4 className="text-xs font-semibold mb-2 flex items-center gap-1">
+                <Gift className="w-3 h-3" /> Redeem Coupon
+              </h4>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="Enter code"
+                  className="flex-1 px-3 py-2 bg-black/20 border border-border rounded-lg text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
+                />
+                <button
+                  onClick={() => {
+                    if (!couponCode.trim()) return;
+                    const result = onRedeemCoupon(couponCode);
+                    setCouponMessage({
+                      type: result.success ? 'success' : 'error',
+                      text: result.message
+                    });
+                    if (result.success) setCouponCode('');
+                    setTimeout(() => setCouponMessage(null), 3000);
+                  }}
+                  className="px-4 py-2 bg-amber-500 text-white text-sm font-bold rounded-lg hover:bg-amber-600 transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
+              {couponMessage && (
+                <p className={`text-xs mt-2 ${couponMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                  {couponMessage.text}
+                </p>
+              )}
+            </div>
+
+            {/* Recent Transactions */}
+            {history.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-amber-500/20">
+                <h4 className="text-xs font-semibold mb-2 flex items-center gap-1">
+                  <History className="w-3 h-3" /> Recent Activity
+                </h4>
+                <div className="space-y-1 max-h-32 overflow-y-auto">
+                  {history.slice(0, 5).map((tx) => (
+                    <div key={tx.id} className="flex justify-between text-xs">
+                      <span className="text-muted-foreground truncate flex-1">{tx.description}</span>
+                      <span className={tx.amount > 0 ? 'text-green-400' : 'text-red-400'}>
+                        {tx.amount > 0 ? '+' : ''}{tx.amount}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.section>
 
           {/* Achievements */}

@@ -1,0 +1,52 @@
+name: Generate Voice Keywords
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel_id:
+        description: 'Channel ID to process (leave empty for all)'
+        required: false
+        default: ''
+      max_questions:
+        description: 'Maximum questions to process'
+        required: false
+        default: '50'
+  schedule:
+    # Run daily at 4 AM UTC
+    - cron: '0 4 * * *'
+
+jobs:
+  generate-keywords:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install.sh | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+      
+      - name: Run Voice Keywords Bot
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          CHANNEL_ID: ${{ github.event.inputs.channel_id }}
+          MAX_QUESTIONS: ${{ github.event.inputs.max_questions || '50' }}
+          BATCH_SIZE: '5'
+        run: node script/voice-keywords-bot.js
+      
+      - name: Summary
+        run: |
+          echo "## Voice Keywords Generation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "Keywords extracted for voice interview evaluation" >> $GITHUB_STEP_SUMMARY

@@ -28,6 +28,8 @@ import {
   Timer,
   TrendingUp,
   FileText,
+  Mic,
+  Coins,
 } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
 import { CodeEditor, CodeDisplay } from '../components/CodeEditor';
@@ -49,6 +51,7 @@ import {
 } from '../lib/coding-challenges';
 import { GiscusComments } from '../components/GiscusComments';
 import { mascotEvents } from '../components/PixelMascot';
+import { useCredits } from '../context/CreditsContext';
 
 type ViewState = 'list' | 'challenge';
 
@@ -141,6 +144,7 @@ export default function CodingChallenge() {
   }, []);
   
   const stats = getCodingStats();
+  const { balance, formatCredits, config } = useCredits();
 
   // Refresh solved IDs when returning to list or after solving
   useEffect(() => {
@@ -374,14 +378,35 @@ export default function CodingChallenge() {
                   </div>
                   <div className="text-[9px] text-muted-foreground uppercase">Avg Time</div>
                 </div>
-                <div className="border border-border p-3 bg-card rounded-lg text-center">
-                  <Zap className="w-5 h-5 mx-auto mb-1 text-yellow-500" />
-                  <div className="text-lg font-bold" data-testid="stat-available">
-                    {challenges.length}
-                  </div>
-                  <div className="text-[9px] text-muted-foreground uppercase">Available</div>
-                </div>
+                <button 
+                  onClick={() => setLocation('/profile')}
+                  className="border border-amber-500/30 p-3 bg-amber-500/10 rounded-lg text-center hover:bg-amber-500/20 transition-colors"
+                >
+                  <Coins className="w-5 h-5 mx-auto mb-1 text-amber-500" />
+                  <div className="text-lg font-bold text-amber-500">{formatCredits(balance)}</div>
+                  <div className="text-[9px] text-muted-foreground uppercase">Credits</div>
+                </button>
               </motion.div>
+
+              {/* Voice Interview CTA */}
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                onClick={() => setLocation('/voice-interview')}
+                className="w-full mb-6 p-3 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-lg flex items-center gap-3 hover:from-emerald-500/20 hover:to-teal-500/20 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                  <Mic className="w-5 h-5 text-emerald-500" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-bold text-sm">Try Voice Interview</h3>
+                  <p className="text-[10px] text-muted-foreground">Practice system design & behavioral questions</p>
+                </div>
+                <span className="text-xs font-bold text-green-400 flex items-center gap-1">
+                  <Coins className="w-3 h-3" />+{config.VOICE_ATTEMPT}
+                </span>
+              </motion.button>
 
               {/* Quick Start */}
               <div className="flex gap-2 mb-6" data-testid="quick-start">

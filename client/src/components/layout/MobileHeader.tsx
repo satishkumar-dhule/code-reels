@@ -7,9 +7,10 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Search, Bell, Code, Settings, X
+  ArrowLeft, Search, Bell, Code, Settings, X, Coins
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useCredits } from '../../context/CreditsContext';
 
 interface MobileHeaderProps {
   title?: string;
@@ -28,6 +29,7 @@ export function MobileHeader({
 }: MobileHeaderProps) {
   const [location, setLocation] = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
+  const { balance, formatCredits } = useCredits();
 
   const handleLogoClick = () => {
     setLocation('/');
@@ -87,6 +89,15 @@ export function MobileHeader({
 
             {/* Right - Actions */}
             <div className="flex items-center gap-0.5 flex-shrink-0">
+              {/* Credits */}
+              <button
+                onClick={() => setLocation('/profile')}
+                className="flex items-center gap-1 px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg hover:bg-amber-500/20 transition-colors"
+              >
+                <Coins className="w-3 h-3 text-amber-500" />
+                <span className="text-[10px] font-bold text-amber-500">{formatCredits(balance)}</span>
+              </button>
+
               {/* Notifications */}
               <button
                 onClick={() => setShowNotifications(true)}

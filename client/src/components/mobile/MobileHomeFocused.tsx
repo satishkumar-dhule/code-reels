@@ -9,6 +9,7 @@ import { useLocation } from 'wouter';
 import { useChannelStats } from '../../hooks/use-stats';
 import { useUserPreferences } from '../../context/UserPreferencesContext';
 import { useProgress, useGlobalStats } from '../../hooks/use-progress';
+import { useCredits } from '../../context/CreditsContext';
 import { ProgressStorage } from '../../services/storage.service';
 import { DailyReviewCard, notifySRSUpdate } from '../DailyReviewCard';
 import { loadTests, TestQuestion, Test, getSessionQuestions } from '../../lib/tests';
@@ -18,7 +19,7 @@ import {
   Layers, Smartphone, Shield, Brain, Workflow, Box, Cloud, Code,
   Network, MessageCircle, Users, Sparkles, Eye, FileText, CheckCircle, 
   Monitor, Zap, Gauge, ChevronRight, Play, Compass, ArrowRight,
-  RefreshCw, Flame, Target, X, Check
+  RefreshCw, Flame, Target, X, Check, Mic, Coins
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -56,6 +57,7 @@ export function MobileHomeFocused() {
   const { stats: channelStats } = useChannelStats();
   const { getSubscribedChannels, unsubscribeChannel } = useUserPreferences();
   const { stats: activityStats } = useGlobalStats();
+  const { balance, formatCredits, config } = useCredits();
   const subscribedChannels = getSubscribedChannels();
 
   const questionCounts: Record<string, number> = {};
@@ -78,6 +80,28 @@ export function MobileHomeFocused() {
 
   return (
     <div className="pb-20 sm:pb-8 max-w-4xl mx-auto">
+      {/* Credits Banner - Always visible */}
+      <section className="mx-3 sm:mx-0 mb-3">
+        <button
+          onClick={() => setLocation('/profile')}
+          className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/20 rounded-xl hover:from-amber-500/15 hover:to-yellow-500/15 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+              <Coins className="w-5 h-5 text-amber-500" />
+            </div>
+            <div className="text-left">
+              <div className="text-lg font-bold text-amber-400">{formatCredits(balance)}</div>
+              <div className="text-[10px] text-muted-foreground">Credits Available</div>
+            </div>
+          </div>
+          <div className="text-right text-[10px] text-muted-foreground">
+            <div className="text-green-400">+{config.VOICE_ATTEMPT} voice practice</div>
+            <div className="text-red-400">-{config.QUESTION_VIEW_COST} per question</div>
+          </div>
+        </button>
+      </section>
+
       {/* Hero: Quick Quiz or Welcome */}
       {hasChannels ? (
         <QuickQuizCard 
@@ -115,6 +139,11 @@ export function MobileHomeFocused() {
       {/* Coding Challenge CTA */}
       {hasChannels && (
         <CodingChallengeCard onStart={() => setLocation('/coding')} />
+      )}
+
+      {/* Voice Interview CTA */}
+      {hasChannels && (
+        <VoiceInterviewCard onStart={() => setLocation('/voice-interview')} />
       )}
 
       {/* Quick Start Topics for new users */}
@@ -279,6 +308,9 @@ function QuickQuizCard({
             </span>
             <span className="text-[10px] sm:text-xs text-muted-foreground">
               {currentIndex + 1}/{questions.length}
+            </span>
+            <span className="text-[9px] text-amber-400 flex items-center gap-0.5 ml-1">
+              <Coins className="w-2.5 h-2.5" />Free
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -612,7 +644,12 @@ function ChannelCard({
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
             {iconMap[channel.icon] || <Code className="w-5 h-5" />}
           </div>
-          <span className="text-lg font-bold text-primary">{progress}%</span>
+          <div className="text-right">
+            <span className="text-lg font-bold text-primary">{progress}%</span>
+            <div className="text-[9px] text-red-400 flex items-center justify-end gap-0.5">
+              <Coins className="w-2.5 h-2.5" />-2/q
+            </div>
+          </div>
         </div>
         
         <h4 className="font-semibold text-sm mb-1 truncate">{channel.name}</h4>
@@ -719,7 +756,12 @@ function ChannelRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <h4 className="font-medium text-sm sm:text-base truncate">{channel.name}</h4>
-            <span className="text-xs sm:text-sm text-muted-foreground ml-2">{progress}%</span>
+            <div className="flex items-center gap-2 ml-2">
+              <span className="text-[9px] text-red-400 flex items-center gap-0.5">
+                <Coins className="w-2.5 h-2.5" />-2
+              </span>
+              <span className="text-xs sm:text-sm text-muted-foreground">{progress}%</span>
+            </div>
           </div>
           <div className="h-1 sm:h-1.5 bg-muted rounded-full overflow-hidden">
             <div 
@@ -762,7 +804,35 @@ function CodingChallengeCard({ onStart }: { onStart: () => void }) {
           <h3 className="font-semibold text-sm sm:text-base">Practice Coding</h3>
           <p className="text-xs sm:text-sm text-muted-foreground">Solve real interview challenges</p>
         </div>
-        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+        <div className="flex flex-col items-end gap-1">
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+        </div>
+      </button>
+    </section>
+  );
+}
+
+// Voice Interview CTA
+function VoiceInterviewCard({ onStart }: { onStart: () => void }) {
+  return (
+    <section className="mx-3 sm:mx-0 mb-2 sm:mb-4">
+      <button
+        onClick={onStart}
+        className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl sm:rounded-2xl border border-emerald-500/20 p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:from-emerald-500/15 hover:to-teal-500/15 transition-colors"
+      >
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-emerald-500/20 flex items-center justify-center">
+          <Mic className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />
+        </div>
+        <div className="flex-1 text-left">
+          <h3 className="font-semibold text-sm sm:text-base">Voice Interview</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">Practice answering out loud</p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <span className="text-[10px] font-bold text-green-400 flex items-center gap-0.5">
+            <Coins className="w-3 h-3" />+10
+          </span>
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+        </div>
       </button>
     </section>
   );

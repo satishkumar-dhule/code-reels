@@ -8,7 +8,7 @@ import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { 
   Brain, Flame, ChevronRight, 
-  Trophy, Zap
+  Trophy, Zap, Coins
 } from 'lucide-react';
 import { 
   getSRSStats, getDueCards, getMasteryColor, getMasteryEmoji, getUserXP,
@@ -72,6 +72,9 @@ export function DailyReviewCard() {
               <span className="text-xs font-bold text-purple-400">Lv.{userXP.level}</span>
             </div>
             <span className="text-xs text-muted-foreground">{userXP.totalXP} XP</span>
+            <span className="text-[9px] text-amber-400 flex items-center gap-0.5">
+              <Coins className="w-2.5 h-2.5" />Free
+            </span>
           </div>
           {stats.reviewStreak > 0 && (
             <motion.div 

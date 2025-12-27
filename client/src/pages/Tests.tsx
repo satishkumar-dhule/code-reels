@@ -7,12 +7,13 @@ import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Trophy, Target, Clock, CheckCircle, Lock,
-  ChevronRight, Star, BarChart2
+  ChevronRight, Star, BarChart2, Mic, Coins
 } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
 import { 
   Test, loadTests, getAllTestProgress, TestProgress, getTestStats 
 } from '../lib/tests';
+import { useCredits } from '../context/CreditsContext';
 
 export default function Tests() {
   const [_, setLocation] = useLocation();
@@ -20,6 +21,7 @@ export default function Tests() {
   const [loading, setLoading] = useState(true);
   const progress = getAllTestProgress();
   const stats = getTestStats();
+  const { balance, formatCredits, config } = useCredits();
 
   useEffect(() => {
     loadTests().then(t => {
@@ -81,12 +83,38 @@ export default function Tests() {
               <div className="text-lg font-bold">{stats.averageScore}%</div>
               <div className="text-[9px] text-muted-foreground uppercase">Avg Score</div>
             </div>
-            <div className="border border-border p-3 bg-card rounded-lg text-center">
-              <Star className="w-5 h-5 mx-auto mb-1 text-yellow-500" />
-              <div className="text-lg font-bold">{tests.length}</div>
-              <div className="text-[9px] text-muted-foreground uppercase">Available</div>
-            </div>
+            <button 
+              onClick={() => setLocation('/profile')}
+              className="border border-amber-500/30 p-3 bg-amber-500/10 rounded-lg text-center hover:bg-amber-500/20 transition-colors"
+            >
+              <Coins className="w-5 h-5 mx-auto mb-1 text-amber-500" />
+              <div className="text-lg font-bold text-amber-500">{formatCredits(balance)}</div>
+              <div className="text-[9px] text-muted-foreground uppercase">Credits</div>
+            </button>
           </motion.div>
+
+          {/* Voice Interview CTA */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            onClick={() => setLocation('/voice-interview')}
+            className="w-full mb-6 p-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-lg flex items-center gap-4 hover:from-emerald-500/20 hover:to-teal-500/20 transition-colors"
+          >
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+              <Mic className="w-6 h-6 text-emerald-500" />
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="font-bold">Voice Interview Practice</h3>
+              <p className="text-xs text-muted-foreground">Answer questions out loud and get AI feedback</p>
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-xs font-bold text-green-400 flex items-center gap-1">
+                <Coins className="w-3 h-3" />+{config.VOICE_ATTEMPT}
+              </span>
+              <ChevronRight className="w-5 h-5 text-emerald-500" />
+            </div>
+          </motion.button>
 
           {/* Tests List */}
           {loading ? (

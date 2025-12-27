@@ -24,11 +24,14 @@ import Profile from "@/pages/Profile";
 import Notifications from "@/pages/Notifications";
 import Bookmarks from "@/pages/Bookmarks";
 import ReviewSession from "@/pages/ReviewSession";
+import VoiceInterview from "@/pages/VoiceInterview";
 import { Onboarding } from "./components/Onboarding";
 import { MarvelIntro, useMarvelIntro } from "./components/MarvelIntro";
 import { ThemeProvider } from "./context/ThemeContext";
 import { UserPreferencesProvider, useUserPreferences } from "./context/UserPreferencesContext";
 import { BadgeProvider } from "./context/BadgeContext";
+import { CreditsProvider, useCredits } from "./context/CreditsContext";
+import { CreditSplash } from "./components/CreditsDisplay";
 import { usePageViewTracking, useSessionTracking, useInteractionTracking } from "./hooks/use-analytics";
 import { AnimatePresence } from "framer-motion";
 import { preloadQuestions } from "./lib/questions-loader";
@@ -80,6 +83,7 @@ function Router() {
       <Route path="/notifications" component={Notifications} />
       <Route path="/bookmarks" component={Bookmarks} />
       <Route path="/review" component={ReviewSession} />
+      <Route path="/voice-interview" component={VoiceInterview} />
       <Route path="/test/mermaid" component={MermaidTest} />
       <Route path="/channel/:id" component={QuestionViewer} />
       <Route path="/channel/:id/:index" component={QuestionViewer} />
@@ -129,7 +133,20 @@ function AppContent() {
       <Router />
       <PixelMascot />
       <BackgroundMascots />
+      <GlobalCreditSplash />
     </>
+  );
+}
+
+// Global credit splash component
+function GlobalCreditSplash() {
+  const { creditChange, clearCreditChange } = useCredits();
+  return (
+    <CreditSplash 
+      amount={creditChange.amount} 
+      show={creditChange.show} 
+      onComplete={clearCreditChange}
+    />
   );
 }
 
@@ -141,9 +158,11 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <BadgeProvider>
-                <StagingBanner />
-                <Toaster />
-                <AppContent />
+                <CreditsProvider>
+                  <StagingBanner />
+                  <Toaster />
+                  <AppContent />
+                </CreditsProvider>
               </BadgeProvider>
             </TooltipProvider>
           </QueryClientProvider>

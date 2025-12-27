@@ -25,6 +25,7 @@ export interface Question {
   tldr?: string;
   relevanceScore?: number;
   relevanceDetails?: RelevanceDetails;
+  voiceKeywords?: string[]; // Mandatory keywords for voice interview evaluation
   lastUpdated?: string;
   createdAt?: string;
 }

@@ -36,6 +36,7 @@ function parseQuestionRow(row) {
     companies: row.companies ? JSON.parse(row.companies) : null,
     eli5: row.eli5,
     relevanceScore: row.relevance_score,
+    voiceKeywords: row.voice_keywords ? JSON.parse(row.voice_keywords) : null,
     lastUpdated: row.last_updated,
     createdAt: row.created_at,
   };

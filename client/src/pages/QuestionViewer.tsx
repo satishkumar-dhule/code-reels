@@ -10,10 +10,12 @@ import { getChannel } from '../lib/data';
 import { useQuestionsWithPrefetch, useSubChannels, useCompaniesWithCounts } from '../hooks/use-questions';
 import { useProgress, trackActivity } from '../hooks/use-progress';
 import { useUserPreferences } from '../context/UserPreferencesContext';
+import { useCredits } from '../context/CreditsContext';
 import { SEOHead } from '../components/SEOHead';
 import { QuestionPanel } from '../components/QuestionPanel';
 import { AnswerPanel } from '../components/AnswerPanel';
 import { UnifiedSearch } from '../components/UnifiedSearch';
+import { VoiceReminder } from '../components/VoiceReminder';
 import { trackQuestionView } from '../hooks/use-analytics';
 import { useToast } from '../hooks/use-toast';
 import { useSwipe } from '../hooks/use-swipe';
@@ -68,6 +70,9 @@ export default function QuestionViewer() {
   const { preferences } = useUserPreferences();
   const shuffleEnabled = preferences.shuffleQuestions !== false;
   const prioritizeUnvisited = preferences.prioritizeUnvisited !== false;
+
+  // Credits system
+  const { onQuestionSwipe, onQuestionView } = useCredits();
 
   const { question: currentQuestion, questions, totalQuestions, loading, error } = useQuestionsWithPrefetch(
     channelId || '',
@@ -184,6 +189,10 @@ export default function QuestionViewer() {
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex(prev => prev + 1);
       setMobileView('question');
+      // Track swipe for voice reminder
+      onQuestionSwipe();
+      // Deduct credits for viewing
+      onQuestionView();
     }
   };
 
@@ -403,6 +412,9 @@ export default function QuestionViewer() {
       </div>
 
       <UnifiedSearch isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
+      
+      {/* Voice Interview Reminder */}
+      <VoiceReminder />
     </>
   );
 }
