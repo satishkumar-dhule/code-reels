@@ -11,12 +11,12 @@
     },
     {
       "botName": "processor",
-      "totalRuns": 2,
-      "successfulRuns": 1,
+      "totalRuns": 3,
+      "successfulRuns": 2,
       "totalCreated": 0,
-      "totalUpdated": 5,
+      "totalUpdated": 7,
       "totalDeleted": 0,
-      "lastRun": "2025-12-28T01:58:42.973Z"
+      "lastRun": "2025-12-28T02:37:34.780Z"
     },
     {
       "botName": "verifier",
@@ -29,6 +29,24 @@
     }
   ],
   "runs": [
+    {
+      "id": 8,
+      "botName": "processor",
+      "startedAt": "2025-12-28T02:37:34.780Z",
+      "completedAt": "2025-12-28T02:37:52.223Z",
+      "status": "completed",
+      "itemsProcessed": 2,
+      "itemsCreated": 0,
+      "itemsUpdated": 2,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 2,
+        "updated": 2,
+        "deleted": 0,
+        "failed": 0
+      }
+    },
     {
       "id": 7,
       "botName": "processor",
@@ -140,7 +158,7 @@
       "itemId": "q-351",
       "action": "improve",
       "priority": 2,
-      "status": "pending",
+      "status": "completed",
       "reason": "placeholder_content | Feedback: Add complete code example and demonstrate error handling scenarios",
       "createdBy": "verifier",
       "createdAt": "2025-12-28T01:58:18.598Z"
@@ -492,13 +510,31 @@
       "itemId": "q-610",
       "action": "improve",
       "priority": 4,
-      "status": "pending",
+      "status": "completed",
       "reason": "missing_question_mark | Feedback: Expand on trade-offs between algorithms and include specific e-commerce considerations like session persistence and burst handling.",
       "createdBy": "verifier",
       "createdAt": "2025-12-28T01:57:27.277Z"
     }
   ],
   "ledger": [
+    {
+      "id": 97,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-610",
+      "reason": "Processed: missing_question_mark | Feedback: Expand on trade-offs between algorithms and include specific e-commerce considerations like session persistence and burst handling.",
+      "createdAt": "2025-12-28T02:37:50.032Z"
+    },
+    {
+      "id": 96,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-351",
+      "reason": "Processed: placeholder_content | Feedback: Add complete code example and demonstrate error handling scenarios",
+      "createdAt": "2025-12-28T02:37:43.984Z"
+    },
     {
       "id": 95,
       "botName": "processor",
@@ -1355,5 +1391,5 @@
       "createdAt": "2025-12-27T12:51:32.682Z"
     }
   ],
-  "generatedAt": "2025-12-28T02:28:56.404Z"
+  "generatedAt": "2025-12-28T02:38:11.175Z"
 }
