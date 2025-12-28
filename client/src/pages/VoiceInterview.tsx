@@ -1,7 +1,8 @@
 /**
  * Voice Interview Practice Page
  * - Uses Web Speech API for browser-based transcription
- * - Compares spoken answer with ideal answer
+ * - Advanced client-side evaluation with semantic matching
+ * - Multi-dimensional scoring (technical, structure, communication)
  * - Provides hire/no-hire feedback with detailed scoring
  * - Sarcastic interviewer personality for entertainment
  */
@@ -13,7 +14,8 @@ import {
   Mic, MicOff, Play, Square, RotateCcw, Home, ChevronRight,
   CheckCircle, XCircle, AlertCircle, Volume2, Loader2, Sparkles,
   ThumbsUp, ThumbsDown, Minus, Clock, Target, MessageSquare, Coins, Edit3,
-  SkipForward, ExternalLink, Shuffle, ChevronLeft, MoreHorizontal, User
+  SkipForward, ExternalLink, Shuffle, ChevronLeft, MoreHorizontal, User,
+  BarChart3, Brain, Lightbulb
 } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
 import { getAllQuestionsAsync } from '../lib/questions-loader';
@@ -21,6 +23,7 @@ import { useCredits } from '../context/CreditsContext';
 import { useUserPreferences } from '../hooks/use-user-preferences';
 import { CreditsDisplay } from '../components/CreditsDisplay';
 import { ListenButton } from '../components/ListenButton';
+import { evaluateVoiceAnswer, type EvaluationResult } from '../lib/voice-evaluation';
 import type { Question } from '../types';
 
 // Interviewer comments type
@@ -37,16 +40,6 @@ interface InterviewerComments {
   idle: string[];
 }
 
-interface EvaluationResult {
-  score: number; // 0-100
-  verdict: 'strong-hire' | 'hire' | 'lean-hire' | 'lean-no-hire' | 'no-hire';
-  keyPointsCovered: string[];
-  keyPointsMissed: string[];
-  feedback: string;
-  strengths: string[];
-  improvements: string[];
-}
-
 type InterviewState = 'loading' | 'ready' | 'recording' | 'editing' | 'processing' | 'evaluated';
 
 // Check if Web Speech API is supported
@@ -58,7 +51,12 @@ function getRandomComment(comments: string[]): string {
   return comments[Math.floor(Math.random() * comments.length)];
 }
 
-export default function VoiceInterview() {
+// Determine question type from channel
+function getQuestionType(channel: string): 'technical' | 'behavioral' | 'system-design' {
+  if (channel === 'behavioral' || channel === 'engineering-management') return 'behavioral';
+  if (channel === 'system-design') return 'system-design';
+  return 'technical';
+}export default function VoiceInterview() {
   const [, setLocation] = useLocation();
   const [state, setState] = useState<InterviewState>('loading');
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -259,9 +257,15 @@ export default function VoiceInterview() {
     
     setState('processing');
     
-    // Evaluate the answer using voiceKeywords from database if available
+    // Evaluate the answer using advanced client-side evaluation
     setTimeout(() => {
-      const result = evaluateAnswer(transcript, currentQuestion.answer, currentQuestion.voiceKeywords);
+      const questionType = getQuestionType(currentQuestion.channel);
+      const result = evaluateVoiceAnswer(
+        transcript, 
+        currentQuestion.answer, 
+        currentQuestion.voiceKeywords,
+        questionType
+      );
       setEvaluation(result);
       
       // Award credits for the attempt
@@ -276,7 +280,7 @@ export default function VoiceInterview() {
       }
       
       setState('evaluated');
-    }, 500);
+    }, 800); // Slightly longer delay for "analysis" feel
   }, [transcript, currentQuestion, onVoiceInterview, showComment]);
 
   const nextQuestion = useCallback(() => {
@@ -769,7 +773,7 @@ export default function VoiceInterview() {
                     </div>
                     <div className="text-right">
                       <div className="text-3xl font-bold">{evaluation.score}%</div>
-                      <div className="text-xs opacity-70">Match Score</div>
+                      <div className="text-xs opacity-70">Overall Score</div>
                     </div>
                   </div>
                   
@@ -786,23 +790,88 @@ export default function VoiceInterview() {
                   <p className="text-sm">{evaluation.feedback}</p>
                 </div>
 
+                {/* Multi-Dimensional Scores */}
+                {evaluation.scores && (
+                  <div className="p-4 bg-card border border-border rounded-lg">
+                    <h4 className="font-bold flex items-center gap-2 mb-4">
+                      <BarChart3 className="w-4 h-4 text-primary" />
+                      Detailed Analysis
+                    </h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <ScoreDimension 
+                        label="Technical" 
+                        score={evaluation.scores.technical} 
+                        icon={<Brain className="w-4 h-4" />}
+                        description="Accuracy & depth"
+                      />
+                      <ScoreDimension 
+                        label="Completeness" 
+                        score={evaluation.scores.completeness} 
+                        icon={<Target className="w-4 h-4" />}
+                        description="Coverage of concepts"
+                      />
+                      <ScoreDimension 
+                        label="Structure" 
+                        score={evaluation.scores.structure} 
+                        icon={<Lightbulb className="w-4 h-4" />}
+                        description="Organization"
+                      />
+                      <ScoreDimension 
+                        label="Communication" 
+                        score={evaluation.scores.communication} 
+                        icon={<MessageSquare className="w-4 h-4" />}
+                        description="Clarity & fluency"
+                      />
+                    </div>
+                    
+                    {/* Structure Analysis */}
+                    {evaluation.structureAnalysis && (
+                      <div className="mt-4 pt-4 border-t border-border/50">
+                        <div className="flex flex-wrap gap-2">
+                          {evaluation.structureAnalysis.hasIntroduction && (
+                            <span className="px-2 py-1 text-xs bg-green-500/20 text-green-400 rounded">✓ Introduction</span>
+                          )}
+                          {evaluation.structureAnalysis.hasExamples && (
+                            <span className="px-2 py-1 text-xs bg-green-500/20 text-green-400 rounded">✓ Examples</span>
+                          )}
+                          {evaluation.structureAnalysis.hasConclusion && (
+                            <span className="px-2 py-1 text-xs bg-green-500/20 text-green-400 rounded">✓ Conclusion</span>
+                          )}
+                          {evaluation.structureAnalysis.usesSTAR && (
+                            <span className="px-2 py-1 text-xs bg-primary/20 text-primary rounded">⭐ STAR Method</span>
+                          )}
+                          {evaluation.fluencyMetrics && evaluation.fluencyMetrics.fillerWordCount > 3 && (
+                            <span className="px-2 py-1 text-xs bg-orange-500/20 text-orange-400 rounded">
+                              ⚠ {evaluation.fluencyMetrics.fillerWordCount} filler words
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Key Points */}
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* Covered Points */}
                   <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
                     <h4 className="font-bold text-green-400 flex items-center gap-2 mb-3">
                       <CheckCircle className="w-4 h-4" />
-                      Key Points Covered ({evaluation.keyPointsCovered.length})
+                      Concepts Covered ({evaluation.keyPointsCovered.length})
                     </h4>
                     <ul className="space-y-2">
                       {evaluation.keyPointsCovered.map((point, i) => (
                         <li key={i} className="text-sm flex items-start gap-2">
                           <span className="text-green-400 mt-1">✓</span>
-                          <span>{point}</span>
+                          <span>
+                            {typeof point === 'object' && 'concept' in point 
+                              ? `${point.concept}${point.confidence !== 'exact' ? ` (as "${point.matchedAs}")` : ''}`
+                              : point}
+                          </span>
                         </li>
                       ))}
                       {evaluation.keyPointsCovered.length === 0 && (
-                        <li className="text-sm text-muted-foreground">No key points identified</li>
+                        <li className="text-sm text-muted-foreground">No key concepts identified</li>
                       )}
                     </ul>
                   </div>
@@ -811,7 +880,7 @@ export default function VoiceInterview() {
                   <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
                     <h4 className="font-bold text-red-400 flex items-center gap-2 mb-3">
                       <XCircle className="w-4 h-4" />
-                      Key Points Missed ({evaluation.keyPointsMissed.length})
+                      Concepts to Include ({evaluation.keyPointsMissed.length})
                     </h4>
                     <ul className="space-y-2">
                       {evaluation.keyPointsMissed.map((point, i) => (
@@ -821,7 +890,7 @@ export default function VoiceInterview() {
                         </li>
                       ))}
                       {evaluation.keyPointsMissed.length === 0 && (
-                        <li className="text-sm text-muted-foreground">Great job covering all points!</li>
+                        <li className="text-sm text-muted-foreground">Great job covering all concepts!</li>
                       )}
                     </ul>
                   </div>
@@ -882,6 +951,51 @@ export default function VoiceInterview() {
   );
 }
 
+// Score dimension component for detailed analysis
+function ScoreDimension({ 
+  label, 
+  score, 
+  icon, 
+  description 
+}: { 
+  label: string; 
+  score: number; 
+  icon: React.ReactNode; 
+  description: string;
+}) {
+  const getColor = (s: number) => {
+    if (s >= 70) return 'text-green-400';
+    if (s >= 50) return 'text-yellow-400';
+    if (s >= 30) return 'text-orange-400';
+    return 'text-red-400';
+  };
+  
+  const getBgColor = (s: number) => {
+    if (s >= 70) return 'bg-green-500';
+    if (s >= 50) return 'bg-yellow-500';
+    if (s >= 30) return 'bg-orange-500';
+    return 'bg-red-500';
+  };
+  
+  return (
+    <div className="text-center">
+      <div className={`flex items-center justify-center gap-1 mb-1 ${getColor(score)}`}>
+        {icon}
+        <span className="text-xs font-medium">{label}</span>
+      </div>
+      <div className="text-2xl font-bold">{score}%</div>
+      <div className="h-1 bg-muted rounded-full overflow-hidden mt-1">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${score}%` }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className={`h-full ${getBgColor(score)}`}
+        />
+      </div>
+      <div className="text-[10px] text-muted-foreground mt-1">{description}</div>
+    </div>
+  );
+}
 
 // Helper functions for verdict display
 function getVerdictStyle(verdict: EvaluationResult['verdict']): string {
@@ -928,349 +1042,4 @@ function getScoreBarColor(score: number): string {
   if (score >= 40) return 'bg-yellow-500';
   if (score >= 25) return 'bg-orange-500';
   return 'bg-red-500';
-}
-
-// Evaluate answer by comparing with mandatory keywords from database
-// This runs entirely in the browser (edge) - no API calls
-// Uses fuzzy matching to handle pronunciation variations
-function evaluateAnswer(userAnswer: string, idealAnswer: string, voiceKeywords?: string[]): EvaluationResult {
-  const userWords = userAnswer.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-  const idealWords = idealAnswer.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-  
-  // Use voiceKeywords from database if available, otherwise fall back to extraction
-  const mandatoryKeywords = voiceKeywords && voiceKeywords.length > 0 
-    ? voiceKeywords 
-    : extractKeyTerms(idealAnswer);
-  
-  // Use fuzzy matching for keyword coverage (handles pronunciation errors)
-  const coveredTerms: string[] = [];
-  const missedTerms: string[] = [];
-  
-  for (const keyword of mandatoryKeywords) {
-    if (fuzzyMatch(userAnswer.toLowerCase(), keyword.toLowerCase())) {
-      coveredTerms.push(keyword);
-    } else {
-      missedTerms.push(keyword);
-    }
-  }
-  
-  // Calculate keyword coverage - this is the PRIMARY scoring factor
-  const keywordCoverage = mandatoryKeywords.length > 0 
-    ? coveredTerms.length / mandatoryKeywords.length
-    : 0;
-  
-  // Calculate fuzzy word overlap as secondary factor
-  let matchedWords = 0;
-  for (const userWord of userWords) {
-    for (const idealWord of idealWords) {
-      if (fuzzyWordMatch(userWord, idealWord)) {
-        matchedWords++;
-        break;
-      }
-    }
-  }
-  const wordOverlap = Math.min(matchedWords / Math.max(idealWords.length * 0.2, 1), 1);
-  
-  // Calculate length score - need substantial answer (at least 40 words for full credit)
-  const minWords = 40;
-  const lengthScore = Math.min(userWords.length / minWords, 1);
-  
-  // Penalize very short answers heavily
-  const shortAnswerPenalty = userWords.length < 10 ? 0.2 : userWords.length < 20 ? 0.5 : userWords.length < 30 ? 0.8 : 1;
-  
-  // Combined score - keyword coverage is PRIMARY (60%), rest is secondary
-  let score = (
-    keywordCoverage * 60 +   // Mandatory keywords are most important
-    wordOverlap * 20 +       // Word overlap as secondary
-    lengthScore * 20         // Length shows effort
-  ) * shortAnswerPenalty;
-  
-  score = Math.min(Math.round(score), 100);
-  
-  // Verdict based on keyword coverage primarily
-  let verdict: EvaluationResult['verdict'];
-  const keywordPercent = mandatoryKeywords.length > 0 ? (coveredTerms.length / mandatoryKeywords.length) * 100 : 0;
-  
-  if (keywordPercent >= 70 && score >= 70) verdict = 'strong-hire';
-  else if (keywordPercent >= 50 && score >= 55) verdict = 'hire';
-  else if (keywordPercent >= 35 && score >= 40) verdict = 'lean-hire';
-  else if (keywordPercent >= 20 && score >= 25) verdict = 'lean-no-hire';
-  else verdict = 'no-hire';
-  
-  // Generate feedback
-  const feedback = generateFeedback(score, coveredTerms.length, mandatoryKeywords.length, userWords.length);
-  
-  // Generate strengths and improvements
-  const strengths = generateStrengths(score, coveredTerms, userWords.length, idealWords.length);
-  const improvements = generateImprovements(score, missedTerms, userWords.length, idealWords.length);
-  
-  return {
-    score,
-    verdict,
-    keyPointsCovered: coveredTerms.slice(0, 5),
-    keyPointsMissed: missedTerms.slice(0, 5),
-    feedback,
-    strengths,
-    improvements
-  };
-}
-
-// Fuzzy match a term in text (handles pronunciation variations)
-function fuzzyMatch(text: string, term: string): boolean {
-  // Direct match
-  if (text.includes(term)) return true;
-  
-  // Check for common pronunciation variations
-  const variations = getPronunciationVariations(term);
-  for (const variation of variations) {
-    if (text.includes(variation)) return true;
-  }
-  
-  // Check if words are similar (Levenshtein-like)
-  const textWords = text.split(/\s+/);
-  for (const word of textWords) {
-    if (similarEnough(word, term)) return true;
-  }
-  
-  return false;
-}
-
-// Check if two words are similar enough (handles typos/pronunciation)
-function fuzzyWordMatch(word1: string, word2: string): boolean {
-  if (word1 === word2) return true;
-  if (word1.length < 3 || word2.length < 3) return word1 === word2;
-  
-  // Check if one contains the other
-  if (word1.includes(word2) || word2.includes(word1)) return true;
-  
-  // Check similarity
-  return similarEnough(word1, word2);
-}
-
-// Simple similarity check (prefix/suffix matching + edit distance approximation)
-function similarEnough(a: string, b: string): boolean {
-  if (a === b) return true;
-  
-  const minLen = Math.min(a.length, b.length);
-  const maxLen = Math.max(a.length, b.length);
-  
-  // If lengths are very different, not similar
-  if (maxLen - minLen > 3) return false;
-  
-  // Check common prefix (at least 60% match)
-  let commonPrefix = 0;
-  for (let i = 0; i < minLen; i++) {
-    if (a[i] === b[i]) commonPrefix++;
-    else break;
-  }
-  if (commonPrefix >= minLen * 0.6) return true;
-  
-  // Check if most characters match (simple approximation)
-  let matches = 0;
-  const aChars = a.split('');
-  const bChars = b.split('');
-  for (const char of aChars) {
-    const idx = bChars.indexOf(char);
-    if (idx !== -1) {
-      matches++;
-      bChars.splice(idx, 1);
-    }
-  }
-  
-  return matches >= minLen * 0.7;
-}
-
-// Get common pronunciation variations for technical terms
-function getPronunciationVariations(term: string): string[] {
-  const variations: string[] = [term];
-  const lower = term.toLowerCase();
-  
-  // Common speech-to-text errors and variations
-  const mappings: Record<string, string[]> = {
-    'api': ['a p i', 'apa', 'apy', 'apis'],
-    'sql': ['sequel', 's q l', 'sequel'],
-    'nosql': ['no sequel', 'no sql', 'nosql'],
-    'aws': ['a w s', 'amazon web services', 'amazon'],
-    'gcp': ['g c p', 'google cloud', 'google'],
-    'azure': ['asure', 'azur', 'microsoft azure'],
-    'kubernetes': ['k8s', 'kube', 'kuber', 'kubernete', 'kubernetes'],
-    'docker': ['dokker', 'dockr', 'containers'],
-    'ci/cd': ['ci cd', 'cicd', 'continuous integration', 'continuous deployment'],
-    'graphql': ['graph ql', 'graph', 'graphical'],
-    'rest': ['restful', 'rest api', 'representational'],
-    'jwt': ['j w t', 'json web token', 'token'],
-    'oauth': ['o auth', 'o off', 'authentication'],
-    'cdn': ['c d n', 'content delivery', 'cloudfront'],
-    'redis': ['red is', 'redus', 'cache'],
-    'kafka': ['cafka', 'kafca', 'message queue'],
-    'mongodb': ['mongo', 'mongo db', 'document database'],
-    'postgresql': ['postgres', 'post gres', 'postgre'],
-    'mysql': ['my sequel', 'my sql', 'maria'],
-    'microservice': ['micro service', 'microservices', 'micro'],
-    'monolith': ['monolithic', 'mono', 'single service'],
-    'scalability': ['scale', 'scaling', 'scalable'],
-    'availability': ['available', 'uptime', 'high availability'],
-    'reliability': ['reliable', 'dependable'],
-    'latency': ['delay', 'response time', 'lag'],
-    'throughput': ['through put', 'bandwidth', 'capacity'],
-    'load balancer': ['load balance', 'balancer', 'lb', 'nginx'],
-    'authentication': ['auth', 'login', 'sign in'],
-    'authorization': ['authz', 'permissions', 'access control'],
-    'monitoring': ['monitor', 'observability', 'metrics'],
-    'logging': ['logs', 'log', 'audit'],
-    'terraform': ['terra form', 'infrastructure as code', 'iac'],
-    'ansible': ['ansible', 'configuration management'],
-    'pipeline': ['pipe line', 'workflow', 'build'],
-    'deployment': ['deploy', 'release', 'ship'],
-    'container': ['containers', 'containerized', 'containerization'],
-    'serverless': ['server less', 'lambda', 'functions'],
-    'lambda': ['lamba', 'function', 'serverless'],
-    'ec2': ['e c 2', 'ec two', 'instance', 'virtual machine'],
-    's3': ['s 3', 's three', 'bucket', 'storage'],
-    'queue': ['q', 'message queue', 'messaging'],
-    'pub/sub': ['pub sub', 'publish subscribe', 'pubsub'],
-    'event-driven': ['event driven', 'events', 'reactive'],
-    'circuit breaker': ['circuit break', 'breaker', 'fallback'],
-    'cqrs': ['c q r s', 'command query', 'separation'],
-    'saga': ['sagas', 'distributed transaction'],
-    'stakeholder': ['stake holder', 'stakeholders', 'business'],
-    'collaboration': ['collaborate', 'teamwork', 'working together'],
-    'communication': ['communicate', 'talking', 'discussion'],
-    'leadership': ['leader', 'leading', 'manage'],
-    'prioritize': ['priority', 'priorities', 'prioritization'],
-    'deadline': ['deadlines', 'timeline', 'due date'],
-    'conflict': ['conflicts', 'disagreement', 'issue'],
-    'resolution': ['resolve', 'solving', 'solution'],
-    'feedback': ['feed back', 'review', 'input'],
-  };
-  
-  if (mappings[lower]) {
-    variations.push(...mappings[lower]);
-  }
-  
-  // Add plural/singular variations
-  if (lower.endsWith('s')) {
-    variations.push(lower.slice(0, -1));
-  } else {
-    variations.push(lower + 's');
-  }
-  
-  // Add common suffix variations
-  if (lower.endsWith('ing')) {
-    variations.push(lower.slice(0, -3));
-    variations.push(lower.slice(0, -3) + 'e');
-  }
-  if (lower.endsWith('tion')) {
-    variations.push(lower.slice(0, -4) + 'te');
-  }
-  
-  return variations;
-}
-
-function extractKeyTerms(text: string): string[] {
-  // Common technical terms and patterns to look for
-  const patterns = [
-    // Technical concepts
-    /\b(api|rest|graphql|grpc|websocket|http|https|tcp|udp)\b/gi,
-    /\b(database|sql|nosql|mongodb|postgresql|mysql|redis|cache)\b/gi,
-    /\b(kubernetes|docker|container|microservice|monolith)\b/gi,
-    /\b(aws|azure|gcp|cloud|serverless|lambda|ec2|s3)\b/gi,
-    /\b(ci\/cd|pipeline|deployment|devops|terraform|ansible)\b/gi,
-    /\b(scalability|availability|reliability|latency|throughput)\b/gi,
-    /\b(load balancer|cdn|proxy|gateway|firewall)\b/gi,
-    /\b(authentication|authorization|oauth|jwt|security)\b/gi,
-    /\b(monitoring|logging|alerting|metrics|observability)\b/gi,
-    /\b(queue|kafka|rabbitmq|sqs|pub\/sub|event-driven)\b/gi,
-    // Architecture patterns
-    /\b(singleton|factory|observer|strategy|adapter)\b/gi,
-    /\b(cqrs|event sourcing|saga|circuit breaker)\b/gi,
-    // Behavioral keywords
-    /\b(stakeholder|communication|collaboration|leadership)\b/gi,
-    /\b(prioritize|deadline|conflict|resolution|feedback)\b/gi,
-  ];
-  
-  const terms = new Set<string>();
-  
-  for (const pattern of patterns) {
-    const matches = text.match(pattern);
-    if (matches) {
-      matches.forEach(m => terms.add(m.toLowerCase()));
-    }
-  }
-  
-  // Also extract capitalized terms (likely proper nouns/technologies)
-  const capitalizedPattern = /\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*\b/g;
-  const capitalizedMatches = text.match(capitalizedPattern);
-  if (capitalizedMatches) {
-    capitalizedMatches
-      .filter(m => m.length > 3 && !['The', 'This', 'That', 'When', 'What', 'How', 'Why'].includes(m))
-      .slice(0, 10)
-      .forEach(m => terms.add(m.toLowerCase()));
-  }
-  
-  return Array.from(terms);
-}
-
-function generateFeedback(score: number, covered: number, total: number, wordCount: number): string {
-  if (score >= 70) {
-    return `Great answer! You covered ${covered} key concepts. Your response shows solid understanding of the topic.`;
-  } else if (score >= 55) {
-    return `Good answer! You mentioned ${covered} key concepts. Consider adding a few more specific details.`;
-  } else if (score >= 40) {
-    return `Decent attempt with ${covered} key points covered. Try to expand on the core concepts more.`;
-  } else if (score >= 25) {
-    return `You touched on some points but could go deeper. ${covered} concepts were identified. Review the ideal answer for more ideas.`;
-  } else {
-    return `Keep practicing! Try to mention more specific technical terms and concepts in your answer.`;
-  }
-}
-
-function generateStrengths(score: number, coveredTerms: string[], userWordCount: number, idealWordCount: number): string[] {
-  const strengths: string[] = [];
-  
-  if (coveredTerms.length > 0) {
-    strengths.push(`Mentioned key terms: ${coveredTerms.slice(0, 3).join(', ')}`);
-  }
-  
-  if (userWordCount >= idealWordCount * 0.7) {
-    strengths.push('Good answer length with sufficient detail');
-  }
-  
-  if (score >= 60) {
-    strengths.push('Demonstrated understanding of core concepts');
-  }
-  
-  if (coveredTerms.length >= 3) {
-    strengths.push('Covered multiple relevant technical areas');
-  }
-  
-  if (strengths.length === 0) {
-    strengths.push('Attempted to answer the question');
-  }
-  
-  return strengths;
-}
-
-function generateImprovements(score: number, missedTerms: string[], userWordCount: number, idealWordCount: number): string[] {
-  const improvements: string[] = [];
-  
-  if (missedTerms.length > 0) {
-    improvements.push(`Consider mentioning: ${missedTerms.slice(0, 3).join(', ')}`);
-  }
-  
-  if (userWordCount < idealWordCount * 0.5) {
-    improvements.push('Provide more detailed explanations');
-  }
-  
-  if (score < 60) {
-    improvements.push('Study the core concepts more thoroughly');
-  }
-  
-  if (score < 80) {
-    improvements.push('Add specific examples from your experience');
-  }
-  
-  improvements.push('Practice structuring answers with STAR method for behavioral questions');
-  
-  return improvements.slice(0, 4);
 }
