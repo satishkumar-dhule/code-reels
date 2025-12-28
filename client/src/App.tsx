@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -34,7 +34,7 @@ import { CreditsProvider, useCredits } from "./context/CreditsContext";
 import { CreditSplash } from "./components/CreditsDisplay";
 import { usePageViewTracking, useSessionTracking, useInteractionTracking } from "./hooks/use-analytics";
 import { AnimatePresence } from "framer-motion";
-import { preloadQuestions } from "./lib/questions-loader";
+import { preloadQuestions, getQuestionByIdAsync } from "./lib/questions-loader";
 import PixelMascot from "./components/PixelMascot";
 import BackgroundMascots from "./components/BackgroundMascots";
 
@@ -63,6 +63,42 @@ function useSpaRedirect() {
       }
     }
   }, [setLocation]);
+}
+
+// Handle ?search=q-XXX URL parameter to navigate directly to a question
+function useSearchParamRedirect() {
+  const [, setLocation] = useLocation();
+  const [isRedirecting, setIsRedirecting] = useState(() => {
+    // Check on initial render if we have a search param
+    const params = new URLSearchParams(window.location.search);
+    const searchParam = params.get('search');
+    return !!(searchParam && (searchParam.startsWith('q-') || searchParam.startsWith('gh-')));
+  });
+  
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const searchParam = params.get('search');
+    
+    // Check if it's a question ID (q-XXX or gh-XXX format)
+    if (searchParam && (searchParam.startsWith('q-') || searchParam.startsWith('gh-'))) {
+      // Preload questions first, then find and redirect
+      preloadQuestions().then(() => {
+        return getQuestionByIdAsync(searchParam);
+      }).then(question => {
+        if (question) {
+          // Navigate to the question
+          const targetUrl = `/channel/${question.channel}/${question.id}`;
+          window.history.replaceState(null, '', targetUrl);
+          setLocation(targetUrl);
+        }
+        setIsRedirecting(false);
+      }).catch(() => {
+        setIsRedirecting(false);
+      });
+    }
+  }, [setLocation]);
+  
+  return isRedirecting;
 }
 
 function Router() {
@@ -95,6 +131,9 @@ function AppContent() {
   // Handle SPA redirects from 404.html (GitHub Pages)
   useSpaRedirect();
   
+  // Handle ?search=q-XXX URL parameter
+  const isSearchRedirecting = useSearchParamRedirect();
+  
   // Initialize analytics hooks
   usePageViewTracking();
   useSessionTracking();
@@ -108,8 +147,8 @@ function AppContent() {
   const { needsOnboarding } = useUserPreferences();
   const { showIntro, isChecking, completeIntro } = useMarvelIntro();
   
-  // Don't render anything while checking localStorage
-  if (isChecking) {
+  // Don't render anything while checking localStorage or redirecting
+  if (isChecking || isSearchRedirecting) {
     return null;
   }
   
