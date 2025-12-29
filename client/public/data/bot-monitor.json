@@ -2,12 +2,12 @@
   "stats": [
     {
       "botName": "creator",
-      "totalRuns": 3,
-      "successfulRuns": 3,
-      "totalCreated": 5,
+      "totalRuns": 4,
+      "successfulRuns": 4,
+      "totalCreated": 8,
       "totalUpdated": 0,
       "totalDeleted": 0,
-      "lastRun": "2025-12-28T03:48:53.180Z"
+      "lastRun": "2025-12-29T03:50:18.717Z"
     },
     {
       "botName": "processor",
@@ -29,6 +29,20 @@
     }
   ],
   "runs": [
+    {
+      "id": 14,
+      "botName": "creator",
+      "startedAt": "2025-12-29T03:50:18.717Z",
+      "completedAt": "2025-12-29T03:51:46.002Z",
+      "status": "completed",
+      "itemsProcessed": 5,
+      "itemsCreated": 3,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Creator Bot completed successfully"
+      }
+    },
     {
       "id": 13,
       "botName": "processor",
@@ -576,6 +590,39 @@
       "createdAt": "2025-12-27T12:51:44.881Z"
     },
     {
+      "id": 41,
+      "itemType": "question",
+      "itemId": "q-617",
+      "action": "verify",
+      "priority": 3,
+      "status": "pending",
+      "reason": null,
+      "createdBy": "creator",
+      "createdAt": "2025-12-29T03:51:45.669Z"
+    },
+    {
+      "id": 40,
+      "itemType": "question",
+      "itemId": "q-616",
+      "action": "verify",
+      "priority": 3,
+      "status": "pending",
+      "reason": null,
+      "createdBy": "creator",
+      "createdAt": "2025-12-29T03:51:05.071Z"
+    },
+    {
+      "id": 39,
+      "itemType": "question",
+      "itemId": "q-615",
+      "action": "verify",
+      "priority": 3,
+      "status": "pending",
+      "reason": null,
+      "createdBy": "creator",
+      "createdAt": "2025-12-29T03:50:49.562Z"
+    },
+    {
       "id": 35,
       "itemType": "question",
       "itemId": "q-614",
@@ -643,6 +690,33 @@
     }
   ],
   "ledger": [
+    {
+      "id": 113,
+      "botName": "creator",
+      "action": "create",
+      "itemType": "question",
+      "itemId": "q-617",
+      "reason": "Created by Creator Bot",
+      "createdAt": "2025-12-29T03:51:45.058Z"
+    },
+    {
+      "id": 112,
+      "botName": "creator",
+      "action": "create",
+      "itemType": "question",
+      "itemId": "q-616",
+      "reason": "Created by Creator Bot",
+      "createdAt": "2025-12-29T03:51:04.460Z"
+    },
+    {
+      "id": 111,
+      "botName": "creator",
+      "action": "create",
+      "itemType": "question",
+      "itemId": "q-615",
+      "reason": "Created by Creator Bot",
+      "createdAt": "2025-12-29T03:50:48.942Z"
+    },
     {
       "id": 110,
       "botName": "processor",
@@ -1515,34 +1589,7 @@
       "itemId": "q-513",
       "reason": "Passed verification",
       "createdAt": "2025-12-27T12:59:38.587Z"
-    },
-    {
-      "id": 13,
-      "botName": "verifier",
-      "action": "flag",
-      "itemType": "question",
-      "itemId": "q-594",
-      "reason": "Flagged for improve: 1 issues found",
-      "createdAt": "2025-12-27T12:59:35.035Z"
-    },
-    {
-      "id": 12,
-      "botName": "creator",
-      "action": "create",
-      "itemType": "question",
-      "itemId": "q-611",
-      "reason": "Created by Creator Bot",
-      "createdAt": "2025-12-27T12:58:47.371Z"
-    },
-    {
-      "id": 11,
-      "botName": "creator",
-      "action": "create",
-      "itemType": "question",
-      "itemId": "q-610",
-      "reason": "Created by Creator Bot",
-      "createdAt": "2025-12-27T12:58:10.486Z"
     }
   ],
-  "generatedAt": "2025-12-28T06:37:59.265Z"
+  "generatedAt": "2025-12-29T03:52:09.664Z"
 }
