@@ -8,7 +8,7 @@
  * 1. User selects a session topic
  * 2. Questions are presented in order (easy → hard)
  * 3. Each question expects a focused 1-2 sentence answer
- * 4. Immediate feedback with keyword matching
+ * 4. Immediate feedback with weighted critical point matching
  * 5. Session summary with overall score
  */
 
@@ -29,11 +29,21 @@ export interface VoiceSession {
   estimatedMinutes: number;
 }
 
+/**
+ * Critical point - a key concept with weight
+ * Must be at least 2 words for meaningful comparison
+ */
+export interface CriticalPoint {
+  phrase: string;           // At least 2-word phrase (e.g., "load balancer", "eventual consistency")
+  weight: number;           // Weight 1-3 (1=nice-to-have, 2=important, 3=critical)
+  alternatives: string[];   // Alternative phrasings that count as a match
+}
+
 export interface SessionQuestion {
   id: string;
   question: string;
-  expectedKeywords: string[];      // Keywords from voiceKeywords
-  acceptablePhrases: string[];     // Generated alternatives
+  criticalPoints: CriticalPoint[];  // Weighted critical points for evaluation
+  idealAnswer: string;              // The ideal answer for practice mode
   difficulty: string;
   order: number;
 }
@@ -41,10 +51,12 @@ export interface SessionQuestion {
 export interface SessionAnswer {
   questionId: string;
   userAnswer: string;
-  score: number;                   // 0-100
-  keywordsCovered: string[];
-  keywordsMissed: string[];
-  isCorrect: boolean;              // Score >= 60
+  score: number;                    // 0-100
+  pointsCovered: { phrase: string; weight: number }[];
+  pointsMissed: { phrase: string; weight: number }[];
+  weightedScore: number;            // Score based on weights
+  maxPossibleScore: number;         // Total weight possible
+  isCorrect: boolean;               // Score >= 60
   feedback: string;
 }
 
@@ -122,11 +134,17 @@ export function buildSessionQuestions(
     if (question) {
       const keywords = question.voiceKeywords || [];
       
+      // Build critical points from keywords with weights
+      const criticalPoints = buildCriticalPoints(keywords);
+      
+      // Build ideal answer from the question's answer field
+      const idealAnswer = buildIdealAnswer(question.answer, keywords);
+      
       sessionQuestions.push({
         id: question.id,
         question: question.question,
-        expectedKeywords: keywords,
-        acceptablePhrases: generateAcceptablePhrases(keywords),
+        criticalPoints,
+        idealAnswer,
         difficulty: question.difficulty,
         order: i + 1
       });
@@ -136,119 +154,38 @@ export function buildSessionQuestions(
   return sessionQuestions;
 }
 
-// ============================================
-// ANSWER EVALUATION
-// ============================================
+/**
+ * Build critical points from keywords with weights
+ * First keyword gets weight 3 (critical), next 2 get weight 2 (important), rest get weight 1
+ */
+function buildCriticalPoints(keywords: string[]): CriticalPoint[] {
+  const points: CriticalPoint[] = [];
+  
+  for (let i = 0; i < keywords.length; i++) {
+    const keyword = keywords[i];
+    
+    // Assign weight: first = 3, next 2 = 2, rest = 1
+    const weight = i === 0 ? 3 : i <= 2 ? 2 : 1;
+    
+    // Generate alternatives for the keyword
+    const alternatives = generateAlternatives(keyword);
+    
+    points.push({
+      phrase: keyword,
+      weight,
+      alternatives
+    });
+  }
+  
+  return points;
+}
 
 /**
- * Evaluate a session question answer
- * Simple keyword-based evaluation for focused answers
+ * Generate alternative phrasings for a keyword
  */
-export function evaluateSessionAnswer(
-  userAnswer: string,
-  sessionQuestion: SessionQuestion
-): SessionAnswer {
-  const normalizedAnswer = userAnswer.toLowerCase().trim();
-  const { expectedKeywords, acceptablePhrases } = sessionQuestion;
-  
-  const keywordsCovered: string[] = [];
-  const keywordsMissed: string[] = [];
-  
-  // Check each expected keyword
-  for (const keyword of expectedKeywords) {
-    const keywordLower = keyword.toLowerCase();
-    
-    // Direct match
-    if (normalizedAnswer.includes(keywordLower)) {
-      keywordsCovered.push(keyword);
-      continue;
-    }
-    
-    // Check acceptable phrases
-    const phraseMatch = acceptablePhrases.some(phrase => 
-      normalizedAnswer.includes(phrase.toLowerCase())
-    );
-    
-    if (phraseMatch) {
-      keywordsCovered.push(keyword);
-    } else {
-      keywordsMissed.push(keyword);
-    }
-  }
-  
-  // Calculate score
-  const keywordScore = expectedKeywords.length > 0 
-    ? (keywordsCovered.length / expectedKeywords.length) * 100 
-    : 50;
-  
-  // Bonus for additional relevant terms
-  const bonusTerms = findBonusTerms(normalizedAnswer, expectedKeywords);
-  const bonus = Math.min(bonusTerms.length * 5, 15);
-  
-  // Penalty for very short answers
-  const wordCount = normalizedAnswer.split(/\s+/).length;
-  const lengthPenalty = wordCount < 5 ? 20 : wordCount < 8 ? 10 : 0;
-  
-  const score = Math.min(100, Math.max(0, Math.round(keywordScore + bonus - lengthPenalty)));
-  const isCorrect = score >= 60;
-  
-  // Generate feedback
-  const feedback = generateFeedback(score, keywordsCovered, keywordsMissed);
-  
-  return {
-    questionId: sessionQuestion.id,
-    userAnswer,
-    score,
-    keywordsCovered,
-    keywordsMissed,
-    isCorrect,
-    feedback
-  };
-}
-
-function findBonusTerms(answer: string, expectedKeywords: string[]): string[] {
-  // Technical terms that show deeper understanding
-  const bonusTerms = [
-    'scalability', 'availability', 'reliability', 'latency', 'throughput',
-    'consistency', 'partition', 'replication', 'sharding', 'caching',
-    'load balancer', 'microservices', 'distributed', 'fault tolerance',
-    'monitoring', 'logging', 'alerting', 'sla', 'slo', 'sli',
-    'kubernetes', 'docker', 'ci/cd', 'deployment', 'rollback'
-  ];
-  
-  const found: string[] = [];
-  const expectedLower = expectedKeywords.map(k => k.toLowerCase());
-  
-  for (const term of bonusTerms) {
-    if (answer.includes(term) && !expectedLower.includes(term)) {
-      found.push(term);
-    }
-  }
-  
-  return found;
-}
-
-function generateFeedback(
-  score: number,
-  covered: string[],
-  missed: string[]
-): string {
-  if (score >= 80) {
-    return "Excellent! You covered the key concepts well.";
-  } else if (score >= 60) {
-    if (missed.length > 0) {
-      return `Good answer! Also consider: ${missed.slice(0, 2).join(', ')}.`;
-    }
-    return "Good answer with the main points covered.";
-  } else if (score >= 40) {
-    return `Partial answer. Key terms to include: ${missed.slice(0, 3).join(', ')}.`;
-  } else {
-    return `Review this topic. Focus on: ${missed.slice(0, 3).join(', ')}.`;
-  }
-}
-
-function generateAcceptablePhrases(keywords: string[]): string[] {
-  const phrases: string[] = [];
+function generateAlternatives(keyword: string): string[] {
+  const kw = keyword.toLowerCase();
+  const alts: string[] = [];
   
   const synonyms: Record<string, string[]> = {
     'kubernetes': ['k8s', 'kube', 'container orchestration'],
@@ -268,26 +205,188 @@ function generateAcceptablePhrases(keywords: string[]): string[] {
     'scalability': ['scale', 'scaling', 'scalable'],
     'consistency': ['consistent', 'data consistency'],
     'idempotency': ['idempotent', 'safe to retry'],
-    'ci/cd': ['continuous integration', 'continuous deployment', 'pipeline']
+    'ci/cd': ['continuous integration', 'continuous deployment', 'pipeline'],
+    'eventual consistency': ['eventually consistent', 'async consistency'],
+    'strong consistency': ['strongly consistent', 'immediate consistency'],
+    'horizontal scaling': ['scale out', 'scaling horizontally'],
+    'vertical scaling': ['scale up', 'scaling vertically'],
+    'api gateway': ['gateway', 'api management'],
+    'message queue': ['queue', 'message broker', 'mq'],
+    'rate limiting': ['throttling', 'rate limit'],
+    'circuit breaker': ['circuit breaking', 'fail fast'],
+    'service mesh': ['mesh', 'sidecar proxy'],
+    'container': ['docker', 'containerized'],
+    'orchestration': ['orchestrator', 'orchestrating']
   };
   
-  for (const keyword of keywords) {
-    const kw = keyword.toLowerCase();
+  // Add synonyms if available
+  if (synonyms[kw]) {
+    alts.push(...synonyms[kw]);
+  }
+  
+  // Add plural/singular variations
+  if (kw.endsWith('s') && kw.length > 3) {
+    alts.push(kw.slice(0, -1));
+  } else if (!kw.endsWith('s')) {
+    alts.push(kw + 's');
+  }
+  
+  // Add hyphenated/non-hyphenated variations
+  if (kw.includes('-')) {
+    alts.push(kw.replace(/-/g, ' '));
+  } else if (kw.includes(' ')) {
+    alts.push(kw.replace(/ /g, '-'));
+  }
+  
+  return alts;
+}
+
+/**
+ * Build a concise ideal answer from the full answer
+ */
+function buildIdealAnswer(answer: string, keywords: string[]): string {
+  if (!answer) return '';
+  
+  // Split into sentences
+  const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 10);
+  
+  if (sentences.length === 0) return answer.trim();
+  
+  // Find sentences containing keywords
+  const keywordLower = keywords.map(k => k.toLowerCase());
+  const relevantSentences = sentences.filter(sentence => 
+    keywordLower.some(kw => sentence.toLowerCase().includes(kw))
+  );
+  
+  // Take first 2 relevant sentences, or first 2 sentences if none match
+  const selectedSentences = relevantSentences.length > 0 
+    ? relevantSentences.slice(0, 2) 
+    : sentences.slice(0, 2);
+  
+  return selectedSentences.map(s => s.trim()).join('. ') + '.';
+}
+
+// ============================================
+// ANSWER EVALUATION
+// ============================================
+
+/**
+ * Evaluate a session question answer using weighted critical points
+ * Each critical point has a weight (1-3) and alternatives for matching
+ */
+export function evaluateSessionAnswer(
+  userAnswer: string,
+  sessionQuestion: SessionQuestion
+): SessionAnswer {
+  const normalizedAnswer = userAnswer.toLowerCase().trim();
+  const { criticalPoints } = sessionQuestion;
+  
+  const pointsCovered: { phrase: string; weight: number }[] = [];
+  const pointsMissed: { phrase: string; weight: number }[] = [];
+  
+  let weightedScore = 0;
+  let maxPossibleScore = 0;
+  
+  // Check each critical point
+  for (const point of criticalPoints) {
+    const phraseLower = point.phrase.toLowerCase();
+    maxPossibleScore += point.weight;
     
-    // Add synonyms
-    if (synonyms[kw]) {
-      phrases.push(...synonyms[kw]);
+    // Direct match
+    if (normalizedAnswer.includes(phraseLower)) {
+      pointsCovered.push({ phrase: point.phrase, weight: point.weight });
+      weightedScore += point.weight;
+      continue;
     }
     
-    // Add plural/singular variations
-    if (kw.endsWith('s') && kw.length > 3) {
-      phrases.push(kw.slice(0, -1));
-    } else if (!kw.endsWith('s')) {
-      phrases.push(kw + 's');
+    // Check alternatives
+    const altMatch = point.alternatives.some(alt => 
+      normalizedAnswer.includes(alt.toLowerCase())
+    );
+    
+    if (altMatch) {
+      pointsCovered.push({ phrase: point.phrase, weight: point.weight });
+      weightedScore += point.weight;
+    } else {
+      pointsMissed.push({ phrase: point.phrase, weight: point.weight });
     }
   }
   
-  return Array.from(new Set(phrases));
+  // Calculate percentage score based on weighted points
+  const baseScore = maxPossibleScore > 0 
+    ? (weightedScore / maxPossibleScore) * 100 
+    : 50;
+  
+  // Bonus for additional relevant terms (max 10 points)
+  const bonusTerms = findBonusTerms(normalizedAnswer, criticalPoints.map(p => p.phrase));
+  const bonus = Math.min(bonusTerms.length * 3, 10);
+  
+  // Penalty for very short answers
+  const wordCount = normalizedAnswer.split(/\s+/).length;
+  const lengthPenalty = wordCount < 5 ? 15 : wordCount < 8 ? 5 : 0;
+  
+  const score = Math.min(100, Math.max(0, Math.round(baseScore + bonus - lengthPenalty)));
+  const isCorrect = score >= 60;
+  
+  // Generate feedback
+  const feedback = generateFeedback(score, pointsCovered, pointsMissed);
+  
+  return {
+    questionId: sessionQuestion.id,
+    userAnswer,
+    score,
+    pointsCovered,
+    pointsMissed,
+    weightedScore,
+    maxPossibleScore,
+    isCorrect,
+    feedback
+  };
+}
+
+function findBonusTerms(answer: string, expectedPhrases: string[]): string[] {
+  // Technical terms that show deeper understanding
+  const bonusTerms = [
+    'scalability', 'availability', 'reliability', 'latency', 'throughput',
+    'consistency', 'partition', 'replication', 'sharding', 'caching',
+    'load balancer', 'microservices', 'distributed', 'fault tolerance',
+    'monitoring', 'logging', 'alerting', 'sla', 'slo', 'sli',
+    'kubernetes', 'docker', 'ci/cd', 'deployment', 'rollback'
+  ];
+  
+  const found: string[] = [];
+  const expectedLower = expectedPhrases.map(k => k.toLowerCase());
+  
+  for (const term of bonusTerms) {
+    if (answer.includes(term) && !expectedLower.includes(term)) {
+      found.push(term);
+    }
+  }
+  
+  return found;
+}
+
+function generateFeedback(
+  score: number,
+  covered: { phrase: string; weight: number }[],
+  missed: { phrase: string; weight: number }[]
+): string {
+  // Sort missed by weight (highest first)
+  const sortedMissed = [...missed].sort((a, b) => b.weight - a.weight);
+  const missedPhrases = sortedMissed.map(p => p.phrase);
+  
+  if (score >= 80) {
+    return "Excellent! You covered the key concepts well.";
+  } else if (score >= 60) {
+    if (missedPhrases.length > 0) {
+      return `Good answer! Also consider: ${missedPhrases.slice(0, 2).join(', ')}.`;
+    }
+    return "Good answer with the main points covered.";
+  } else if (score >= 40) {
+    return `Partial answer. Key terms to include: ${missedPhrases.slice(0, 3).join(', ')}.`;
+  } else {
+    return `Review this topic. Focus on: ${missedPhrases.slice(0, 3).join(', ')}.`;
+  }
 }
 
 // ============================================
@@ -371,9 +470,12 @@ export function nextQuestion(state: SessionState): SessionState {
 export function completeSession(state: SessionState): SessionResult {
   const { session, answers } = state;
   
-  // Calculate overall score
-  const totalScore = answers.reduce((sum, a) => sum + a.score, 0);
-  const overallScore = answers.length > 0 ? Math.round(totalScore / answers.length) : 0;
+  // Calculate overall score using weighted scoring
+  const totalWeightedScore = answers.reduce((sum, a) => sum + a.weightedScore, 0);
+  const totalMaxScore = answers.reduce((sum, a) => sum + a.maxPossibleScore, 0);
+  const overallScore = totalMaxScore > 0 
+    ? Math.round((totalWeightedScore / totalMaxScore) * 100) 
+    : 0;
   
   // Determine verdict
   let verdict: SessionResult['verdict'];
@@ -382,13 +484,14 @@ export function completeSession(state: SessionState): SessionResult {
   else if (overallScore >= 40) verdict = 'needs-work';
   else verdict = 'review-topic';
   
-  // Collect missed keywords
-  const allMissed = answers.flatMap(a => a.keywordsMissed);
-  const uniqueMissed = Array.from(new Set(allMissed));
+  // Collect missed points (sorted by weight)
+  const allMissed = answers.flatMap(a => a.pointsMissed);
+  const sortedMissed = allMissed.sort((a, b) => b.weight - a.weight);
+  const uniqueMissedPhrases = Array.from(new Set(sortedMissed.map(p => p.phrase)));
   
-  // Collect covered keywords
-  const allCovered = answers.flatMap(a => a.keywordsCovered);
-  const uniqueCovered = Array.from(new Set(allCovered));
+  // Collect covered points
+  const allCovered = answers.flatMap(a => a.pointsCovered);
+  const uniqueCoveredPhrases = Array.from(new Set(allCovered.map(p => p.phrase)));
   
   // Generate strengths
   const strengths: string[] = [];
@@ -400,15 +503,26 @@ export function completeSession(state: SessionState): SessionResult {
     strengths.push(`Strong performance: ${correctCount}/${answers.length} correct`);
   }
   
-  if (uniqueCovered.length >= 5) {
-    strengths.push(`Good keyword coverage: ${uniqueCovered.slice(0, 4).join(', ')}`);
+  // Count high-weight points covered
+  const highWeightCovered = allCovered.filter(p => p.weight >= 2).length;
+  if (highWeightCovered >= 3) {
+    strengths.push(`Covered ${highWeightCovered} critical concepts`);
+  }
+  
+  if (uniqueCoveredPhrases.length >= 5) {
+    strengths.push(`Good coverage: ${uniqueCoveredPhrases.slice(0, 4).join(', ')}`);
   }
   
   // Generate areas to improve
   const areasToImprove: string[] = [];
   
-  if (uniqueMissed.length > 0) {
-    areasToImprove.push(`Review: ${uniqueMissed.slice(0, 5).join(', ')}`);
+  // Prioritize high-weight missed points
+  const highWeightMissed = sortedMissed.filter(p => p.weight >= 2);
+  if (highWeightMissed.length > 0) {
+    const criticalMissed = highWeightMissed.slice(0, 3).map(p => p.phrase);
+    areasToImprove.push(`Critical concepts to review: ${criticalMissed.join(', ')}`);
+  } else if (uniqueMissedPhrases.length > 0) {
+    areasToImprove.push(`Review: ${uniqueMissedPhrases.slice(0, 5).join(', ')}`);
   }
   
   const lowScoreCount = answers.filter(a => a.score < 50).length;

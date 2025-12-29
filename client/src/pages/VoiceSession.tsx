@@ -15,7 +15,7 @@ import {
   Mic, Square, RotateCcw, Home, ChevronRight,
   CheckCircle, XCircle, AlertCircle, Loader2,
   Target, MessageSquare, Edit3,
-  BarChart3, Sparkles, Play, ArrowRight
+  BarChart3, Sparkles, Play, ArrowRight, BookOpen, Volume2
 } from 'lucide-react';
 import { SEOHead } from '../components/SEOHead';
 import { getAllQuestionsAsync } from '../lib/questions-loader';
@@ -44,7 +44,7 @@ import {
 } from '../lib/voice-interview-session';
 import type { Question } from '../types';
 
-type PageState = 'loading' | 'select' | 'intro' | 'recording' | 'editing' | 'feedback' | 'results';
+type PageState = 'loading' | 'select' | 'intro' | 'recording' | 'editing' | 'feedback' | 'practice' | 'results';
 
 const isSpeechSupported = typeof window !== 'undefined' && 
   ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
@@ -64,6 +64,7 @@ export default function VoiceSession() {
   const [interimTranscript, setInterimTranscript] = useState('');
   const [recordingTime, setRecordingTime] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [practiceTranscript, setPracticeTranscript] = useState('');
   
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -139,7 +140,12 @@ export default function VoiceSession() {
       }
       
       if (final) {
-        setTranscript(prev => prev + final);
+        // Use practice transcript if in practice mode
+        if (pageState === 'practice') {
+          setPracticeTranscript(prev => prev + final);
+        } else {
+          setTranscript(prev => prev + final);
+        }
       }
       setInterimTranscript(interim);
     };
@@ -152,7 +158,7 @@ export default function VoiceSession() {
     };
     
     recognition.onend = () => {
-      if (pageState === 'recording') {
+      if (pageState === 'recording' || pageState === 'practice') {
         try { recognition.start(); } catch (e) { /* ignore */ }
       }
     };
@@ -539,7 +545,7 @@ export default function VoiceSession() {
                   <div className="flex items-center gap-3 mt-3">
                     <ListenButton text={currentQuestion.question} label="Listen" size="sm" />
                     <span className="text-xs text-muted-foreground">
-                      {currentQuestion.expectedKeywords.length} key terms
+                      {currentQuestion.criticalPoints.length} key points
                     </span>
                   </div>
                 </div>
@@ -636,6 +642,20 @@ export default function VoiceSession() {
     const answeredQuestion = sessionState.questions[sessionState.currentQuestionIndex];
     const isLastQuestion = sessionState.currentQuestionIndex >= sessionState.questions.length - 1;
     
+    const startPracticeMode = () => {
+      setPracticeTranscript('');
+      setInterimTranscript('');
+      setRecordingTime(0);
+      setPageState('practice');
+      
+      // Start recording for practice
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+        } catch (e) { /* ignore */ }
+      }
+    };
+    
     return (
       <>
         <SEOHead title="Feedback | Voice Session" description="Review your answer feedback" />
@@ -661,39 +681,66 @@ export default function VoiceSession() {
             {/* Feedback */}
             <div className="bg-muted/20 rounded-lg p-4 mb-4">
               <p className="text-sm">{lastAnswer.feedback}</p>
+              <div className="mt-2 text-xs text-muted-foreground">
+                Score: {lastAnswer.weightedScore}/{lastAnswer.maxPossibleScore} weighted points
+              </div>
             </div>
 
-            {/* Keywords */}
-            <div className="space-y-3 mb-6">
-              {lastAnswer.keywordsCovered.length > 0 && (
+            {/* Critical Points */}
+            <div className="space-y-3 mb-4">
+              {lastAnswer.pointsCovered.length > 0 && (
                 <div>
                   <h4 className="text-xs font-medium text-green-400 mb-2 flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" /> Covered
                   </h4>
                   <div className="flex flex-wrap gap-1">
-                    {lastAnswer.keywordsCovered.map((kw, i) => (
-                      <span key={i} className="px-2 py-0.5 text-xs bg-green-500/20 text-green-400 rounded">
-                        {kw}
+                    {lastAnswer.pointsCovered.map((point, i) => (
+                      <span key={i} className="px-2 py-0.5 text-xs bg-green-500/20 text-green-400 rounded flex items-center gap-1">
+                        {point.phrase}
+                        <span className="opacity-60">×{point.weight}</span>
                       </span>
                     ))}
                   </div>
                 </div>
               )}
-              {lastAnswer.keywordsMissed.length > 0 && (
+              {lastAnswer.pointsMissed.length > 0 && (
                 <div>
                   <h4 className="text-xs font-medium text-red-400 mb-2 flex items-center gap-1">
                     <XCircle className="w-3 h-3" /> Missed
                   </h4>
                   <div className="flex flex-wrap gap-1">
-                    {lastAnswer.keywordsMissed.map((kw, i) => (
-                      <span key={i} className="px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded">
-                        {kw}
+                    {lastAnswer.pointsMissed.map((point, i) => (
+                      <span key={i} className="px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded flex items-center gap-1">
+                        {point.phrase}
+                        <span className="opacity-60">×{point.weight}</span>
                       </span>
                     ))}
                   </div>
                 </div>
               )}
             </div>
+
+            {/* Practice Mode CTA */}
+            {answeredQuestion.idealAnswer && (
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <BookOpen className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-blue-400 mb-1">Practice the Ideal Answer</h4>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Read the ideal answer aloud to practice pronunciation and memorize key terms.
+                    </p>
+                    <button
+                      onClick={startPracticeMode}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded hover:bg-blue-500/30 transition-colors"
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                      Practice Reading Aloud
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-3">
@@ -722,6 +769,136 @@ export default function VoiceSession() {
               </button>
             </div>
           </motion.div>
+        </div>
+      </>
+    );
+  }
+
+  // Practice Mode - Read ideal answer aloud
+  if (pageState === 'practice' && sessionState) {
+    const answeredQuestion = sessionState.questions[sessionState.currentQuestionIndex];
+    const isLastQuestion = sessionState.currentQuestionIndex >= sessionState.questions.length - 1;
+    
+    const stopPractice = () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setPageState('feedback');
+    };
+    
+    const finishPractice = () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setPracticeTranscript('');
+      setInterimTranscript('');
+      goToNextQuestion();
+    };
+    
+    return (
+      <>
+        <SEOHead title="Practice Mode | Voice Session" description="Practice reading the ideal answer" />
+        <div className="min-h-screen bg-background text-foreground font-mono">
+          <header className="border-b border-border p-4">
+            <div className="max-w-4xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button onClick={stopPractice} className="p-2 hover:bg-muted/20 rounded-lg">
+                  <ArrowRight className="w-5 h-5 rotate-180" />
+                </button>
+                <div>
+                  <h1 className="font-bold text-sm flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-blue-400" />
+                    Practice Mode
+                  </h1>
+                  <p className="text-xs text-muted-foreground">Read the ideal answer aloud</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-red-500">
+                <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                <span className="font-mono text-sm">{formatTime(recordingTime)}</span>
+              </div>
+            </div>
+          </header>
+
+          <main className="max-w-4xl mx-auto p-4">
+            {/* Ideal Answer to Read */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-6 mb-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-medium text-blue-400 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  Read This Aloud
+                </h2>
+                <ListenButton text={answeredQuestion.idealAnswer} label="Listen" size="sm" />
+              </div>
+              <p className="text-lg leading-relaxed">{answeredQuestion.idealAnswer}</p>
+              
+              {/* Keywords to emphasize */}
+              <div className="mt-4 pt-4 border-t border-blue-500/20">
+                <p className="text-xs text-muted-foreground mb-2">Key points to emphasize:</p>
+                <div className="flex flex-wrap gap-1">
+                  {answeredQuestion.criticalPoints.map((point, i) => (
+                    <span key={i} className={`px-2 py-0.5 text-xs rounded font-medium flex items-center gap-1 ${
+                      point.weight === 3 ? 'bg-blue-500/30 text-blue-300' :
+                      point.weight === 2 ? 'bg-blue-500/20 text-blue-400' :
+                      'bg-blue-500/10 text-blue-400/80'
+                    }`}>
+                      {point.phrase}
+                      {point.weight > 1 && <span className="opacity-60">×{point.weight}</span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Your Recording */}
+            <div className="bg-card border border-border rounded-lg p-6 mb-6">
+              <h3 className="text-sm font-medium mb-4 flex items-center gap-2">
+                <Mic className="w-4 h-4 text-red-400" />
+                Your Recording
+              </h3>
+              <div className="p-4 bg-muted/20 rounded-lg min-h-[100px]">
+                <p className="text-sm whitespace-pre-wrap">
+                  {practiceTranscript}
+                  <span className="text-muted-foreground">{interimTranscript}</span>
+                  <span className="animate-pulse">|</span>
+                </p>
+                {!practiceTranscript && !interimTranscript && (
+                  <p className="text-muted-foreground text-sm">Start reading the answer above...</p>
+                )}
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex gap-3">
+              <button
+                onClick={stopPractice}
+                className="flex-1 px-4 py-3 border border-border rounded-lg hover:bg-muted/20 flex items-center justify-center gap-2"
+              >
+                <Square className="w-4 h-4" />
+                Back to Feedback
+              </button>
+              <button
+                onClick={finishPractice}
+                className="flex-1 px-4 py-3 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 flex items-center justify-center gap-2"
+              >
+                {isLastQuestion ? (
+                  <>
+                    <BarChart3 className="w-4 h-4" />
+                    Finish Session
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    Done, Next Question
+                  </>
+                )}
+              </button>
+            </div>
+          </main>
         </div>
       </>
     );

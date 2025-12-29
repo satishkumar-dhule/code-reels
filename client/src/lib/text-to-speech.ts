@@ -82,6 +82,9 @@ export function saveRatePreference(rate: number): void {
   }
 }
 
+// Default voice preference - Google UK English Female
+const DEFAULT_VOICE_NAME = 'Google UK English Female';
+
 // Get the user's preferred voice or best default
 function getPreferredVoice(): SpeechSynthesisVoice | null {
   const voices = getVoices();
@@ -94,7 +97,19 @@ function getPreferredVoice(): SpeechSynthesisVoice | null {
     if (savedVoice) return savedVoice;
   }
   
-  // Default: first English voice
+  // Try to find Google UK English Female (best quality)
+  const googleUKFemale = voices.find(v => v.name === DEFAULT_VOICE_NAME);
+  if (googleUKFemale) return googleUKFemale;
+  
+  // Fallback: any Google UK English voice
+  const googleUK = voices.find(v => v.name.includes('Google UK English'));
+  if (googleUK) return googleUK;
+  
+  // Fallback: any UK English voice
+  const ukVoice = voices.find(v => v.lang === 'en-GB');
+  if (ukVoice) return ukVoice;
+  
+  // Fallback: any English voice
   const englishVoice = voices.find(v => v.lang.startsWith('en'));
   return englishVoice || voices[0];
 }
