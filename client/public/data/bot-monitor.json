@@ -20,15 +20,57 @@
     },
     {
       "botName": "verifier",
-      "totalRuns": 16,
-      "successfulRuns": 14,
+      "totalRuns": 17,
+      "successfulRuns": 15,
       "totalCreated": 87,
       "totalUpdated": 0,
       "totalDeleted": 0,
-      "lastRun": "2026-01-02T04:41:50.011Z"
+      "lastRun": "2026-01-03T04:32:56.414Z"
     }
   ],
   "runs": [
+    {
+      "id": 43,
+      "botName": "verifier",
+      "startedAt": "2026-01-03T04:32:56.414Z",
+      "completedAt": "2026-01-03T04:33:02.882Z",
+      "status": "completed",
+      "itemsProcessed": 1,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Verifier Bot completed",
+        "passed": 1,
+        "flagged": 0,
+        "stats": {
+          "totalAnalyzed": 1,
+          "passed": 1,
+          "flagged": 0,
+          "byIssueType": {
+            "missing_code_example": 1,
+            "excessive_voice_keywords": 1,
+            "weak_voice_keywords": 1
+          },
+          "bySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 2,
+            "info": 1
+          },
+          "byChannel": {
+            "system-design": 1
+          },
+          "avgScores": {
+            "technical": 0,
+            "clarity": 0,
+            "completeness": 0,
+            "overall": 0
+          }
+        }
+      }
+    },
     {
       "id": 42,
       "botName": "creator",
@@ -2065,6 +2107,15 @@
   ],
   "ledger": [
     {
+      "id": 940,
+      "botName": "verifier",
+      "action": "verify",
+      "itemType": "question",
+      "itemId": "q-631",
+      "reason": "Passed verification with score 85/100",
+      "createdAt": "2026-01-03T04:33:02.382Z"
+    },
+    {
       "id": 939,
       "botName": "creator",
       "action": "create",
@@ -2954,16 +3005,7 @@
       "itemId": "gh-30",
       "reason": "Processed: polished",
       "createdAt": "2025-12-30T01:48:27.904Z"
-    },
-    {
-      "id": 840,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-291",
-      "reason": "Processed: polished",
-      "createdAt": "2025-12-30T01:48:03.633Z"
     }
   ],
-  "generatedAt": "2026-01-03T03:24:23.356Z"
+  "generatedAt": "2026-01-03T04:33:25.183Z"
 }
