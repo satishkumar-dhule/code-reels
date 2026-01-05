@@ -1099,18 +1099,18 @@ function generateIndexPage(articles) {
     <section class="featured"><div class="container">
       <div class="featured-grid">
         <div class="featured-main">
-          <span class="featured-label">✦ Latest</span>
+          <span class="featured-label"><i data-lucide="sparkles"></i> Latest</span>
           <h2 class="featured-title"><a href="/posts/${mainFeatured.id}/${mainFeatured.blogSlug}/">${escapeHtml(mainFeatured.blogTitle)}</a></h2>
           <p class="featured-excerpt">${escapeHtml((mainFeatured.blogIntro || '').substring(0, 200))}...</p>
           <div class="featured-meta">
-            <span class="badge badge-channel">${formatChannelName(mainFeatured.channel)}</span>
-            <span class="badge badge-difficulty badge-${mainFeatured.difficulty}">${mainFeatured.difficulty}</span>
+            <span class="badge badge-channel"><i data-lucide="folder"></i> ${formatChannelName(mainFeatured.channel)}</span>
+            <span class="badge badge-difficulty badge-${mainFeatured.difficulty}"><i data-lucide="${mainFeatured.difficulty === 'beginner' ? 'zap' : mainFeatured.difficulty === 'intermediate' ? 'flame' : 'rocket'}"></i> ${mainFeatured.difficulty}</span>
           </div>
         </div>
         <div class="featured-side">
           ${sideFeatured.map(a => `
             <a href="/posts/${a.id}/${a.blogSlug}/" class="featured-side-card">
-              <span class="badge badge-channel">${formatChannelName(a.channel)}</span>
+              <span class="badge badge-channel"><i data-lucide="folder"></i> ${formatChannelName(a.channel)}</span>
               <h3>${escapeHtml(a.blogTitle)}</h3>
             </a>
           `).join('')}
