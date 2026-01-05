@@ -1,4 +1,4 @@
-name: 📢 Schedule LinkedIn Post
+name: 📢 Publish to LinkedIn
 
 on:
   # Trigger after blog publish workflow completes
@@ -16,7 +16,7 @@ on:
         type: string
 
 jobs:
-  schedule-linkedin:
+  publish-linkedin:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     
@@ -30,12 +30,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install dotenv @libsql/client
-
-      - name: Install OpenCode CLI
-        run: |
-          curl -fsSL https://opencode.ai/install.sh | bash
-          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+        run: npm install
 
       - name: Get latest blog post
         id: get_post
@@ -45,16 +40,13 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           SPECIFIC_URL: ${{ inputs.post_url }}
 
-      - name: Schedule LinkedIn Post
+      - name: Publish to LinkedIn
         if: steps.get_post.outputs.has_post == 'true'
-        id: schedule
+        id: publish
         run: node script/publish-to-linkedin.js
         env:
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-          POST_ID: ${{ steps.get_post.outputs.post_id }}
           POST_TITLE: ${{ steps.get_post.outputs.title }}
           POST_URL: ${{ steps.get_post.outputs.url }}
           POST_EXCERPT: ${{ steps.get_post.outputs.excerpt }}
@@ -72,16 +64,14 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 📢 LinkedIn Post Scheduled" >> $GITHUB_STEP_SUMMARY
+          echo "## 📢 LinkedIn Post" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.get_post.outputs.has_post }}" == "true" ]; then
             echo "**Title:** ${{ steps.get_post.outputs.title }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**URL:** ${{ steps.get_post.outputs.url }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Scheduled for:** ${{ steps.schedule.outputs.scheduled_time }}" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Status:** ✅ Scheduled for random time publishing" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** ✅ Published to LinkedIn" >> $GITHUB_STEP_SUMMARY
           else
             echo "**Status:** ⏭️ No new posts to share" >> $GITHUB_STEP_SUMMARY
           fi

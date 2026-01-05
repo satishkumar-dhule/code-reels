@@ -1,19 +1,18 @@
 #!/usr/bin/env node
 /**
- * Schedule LinkedIn Post
+ * Publish to LinkedIn
  * Generates engaging story-style posts using LangGraph pipeline
- * Schedules posts for random times instead of immediate publishing
+ * Publishes immediately after blog is published
  * 
  * Required secrets:
  * - LINKEDIN_ACCESS_TOKEN: OAuth 2.0 access token with w_member_social scope
  * - LINKEDIN_PERSON_URN: Your LinkedIn person URN (urn:li:person:XXXXXXXX)
- * - TURSO_DATABASE_URL: Database for storing scheduled posts
- * - TURSO_AUTH_TOKEN: Database auth token
  */
 
 import 'dotenv/config';
-import { createClient } from '@libsql/client';
 import { generateLinkedInPost } from './ai/graphs/linkedin-graph.js';
+
+const LINKEDIN_API_URL = 'https://api.linkedin.com/v2/ugcPosts';
 
 const accessToken = process.env.LINKEDIN_ACCESS_TOKEN;
 const personUrn = process.env.LINKEDIN_PERSON_URN;
@@ -22,13 +21,6 @@ const postUrl = process.env.POST_URL;
 const postExcerpt = process.env.POST_EXCERPT;
 const postTags = process.env.POST_TAGS;
 const postChannel = process.env.POST_CHANNEL;
-const postId = process.env.POST_ID;
-
-// Database client
-const db = process.env.TURSO_DATABASE_URL ? createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN
-}) : null;
 
 if (!accessToken || !personUrn) {
   console.error('❌ Missing LinkedIn credentials');
@@ -42,71 +34,62 @@ if (!postTitle || !postUrl) {
 }
 
 /**
- * Generate random scheduled time (between 8 AM and 8 PM UTC, random day within next 3 days)
+ * Publish content to LinkedIn
  */
-function generateRandomScheduleTime() {
-  const now = new Date();
+async function publishToLinkedIn(content) {
+  console.log('\n📤 Publishing to LinkedIn...');
   
-  // Random day: 0-2 days from now
-  const daysOffset = Math.floor(Math.random() * 3);
+  const payload = {
+    author: personUrn,
+    lifecycleState: 'PUBLISHED',
+    specificContent: {
+      'com.linkedin.ugc.ShareContent': {
+        shareCommentary: {
+          text: content
+        },
+        shareMediaCategory: 'ARTICLE',
+        media: [
+          {
+            status: 'READY',
+            originalUrl: postUrl,
+            title: {
+              text: postTitle
+            },
+            description: {
+              text: postExcerpt || 'Technical interview preparation article'
+            }
+          }
+        ]
+      }
+    },
+    visibility: {
+      'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+    }
+  };
   
-  // Random hour: 8 AM to 8 PM UTC (peak LinkedIn hours)
-  const hour = 8 + Math.floor(Math.random() * 12);
-  
-  // Random minute
-  const minute = Math.floor(Math.random() * 60);
-  
-  const scheduled = new Date(now);
-  scheduled.setDate(scheduled.getDate() + daysOffset);
-  scheduled.setUTCHours(hour, minute, 0, 0);
-  
-  // If scheduled time is in the past, push to tomorrow
-  if (scheduled <= now) {
-    scheduled.setDate(scheduled.getDate() + 1);
-  }
-  
-  return scheduled;
-}
-
-/**
- * Save scheduled post to database
- */
-async function saveScheduledPost(content, scheduledTime) {
-  if (!db) {
-    console.log('⚠️ Database not configured, cannot schedule post');
-    return null;
-  }
-  
-  // Ensure table exists
-  await db.execute(`
-    CREATE TABLE IF NOT EXISTS scheduled_linkedin_posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      post_id TEXT,
-      title TEXT,
-      url TEXT,
-      content TEXT,
-      scheduled_at TEXT,
-      published_at TEXT,
-      status TEXT DEFAULT 'pending',
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-  
-  const result = await db.execute({
-    sql: `INSERT INTO scheduled_linkedin_posts (post_id, title, url, content, scheduled_at, status)
-          VALUES (?, ?, ?, ?, ?, 'pending')`,
-    args: [postId || null, postTitle, postUrl, content, scheduledTime.toISOString()]
+  const response = await fetch(LINKEDIN_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'X-Restli-Protocol-Version': '2.0.0'
+    },
+    body: JSON.stringify(payload)
   });
   
-  return result.lastInsertRowid;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`LinkedIn API error: ${response.status} - ${errorText}`);
+  }
+  
+  return await response.json();
 }
 
 async function main() {
-  console.log('📢 Preparing LinkedIn Post with LangGraph Pipeline...\n');
+  console.log('📢 Publishing to LinkedIn with LangGraph Pipeline...\n');
   
   // Run LangGraph pipeline to generate content
   const result = await generateLinkedInPost({
-    postId,
     title: postTitle,
     url: postUrl,
     excerpt: postExcerpt,
@@ -120,35 +103,28 @@ async function main() {
   }
   
   const content = result.content;
-  const scheduledTime = generateRandomScheduleTime();
   
   console.log('\nFinal post content:');
   console.log('─'.repeat(50));
   console.log(content);
   console.log('─'.repeat(50));
-  console.log(`\nCharacter count: ${content.length}/3000`);
-  console.log(`\n📅 Scheduled for: ${scheduledTime.toISOString()}`);
-  console.log(`   (${scheduledTime.toLocaleString('en-US', { timeZone: 'UTC' })} UTC)`);
+  console.log(`Character count: ${content.length}/3000\n`);
   
-  // Save to database for later publishing
-  const scheduleId = await saveScheduledPost(content, scheduledTime);
-  
-  if (scheduleId) {
-    console.log(`\n✅ Post scheduled successfully (ID: ${scheduleId})`);
-    console.log('   Will be published by the scheduled job');
-  } else {
-    console.log('\n⚠️ Could not save to database');
-    console.log('   Post content generated but not scheduled');
-  }
-  
-  // Output for GitHub Actions
-  if (process.env.GITHUB_OUTPUT) {
-    const fs = await import('fs');
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `scheduled=true\n`);
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `scheduled_time=${scheduledTime.toISOString()}\n`);
-    if (scheduleId) {
-      fs.appendFileSync(process.env.GITHUB_OUTPUT, `schedule_id=${scheduleId}\n`);
+  // Publish immediately
+  try {
+    const linkedInResult = await publishToLinkedIn(content);
+    console.log('✅ Successfully published to LinkedIn!');
+    console.log(`   Post ID: ${linkedInResult.id}`);
+    
+    // Output for GitHub Actions
+    if (process.env.GITHUB_OUTPUT) {
+      const fs = await import('fs');
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, `published=true\n`);
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, `linkedin_post_id=${linkedInResult.id}\n`);
     }
+  } catch (error) {
+    console.error('❌ Failed to publish to LinkedIn:', error.message);
+    console.log('⚠️ Continuing despite error...');
   }
 }
 
