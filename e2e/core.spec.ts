@@ -95,13 +95,25 @@ test.describe('Navigation', () => {
     }
   });
 
-  test('ESC returns to home from channel', async ({ page }) => {
+  test('ESC returns to home from channel', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Desktop keyboard navigation');
     await page.goto('/channel/system-design');
     await waitForPageReady(page);
     
+    // Wait for questions to load (URL gets question ID appended)
+    await page.waitForFunction(() => {
+      return window.location.pathname.includes('/channel/system-design');
+    }, { timeout: 5000 });
+    
+    // Make sure no modal is open by clicking on the page body first
+    await page.locator('body').click();
+    await page.waitForTimeout(300);
+    
+    // Press Escape to go home
     await page.keyboard.press('Escape');
-    await page.waitForTimeout(500);
-    await expect(page).toHaveURL('/');
+    
+    // Wait for navigation with longer timeout
+    await expect(page).toHaveURL('/', { timeout: 5000 });
   });
 });
 

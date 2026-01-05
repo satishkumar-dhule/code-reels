@@ -14,37 +14,39 @@ test.describe('Channels Page', () => {
     await page.goto('/channels');
     await waitForPageReady(page);
     
-    // Wait for channels to load - look for any channel name
-    // On mobile, MobileChannels component is used which may have different structure
-    if (isMobile) {
-      // Mobile view - check for channel cards or channel names
-      const hasChannelContent = await page.locator('text=/System Design|Algorithms|Frontend|Backend/i').first().isVisible().catch(() => false);
-      expect(hasChannelContent).toBeTruthy();
-    } else {
-      // Desktop view - should show channel names in cards
-      const hasSystemDesign = await page.getByText('System Design').isVisible().catch(() => false);
-      const hasAlgorithms = await page.getByText('Algorithms').isVisible().catch(() => false);
-      expect(hasSystemDesign || hasAlgorithms).toBeTruthy();
+    // Wait a bit more for channels to render
+    await page.waitForTimeout(1000);
+    
+    // Look for any channel name text
+    const channelNames = ['System Design', 'Algorithms', 'Frontend', 'Backend', 'DevOps'];
+    let found = false;
+    
+    for (const name of channelNames) {
+      const isVisible = await page.getByText(name, { exact: false }).first().isVisible().catch(() => false);
+      if (isVisible) {
+        found = true;
+        break;
+      }
     }
+    
+    expect(found).toBeTruthy();
   });
 
   test('shows subscribed indicator', async ({ page, isMobile }) => {
     await page.goto('/channels');
     await waitForPageReady(page);
     
-    // Subscribed channels should have check icon
-    // Lucide icons render with class "lucide lucide-check" not just "lucide-check"
-    const checkIcons = page.locator('svg.lucide-check, svg[class*="lucide-check"]');
+    // Wait for channels to render
+    await page.waitForTimeout(1000);
+    
+    // Lucide icons render with class "lucide lucide-check" (space-separated)
+    // Use attribute selector to match class containing "lucide-check"
+    const checkIcons = page.locator('svg[class*="lucide-check"]');
     const count = await checkIcons.count();
     
-    // On mobile, the layout may be different - just verify page loaded with subscribed channels
-    if (isMobile && count === 0) {
-      // Check for any indication of subscribed state (could be different UI on mobile)
-      const hasSubscribedIndicator = await page.locator('[data-subscribed="true"], .subscribed, text=/subscribed/i').count();
-      expect(hasSubscribedIndicator >= 0).toBeTruthy(); // Pass if mobile has different UI
-    } else {
-      expect(count).toBeGreaterThan(0);
-    }
+    // Should have at least one check icon for subscribed channels
+    // Default user has 5 subscribed channels
+    expect(count).toBeGreaterThan(0);
   });
 
   test('search filters channels', async ({ page }) => {
