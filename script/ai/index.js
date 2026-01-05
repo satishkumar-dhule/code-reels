@@ -32,6 +32,8 @@ import testTemplate from './prompts/templates/test.js';
 import blogInputTemplate from './prompts/templates/blog-input.js';
 import realWorldCaseTemplate from './prompts/templates/real-world-case.js';
 import linkedinStoryTemplate from './prompts/templates/linkedin-story.js';
+import rcaSearchTemplate from './prompts/templates/rca-search.js';
+import rcaBlogTemplate from './prompts/templates/rca-blog.js';
 
 // Template registry
 const templates = {
@@ -50,7 +52,9 @@ const templates = {
   test: testTemplate,
   'blog-input': blogInputTemplate,
   'realWorldCase': realWorldCaseTemplate,
-  'linkedinStory': linkedinStoryTemplate
+  'linkedinStory': linkedinStoryTemplate,
+  'rcaSearch': rcaSearchTemplate,
+  'rcaBlog': rcaBlogTemplate
 };
 
 // Provider registry

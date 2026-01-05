@@ -60,7 +60,10 @@ export async function call(prompt, options = {}) {
  * Parse OpenCode JSON event stream response
  */
 export function parseResponse(output) {
-  if (!output) return null;
+  if (!output) {
+    console.log('⚠️ parseResponse: No output received');
+    return null;
+  }
   
   // Try to extract text from JSON events
   const lines = output.split('\n').filter(l => l.trim());
@@ -79,10 +82,21 @@ export function parseResponse(output) {
   
   const text = fullText || output;
   
+  if (!text || text.trim().length === 0) {
+    console.log('⚠️ parseResponse: No text extracted from events');
+    console.log('   Raw output length:', output.length);
+    console.log('   Lines found:', lines.length);
+    return null;
+  }
+  
   // Try to parse as JSON
   try {
-    return JSON.parse(text.trim());
-  } catch {}
+    const parsed = JSON.parse(text.trim());
+    return parsed;
+  } catch (e) {
+    console.log('⚠️ parseResponse: Direct JSON parse failed:', e.message);
+    console.log('   Text preview:', text.substring(0, 200));
+  }
   
   // Try to extract JSON from code blocks
   const codeBlockPatterns = [/```json\s*([\s\S]*?)\s*```/, /```\s*([\s\S]*?)\s*```/];

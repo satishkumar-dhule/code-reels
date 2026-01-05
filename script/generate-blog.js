@@ -18,6 +18,7 @@ const AUTHOR = {
   role: 'Software Engineer',
   github: 'https://github.com/satishkumar-dhule',
   linkedin: 'https://linkedin.com/in/satishkumar-dhule',
+  website: 'https://satishkumar-dhule.github.io',
   avatar: 'https://github.com/satishkumar-dhule.png'
 };
 
@@ -342,6 +343,7 @@ function generateSlug(title) {
 
 function escapeHtml(text) {
   if (!text) return '';
+  if (typeof text !== 'string') text = String(text);
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
@@ -523,7 +525,7 @@ nav a.nav-cta:hover { background: var(--accent-secondary); }
 .section-link:hover { color: var(--accent); }
 
 /* Article Grid - Bento */
-.articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; }
+.articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; }
 
 /* Newsletter CTA - Gradient Border */
 .newsletter { padding: 5rem 0; }
@@ -534,13 +536,33 @@ nav a.nav-cta:hover { background: var(--accent-secondary); }
 .newsletter-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--text); color: var(--bg); padding: 0.875rem 2rem; border-radius: 100px; text-decoration: none; font-weight: 600; font-size: 0.9375rem; transition: all 0.3s ease; }
 .newsletter-btn:hover { transform: scale(1.02); box-shadow: var(--shadow-lg); }
 
-/* Article cards - Clean Cards */
+/* Article cards - Heavy Card Design */
 .article-list { padding: 48px 0; }
-.article-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; transition: all 0.2s ease; display: flex; flex-direction: column; }
-.article-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); }
-.article-card h2 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; line-height: 1.5; flex-grow: 1; }
-.article-card h2 a { color: var(--text); text-decoration: none; transition: color 0.2s; }
-.article-card h2 a:hover { color: var(--accent); }
+.article-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; transition: all 0.3s ease; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.article-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient); opacity: 0; transition: opacity 0.3s ease; }
+.article-card:hover { border-color: var(--accent); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+.article-card:hover::before { opacity: 1; }
+.card-header { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.card-title { font-size: 1.125rem; font-weight: 600; margin-bottom: 12px; line-height: 1.4; flex-grow: 1; }
+.card-title a { color: var(--text); text-decoration: none; transition: color 0.2s; }
+.card-title a:hover { color: var(--accent); }
+.card-excerpt { color: var(--text-muted); font-size: 0.875rem; line-height: 1.7; margin-bottom: 16px; flex-grow: 1; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.card-link { color: var(--accent); text-decoration: none; font-size: 0.8125rem; font-weight: 600; transition: gap 0.2s; display: flex; align-items: center; gap: 4px; }
+.card-link:hover { gap: 8px; }
+
+/* Badge System - Heavy Badges */
+.badge { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 100px; font-weight: 600; font-size: 0.75rem; text-transform: capitalize; letter-spacing: 0.02em; transition: all 0.2s ease; }
+.badge-channel { background: var(--gradient); color: white; box-shadow: var(--shadow-sm); }
+.badge-difficulty { border: 2px solid; }
+.badge-beginner { background: rgba(52,168,83,0.15); color: var(--success); border-color: var(--success); }
+.badge-intermediate { background: rgba(251,188,4,0.15); color: #b8860b; border-color: var(--warning); }
+.badge-advanced { background: rgba(234,67,53,0.15); color: var(--error); border-color: var(--error); }
+.badge-tag { background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border); font-size: 0.6875rem; padding: 4px 10px; }
+.badge-tag:hover { border-color: var(--accent); color: var(--text); }
+
+/* Legacy support */
 .article-meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.75rem; margin-bottom: 12px; }
 .tag { background: var(--bg-secondary); color: var(--text-secondary); padding: 4px 10px; border-radius: 100px; font-weight: 500; font-size: 0.75rem; }
 .difficulty { padding: 4px 10px; border-radius: 100px; font-weight: 500; font-size: 0.75rem; }
@@ -562,7 +584,7 @@ nav a.nav-cta:hover { background: var(--accent-secondary); }
 /* Article Page - Enhanced */
 .article { padding: 8rem 0 4rem; max-width: 760px; margin: 0 auto; }
 .article-header { margin-bottom: 2.5rem; }
-.article-header h1 { font-size: clamp(2rem, 5vw, 2.75rem); font-weight: 700; margin-bottom: 1.75rem; line-height: 1.2; letter-spacing: -0.03em; background: linear-gradient(180deg, #fff 0%, #ccc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.article-header h1 { font-size: clamp(2rem, 5vw, 2.75rem); font-weight: 500; margin-bottom: 1.75rem; line-height: 1.2; letter-spacing: -0.02em; color: var(--text); }
 .article-header .article-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 1.25rem; }
 .article-header .tag { background: var(--bg-elevated); color: var(--text-secondary); padding: 0.375rem 0.875rem; border-radius: 100px; font-weight: 500; font-size: 0.75rem; text-transform: capitalize; letter-spacing: 0.02em; border: 1px solid var(--border); transition: all 0.2s; }
 .article-header .tag:hover { border-color: var(--accent); color: var(--text); }
@@ -727,7 +749,7 @@ footer { background: var(--bg); border-top: 1px solid var(--border); padding: 3r
   .featured-card { grid-template-columns: 1fr; padding: 1.5rem; }
   .featured-visual { display: none; }
   .featured-title { font-size: 1.25rem; }
-  .article-header h1 { font-size: 1.625rem; background: linear-gradient(180deg, #fff 0%, #ddd 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } 
+  .article-header h1 { font-size: 1.625rem; color: var(--text); } 
   .article-intro { padding: 2rem 1.5rem 1.5rem 1.5rem; font-size: 1rem; }
   nav { gap: 0.25rem; } 
   nav a { padding: 0.5rem 0.75rem; font-size: 0.8125rem; }
@@ -856,10 +878,11 @@ function generateHead(title, description, includeMermaid = false) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)} | DevInsights</title>
   <meta name="description" content="${escapeHtml(description)}">
-  <meta name="theme-color" content="#050505">${gaScript}
+  <meta name="theme-color" content="#ffffff">${gaScript}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">${mermaidScript}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">${mermaidScript}
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
 </head>
@@ -868,12 +891,12 @@ function generateHead(title, description, includeMermaid = false) {
 
 function generateHeader() {
   return `<header><div class="container header-content">
-    <a href="/" class="logo">DevInsights</a>
+    <a href="/" class="logo"><i data-lucide="code-2"></i> DevInsights</a>
     <nav>
-      <a href="/">Home</a>
-      <a href="/categories/">Topics</a>
-      <button class="search-btn" onclick="openSearch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Search<kbd>⌘K</kbd></button>
-      <a href="https://open-interview.github.io" target="_blank" class="nav-cta">Practice →</a>
+      <a href="/"><i data-lucide="home"></i> Home</a>
+      <a href="/categories/"><i data-lucide="layers"></i> Topics</a>
+      <button class="search-btn" onclick="openSearch()"><i data-lucide="search"></i> Search<kbd>⌘K</kbd></button>
+      <a href="https://open-interview.github.io" target="_blank" class="nav-cta"><i data-lucide="play"></i> Practice</a>
     </nav>
   </div></header>`;
 }
@@ -1005,6 +1028,11 @@ document.querySelectorAll('.article-content table').forEach(table => {
     });
   });
 });
+
+// Initialize Lucide icons
+if (typeof lucide !== 'undefined') {
+  lucide.createIcons();
+}
 </script>
 </body></html>`;
 }
@@ -1035,16 +1063,26 @@ function generateIndexPage(articles) {
     articles.some(a => categoryMap[cat].includes(a.channel))
   ).length;
   
-  // Article cards (skip first if featured)
-  let articleCards = recentArticles.slice(1).map(a => `
+  // Article cards (skip first if featured) - Heavy card design with prominent badges
+  let articleCards = recentArticles.slice(1).map(a => {
+    const tags = a.tags || [];
+    const displayTags = tags.slice(0, 3);
+    return `
     <div class="article-card" data-difficulty="${a.difficulty}" data-channel="${a.channel}">
-      <div class="article-meta">
-        <span class="tag">${formatChannelName(a.channel)}</span>
-        <span class="difficulty ${a.difficulty}">${a.difficulty}</span>
+      <div class="card-header">
+        <span class="badge badge-channel">${formatChannelName(a.channel)}</span>
+        <span class="badge badge-difficulty badge-${a.difficulty}">${a.difficulty}</span>
       </div>
-      <h2><a href="/posts/${a.id}/${a.blogSlug}/">${escapeHtml(a.blogTitle)}</a></h2>
-      <p class="excerpt">${escapeHtml((a.blogIntro || '').substring(0, 100))}...</p>
-    </div>`).join('');
+      <h2 class="card-title"><a href="/posts/${a.id}/${a.blogSlug}/">${escapeHtml(a.blogTitle)}</a></h2>
+      <p class="card-excerpt">${escapeHtml((a.blogIntro || '').substring(0, 120))}...</p>
+      <div class="card-footer">
+        <div class="card-tags">
+          ${displayTags.map(tag => `<span class="badge badge-tag">${tag}</span>`).join('')}
+        </div>
+        <a href="/posts/${a.id}/${a.blogSlug}/" class="card-link">Read more →</a>
+      </div>
+    </div>`;
+  }).join('');
   
   // Calculate reading time estimate (avg 5 min per article)
   const totalReadingMins = totalArticles * 5;
@@ -1065,14 +1103,14 @@ function generateIndexPage(articles) {
           <h2 class="featured-title"><a href="/posts/${mainFeatured.id}/${mainFeatured.blogSlug}/">${escapeHtml(mainFeatured.blogTitle)}</a></h2>
           <p class="featured-excerpt">${escapeHtml((mainFeatured.blogIntro || '').substring(0, 200))}...</p>
           <div class="featured-meta">
-            <span class="tag">${formatChannelName(mainFeatured.channel)}</span>
-            <span class="difficulty ${mainFeatured.difficulty}">${mainFeatured.difficulty}</span>
+            <span class="badge badge-channel">${formatChannelName(mainFeatured.channel)}</span>
+            <span class="badge badge-difficulty badge-${mainFeatured.difficulty}">${mainFeatured.difficulty}</span>
           </div>
         </div>
         <div class="featured-side">
           ${sideFeatured.map(a => `
             <a href="/posts/${a.id}/${a.blogSlug}/" class="featured-side-card">
-              <span class="tag">${formatChannelName(a.channel)}</span>
+              <span class="badge badge-channel">${formatChannelName(a.channel)}</span>
               <h3>${escapeHtml(a.blogTitle)}</h3>
             </a>
           `).join('')}
@@ -1182,12 +1220,25 @@ function generateCategoryPage(category, articles, allArticles) {
   const channels = categoryMap[category] || [];
   const categoryArticles = articles.filter(a => channels.includes(a.channel));
   
-  let articleCards = categoryArticles.map(a => `
+  let articleCards = categoryArticles.map(a => {
+    const tags = a.tags || [];
+    const displayTags = tags.slice(0, 3);
+    return `
     <div class="article-card">
-      <div class="article-meta"><span class="tag">${formatChannelName(a.channel)}</span><span class="difficulty ${a.difficulty}">${a.difficulty}</span></div>
-      <h2><a href="/posts/${a.id}/${a.blogSlug}/">${escapeHtml(a.blogTitle)}</a></h2>
-      <p class="excerpt">${escapeHtml((a.blogIntro || '').substring(0, 120))}...</p>
-    </div>`).join('');
+      <div class="card-header">
+        <span class="badge badge-channel">${formatChannelName(a.channel)}</span>
+        <span class="badge badge-difficulty badge-${a.difficulty}">${a.difficulty}</span>
+      </div>
+      <h2 class="card-title"><a href="/posts/${a.id}/${a.blogSlug}/">${escapeHtml(a.blogTitle)}</a></h2>
+      <p class="card-excerpt">${escapeHtml((a.blogIntro || '').substring(0, 120))}...</p>
+      <div class="card-footer">
+        <div class="card-tags">
+          ${displayTags.map(tag => `<span class="badge badge-tag">${tag}</span>`).join('')}
+        </div>
+        <a href="/posts/${a.id}/${a.blogSlug}/" class="card-link">Read more →</a>
+      </div>
+    </div>`;
+  }).join('');
   
   return `${generateHead(category, `${categoryArticles.length} articles about ${category}`)}
 ${generateHeader()}
@@ -1384,12 +1435,16 @@ function generateArticlePage(article, allArticles) {
       <div class="author-name">${AUTHOR.name}</div>
       <div class="author-role">${AUTHOR.role}</div>
       <div class="author-links">
+        <a href="${AUTHOR.website}" target="_blank" rel="noopener">
+          <i data-lucide="globe"></i>
+          Website
+        </a>
         <a href="${AUTHOR.github}" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          <i data-lucide="github"></i>
           GitHub
         </a>
         <a href="${AUTHOR.linkedin}" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          <i data-lucide="linkedin"></i>
           LinkedIn
         </a>
       </div>
@@ -1452,6 +1507,8 @@ ${generateFooter(articles)}`;
 
 // Main function
 async function main() {
+  const htmlOnly = process.argv.includes('--html-only');
+  
   console.log('=== 🚀 Blog Generator (LangGraph) ===\n');
   
   await initBlogPostsTable();
@@ -1464,27 +1521,28 @@ async function main() {
     if (stats.byChannel.length > 5) console.log(`     ... and ${stats.byChannel.length - 5} more`);
   }
   
-  console.log('\n🔍 Finding questions with interesting real-world cases...');
-  
-  // Get multiple candidates to try
-  const candidates = await getNextQuestionForBlog(MAX_SKIP_ATTEMPTS);
-  
-  if (candidates.length === 0) {
-    console.log('✅ All questions have been converted!');
-  } else {
-    let blogGenerated = false;
-    let skippedCount = 0;
+  if (!htmlOnly) {
+    console.log('\n🔍 Finding questions with interesting real-world cases...');
     
-    for (const question of candidates) {
-      console.log(`\n📝 Trying: ${question.id} (${question.channel})`);
-      console.log(`   Q: ${question.question.substring(0, 60)}...`);
+    // Get multiple candidates to try
+    const candidates = await getNextQuestionForBlog(MAX_SKIP_ATTEMPTS);
+    
+    if (candidates.length === 0) {
+      console.log('✅ All questions have been converted!');
+    } else {
+      let blogGenerated = false;
+      let skippedCount = 0;
       
-      try {
-        const blogContent = await transformToBlogArticle(question);
+      for (const question of candidates) {
+        console.log(`\n📝 Trying: ${question.id} (${question.channel})`);
+        console.log(`   Q: ${question.question.substring(0, 60)}...`);
         
-        // Check if skipped due to no interesting real-world case
-        if (blogContent.skipped) {
-          skippedCount++;
+        try {
+          const blogContent = await transformToBlogArticle(question);
+          
+          // Check if skipped due to no interesting real-world case
+          if (blogContent.skipped) {
+            skippedCount++;
           console.log(`   ⏭️ Skipped (${skippedCount}/${MAX_SKIP_ATTEMPTS}): ${blogContent.skipReason}`);
           continue;
         }
@@ -1528,6 +1586,9 @@ async function main() {
       console.log(`\n⚠️ Could not generate blog after trying ${skippedCount} questions`);
       console.log('   All candidates either lacked interesting real-world cases or had insufficient sources');
     }
+  }
+  } else {
+    console.log('\n⏭️ Skipping content generation (--html-only mode)');
   }
   
   console.log('\n📄 Regenerating static site...');
