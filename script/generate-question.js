@@ -10,9 +10,11 @@ import {
   getChannelQuestionCounts,
   getQuestionCount,
   postBotCommentToDiscussion,
-  getAllChannelsFromDb
+  getAllChannelsFromDb,
+  getQuestionsForChannel
 } from './utils.js';
 import { generateQuestion as generateQuestionGraph } from './ai/graphs/question-graph.js';
+import { runQualityGate } from './ai/graphs/quality-gate-graph.js';
 import { channelConfigs, topCompanies as TOP_TECH_COMPANIES, realScenarios as REAL_SCENARIOS } from './ai/prompts/templates/generate.js';
 
 // Channel configurations - imported from AI framework template (used for sub-channel info)
@@ -316,6 +318,44 @@ const scenarioHint = getScenarioHint(channel);
       console.log('❌ Duplicate question detected.');
       failedAttempts.push({ channel, reason: 'Duplicate detected' });
       continue;
+    }
+
+    // Run quality gate - all questions must pass
+    console.log('\n🚦 Running Quality Gate...');
+    console.log('─'.repeat(50));
+    
+    // Get existing questions for duplicate detection
+    const existingQuestions = await getQuestionsForChannel(channel);
+    
+    const qualityResult = await runQualityGate(data, {
+      channel,
+      subChannel: subChannelConfig.subChannel,
+      difficulty,
+      existingQuestions,
+      passThreshold: 70
+    });
+    
+    if (!qualityResult.success) {
+      console.log(`❌ Quality gate failed: ${qualityResult.decision}`);
+      console.log(`   Score: ${qualityResult.score}/100`);
+      if (qualityResult.issues.length > 0) {
+        console.log(`   Issues: ${qualityResult.issues.join(', ')}`);
+      }
+      if (qualityResult.warnings.length > 0) {
+        console.log(`   Warnings: ${qualityResult.warnings.join(', ')}`);
+      }
+      failedAttempts.push({ 
+        channel, 
+        reason: `Quality gate: ${qualityResult.decision} (score: ${qualityResult.score})`,
+        issues: qualityResult.issues,
+        warnings: qualityResult.warnings
+      });
+      continue;
+    }
+    
+    console.log(`✅ Quality gate passed (score: ${qualityResult.score}/100)`);
+    if (qualityResult.warnings.length > 0) {
+      console.log(`   Warnings: ${qualityResult.warnings.join(', ')}`);
     }
 
     const newQuestion = {

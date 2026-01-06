@@ -36,3 +36,6 @@ export {
   generateLinkedInPostsParallel,
   generateChallengesParallel
 } from './parallel-bot-executor.js';
+
+// 🆕 Quality Gate (all questions must pass)
+export { createQualityGateGraph, runQualityGate } from './quality-gate-graph.js';
