@@ -28,15 +28,13 @@ const Bookmarks = React.lazy(() => import("@/pages/Bookmarks"));
 const ReviewSession = React.lazy(() => import("@/pages/ReviewSession"));
 const VoiceInterview = React.lazy(() => import("@/pages/VoiceInterview"));
 const VoiceSession = React.lazy(() => import("@/pages/VoiceSession"));
-import { Onboarding } from "./components/Onboarding";
-import { MarvelIntro, useMarvelIntro } from "./components/MarvelIntro";
+import { ProgressiveOnboarding } from "./components/ProgressiveOnboarding";
 import { ThemeProvider } from "./context/ThemeContext";
 import { UserPreferencesProvider, useUserPreferences } from "./context/UserPreferencesContext";
 import { BadgeProvider } from "./context/BadgeContext";
 import { CreditsProvider, useCredits } from "./context/CreditsContext";
 import { CreditSplash } from "./components/CreditsDisplay";
 import { usePageViewTracking, useSessionTracking, useInteractionTracking } from "./hooks/use-analytics";
-import { AnimatePresence } from "framer-motion";
 import { preloadQuestions, getQuestionByIdAsync } from "./lib/questions-loader";
 import PixelMascot from "./components/PixelMascot";
 import BackgroundMascots from "./components/BackgroundMascots";
@@ -152,25 +150,10 @@ function AppContent() {
   }, []);
   
   const { needsOnboarding } = useUserPreferences();
-  const { showIntro, isChecking, completeIntro } = useMarvelIntro();
   
-  // Don't render anything while checking localStorage or redirecting
-  if (isChecking || isSearchRedirecting) {
+  // Don't render anything while redirecting
+  if (isSearchRedirecting) {
     return null;
-  }
-  
-  // Show Marvel intro for first-time visitors (before onboarding)
-  if (showIntro) {
-    return (
-      <AnimatePresence>
-        <MarvelIntro onComplete={completeIntro} />
-      </AnimatePresence>
-    );
-  }
-  
-  // Show onboarding for first-time users
-  if (needsOnboarding) {
-    return <Onboarding />;
   }
 
   return (
@@ -180,6 +163,8 @@ function AppContent() {
       <MascotToaster />
       <BackgroundMascots />
       <GlobalCreditSplash />
+      {/* Progressive onboarding - non-blocking, appears after delay */}
+      {needsOnboarding && <ProgressiveOnboarding />}
     </>
   );
 }
