@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <rect x="20" y="30" width="100" height="55" rx="6" fill="#161b22" stroke="#30363d"/>
+  <g transform="translate(29, 39) scale(0.75)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="58" y="50" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Uptime</text>
+  <text x="30" y="74" fill="#3fb950" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', Consolas, monospace">100<tspan fill="#8b949e" font-size="10">%</tspan></text>
+
+  <rect x="125" y="30" width="100" height="55" rx="6" fill="#161b22" stroke="#30363d"/>
+  <g transform="translate(134, 39) scale(0.75)"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 12a10 10 0 1 0 20 0 10 10 0 0 0-20 0M12 6V2M6 12H2M12 18v4M18 12h4" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="163" y="50" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Users</text>
+  <text x="135" y="74" fill="#3fb950" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', Consolas, monospace">12.4<tspan fill="#8b949e" font-size="10">K</tspan><tspan fill="#3fb950" font-size="12"> ↑</tspan></text>
+
+  <circle cx="600" cy="60" r="30.5" fill="#3fb950" opacity="0.1"/>
+  <circle cx="600" cy="60" r="22.5" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+  <g transform="translate(588.75, 48.75) scale(0.9375)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+  <rect x="55" y="192" width="90" height="56" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+  <g transform="translate(90, 204) scale(0.8333333333333334)"><path d="M2 9h20M2 15h20M6 9v6M18 9v6M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="100" y="238" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Production</text>
+
+  <rect x="225" y="192" width="70" height="56" rx="8" fill="#161b22" stroke="#39c5cf" stroke-width="1.5"/>
+  <g transform="translate(250, 204) scale(0.8333333333333334)"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" fill="none" stroke="#39c5cf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="260" y="238" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">CDN</text>
+
+  <line x1="140" y1="220" x2="220" y2="220" stroke="#3fb950" stroke-width="1.5" opacity="0.3"/>
+  <circle r="3" fill="#3fb950">
+    <animate attributeName="cx" values="140;220" dur="2.2s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="220;220" dur="2.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;1;1;0" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle r="2" fill="#3fb950" opacity="0.6">
+    <animate attributeName="cx" values="140;220" dur="2.7s" begin="0.6s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="220;220" dur="2.7s" begin="0.6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0.7;0.7;0" dur="2.7s" begin="0.6s" repeatCount="indefinite"/>
+  </circle>
+  <rect x="151" y="210" width="58" height="20" rx="4" fill="#161b22" stroke="#3fb950"/><text x="180" y="224" text-anchor="middle" fill="#3fb950" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">cached</text>
+
+  <rect x="20" y="295" width="119" height="24" rx="12" fill="#161b22" stroke="#3fb950"/>
+  <circle cx="32" cy="307" r="4" fill="#3fb950"/>
+  <text x="42" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">All systems go</text>
+
+  <rect x="180" y="295" width="112.5" height="24" rx="12" fill="#161b22" stroke="#3fb950"/>
+  <circle cx="192" cy="307" r="4" fill="#3fb950"/>
+  <text x="202" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Zero downtime</text>
+
+  <rect x="259.25" y="348" width="181.5" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#3fb950" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Deployment Successful</text></g>
+</svg>

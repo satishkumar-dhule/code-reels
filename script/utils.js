@@ -270,6 +270,16 @@ export async function addUnifiedQuestion(question, channels) {
     await dbClient.batch(batch);
   }
   
+  // Index in vector database for semantic search
+  try {
+    const vectorDB = (await import('./ai/services/vector-db.js')).default;
+    await vectorDB.indexQuestion(question);
+    console.log(`   📊 Indexed in vector DB: ${question.id}`);
+  } catch (error) {
+    // Non-fatal - vector indexing is optional
+    console.log(`   ⚠️ Vector indexing skipped: ${error.message}`);
+  }
+  
   // Invalidate cache since we added a new question
   _questionsCache = null;
 }

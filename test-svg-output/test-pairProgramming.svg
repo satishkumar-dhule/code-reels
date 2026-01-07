@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <circle cx="600" cy="60" r="30.5" fill="#3fb950" opacity="0.1"/>
+  <circle cx="600" cy="60" r="22.5" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+  <g transform="translate(588.75, 48.75) scale(0.9375)"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+  <g class="person" data-pose="working">
+    <!-- Head -->
+    <circle cx="180" cy="228.7" r="10.8" fill="#3fb950"/>
+    <circle cx="176.4" cy="226.89999999999998" r="1.8" fill="#0d1117"/>
+              <circle cx="183.6" cy="226.89999999999998" r="1.8" fill="#0d1117"/>
+              <path d="M176.4 233.2 L183.6 233.2" stroke="#0d1117" stroke-width="1.35"/>
+    <!-- Body -->
+    <line x1="180" y1="239.5" x2="180" y2="262" stroke="#3fb950" stroke-width="2.7" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M172.8 244 L175.5 262 M187.2 244 L184.5 262" fill="none" stroke="#3fb950" stroke-width="2.25" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M180 262 L172.8 280 M180 262 L187.2 280" fill="none" stroke="#3fb950" stroke-width="2.25" stroke-linecap="round"/>
+    <rect x="166.5" y="257.5" width="27" height="18" rx="1.8" fill="#161b22" stroke="#39c5cf"/>
+                    <rect x="169.2" y="260.2" width="21.6" height="12.6" fill="#39c5cf" opacity="0.3"/>
+  </g>
+<text x="180" y="295" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Driver</text>
+
+  <g class="person" data-pose="thinking">
+    <!-- Head -->
+    <circle cx="380" cy="228.7" r="10.8" fill="#58a6ff"/>
+    <circle cx="376.4" cy="226.89999999999998" r="1.8" fill="#0d1117"/>
+              <circle cx="383.6" cy="226.89999999999998" r="1.8" fill="#0d1117"/>
+              <path d="M376.4 233.2 L383.6 233.2" stroke="#0d1117" stroke-width="1.35"/>
+    <!-- Body -->
+    <line x1="380" y1="239.5" x2="380" y2="262" stroke="#58a6ff" stroke-width="2.7" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M372.8 244 L363.8 253 M387.2 244 L384.5 228.7" fill="none" stroke="#58a6ff" stroke-width="2.25" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M380 262 L372.8 280 M380 262 L387.2 280" fill="none" stroke="#58a6ff" stroke-width="2.25" stroke-linecap="round"/>
+    <rect x="398" y="253" width="7.2" height="10.8" rx="0.9" fill="#d29922" opacity="0.8"/>
+                    <ellipse cx="401.6" cy="253" rx="3.6" ry="1.8" fill="#d29922"/>
+  </g>
+<text x="380" y="295" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Navigator</text>
+
+  <g class="thought-bubble">
+    <ellipse cx="478.5" cy="111" rx="83.5" ry="36" fill="#161b22" stroke="#a371f7" stroke-width="1.5"/>
+    <circle cx="410" cy="152" r="6" fill="#161b22" stroke="#a371f7"/>
+    <circle cx="400" cy="162" r="4" fill="#161b22" stroke="#a371f7"/>
+    <text x="412" y="98" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Try extracting that</text><text x="412" y="112" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">into a helper</text><text x="412" y="126" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">function</text>
+  </g>
+
+  <rect x="278" y="348" width="144" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#3fb950" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Pair Programming</text></g>
+</svg>

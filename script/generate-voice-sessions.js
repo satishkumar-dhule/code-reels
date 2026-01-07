@@ -4,11 +4,13 @@
  * 
  * This script processes questions with voiceKeywords and generates
  * micro-question sessions for the session-based voice interview.
+ * Enhanced with Vector DB for finding semantically related follow-up questions.
  * 
  * Usage:
  *   node script/generate-voice-sessions.js
  *   node script/generate-voice-sessions.js --channel=system-design
  *   node script/generate-voice-sessions.js --limit=10
+ *   node script/generate-voice-sessions.js --use-vector-db
  */
 
 import 'dotenv/config';
@@ -23,7 +25,8 @@ const args = process.argv.slice(2);
 const options = {
   channel: null,
   limit: 50,
-  dryRun: false
+  dryRun: false,
+  useVectorDB: false
 };
 
 for (const arg of args) {
@@ -33,7 +36,20 @@ for (const arg of args) {
     options.limit = parseInt(arg.split('=')[1]);
   } else if (arg === '--dry-run') {
     options.dryRun = true;
+  } else if (arg === '--use-vector-db') {
+    options.useVectorDB = true;
   }
+}
+
+// Lazy load vector DB only when needed
+let vectorDB = null;
+async function getVectorDB() {
+  if (!vectorDB) {
+    const module = await import('./ai/services/vector-db.js');
+    vectorDB = module.default;
+    await vectorDB.init();
+  }
+  return vectorDB;
 }
 
 // Question templates for different channels
@@ -211,8 +227,37 @@ function generateSessionFromQuestion(question) {
     contextQuestion: question.question,
     microQuestions: microQuestions.slice(0, 6),
     totalQuestions: Math.min(microQuestions.length, 6),
-    sourceQuestionId: question.id
+    sourceQuestionId: question.id,
+    relatedQuestionIds: [] // Will be populated by vector DB
   };
+}
+
+/**
+ * Find related questions using Vector DB for session enrichment
+ */
+async function findRelatedQuestions(session, allQuestions) {
+  if (!options.useVectorDB) {
+    return session;
+  }
+  
+  try {
+    const vdb = await getVectorDB();
+    const searchQuery = `${session.topic} ${session.contextQuestion}`;
+    
+    const similar = await vdb.findSimilar(searchQuery, {
+      limit: 5,
+      threshold: 0.1,
+      channel: session.channel,
+      excludeIds: [session.sourceQuestionId]
+    });
+    
+    session.relatedQuestionIds = similar.map(s => s.id);
+    console.log(`   Found ${similar.length} related questions for session`);
+  } catch (error) {
+    console.log(`   ⚠️ Vector DB search failed: ${error.message}`);
+  }
+  
+  return session;
 }
 
 async function main() {
@@ -266,9 +311,14 @@ async function main() {
   let failCount = 0;
   
   for (const question of questionsToProcess) {
-    const session = generateSessionFromQuestion(question);
+    let session = generateSessionFromQuestion(question);
     
     if (session) {
+      // Enrich with related questions if vector DB is enabled
+      if (options.useVectorDB) {
+        session = await findRelatedQuestions(session, allQuestions);
+      }
+      
       sessions.push(session);
       successCount++;
       console.log(`✅ ${question.id}: ${session.totalQuestions} micro-questions`);

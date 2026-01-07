@@ -11,6 +11,7 @@
 
 import { StateGraph, END, START } from '@langchain/langgraph';
 import { Annotation } from '@langchain/langgraph';
+import vectorDB from '../services/vector-db.js';
 
 // Define the state schema
 const QualityGateState = Annotation.Root({
@@ -106,71 +107,94 @@ function validateStructureNode(state) {
 }
 
 /**
- * Node: Check for duplicates using TF-IDF similarity
+ * Node: Check for duplicates using Vector DB (Qdrant) + TF-IDF fallback
  */
-function checkDuplicatesNode(state) {
+async function checkDuplicatesNode(state) {
   console.log('\n🔍 [CHECK_DUPLICATES] Scanning for similar questions...');
   
-  const { question, existingQuestions } = state;
+  const { question, existingQuestions, channel } = state;
   
-  if (!existingQuestions || existingQuestions.length === 0) {
-    console.log('   No existing questions to compare');
-    return { duplicateScore: 100, potentialDuplicates: [] };
-  }
-  
-  // Tokenize and create TF vectors
-  function tokenize(text) {
-    return text.toLowerCase()
-      .replace(/[^a-z0-9\s]/g, ' ')
-      .split(/\s+/)
-      .filter(t => t.length > 2);
-  }
-  
-  function createTF(tokens) {
-    const tf = {};
-    tokens.forEach(t => tf[t] = (tf[t] || 0) + 1);
-    const len = tokens.length || 1;
-    Object.keys(tf).forEach(k => tf[k] /= len);
-    return tf;
-  }
-  
-  function cosineSimilarity(tf1, tf2) {
-    const keys = new Set([...Object.keys(tf1), ...Object.keys(tf2)]);
-    let dot = 0, norm1 = 0, norm2 = 0;
-    for (const k of keys) {
-      const v1 = tf1[k] || 0;
-      const v2 = tf2[k] || 0;
-      dot += v1 * v2;
-      norm1 += v1 * v1;
-      norm2 += v2 * v2;
-    }
-    const mag = Math.sqrt(norm1) * Math.sqrt(norm2);
-    return mag > 0 ? dot / mag : 0;
-  }
-  
-  const newTokens = tokenize(question.question);
-  const newTF = createTF(newTokens);
-  
-  const potentialDuplicates = [];
-  let maxSimilarity = 0;
-  
-  for (const existing of existingQuestions) {
-    const existingTokens = tokenize(existing.question || '');
-    const existingTF = createTF(existingTokens);
-    const similarity = cosineSimilarity(newTF, existingTF);
+  // Try vector DB first for semantic similarity
+  let vectorDuplicates = [];
+  try {
+    const similar = await vectorDB.findSimilar(question.question, {
+      limit: 10,
+      threshold: 0.3, // Lower threshold for TF-IDF embeddings
+      channel: channel || null
+    });
     
-    if (similarity > maxSimilarity) {
-      maxSimilarity = similarity;
+    vectorDuplicates = similar.map(s => ({
+      id: s.id,
+      question: s.question?.substring(0, 80),
+      similarity: s.similarity
+    }));
+    
+    console.log(`   Vector DB found ${vectorDuplicates.length} similar questions`);
+  } catch (error) {
+    console.log(`   Vector DB unavailable: ${error.message}, using TF-IDF fallback`);
+  }
+  
+  // TF-IDF fallback for local comparison
+  if (existingQuestions && existingQuestions.length > 0) {
+    // Tokenize and create TF vectors
+    function tokenize(text) {
+      return text.toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(t => t.length > 2);
     }
     
-    if (similarity > 0.7) {
-      potentialDuplicates.push({
-        id: existing.id,
-        question: existing.question?.substring(0, 80),
-        similarity: Math.round(similarity * 100)
-      });
+    function createTF(tokens) {
+      const tf = {};
+      tokens.forEach(t => tf[t] = (tf[t] || 0) + 1);
+      const len = tokens.length || 1;
+      Object.keys(tf).forEach(k => tf[k] /= len);
+      return tf;
+    }
+    
+    function cosineSimilarity(tf1, tf2) {
+      const keys = new Set([...Object.keys(tf1), ...Object.keys(tf2)]);
+      let dot = 0, norm1 = 0, norm2 = 0;
+      for (const k of keys) {
+        const v1 = tf1[k] || 0;
+        const v2 = tf2[k] || 0;
+        dot += v1 * v2;
+        norm1 += v1 * v1;
+        norm2 += v2 * v2;
+      }
+      const mag = Math.sqrt(norm1) * Math.sqrt(norm2);
+      return mag > 0 ? dot / mag : 0;
+    }
+    
+    const newTokens = tokenize(question.question);
+    const newTF = createTF(newTokens);
+    
+    for (const existing of existingQuestions) {
+      const existingTokens = tokenize(existing.question || '');
+      const existingTF = createTF(existingTokens);
+      const similarity = cosineSimilarity(newTF, existingTF);
+      
+      if (similarity > 0.7) {
+        // Check if already in vector duplicates
+        const alreadyFound = vectorDuplicates.some(d => d.id === existing.id);
+        if (!alreadyFound) {
+          vectorDuplicates.push({
+            id: existing.id,
+            question: existing.question?.substring(0, 80),
+            similarity: Math.round(similarity * 100)
+          });
+        }
+      }
     }
   }
+  
+  // Sort by similarity and get max
+  vectorDuplicates.sort((a, b) => b.similarity - a.similarity);
+  const maxSimilarity = vectorDuplicates.length > 0 ? vectorDuplicates[0].similarity / 100 : 0;
+  
+  // Filter to potential duplicates
+  const potentialDuplicates = vectorDuplicates.filter(d => d.similarity >= 70);
+  const nearDuplicates = vectorDuplicates.filter(d => d.similarity >= 85);
   
   // Score: 100 = no duplicates, 0 = exact duplicate
   const duplicateScore = Math.round((1 - maxSimilarity) * 100);

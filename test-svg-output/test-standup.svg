@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <circle cx="600" cy="60" r="30.5" fill="#a371f7" opacity="0.1"/>
+  <circle cx="600" cy="60" r="22.5" fill="#161b22" stroke="#a371f7" stroke-width="2"/>
+  <g transform="translate(588.75, 48.75) scale(0.9375)"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="none" stroke="#a371f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+  <g class="person" data-pose="standing">
+    <!-- Head -->
+    <circle cx="100" cy="221.55" r="10.2" fill="#58a6ff"/>
+    <circle cx="96.6" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <circle cx="103.4" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <path d="M96.6 225.8 L103.4 225.8" stroke="#0d1117" stroke-width="1.275"/>
+    <!-- Body -->
+    <line x1="100" y1="231.75" x2="100" y2="253" stroke="#58a6ff" stroke-width="2.55" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M93.2 236 L84.7 248.75 M106.8 236 L115.3 248.75" fill="none" stroke="#58a6ff" stroke-width="2.125" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M100 253 L93.2 270 M100 253 L106.8 270" fill="none" stroke="#58a6ff" stroke-width="2.125" stroke-linecap="round"/>
+    
+  </g>
+
+  <g class="person" data-pose="waving">
+    <!-- Head -->
+    <circle cx="250" cy="221.55" r="10.2" fill="#a371f7"/>
+    <circle cx="246.6" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <circle cx="253.4" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <path d="M246.6 225.8 L253.4 225.8" stroke="#0d1117" stroke-width="1.275"/>
+    <!-- Body -->
+    <line x1="250" y1="231.75" x2="250" y2="253" stroke="#a371f7" stroke-width="2.55" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M243.2 236 L233 223.25 M256.8 236 L265.3 244.5" fill="none" stroke="#a371f7" stroke-width="2.125" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M250 253 L243.2 270 M250 253 L256.8 270" fill="none" stroke="#a371f7" stroke-width="2.125" stroke-linecap="round"/>
+    
+  </g>
+
+  <g class="person" data-pose="thinking">
+    <!-- Head -->
+    <circle cx="400" cy="221.55" r="10.2" fill="#39c5cf"/>
+    <circle cx="396.6" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <circle cx="403.4" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <path d="M396.6 225.8 L403.4 225.8" stroke="#0d1117" stroke-width="1.275"/>
+    <!-- Body -->
+    <line x1="400" y1="231.75" x2="400" y2="253" stroke="#39c5cf" stroke-width="2.55" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M393.2 236 L384.7 244.5 M406.8 236 L404.25 221.55" fill="none" stroke="#39c5cf" stroke-width="2.125" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M400 253 L393.2 270 M400 253 L406.8 270" fill="none" stroke="#39c5cf" stroke-width="2.125" stroke-linecap="round"/>
+    
+  </g>
+
+  <g class="person" data-pose="pointing">
+    <!-- Head -->
+    <circle cx="550" cy="221.55" r="10.2" fill="#3fb950"/>
+    <circle cx="546.6" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <circle cx="553.4" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <path d="M546.6 225.8 L553.4 225.8" stroke="#0d1117" stroke-width="1.275"/>
+    <!-- Body -->
+    <line x1="550" y1="231.75" x2="550" y2="253" stroke="#3fb950" stroke-width="2.55" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M543.2 236 L534.7 244.5 M556.8 236 L575.5 231.75" fill="none" stroke="#3fb950" stroke-width="2.125" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M550 253 L543.2 270 M550 253 L556.8 270" fill="none" stroke="#3fb950" stroke-width="2.125" stroke-linecap="round"/>
+    
+  </g>
+
+  <g class="speech-bubble">
+    <rect x="200" y="50" width="171" height="52" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <path d="M215 102 L200 117 L230 102" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="200" y="100" width="171" height="4" fill="#161b22"/>
+    <text x="212" y="72" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Yesterday I fixed the</text><text x="212" y="86" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">auth bug</text>
+  </g>
+
+  <g class="speech-bubble">
+    <rect x="400" y="100" width="192" height="38" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <path d="M562 138 L592 153 L577 138" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="400" y="136" width="192" height="4" fill="#161b22"/>
+    <text x="412" y="122" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">I'll review the PR today</text>
+  </g>
+
+  <rect x="259.25" y="348" width="181.5" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#a371f7" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Daily Standup Meeting</text></g>
+</svg>

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import type { Question } from '../lib/data';
 import { GiscusComments } from './GiscusComments';
+import { SimilarQuestions } from './SimilarQuestions';
 import { formatTag } from '../lib/utils';
 import { BlogService } from '../services/api.service';
 
@@ -192,25 +193,25 @@ function ExpandableCard({
   };
 
   return (
-    <div className={`rounded-xl sm:rounded-2xl border overflow-hidden ${variantStyles[variant]}`}>
+    <div className={`rounded-lg border overflow-hidden ${variantStyles[variant]}`}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-4 hover:bg-muted/30 transition-colors"
+        className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-muted/30 transition-colors"
       >
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5">
           <span className={iconStyles[variant]}>{icon}</span>
-          <span className="font-semibold text-sm sm:text-base">{title}</span>
+          <span className="font-medium text-xs">{title}</span>
           {badge && (
-            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary/10 text-primary text-[10px] sm:text-xs font-medium rounded">
+            <span className="px-1 py-0.5 bg-primary/10 text-primary text-[8px] font-medium rounded">
               {badge}
             </span>
           )}
         </div>
-        <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
       </button>
       
       {isMobile ? (
-        isExpanded && <div className="px-3 pb-3">{children}</div>
+        isExpanded && <div className="px-2.5 pb-2">{children}</div>
       ) : (
         <AnimatePresence initial={false}>
           {isExpanded && (
@@ -221,7 +222,7 @@ function ExpandableCard({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="px-3 sm:px-4 lg:px-5 pb-3 sm:pb-4 lg:pb-5">{children}</div>
+              <div className="px-2.5 pb-2">{children}</div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -312,18 +313,6 @@ function TabbedMediaPanel({
   if (hasEli5) availableTabs.push('eli5');
   if (hasVideo) availableTabs.push('video');
   
-  // Default to first available tab, but prefer non-diagram if diagram hasn't rendered yet
-  const getDefaultTab = useCallback((): MediaTab => {
-    if (hasTldr) return 'tldr';
-    if (diagramRenderSuccess === null && hasDiagram) {
-      // Diagram is still loading, prefer other tabs if available
-      if (hasEli5) return 'eli5';
-      if (hasVideo) return 'video';
-      return 'diagram';
-    }
-    return availableTabs[0] || 'tldr';
-  }, [hasTldr, hasDiagram, hasEli5, hasVideo, diagramRenderSuccess, availableTabs]);
-  
   const [activeTab, setActiveTab] = useState<MediaTab>(() => {
     if (hasTldr) return 'tldr';
     if (hasEli5) return 'eli5';
@@ -358,21 +347,21 @@ function TabbedMediaPanel({
   if (availableTabs.length === 0) return null;
 
   const tabConfig = {
-    tldr: { label: 'TL;DR', icon: <Lightbulb className="w-4 h-4" />, color: 'text-cyan-400' },
-    diagram: { label: 'Diagram', icon: <GitBranch className="w-4 h-4" />, color: 'text-purple-400' },
-    eli5: { label: 'ELI5', icon: <Baby className="w-4 h-4" />, color: 'text-green-400' },
-    video: { label: 'Video', icon: <Play className="w-4 h-4" />, color: 'text-pink-400' },
+    tldr: { label: 'TL;DR', icon: <Lightbulb className="w-3.5 h-3.5" />, color: 'text-cyan-400' },
+    diagram: { label: 'Diagram', icon: <GitBranch className="w-3.5 h-3.5" />, color: 'text-purple-400' },
+    eli5: { label: 'ELI5', icon: <Baby className="w-3.5 h-3.5" />, color: 'text-green-400' },
+    video: { label: 'Video', icon: <Play className="w-3.5 h-3.5" />, color: 'text-pink-400' },
   };
 
   return (
-    <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-black/40 backdrop-blur-sm overflow-hidden">
+    <div className="rounded-lg sm:rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm overflow-hidden">
       {/* Tab Headers */}
       <div className="flex border-b border-white/10 bg-black/20">
         {availableTabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 sm:py-3 text-sm font-medium transition-all relative ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs sm:text-sm font-medium transition-all relative ${
               activeTab === tab 
                 ? `${tabConfig[tab].color} bg-white/5` 
                 : 'text-white/50 hover:text-white/70 hover:bg-white/5'
@@ -395,7 +384,7 @@ function TabbedMediaPanel({
       </div>
       
       {/* Tab Content */}
-      <div className="p-3 sm:p-4 lg:p-5">
+      <div className="p-2 sm:p-3">
         <AnimatePresence mode="wait">
           {activeTab === 'tldr' && hasTldr && (
             <motion.div
@@ -404,12 +393,10 @@ function TabbedMediaPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="flex items-start gap-3"
+              className="flex items-start gap-2"
             >
-              <div className="p-2 bg-cyan-500/20 rounded-lg shrink-0">
-                <Lightbulb className="w-5 h-5 text-cyan-400" />
-              </div>
-              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">{renderWithInlineCode(question.answer)}</p>
+              <Lightbulb className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-foreground/90 leading-relaxed">{renderWithInlineCode(question.answer)}</p>
             </motion.div>
           )}
           
@@ -435,10 +422,10 @@ function TabbedMediaPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="flex items-start gap-3"
+              className="flex items-start gap-2"
             >
-              <span className="text-2xl flex-shrink-0">🧒</span>
-              <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">{renderWithInlineCode(question.eli5 || '')}</p>
+              <span className="text-base flex-shrink-0">🧒</span>
+              <p className="text-sm text-foreground/90 leading-relaxed">{renderWithInlineCode(question.eli5 || '')}</p>
             </motion.div>
           )}
           
@@ -462,7 +449,7 @@ function TabbedMediaPanel({
   );
 }
 
-export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
+export function AnswerPanel({ question }: AnswerPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isMobileView = typeof window !== 'undefined' && window.innerWidth < 640;
   const [blogPost, setBlogPost] = useState<{ title: string; slug: string; url: string } | null>(null);
@@ -494,7 +481,7 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             
             if (isInline) {
               return (
-                <code className="px-1 sm:px-1.5 py-0.5 bg-primary/10 text-primary rounded text-[0.85em] font-mono">
+                <code className="px-1 py-0.5 bg-primary/10 text-primary rounded text-[0.85em] font-mono">
                   {children}
                 </code>
               );
@@ -503,47 +490,47 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
             if (language === 'mermaid') {
               if (!isValidMermaidDiagram(codeContent)) return null;
               return (
-                <div className="my-4 sm:my-6">
+                <div className="my-3">
                   <EnhancedMermaid chart={codeContent} />
                 </div>
               );
             }
             
             return (
-              <div className="my-3 sm:my-4">
+              <div className="my-2">
                 <CodeBlock code={codeContent} language={language} />
               </div>
             );
           },
           p({ children }) {
-            return <p className="mb-3 sm:mb-4 leading-relaxed text-foreground/90 text-sm sm:text-base">{children}</p>;
+            return <p className="mb-2 leading-relaxed text-foreground/90 text-sm">{children}</p>;
           },
           h1({ children }) {
-            return <h1 className="text-base sm:text-lg lg:text-xl font-bold mb-3 sm:mb-4 mt-4 sm:mt-6 text-foreground border-b border-border pb-2">{children}</h1>;
+            return <h1 className="text-base font-bold mb-2 mt-4 text-foreground border-b border-border pb-1">{children}</h1>;
           },
           h2({ children }) {
-            return <h2 className="text-sm sm:text-base lg:text-lg font-bold mb-2 sm:mb-3 mt-4 sm:mt-5 text-foreground">{children}</h2>;
+            return <h2 className="text-sm font-bold mb-2 mt-3 text-foreground">{children}</h2>;
           },
           h3({ children }) {
-            return <h3 className="text-sm sm:text-base font-semibold mb-2 mt-3 sm:mt-4 text-foreground/90">{children}</h3>;
+            return <h3 className="text-sm font-semibold mb-1.5 mt-2 text-foreground/90">{children}</h3>;
           },
           strong({ children }) {
             return <strong className="font-semibold text-foreground">{children}</strong>;
           },
           ul({ children }) {
-            return <ul className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4 ml-1">{children}</ul>;
+            return <ul className="space-y-1 mb-2 ml-1">{children}</ul>;
           },
           ol({ children }) {
-            return <ol className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4 ml-1 [counter-reset:list-counter]">{children}</ol>;
+            return <ol className="space-y-1 mb-2 ml-1 [counter-reset:list-counter]">{children}</ol>;
           },
           li({ children, node }) {
             const parent = (node as any)?.parent;
             const isOrdered = parent?.tagName === 'ol';
             
             return (
-              <li className="flex gap-2 sm:gap-3 text-foreground/90 text-sm sm:text-base [counter-increment:list-counter]">
+              <li className="flex gap-2 text-foreground/90 text-sm [counter-increment:list-counter]">
                 <span className="shrink-0 text-primary mt-0.5">
-                  {isOrdered ? <span className="text-xs sm:text-sm font-medium before:content-[counter(list-counter)'.']" /> : '•'}
+                  {isOrdered ? <span className="text-xs font-medium before:content-[counter(list-counter)'.']" /> : '•'}
                 </span>
                 <span className="flex-1">{children}</span>
               </li>
@@ -558,23 +545,23 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
           },
           blockquote({ children }) {
             return (
-              <blockquote className="border-l-2 sm:border-l-4 border-primary/50 pl-3 sm:pl-4 py-1 sm:py-2 my-3 sm:my-4 bg-primary/5 text-muted-foreground italic text-sm sm:text-base">
+              <blockquote className="border-l-2 border-primary/50 pl-3 py-1 my-2 bg-primary/5 text-muted-foreground italic text-sm">
                 {children}
               </blockquote>
             );
           },
           table({ children }) {
             return (
-              <div className="my-3 sm:my-4 overflow-x-auto">
-                <table className="w-full border-collapse text-sm sm:text-base">{children}</table>
+              <div className="my-2 overflow-x-auto">
+                <table className="w-full border-collapse text-sm">{children}</table>
               </div>
             );
           },
           th({ children }) {
-            return <th className="px-3 sm:px-4 py-2 sm:py-3 text-left font-semibold bg-muted border border-border text-xs sm:text-sm">{children}</th>;
+            return <th className="px-2 py-1.5 text-left font-semibold bg-muted border border-border text-xs">{children}</th>;
           },
           td({ children }) {
-            return <td className="px-3 sm:px-4 py-2 sm:py-3 border border-border text-sm sm:text-base">{children}</td>;
+            return <td className="px-2 py-1.5 border border-border text-sm">{children}</td>;
           },
         }}
       >
@@ -590,9 +577,9 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
       animate={{ opacity: 1 }}
       className="w-full h-full overflow-y-auto overflow-x-hidden bg-background"
     >
-      <div className="max-w-3xl lg:max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 lg:py-8 pb-24 space-y-2.5 sm:space-y-4 lg:space-y-5">
+      <div className="w-full px-3 sm:px-4 lg:px-6 py-2 sm:py-3 pb-16 space-y-1.5">
 
-        {/* Tabbed Media Panel - TLDR, Diagram, ELI5, Video */}
+        {/* Tabbed Media Panel */}
         {hasMediaContent && (
           <TabbedMediaPanel
             question={question}
@@ -606,25 +593,22 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
         {/* Full Explanation */}
         <ExpandableCard
           title="Full Explanation"
-          icon={<BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />}
+          icon={<BookOpen className="w-3.5 h-3.5" />}
           defaultExpanded={true}
-          badge={question.explanation ? `${Math.ceil(question.explanation.split(' ').length / 200)} min read` : undefined}
+          badge={question.explanation ? `${Math.ceil(question.explanation.split(' ').length / 200)} min` : undefined}
         >
-          <div className="prose prose-sm sm:prose-base max-w-none">
+          <div className="prose prose-sm max-w-none">
             {renderMarkdown(question.explanation)}
           </div>
         </ExpandableCard>
 
-        {/* Tags */}
+        {/* Tags - Compact */}
         {question.tags && question.tags.length > 0 && (
-          <div className="flex items-start gap-2 sm:gap-3 pt-2 sm:pt-3">
-            <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground mt-1 flex-shrink-0" />
-            <div className="flex flex-wrap gap-1.5 sm:gap-2">
+          <div className="flex items-start gap-1.5 pt-0.5">
+            <Tag className="w-2.5 h-2.5 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <div className="flex flex-wrap gap-0.5">
               {question.tags.map(tag => (
-                <span 
-                  key={tag} 
-                  className="px-2 sm:px-3 py-0.5 sm:py-1 bg-muted text-[10px] sm:text-xs font-mono text-muted-foreground rounded-full border border-border"
-                >
+                <span key={tag} className="px-1 py-0.5 bg-muted text-[8px] font-mono text-muted-foreground rounded border border-border">
                   {formatTag(tag)}
                 </span>
               ))}
@@ -632,38 +616,30 @@ export function AnswerPanel({ question, isCompleted }: AnswerPanelProps) {
           </div>
         )}
 
-        {/* References Section */}
+        {/* References */}
         {(question.sourceUrl || blogPost) && (
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {/* Source Link */}
+          <div className="flex flex-wrap items-center gap-1.5">
             {question.sourceUrl && (
-              <a
-                href={question.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-muted hover:bg-muted/80 border border-border rounded-lg sm:rounded-xl transition-colors text-sm sm:text-base"
-              >
-                <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">View Source</span>
+              <a href={question.sourceUrl} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2 py-1 bg-muted hover:bg-muted/80 border border-border rounded-md text-[10px]">
+                <ExternalLink className="w-2.5 h-2.5 text-muted-foreground" />
+                <span className="text-muted-foreground">Source</span>
               </a>
             )}
-
-            {/* Blog Post Link */}
             {blogPost && (
-              <a
-                href={`https://openstackdaily.github.io${blogPost.url}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-lg sm:rounded-xl transition-colors text-sm sm:text-base"
-              >
-                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
-                <span className="text-cyan-400">Read Blog Post</span>
+              <a href={`https://openstackdaily.github.io${blogPost.url}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-md text-[10px]">
+                <FileText className="w-2.5 h-2.5 text-cyan-400" />
+                <span className="text-cyan-400">Blog</span>
               </a>
             )}
           </div>
         )}
 
-        {/* Discussion - Direct embed without extra wrapper */}
+        {/* Similar Questions */}
+        <SimilarQuestions questionId={question.id} currentChannel={question.channel} />
+
+        {/* Discussion */}
         <GiscusComments questionId={question.id} />
 
       </div>

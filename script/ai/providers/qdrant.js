@@ -6,6 +6,7 @@
  */
 
 import { QdrantClient } from '@qdrant/js-client-rest';
+import crypto from 'crypto';
 
 // Collection names
 const COLLECTIONS = {
@@ -82,24 +83,59 @@ class QdrantProvider {
   }
 
   /**
+   * Convert string ID to UUID format for Qdrant
+   * Qdrant requires either unsigned integers or UUIDs
+   */
+  stringToUUID(str) {
+    // Use crypto to create a proper UUID v5-like hash
+    const hash = crypto.createHash('md5').update(str).digest('hex');
+    // Format as UUID: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+    return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-${hash.slice(16, 20)}-${hash.slice(20, 32)}`;
+  }
+
+  /**
    * Upsert vectors with payloads
    */
   async upsert(collectionName, points) {
     await this.init();
 
     try {
+      // Validate and filter points
+      const validPoints = points.filter(p => {
+        if (!Array.isArray(p.vector)) return false;
+        if (p.vector.length === 0) return false;
+        if (p.vector.some(v => typeof v !== 'number' || isNaN(v) || !isFinite(v))) return false;
+        return true;
+      });
+
+      if (validPoints.length === 0) {
+        console.warn('No valid points to upsert');
+        return { status: 'skipped' };
+      }
+
+      if (validPoints.length < points.length) {
+        console.warn(`Filtered out ${points.length - validPoints.length} invalid points`);
+      }
+
+      const formattedPoints = validPoints.map(p => ({
+        id: this.stringToUUID(p.id),
+        vector: p.vector,
+        payload: { ...p.payload, originalId: p.id }
+      }));
+
       const result = await this.client.upsert(collectionName, {
         wait: true,
-        points: points.map(p => ({
-          id: p.id,
-          vector: p.vector,
-          payload: p.payload || {}
-        }))
+        points: formattedPoints
       });
 
       return result;
     } catch (error) {
-      console.error('Upsert failed:', error.message);
+      // Log more details about the error
+      if (error.data) {
+        console.error('Upsert failed:', error.data.status?.error || error.message);
+      } else {
+        console.error('Upsert failed:', error.message);
+      }
       throw error;
     }
   }
@@ -144,13 +180,13 @@ class QdrantProvider {
       scoreThreshold: threshold,
       filter: {
         must_not: [
-          { key: 'id', match: { value: questionId } }
+          { key: 'originalId', match: { value: questionId } }
         ]
       }
     });
 
     return results.map(r => ({
-      id: r.payload.id,
+      id: r.payload.originalId || r.payload.id,
       score: r.score,
       question: r.payload.question,
       channel: r.payload.channel
@@ -189,7 +225,7 @@ class QdrantProvider {
     try {
       await this.client.delete(collectionName, {
         wait: true,
-        points: ids
+        points: ids.map(id => this.stringToUUID(id))
       });
       return true;
     } catch (error) {
@@ -300,7 +336,7 @@ class QdrantProvider {
 
     try {
       const result = await this.client.retrieve(collectionName, {
-        ids: [id],
+        ids: [this.stringToUUID(id)],
         with_payload: true,
         with_vector: true
       });

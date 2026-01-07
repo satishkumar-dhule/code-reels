@@ -13,6 +13,19 @@ import { Annotation } from '@langchain/langgraph';
 import ai from '../index.js';
 import { validateMermaidDiagram, fixCommonIssues } from '../utils/mermaid-validator.js';
 
+// Lazy load vector DB to avoid circular dependencies
+let vectorDB = null;
+async function getVectorDB() {
+  if (!vectorDB) {
+    try {
+      vectorDB = (await import('../services/vector-db.js')).default;
+    } catch (error) {
+      // Vector DB not available
+    }
+  }
+  return vectorDB;
+}
+
 // Define the state schema using Annotation
 const QuestionState = Annotation.Root({
   // Input question data
@@ -51,6 +64,25 @@ async function analyzeNode(state) {
   console.log('\n📊 [ANALYZE] Scoring question relevance...');
   
   try {
+    // Check for duplicates using vector DB
+    const vdb = await getVectorDB();
+    if (vdb) {
+      try {
+        const duplicates = await vdb.findDuplicates({
+          id: state.questionId,
+          question: state.question,
+          answer: state.answer,
+          channel: state.channel
+        }, 0.85);
+        
+        if (duplicates.length > 0) {
+          console.log(`   ⚠️ Found ${duplicates.length} potential duplicates via vector DB`);
+        }
+      } catch (error) {
+        // Non-fatal
+      }
+    }
+    
     const result = await ai.run('relevance', {
       question: state.question,
       answer: state.answer,

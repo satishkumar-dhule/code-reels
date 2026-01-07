@@ -171,8 +171,8 @@ export function MobileBottomNav() {
 
       {/* Bottom Navigation Bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-        <div className="pb-safe bg-card/95 backdrop-blur-xl border-t border-border">
-          <div className="flex items-center justify-around h-16 px-2">
+        <div className="pb-safe bg-card/80 backdrop-blur-xl border-t border-border/50">
+          <div className="flex items-center justify-around h-14 px-1">
             {mainNavItems.map((item) => {
               const isActive = activeSection === item.id;
               const Icon = item.icon;
@@ -182,7 +182,7 @@ export function MobileBottomNav() {
                   key={item.id}
                   onClick={() => handleNavClick(item)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all",
+                    "relative flex flex-col items-center justify-center w-14 h-12 rounded-xl transition-all",
                     isActive ? "text-primary" : "text-muted-foreground",
                     item.highlight && !isActive && "text-primary/70"
                   )}
@@ -190,25 +190,25 @@ export function MobileBottomNav() {
                   {isActive && (
                     <motion.div
                       layoutId="mobile-nav-indicator"
-                      className="absolute inset-0 bg-primary/10 rounded-xl"
+                      className="absolute inset-1 bg-primary/10 rounded-lg border border-primary/20"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                     />
                   )}
                   
                   {item.highlight ? (
                     <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center -mt-4 shadow-lg",
+                      "w-9 h-9 rounded-xl flex items-center justify-center -mt-3 shadow-lg",
                       isActive 
-                        ? "bg-primary text-primary-foreground" 
-                        : "bg-gradient-to-br from-primary to-primary/70 text-white"
+                        ? "bg-primary text-primary-foreground shadow-primary/30" 
+                        : "bg-gradient-to-br from-primary to-cyan-500 text-white shadow-primary/20"
                     )}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-4 h-4" />
                     </div>
                   ) : (
-                    <Icon className={cn("w-5 h-5 relative z-10", isActive && "text-primary")} />
+                    <Icon className={cn("w-4 h-4 relative z-10", isActive && "text-primary")} />
                   )}
                   
-                  <span className={cn("text-[10px] font-medium relative z-10", item.highlight && "-mt-1")}>
+                  <span className={cn("text-[9px] font-medium relative z-10 mt-0.5", item.highlight && "-mt-0.5")}>
                     {item.label}
                   </span>
                 </button>
@@ -216,10 +216,10 @@ export function MobileBottomNav() {
             })}
             
             {/* Credits */}
-            <button onClick={() => setLocation('/profile')} className="flex flex-col items-center justify-center w-16 h-14">
-              <div className="flex items-center gap-1 px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                <Coins className="w-3.5 h-3.5 text-amber-500" />
-                <span className="text-xs font-bold text-amber-500">{formatCredits(balance)}</span>
+            <button onClick={() => setLocation('/profile')} className="flex flex-col items-center justify-center w-14 h-12">
+              <div className="flex items-center gap-0.5 px-1.5 py-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-lg">
+                <Coins className="w-3 h-3 text-amber-500" />
+                <span className="text-[10px] font-bold text-amber-500">{formatCredits(balance)}</span>
               </div>
             </button>
           </div>
@@ -256,11 +256,11 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
     );
 
     return (
-      <div className="mb-2">
+      <div className="mb-1">
         <button
           onClick={() => toggleSection(sectionId)}
           className={cn(
-            "w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wide rounded-lg transition-colors",
+            "w-full flex items-center justify-between px-3 py-2 text-[10px] font-semibold uppercase tracking-wider rounded-lg transition-colors",
             hasActiveItem ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
           )}
         >
@@ -273,7 +273,7 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-1 space-y-1"
+            className="mt-0.5 space-y-0.5 ml-2"
           >
             {items.map((item) => {
               const Icon = item.icon;
@@ -284,18 +284,16 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
                   key={item.id}
                   onClick={() => setLocation(item.path)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left",
+                    "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all text-left",
                     isActive 
                       ? "bg-primary/10 text-primary" 
                       : "hover:bg-muted text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <Icon className="w-4 h-4" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{item.label}</div>
-                  </div>
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">{item.label}</span>
                   {item.badge && (
-                    <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded-full font-medium">
+                    <span className="ml-auto text-[9px] px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded-full font-medium">
                       {item.badge}
                     </span>
                   )}
@@ -309,43 +307,46 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
   };
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border z-40 flex flex-col">
-      {/* Logo */}
-      <div className="p-4 border-b border-border">
-        <button onClick={() => setLocation('/')} className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+    <aside className="fixed left-0 top-0 bottom-0 w-56 bg-card/50 backdrop-blur-xl border-r border-border/50 z-40 flex flex-col">
+      {/* Logo - Compact */}
+      <div className="p-3 border-b border-border/50">
+        <button onClick={() => setLocation('/')} className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary via-primary to-cyan-500 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
             <Mic className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-lg">InterviewMaster</span>
+          <div>
+            <span className="font-bold text-sm bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">CodeReels</span>
+            <div className="text-[9px] text-muted-foreground -mt-0.5">Interview Prep</div>
+          </div>
         </button>
       </div>
 
-      {/* Search */}
-      <div className="p-3">
+      {/* Search - Compact */}
+      <div className="px-2 py-2">
         <button
           onClick={onSearchClick}
-          className="w-full flex items-center gap-2 px-3 py-2 bg-muted/50 hover:bg-muted rounded-lg text-muted-foreground text-sm transition-colors"
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 bg-muted/30 hover:bg-muted/50 rounded-lg text-muted-foreground text-xs transition-colors border border-border/50"
         >
-          <Search className="w-4 h-4" />
-          <span>Search...</span>
-          <kbd className="ml-auto text-[10px] px-1.5 py-0.5 bg-background rounded border border-border">⌘K</kbd>
+          <Search className="w-3.5 h-3.5" />
+          <span className="flex-1 text-left">Search...</span>
+          <kbd className="text-[9px] px-1 py-0.5 bg-background/50 rounded border border-border/50">⌘K</kbd>
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+      <nav className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
         {/* Home - Direct link */}
         <button
           onClick={() => setLocation('/')}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
+            "w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all",
             activeSection === 'home' 
-              ? "bg-primary/10 text-primary" 
+              ? "bg-gradient-to-r from-primary/15 to-primary/5 text-primary border border-primary/20" 
               : "hover:bg-muted text-muted-foreground hover:text-foreground"
           )}
         >
-          <Home className="w-5 h-5" />
-          <span className="font-medium">Home</span>
+          <Home className="w-4 h-4" />
+          <span className="text-sm font-medium">Home</span>
         </button>
 
         {/* Collapsible Sections */}
@@ -354,19 +355,20 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
         {renderNavSection('Progress', progressSubNav, 'progress')}
       </nav>
 
-      {/* Credits Footer */}
-      <div className="p-3 border-t border-border">
+      {/* Credits Footer - Compact */}
+      <div className="p-2 border-t border-border/50">
         <button
           onClick={() => setLocation('/profile')}
-          className="w-full flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 rounded-xl transition-all"
+          className="w-full flex items-center gap-2 px-2.5 py-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/15 hover:to-orange-500/15 rounded-lg transition-all border border-amber-500/20"
         >
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-            <Coins className="w-4 h-4 text-white" />
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md shadow-amber-500/20">
+            <Coins className="w-3.5 h-3.5 text-white" />
           </div>
           <div className="flex-1 text-left">
-            <div className="text-xs text-muted-foreground">Credits</div>
-            <div className="font-bold text-amber-500">{formatCredits(balance)}</div>
+            <div className="text-[10px] text-muted-foreground">Credits</div>
+            <div className="text-sm font-bold text-amber-500">{formatCredits(balance)}</div>
           </div>
+          <ChevronRight className="w-3.5 h-3.5 text-amber-500/50" />
         </button>
       </div>
     </aside>
@@ -388,47 +390,48 @@ export function UnifiedMobileHeader({ title, showBack, onSearchClick }: UnifiedM
   const { balance, formatCredits } = useCredits();
 
   return (
-    <header className="sticky top-0 z-40 lg:hidden bg-card/95 backdrop-blur-xl border-b border-border">
-      <div className="flex items-center justify-between h-14 px-4">
+    <header className="sticky top-0 z-40 lg:hidden bg-card/80 backdrop-blur-xl border-b border-border/50">
+      <div className="flex items-center justify-between h-12 px-3">
         {/* Left: Back or Logo */}
         <div className="flex items-center gap-2">
           {showBack ? (
             <button
               onClick={() => window.history.back()}
-              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
           ) : (
-            <button onClick={() => setLocation('/')} className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
-                <Mic className="w-3.5 h-3.5 text-white" />
+            <button onClick={() => setLocation('/')} className="flex items-center gap-1.5">
+              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary via-primary to-cyan-500 flex items-center justify-center shadow-md shadow-primary/20">
+                <Mic className="w-3 h-3 text-white" />
               </div>
+              <span className="font-bold text-sm bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">CodeReels</span>
             </button>
           )}
           
           {title && (
-            <h1 className="font-semibold text-base truncate max-w-[180px]">{title}</h1>
+            <h1 className="font-semibold text-sm truncate max-w-[160px] ml-1">{title}</h1>
           )}
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {/* Credits */}
           <button
             onClick={() => setLocation('/profile')}
-            className="flex items-center gap-1 px-2 py-1 bg-amber-500/10 border border-amber-500/20 rounded-lg"
+            className="flex items-center gap-0.5 px-1.5 py-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-md"
           >
-            <Coins className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-xs font-bold text-amber-500">{formatCredits(balance)}</span>
+            <Coins className="w-3 h-3 text-amber-500" />
+            <span className="text-[10px] font-bold text-amber-500">{formatCredits(balance)}</span>
           </button>
 
           {/* Search */}
           <button
             onClick={onSearchClick}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

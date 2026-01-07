@@ -204,58 +204,38 @@ export function QuestionPanel({
   const DifficultyIcon = difficultyConfig.icon;
 
   return (
-    <div className="w-full h-full flex flex-col px-3 sm:px-6 lg:px-12 py-3 sm:py-6 overflow-y-auto relative" data-testid="question-panel">
+    <div className="w-full h-full flex flex-col px-3 sm:px-4 lg:px-6 py-3 sm:py-4 overflow-y-auto relative" data-testid="question-panel">
       
       {/* Background mascot */}
       <BackgroundMascot difficulty={question.difficulty} />
       
-      {/* Top bar - Progress, Difficulty, Bookmark */}
-      <div className="flex items-center justify-between mb-4 sm:mb-6 lg:mb-8">
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+      {/* Top bar - Compact */}
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
           {/* Question ID - Desktop only */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-muted/50 border border-border rounded-lg">
-            <Hash className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-mono text-muted-foreground">{question.id}</span>
+          <div className="hidden lg:flex items-center gap-1 px-2 py-1 bg-muted/50 border border-border rounded-md">
+            <Hash className="w-3 h-3 text-primary" />
+            <span className="text-[10px] font-mono text-muted-foreground">{question.id}</span>
           </div>
 
           {/* Progress pill */}
-          <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-muted rounded-full sm:rounded-lg">
-            <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-              {questionNumber} <span className="text-muted-foreground/50">/</span> {totalQuestions}
+          <div className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md">
+            <span className="text-xs font-medium text-muted-foreground">
+              {questionNumber}<span className="text-muted-foreground/50">/</span>{totalQuestions}
             </span>
           </div>
           
           {/* Difficulty badge */}
-          <div className={`flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full sm:rounded-lg ${difficultyConfig.bg} border ${difficultyConfig.border}`}>
-            <DifficultyIcon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${difficultyConfig.color}`} />
-            <span className={`text-xs sm:text-sm font-medium ${difficultyConfig.color}`}>
-              {difficultyConfig.label}
-            </span>
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-md ${difficultyConfig.bg} border ${difficultyConfig.border}`}>
+            <DifficultyIcon className={`w-3 h-3 ${difficultyConfig.color}`} />
+            <span className={`text-xs font-medium ${difficultyConfig.color}`}>{difficultyConfig.label}</span>
           </div>
 
           {/* Completed indicator */}
           {isCompleted && (
-            <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-green-500/10 border border-green-500/20 rounded-full sm:rounded-lg">
-              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
-              <span className="text-xs sm:text-sm font-medium text-green-500">Done</span>
-            </div>
-          )}
-
-          {/* Relevance Score - Desktop only */}
-          {question.relevanceScore !== undefined && question.relevanceScore >= 60 && (
-            <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
-              question.relevanceScore >= 80 
-                ? 'bg-green-500/10 border-green-500/20' 
-                : 'bg-yellow-500/10 border-yellow-500/20'
-            }`}>
-              <TrendingUp className={`w-4 h-4 ${
-                question.relevanceScore >= 80 ? 'text-green-500' : 'text-yellow-500'
-              }`} />
-              <span className={`text-sm font-medium ${
-                question.relevanceScore >= 80 ? 'text-green-500' : 'text-yellow-500'
-              }`}>
-                {question.relevanceScore}% relevant
-              </span>
+            <div className="flex items-center gap-1 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded-md">
+              <Check className="w-3 h-3 text-green-500" />
+              <span className="text-xs font-medium text-green-500">Done</span>
             </div>
           )}
         </div>
@@ -263,128 +243,109 @@ export function QuestionPanel({
         {/* Bookmark button */}
         <button
           onClick={onToggleMark}
-          className={`p-2 sm:p-2.5 rounded-full sm:rounded-lg transition-colors ${
+          className={`p-1.5 rounded-md transition-colors ${
             isMarked
               ? 'bg-primary/10 text-primary border border-primary/20'
-              : 'bg-muted text-muted-foreground hover:text-primary hover:bg-primary/5 border border-transparent'
+              : 'bg-muted text-muted-foreground hover:text-primary'
           }`}
-          title={isMarked ? 'Remove bookmark' : 'Bookmark question'}
         >
-          <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 ${isMarked ? 'fill-current' : ''}`} />
+          <Bookmark className={`w-4 h-4 ${isMarked ? 'fill-current' : ''}`} />
         </button>
       </div>
 
-      {/* Main content area - Question centered */}
+      {/* Main content area - Question */}
       <div 
-        className={`flex-1 flex flex-col justify-center max-w-3xl mx-auto w-full ${onTapQuestion ? 'cursor-pointer lg:cursor-default' : ''}`}
+        className={`flex-1 flex flex-col justify-center max-w-2xl w-full ${onTapQuestion ? 'cursor-pointer lg:cursor-default' : ''}`}
         onClick={onTapQuestion}
       >
         
-        {/* Companies - if asked at specific companies */}
+        {/* Companies */}
         {question.companies && question.companies.length > 0 && (
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
-            <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+          <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+            <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
             {question.companies.map((company, idx) => (
-              <span 
-                key={idx}
-                className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-500/10 text-blue-500 text-xs sm:text-sm font-medium rounded-full"
-              >
+              <span key={idx} className="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-xs font-medium rounded-full">
                 {company}
               </span>
             ))}
           </div>
         )}
 
-        {/* Question text */}
+        {/* Question text - Tighter line height */}
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={`font-bold text-foreground leading-snug sm:leading-normal ${
+          className={`font-bold text-foreground leading-tight ${
             question.question.length > 200 
-              ? 'text-base sm:text-lg lg:text-xl' 
+              ? 'text-sm sm:text-base lg:text-lg' 
               : question.question.length > 100
-              ? 'text-lg sm:text-xl lg:text-2xl'
-              : 'text-xl sm:text-2xl lg:text-3xl'
+              ? 'text-base sm:text-lg lg:text-xl'
+              : 'text-lg sm:text-xl lg:text-2xl'
           }`}
         >
           {renderWithInlineCode(question.question)}
         </motion.h1>
 
-        {/* Sub-channel / Topic */}
-        <div className="mt-3 sm:mt-4 lg:mt-6">
-          <span className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider font-medium">
+        {/* Sub-channel */}
+        <div className="mt-2">
+          <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium">
             {question.subChannel}
           </span>
         </div>
 
-        {/* Tags */}
+        {/* Tags - Compact */}
         {question.tags && question.tags.length > 0 && (
-          <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
-            {question.tags.slice(0, 6).map(tag => (
-              <span 
-                key={tag} 
-                className="px-2 sm:px-3 py-0.5 sm:py-1 bg-muted text-[10px] sm:text-xs font-mono text-muted-foreground rounded-md border border-border"
-              >
+          <div className="mt-2 flex flex-wrap gap-1">
+            {question.tags.slice(0, 5).map(tag => (
+              <span key={tag} className="px-1.5 py-0.5 bg-muted text-[9px] sm:text-[10px] font-mono text-muted-foreground rounded border border-border">
                 {formatTag(tag)}
               </span>
             ))}
-            {question.tags.length > 6 && (
-              <span className="text-[10px] sm:text-xs text-muted-foreground py-0.5 sm:py-1">
-                +{question.tags.length - 6} more
-              </span>
+            {question.tags.length > 5 && (
+              <span className="text-[9px] text-muted-foreground py-0.5">+{question.tags.length - 5}</span>
             )}
           </div>
         )}
 
-        {/* Timer - if enabled */}
+        {/* Timer */}
         {timerEnabled && timeLeft > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mt-6 sm:mt-8 inline-flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 bg-primary/5 border border-primary/20 rounded-xl self-start"
-          >
-            <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-            <div>
-              <div className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">Time Remaining</div>
-              <div className="text-2xl sm:text-3xl font-mono font-bold text-primary tabular-nums">
-                {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')}
-              </div>
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-lg self-start">
+            <Clock className="w-4 h-4 text-primary" />
+            <div className="text-lg font-mono font-bold text-primary tabular-nums">
+              {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')}
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
 
-      {/* SRS Card - Compact inline at bottom */}
-      <div className="mt-auto pt-4 max-w-3xl mx-auto w-full flex justify-start mb-16 sm:mb-0">
-        <div className="inline-flex items-center gap-2 sm:gap-3 bg-purple-500/5 border border-purple-500/20 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-500" />
-            <span className="text-[10px] sm:text-xs font-semibold text-purple-500">SRS</span>
+      {/* SRS Card - Compact */}
+      <div className="mt-auto pt-3 flex justify-start mb-12 sm:mb-0">
+        <div className="inline-flex items-center gap-2 bg-purple-500/5 border border-purple-500/20 rounded-lg px-2 py-1.5">
+          <div className="flex items-center gap-1.5">
+            <Brain className="w-3.5 h-3.5 text-purple-500" />
+            <span className="text-[10px] font-semibold text-purple-500">SRS</span>
             {srsCard && (
-              <span className={`text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-md ${getMasteryColor(srsCard.masteryLevel)} bg-muted/50`}>
+              <span className={`text-[9px] px-1 py-0.5 rounded ${getMasteryColor(srsCard.masteryLevel)} bg-muted/50`}>
                 {getMasteryLabel(srsCard.masteryLevel)}
               </span>
             )}
           </div>
           
           {hasRated ? (
-            <span className="text-[10px] sm:text-xs text-green-500 font-medium">
-              ✓ Reviewed
-            </span>
+            <span className="text-[10px] text-green-500 font-medium">✓</span>
           ) : showRatingButtons && srsCard ? (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {[
-                { rating: 'again' as ConfidenceRating, label: '😕', color: 'bg-red-500/10 text-red-500 border-red-500/30 hover:bg-red-500/20' },
-                { rating: 'hard' as ConfidenceRating, label: '🤔', color: 'bg-orange-500/10 text-orange-500 border-orange-500/30 hover:bg-orange-500/20' },
-                { rating: 'good' as ConfidenceRating, label: '👍', color: 'bg-green-500/10 text-green-500 border-green-500/30 hover:bg-green-500/20' },
-                { rating: 'easy' as ConfidenceRating, label: '🎯', color: 'bg-blue-500/10 text-blue-500 border-blue-500/30 hover:bg-blue-500/20' },
+                { rating: 'again' as ConfidenceRating, label: '😕', color: 'bg-red-500/10 text-red-500 hover:bg-red-500/20' },
+                { rating: 'hard' as ConfidenceRating, label: '🤔', color: 'bg-orange-500/10 text-orange-500 hover:bg-orange-500/20' },
+                { rating: 'good' as ConfidenceRating, label: '👍', color: 'bg-green-500/10 text-green-500 hover:bg-green-500/20' },
+                { rating: 'easy' as ConfidenceRating, label: '🎯', color: 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20' },
               ].map((btn) => (
                 <button
                   key={btn.rating}
                   onClick={(e) => { e.stopPropagation(); handleSRSRate(btn.rating); }}
-                  className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg border text-xs sm:text-sm transition-colors ${btn.color}`}
-                  title={btn.rating}
+                  className={`w-6 h-6 flex items-center justify-center rounded text-xs transition-colors ${btn.color}`}
                 >
                   {btn.label}
                 </button>
@@ -393,18 +354,18 @@ export function QuestionPanel({
           ) : (
             <button
               onClick={(e) => { e.stopPropagation(); handleAddToSRS(); }}
-              className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-purple-500 text-white text-[10px] sm:text-xs font-medium rounded-lg hover:bg-purple-600 transition-colors"
+              className="px-2 py-0.5 bg-purple-500 text-white text-[10px] font-medium rounded hover:bg-purple-600"
             >
-              + Add
+              +Add
             </button>
           )}
         </div>
       </div>
 
       {/* Bottom hint - desktop only */}
-      <div className="mt-4 sm:mt-6 text-center hidden sm:block">
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">→</kbd> or click the Answer tab to reveal
+      <div className="mt-3 text-center hidden sm:block">
+        <p className="text-[10px] text-muted-foreground">
+          Press <kbd className="px-1 py-0.5 bg-muted rounded text-[9px] font-mono">→</kbd> to reveal answer
         </p>
       </div>
     </div>

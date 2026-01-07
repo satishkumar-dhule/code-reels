@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <rect x="20" y="100" width="200" height="95" rx="8" fill="#0d1117" stroke="#3fb950" stroke-width="1.5"/>
+  <rect x="20" y="100" width="200" height="22" rx="8" fill="#3fb950" opacity="0.15"/>
+  <g transform="translate(29, 104) scale(0.5833333333333334)"><path d="M4 17l6-6-6-6M12 19h8" fill="none" stroke="#3fb950" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="50" y="115" fill="#3fb950" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">terminal</text>
+  <text x="32" y="138" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">$ kubectl top pods</text><text x="32" y="153" fill="#3fb950" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">api-1  45%  1.2G</text>
+
+  <rect x="470" y="30" width="100" height="55" rx="6" fill="#161b22" stroke="#30363d"/>
+  <g transform="translate(479, 39) scale(0.75)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" fill="none" stroke="#a371f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="508" y="50" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Uptime</text>
+  <text x="480" y="74" fill="#a371f7" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', Consolas, monospace">99.99<tspan fill="#8b949e" font-size="10">%</tspan></text>
+
+  <rect x="580" y="30" width="100" height="55" rx="6" fill="#161b22" stroke="#30363d"/>
+  <g transform="translate(589, 39) scale(0.75)"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 12a10 10 0 1 0 20 0 10 10 0 0 0-20 0M12 6V2M6 12H2M12 18v4M18 12h4" fill="none" stroke="#a371f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="618" y="50" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Alerts</text>
+  <text x="590" y="74" fill="#a371f7" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', Consolas, monospace">0<tspan fill="#8b949e" font-size="10"></tspan></text>
+
+  <rect x="20" y="295" width="99.5" height="24" rx="12" fill="#161b22" stroke="#3fb950"/>
+  <circle cx="32" cy="307" r="4" fill="#3fb950"/>
+  <text x="42" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">All healthy</text>
+
+  <rect x="180" y="295" width="93" height="24" rx="12" fill="#161b22" stroke="#39c5cf"/>
+  <circle cx="192" cy="307" r="4" fill="#39c5cf"/>
+  <text x="202" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Auto-scale</text>
+
+  <g transform="translate(640, 310)">
+    <g><g transform="translate(-14, -14) scale(1.1666666666666667)"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" fill="none" stroke="#a371f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="10s" repeatCount="indefinite"/></g>
+  </g>
+
+  <rect x="251.75" y="348" width="196.5" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#a371f7" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Observability Dashboard</text></g>
+</svg>

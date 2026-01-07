@@ -55,11 +55,11 @@ export function AppLayout({
       />
 
       {/* Main content area */}
-      <div className="lg:pl-64 transition-all duration-300">
+      <div className="lg:pl-56 transition-all duration-300">
         {/* Page content with bottom padding for mobile nav */}
         <main className={`
-          pb-24 lg:pb-6
-          ${fullWidth ? '' : 'max-w-5xl mx-auto px-4 lg:px-6 py-4 lg:py-6'}
+          pb-20 lg:pb-4
+          ${fullWidth ? '' : 'max-w-5xl mx-auto px-3 lg:px-4 py-3 lg:py-4'}
         `}>
           {children}
         </main>

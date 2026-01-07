@@ -3,6 +3,7 @@
  * 
  * Personalizes learning paths based on user performance, strengths, and weaknesses.
  * Uses spaced repetition science + AI to optimize learning efficiency.
+ * Now enhanced with Vector DB for semantic question discovery.
  * 
  * Flow:
  *   analyze_performance → identify_gaps → generate_path → prioritize → recommend → end
@@ -10,6 +11,7 @@
 
 import { StateGraph, END, START } from '@langchain/langgraph';
 import { Annotation } from '@langchain/langgraph';
+import vectorDB from '../services/vector-db.js';
 
 // Define the state schema
 const AdaptiveLearningState = Annotation.Root({
@@ -284,12 +286,12 @@ function generatePathNode(state) {
 }
 
 /**
- * Node: Prioritize and select next questions
+ * Node: Prioritize and select next questions using Vector DB
  */
-function prioritizeNode(state) {
-  console.log('\n🎯 [PRIORITIZE] Selecting optimal next questions...');
+async function prioritizeNode(state) {
+  console.log('\n🎯 [PRIORITIZE] Selecting optimal next questions with Vector DB...');
   
-  const { knowledgeGaps, dueForReview, recommendedPath } = state;
+  const { knowledgeGaps, dueForReview, recommendedPath, answeredQuestions, channelId } = state;
   const masteryLevels = state.masteryLevels || {};
   
   // Log mastery context
@@ -300,6 +302,7 @@ function prioritizeNode(state) {
   
   const nextQuestions = [];
   const reviewQueue = [];
+  const answeredIds = answeredQuestions.map(q => q.id);
   
   // Priority 1: Due for SRS review (spaced repetition)
   if (dueForReview.length > 0) {
@@ -307,35 +310,84 @@ function prioritizeNode(state) {
     console.log(`   ${reviewQueue.length} questions due for review`);
   }
   
-  // Priority 2: Questions from current learning phase
+  // Priority 2: Use Vector DB to find semantically similar questions for gap-filling
+  try {
+    for (const gap of knowledgeGaps.slice(0, 3)) {
+      // Build a semantic query from the gap topic
+      const searchQuery = `${gap.topic} ${gap.commonDifficulty} interview question`;
+      
+      const similar = await vectorDB.semanticSearch(searchQuery, {
+        limit: 10,
+        threshold: 0.15, // Lower threshold for TF-IDF
+        channel: channelId || null,
+        difficulty: gap.commonDifficulty
+      });
+      
+      // Filter out already answered questions
+      const newQuestions = similar.filter(q => !answeredIds.includes(q.id));
+      
+      if (newQuestions.length > 0) {
+        nextQuestions.push({
+          questions: newQuestions.slice(0, 5),
+          reason: `Address ${gap.severity} gap in ${gap.topic}`,
+          source: 'vector_db_semantic'
+        });
+        console.log(`   Found ${newQuestions.length} questions for gap: ${gap.topic}`);
+      }
+    }
+  } catch (error) {
+    console.log(`   ⚠️ Vector DB search failed: ${error.message}`);
+    // Fallback to criteria-based approach
+    for (const gap of knowledgeGaps.slice(0, 3)) {
+      nextQuestions.push({
+        criteria: {
+          tags: [gap.topic],
+          difficulty: gap.commonDifficulty,
+          excludeAnswered: false
+        },
+        reason: `Address ${gap.severity} gap in ${gap.topic}`,
+        source: 'criteria_fallback'
+      });
+    }
+  }
+  
+  // Priority 3: Questions from current learning phase
   const currentPhase = recommendedPath[0];
   if (currentPhase) {
     const phaseTopics = currentPhase.focus;
     const phaseDifficulty = currentPhase.difficulty;
     
-    // Would fetch questions matching these criteria from DB
-    nextQuestions.push({
-      criteria: {
-        tags: phaseTopics,
-        difficulty: phaseDifficulty,
-        excludeAnswered: true
-      },
-      reason: `Phase ${currentPhase.phase}: ${currentPhase.name}`,
-      count: 10
-    });
-  }
-  
-  // Priority 3: Gap-filling questions
-  for (const gap of knowledgeGaps.slice(0, 3)) {
-    nextQuestions.push({
-      criteria: {
-        tags: [gap.topic],
-        difficulty: gap.commonDifficulty,
-        excludeAnswered: false // Include for practice
-      },
-      reason: `Address ${gap.severity} gap in ${gap.topic}`,
-      count: 5
-    });
+    try {
+      // Use vector DB to find questions matching phase topics
+      const phaseQuery = phaseTopics.join(' ') + ' ' + phaseDifficulty;
+      const phaseQuestions = await vectorDB.semanticSearch(phaseQuery, {
+        limit: 15,
+        threshold: 0.1,
+        channel: channelId || null
+      });
+      
+      const newPhaseQuestions = phaseQuestions.filter(q => !answeredIds.includes(q.id));
+      
+      if (newPhaseQuestions.length > 0) {
+        nextQuestions.push({
+          questions: newPhaseQuestions.slice(0, 10),
+          reason: `Phase ${currentPhase.phase}: ${currentPhase.name}`,
+          source: 'vector_db_phase'
+        });
+        console.log(`   Found ${newPhaseQuestions.length} questions for phase: ${currentPhase.name}`);
+      }
+    } catch (error) {
+      console.log(`   ⚠️ Phase search failed: ${error.message}`);
+      nextQuestions.push({
+        criteria: {
+          tags: phaseTopics,
+          difficulty: phaseDifficulty,
+          excludeAnswered: true
+        },
+        reason: `Phase ${currentPhase.phase}: ${currentPhase.name}`,
+        source: 'criteria_fallback'
+      });
+    }
   }
   
   console.log(`   Recommended ${nextQuestions.length} question sets`);

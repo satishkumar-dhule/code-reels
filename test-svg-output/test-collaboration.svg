@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <circle cx="600" cy="60" r="30.5" fill="#39c5cf" opacity="0.1"/>
+  <circle cx="600" cy="60" r="22.5" fill="#161b22" stroke="#39c5cf" stroke-width="2"/>
+  <g transform="translate(588.75, 48.75) scale(0.9375)"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="none" stroke="#39c5cf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+  <rect x="20" y="295" width="86.5" height="24" rx="12" fill="#161b22" stroke="#3fb950"/>
+  <circle cx="32" cy="307" r="4" fill="#3fb950"/>
+  <text x="42" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Sprint 12</text>
+
+  <rect x="180" y="295" width="99.5" height="24" rx="12" fill="#161b22" stroke="#39c5cf"/>
+  <circle cx="192" cy="307" r="4" fill="#39c5cf"/>
+  <text x="202" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">3 days left</text>
+
+  <g class="person" data-pose="standing">
+    <!-- Head -->
+    <circle cx="150" cy="221.55" r="10.2" fill="#58a6ff"/>
+    <circle cx="146.6" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <circle cx="153.4" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <path d="M146.6 225.8 L153.4 225.8" stroke="#0d1117" stroke-width="1.275"/>
+    <!-- Body -->
+    <line x1="150" y1="231.75" x2="150" y2="253" stroke="#58a6ff" stroke-width="2.55" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M143.2 236 L134.7 248.75 M156.8 236 L165.3 248.75" fill="none" stroke="#58a6ff" stroke-width="2.125" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M150 253 L143.2 270 M150 253 L156.8 270" fill="none" stroke="#58a6ff" stroke-width="2.125" stroke-linecap="round"/>
+    
+  </g>
+
+  <g class="person" data-pose="waving">
+    <!-- Head -->
+    <circle cx="330" cy="221.55" r="10.2" fill="#a371f7"/>
+    <circle cx="326.6" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <circle cx="333.4" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <path d="M326.6 225.8 L333.4 225.8" stroke="#0d1117" stroke-width="1.275"/>
+    <!-- Body -->
+    <line x1="330" y1="231.75" x2="330" y2="253" stroke="#a371f7" stroke-width="2.55" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M323.2 236 L313 223.25 M336.8 236 L345.3 244.5" fill="none" stroke="#a371f7" stroke-width="2.125" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M330 253 L323.2 270 M330 253 L336.8 270" fill="none" stroke="#a371f7" stroke-width="2.125" stroke-linecap="round"/>
+    
+  </g>
+
+  <g class="person" data-pose="thinking">
+    <!-- Head -->
+    <circle cx="510" cy="221.55" r="10.2" fill="#39c5cf"/>
+    <circle cx="506.6" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <circle cx="513.4" cy="219.85000000000002" r="1.7" fill="#0d1117"/>
+              <path d="M506.6 225.8 L513.4 225.8" stroke="#0d1117" stroke-width="1.275"/>
+    <!-- Body -->
+    <line x1="510" y1="231.75" x2="510" y2="253" stroke="#39c5cf" stroke-width="2.55" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M503.2 236 L494.7 244.5 M516.8 236 L514.25 221.55" fill="none" stroke="#39c5cf" stroke-width="2.125" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M510 253 L503.2 270 M510 253 L516.8 270" fill="none" stroke="#39c5cf" stroke-width="2.125" stroke-linecap="round"/>
+    
+  </g>
+
+  <g class="speech-bubble">
+    <rect x="250" y="50" width="171" height="52" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <path d="M265 102 L250 117 L280 102" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="250" y="100" width="171" height="4" fill="#161b22"/>
+    <text x="262" y="72" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Let's split this into</text><text x="262" y="86" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">microservices</text>
+  </g>
+
+  <g class="speech-bubble">
+    <rect x="450" y="100" width="94" height="38" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <path d="M514 138 L544 153 L529 138" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="450" y="136" width="94" height="4" fill="#161b22"/>
+    <text x="462" y="122" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Good idea!</text>
+  </g>
+
+  <rect x="270.5" y="348" width="159" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#39c5cf" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Team Collaboration</text></g>
+</svg>

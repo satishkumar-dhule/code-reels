@@ -61,6 +61,22 @@ export interface AnswerRecord {
   timestamp: number;
 }
 
+export interface SimilarQuestion {
+  id: string;
+  question: string;
+  channel: string;
+  similarity: number;
+}
+
+export interface SimilarQuestionsData {
+  generated: string;
+  totalQuestions: number;
+  questionsWithSimilar: number;
+  threshold: number;
+  topK: number;
+  similarities: Record<string, SimilarQuestion[]>;
+}
+
 export interface AdaptiveLearningState {
   answerHistory: AnswerRecord[];
   topicMastery: Record<string, TopicMastery>;
@@ -376,6 +392,40 @@ export function useAdaptiveLearning(channelId?: string) {
     });
   }, []);
 
+  // Get similar questions from pre-computed data (static JSON)
+  const getSimilarQuestions = useCallback(async (questionId: string): Promise<SimilarQuestion[]> => {
+    try {
+      // Fetch the pre-computed similar questions data
+      const response = await fetch('/data/similar-questions.json');
+      if (!response.ok) return [];
+      
+      const data: SimilarQuestionsData = await response.json();
+      return data.similarities[questionId] || [];
+    } catch {
+      // File might not exist yet
+      return [];
+    }
+  }, []);
+
+  // Get recommended questions based on learning path and similar questions
+  const getSmartRecommendations = useCallback(async (currentQuestionId?: string): Promise<string[]> => {
+    const recommendations: string[] = [];
+    
+    // 1. Get similar questions if we have a current question
+    if (currentQuestionId) {
+      const similar = await getSimilarQuestions(currentQuestionId);
+      // Filter out already answered questions
+      const answeredIds = new Set(filteredHistory.map(a => a.questionId));
+      const newSimilar = similar.filter(s => !answeredIds.has(s.id));
+      recommendations.push(...newSimilar.slice(0, 3).map(s => s.id));
+    }
+    
+    // 2. Add questions from knowledge gaps (would need question data to filter)
+    // This is handled by getRecommendedTopics() which returns topic names
+    
+    return recommendations;
+  }, [filteredHistory, getSimilarQuestions]);
+
   return {
     // State
     answerHistory: filteredHistory,
@@ -387,6 +437,8 @@ export function useAdaptiveLearning(channelId?: string) {
     // Actions
     recordAnswer,
     getRecommendedTopics,
+    getSimilarQuestions,
+    getSmartRecommendations,
     clearData,
     
     // Helpers

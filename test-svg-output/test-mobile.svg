@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <rect x="20" y="100" width="200" height="95" rx="8" fill="#161b22" stroke="#30363d"/>
+  <rect x="20" y="100" width="200" height="24" rx="8" fill="#21262d"/>
+  <circle cx="34" cy="112" r="5" fill="#f85149" opacity="0.8"/>
+  <circle cx="50" cy="112" r="5" fill="#d29922" opacity="0.8"/>
+  <circle cx="66" cy="112" r="5" fill="#3fb950" opacity="0.8"/>
+  <text x="120" y="116" text-anchor="middle" fill="#6e7681" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">TableVC.swift</text>
+  <text x="32" y="142" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">func tableView(_ tv:</text><text x="32" y="157" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">  cellForRowAt idx)</text><text x="32" y="172" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">  { return cell }</text>
+
+  <rect x="470" y="30" width="100" height="55" rx="6" fill="#161b22" stroke="#30363d"/>
+  <g transform="translate(479, 39) scale(0.75)"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 12a10 10 0 1 0 20 0 10 10 0 0 0-20 0M12 6V2M6 12H2M12 18v4M18 12h4" fill="none" stroke="#39c5cf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="508" y="50" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', Consolas, monospace">FPS</text>
+  <text x="480" y="74" fill="#39c5cf" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', Consolas, monospace">60<tspan fill="#8b949e" font-size="10"></tspan></text>
+
+  <rect x="580" y="30" width="100" height="55" rx="6" fill="#161b22" stroke="#30363d"/>
+  <g transform="translate(589, 39) scale(0.75)"><path d="M6 19v-3M10 19v-3M14 19v-3M18 19v-3M8 11V9M16 11V9M4 15h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2z" fill="none" stroke="#39c5cf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="618" y="50" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Memory</text>
+  <text x="590" y="74" fill="#39c5cf" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', Consolas, monospace">42<tspan fill="#8b949e" font-size="10">MB</tspan></text>
+
+  <rect x="20" y="295" width="119" height="24" rx="12" fill="#161b22" stroke="#3fb950"/>
+  <circle cx="32" cy="307" r="4" fill="#3fb950"/>
+  <text x="42" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Buttery smooth</text>
+
+  <rect x="180" y="295" width="112.5" height="24" rx="12" fill="#161b22" stroke="#39c5cf"/>
+  <circle cx="192" cy="307" r="4" fill="#39c5cf"/>
+  <text x="202" y="311" fill="#e6edf3" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">iOS + Android</text>
+
+  <rect x="270.5" y="348" width="159" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#39c5cf" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Mobile Performance</text></g>
+</svg>

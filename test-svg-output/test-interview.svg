@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <circle cx="600" cy="60" r="30.5" fill="#58a6ff" opacity="0.1"/>
+  <circle cx="600" cy="60" r="22.5" fill="#161b22" stroke="#58a6ff" stroke-width="2"/>
+  <g transform="translate(588.75, 48.75) scale(0.9375)"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="none" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+  <g class="person" data-pose="sitting">
+    <!-- Head -->
+    <circle cx="150" cy="218.7" r="10.8" fill="#58a6ff"/>
+    <circle cx="146.4" cy="216.89999999999998" r="1.8" fill="#0d1117"/>
+              <circle cx="153.6" cy="216.89999999999998" r="1.8" fill="#0d1117"/>
+              <path d="M146.4 223.2 L153.6 223.2" stroke="#0d1117" stroke-width="1.35"/>
+    <!-- Body -->
+    <line x1="150" y1="229.5" x2="150" y2="252" stroke="#58a6ff" stroke-width="2.7" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M142.8 234 L136.5 247.5 M157.2 234 L163.5 247.5" fill="none" stroke="#58a6ff" stroke-width="2.25" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M150 252 L136.5 252 L136.5 270 M150 252 L163.5 252 L163.5 270" fill="none" stroke="#58a6ff" stroke-width="2.25" stroke-linecap="round"/>
+    <rect x="136.5" y="247.5" width="27" height="18" rx="1.8" fill="#161b22" stroke="#39c5cf"/>
+                    <rect x="139.2" y="250.2" width="21.6" height="12.6" fill="#39c5cf" opacity="0.3"/>
+  </g>
+<text x="150" y="285" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Candidate</text>
+
+  <g class="person" data-pose="thinking">
+    <!-- Head -->
+    <circle cx="450" cy="218.7" r="10.8" fill="#a371f7"/>
+    <circle cx="446.4" cy="216.89999999999998" r="1.8" fill="#0d1117"/>
+              <circle cx="453.6" cy="216.89999999999998" r="1.8" fill="#0d1117"/>
+              <path d="M446.4 223.2 L453.6 223.2" stroke="#0d1117" stroke-width="1.35"/>
+    <!-- Body -->
+    <line x1="450" y1="229.5" x2="450" y2="252" stroke="#a371f7" stroke-width="2.7" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M442.8 234 L433.8 243 M457.2 234 L454.5 218.7" fill="none" stroke="#a371f7" stroke-width="2.25" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M450 252 L442.8 270 M450 252 L457.2 270" fill="none" stroke="#a371f7" stroke-width="2.25" stroke-linecap="round"/>
+    
+  </g>
+<text x="450" y="285" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Interviewer</text>
+
+  <g class="speech-bubble">
+    <rect x="280" y="80" width="185" height="66" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <path d="M465 105 L477 113 L465 121" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="280" y="144" width="185" height="4" fill="#161b22"/>
+    <text x="292" y="102" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Can you explain how you</text><text x="292" y="116" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">would design a rate</text><text x="292" y="130" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">limiter?</text>
+  </g>
+
+  <g class="speech-bubble">
+    <rect x="50" y="140" width="157" height="52" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <path d="M65 192 L50 207 L80 192" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="50" y="190" width="157" height="4" fill="#161b22"/>
+    <text x="62" y="162" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">I would use a token</text><text x="62" y="176" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">bucket algorithm...</text>
+  </g>
+
+  <rect x="266.75" y="348" width="166.5" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#58a6ff" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Technical Interview</text></g>
+</svg>

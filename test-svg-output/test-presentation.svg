@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="700" height="380" fill="url(#bgGrad)"/>
+  <g filter="url(#glow)">
+  <rect x="20" y="100" width="200" height="95" rx="8" fill="#161b22" stroke="#30363d"/>
+  <rect x="20" y="100" width="200" height="24" rx="8" fill="#21262d"/>
+  <circle cx="34" cy="112" r="5" fill="#f85149" opacity="0.8"/>
+  <circle cx="50" cy="112" r="5" fill="#d29922" opacity="0.8"/>
+  <circle cx="66" cy="112" r="5" fill="#3fb950" opacity="0.8"/>
+  <text x="120" y="116" text-anchor="middle" fill="#6e7681" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">events.ts</text>
+  <text x="32" y="142" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">eventBus.emit("order.created</text><text x="32" y="157" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">eventBus.on("order.created",</text>
+
+  <g class="person" data-pose="pointing">
+    <!-- Head -->
+    <circle cx="550" cy="228.7" r="10.8" fill="#58a6ff"/>
+    <circle cx="546.4" cy="226.89999999999998" r="1.8" fill="#0d1117"/>
+              <circle cx="553.6" cy="226.89999999999998" r="1.8" fill="#0d1117"/>
+              <path d="M546.4 233.2 L553.6 233.2" stroke="#0d1117" stroke-width="1.35"/>
+    <!-- Body -->
+    <line x1="550" y1="239.5" x2="550" y2="262" stroke="#58a6ff" stroke-width="2.7" stroke-linecap="round"/>
+    <!-- Arms -->
+    <path d="M542.8 244 L533.8 253 M557.2 244 L577 239.5" fill="none" stroke="#58a6ff" stroke-width="2.25" stroke-linecap="round"/>
+    <!-- Legs -->
+    <path d="M550 262 L542.8 280 M550 262 L557.2 280" fill="none" stroke="#58a6ff" stroke-width="2.25" stroke-linecap="round"/>
+    
+  </g>
+<text x="550" y="295" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Speaker</text>
+
+  <g class="speech-bubble">
+    <rect x="400" y="50" width="199" height="52" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <path d="M569 102 L599 117 L584 102" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+    <rect x="400" y="100" width="199" height="4" fill="#161b22"/>
+    <text x="412" y="72" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Event-driven architecture</text><text x="412" y="86" fill="#e6edf3" font-size="11" font-family="'SF Mono', 'Fira Code', Consolas, monospace">enables loose coupling</text>
+  </g>
+
+  <rect x="255.5" y="348" width="189" height="26" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="366" text-anchor="middle" fill="#58a6ff" font-size="12" font-family="'SF Mono', 'Fira Code', Consolas, monospace">Technical Presentation</text></g>
+</svg>

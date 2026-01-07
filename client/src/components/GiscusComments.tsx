@@ -81,42 +81,42 @@ export function GiscusComments({ questionId }: GiscusCommentsProps) {
   }, [questionId]);
 
   return (
-    <div className="w-full mt-4 pb-20">
+    <div className="w-full mt-2 pb-16">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/60 hover:to-muted/40 rounded-xl border border-border/50 transition-all duration-200 group"
+        className="w-full flex items-center justify-between gap-2 px-2.5 py-2 bg-gradient-to-r from-muted/40 to-muted/20 hover:from-muted/60 hover:to-muted/40 rounded-lg border border-border/50 transition-all duration-200 group"
       >
-        <div className="flex items-center gap-3">
-          <div className="p-1.5 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-            <MessageCircle className="w-4 h-4 text-primary" />
+        <div className="flex items-center gap-2">
+          <div className="p-1 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+            <MessageCircle className="w-3.5 h-3.5 text-primary" />
           </div>
           <div className="text-left">
-            <span className="text-sm font-medium text-foreground">Discussion</span>
-            <p className="text-xs text-muted-foreground">Ask questions or share insights</p>
+            <span className="text-xs font-medium text-foreground">Discussion</span>
+            <p className="text-[10px] text-muted-foreground">Ask questions or share insights</p>
           </div>
         </div>
-        <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="mt-4">
+        <div className="mt-2">
           {!isConfigured ? (
-            <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
-              <MessageCircle className="w-8 h-8 text-muted-foreground/50" />
-              <span className="text-sm text-muted-foreground">Comments are being set up</span>
-              <span className="text-xs text-muted-foreground/70">Check back soon!</span>
+            <div className="flex flex-col items-center justify-center py-4 gap-1.5 text-center">
+              <MessageCircle className="w-6 h-6 text-muted-foreground/50" />
+              <span className="text-xs text-muted-foreground">Comments are being set up</span>
+              <span className="text-[10px] text-muted-foreground/70">Check back soon!</span>
             </div>
           ) : (
             <>
               {isLoading && (
-                <div className="flex flex-col items-center justify-center py-6 gap-2">
-                  <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                  <span className="text-xs text-muted-foreground">Loading discussion...</span>
+                <div className="flex flex-col items-center justify-center py-4 gap-1.5">
+                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                  <span className="text-[10px] text-muted-foreground">Loading discussion...</span>
                 </div>
               )}
               <div 
                 ref={containerRef}
-                className="giscus min-h-[100px]"
+                className="giscus min-h-[80px]"
                 style={{ colorScheme: LIGHT_THEMES.includes(theme) ? 'light' : 'dark' }}
               />
             </>

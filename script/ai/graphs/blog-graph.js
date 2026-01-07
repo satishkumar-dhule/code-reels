@@ -3,6 +3,7 @@
  * 
  * This graph orchestrates blog post generation with a focus on real-world use cases.
  * Topics without interesting real-world cases are skipped.
+ * Now enhanced with Vector DB for finding related content and avoiding duplicates.
  * 
  * Flow:
  *   find_real_world_case → validate_source → [retry_case | validate_case] → [skip | generate_blog] → validate_citations → generate_images → validate → end
@@ -12,6 +13,7 @@ import { StateGraph, END, START } from '@langchain/langgraph';
 import { Annotation } from '@langchain/langgraph';
 import ai from '../index.js';
 import { generateBlogIllustrations, generateBlogIllustrationsWithAI } from '../utils/blog-illustration-generator.js';
+import vectorDB from '../services/vector-db.js';
 
 /**
  * Validate a URL by checking if it returns a valid response
@@ -234,9 +236,25 @@ function skipTopicNode(state) {
 
 /**
  * Node: Generate blog content with real-world case as the hook
+ * Enhanced with Vector DB to find related questions for richer content
  */
 async function generateBlogNode(state) {
   console.log('\n📝 [GENERATE_BLOG] Creating blog content...');
+  
+  // Find related questions using Vector DB for content enrichment
+  let relatedQuestions = [];
+  try {
+    const searchQuery = `${state.question} ${state.tags?.join(' ') || ''}`;
+    relatedQuestions = await vectorDB.findSimilar(searchQuery, {
+      limit: 5,
+      threshold: 0.1,
+      channel: state.channel,
+      excludeIds: [state.questionId]
+    });
+    console.log(`   Found ${relatedQuestions.length} related questions for enrichment`);
+  } catch (error) {
+    console.log(`   ⚠️ Vector DB search failed: ${error.message}`);
+  }
   
   try {
     const result = await ai.run('blog', {
@@ -246,7 +264,11 @@ async function generateBlogNode(state) {
       channel: state.channel,
       difficulty: state.difficulty,
       tags: state.tags,
-      realWorldCase: state.realWorldCase // Pass the discovered case
+      realWorldCase: state.realWorldCase,
+      relatedQuestions: relatedQuestions.map(q => ({
+        question: q.question,
+        channel: q.channel
+      }))
     });
     
     console.log(`   Title: ${result.title}`);
@@ -261,7 +283,13 @@ async function generateBlogNode(state) {
           company: state.realWorldCase.company,
           scenario: state.realWorldCase.scenario,
           lesson: state.realWorldCase.lesson
-        } : result.realWorldExample
+        } : result.realWorldExample,
+        // Include related questions for "See Also" section
+        relatedQuestions: relatedQuestions.slice(0, 3).map(q => ({
+          id: q.id,
+          question: q.question,
+          channel: q.channel
+        }))
       }
     };
   } catch (error) {

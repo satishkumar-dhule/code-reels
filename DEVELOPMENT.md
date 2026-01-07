@@ -1,396 +1,281 @@
 # Development Guide
 
-This guide provides detailed information for developers working on Learn_Reels.
+## Quick Start
 
-## Project Overview
-
-Learn_Reels is a full-stack web application built with:
-- **Frontend**: React 19, TypeScript, Tailwind CSS, Vite
-- **Backend**: Express.js, Node.js
-- **Build Tool**: Vite
-- **Package Manager**: pnpm
-- **Automation**: GitHub Actions, OpenCode AI
+```bash
+pnpm install
+pnpm dev          # http://localhost:5001
+```
 
 ## Architecture
 
 ### Directory Structure
 
 ```
-├── client/                    # React frontend
+├── client/                    # React frontend (static site)
 │   ├── src/
-│   │   ├── components/       # Reusable UI components
-│   │   ├── pages/            # Page components
-│   │   ├── hooks/            # Custom React hooks
-│   │   ├── lib/              # Utilities and data
-│   │   ├── context/          # React context
-│   │   └── App.tsx
-│   └── index.html
-├── server/                    # Express backend
-│   ├── index.ts              # Server entry point
-│   ├── routes.ts             # API routes
-│   ├── static.ts             # Static file serving
-│   └── vite.ts               # Vite dev server
-├── script/                    # Automation scripts
-│   ├── generate-question.js  # Daily question generator
-│   ├── improve-question.js   # Question improvement bot
-│   └── migrate-add-timestamp.js
-├── shared/                    # Shared types
-└── .github/workflows/         # GitHub Actions
+│   │   ├── pages/            # Route components
+│   │   ├── components/       # UI components
+│   │   ├── hooks/            # Custom hooks
+│   │   │   ├── use-adaptive-learning.ts  # Personalized learning
+│   │   │   ├── use-questions.ts          # Question fetching
+│   │   │   └── use-spaced-repetition.ts  # SRS system
+│   │   └── lib/              # Utilities
+│   └── public/data/          # Pre-generated JSON files
+│
+├── script/                    # Build-time automation
+│   ├── ai/
+│   │   ├── graphs/           # LangGraph pipelines
+│   │   │   ├── quality-gate-graph.js     # Content validation
+│   │   │   ├── adaptive-learning-graph.js # Learning paths
+│   │   │   ├── blog-graph.js             # Blog generation
+│   │   │   └── qdrant-duplicate-graph.js # Duplicate detection
+│   │   ├── services/
+│   │   │   ├── vector-db.js              # Qdrant operations
+│   │   │   └── ml-decisions.js           # ML-based decisions
+│   │   └── providers/
+│   │       ├── qdrant.js                 # Qdrant client
+│   │       └── embeddings.js             # TF-IDF/Ollama
+│   ├── bots/                 # Automated content bots
+│   └── *.js                  # CLI scripts
+│
+├── server/                    # Express (dev mode only)
+└── e2e/                       # Playwright tests
 ```
 
-## Development Setup
+## Vector Database
 
-### Prerequisites
-- Node.js 18+
-- pnpm 8+
-- Git
-
-### Installation
+### Setup
 
 ```bash
-# Clone repository
-git clone https://github.com/open-interview/open-interview.git
-cd open-interview
+# Initialize collection
+pnpm vector:init
 
-# Install dependencies
-pnpm install
+# Sync all questions
+pnpm vector:sync
 
-# Create environment file
-cp .env.example .env.local
+# Test integration
+pnpm vector:test
 ```
 
 ### Environment Variables
 
-Create `.env.local`:
 ```env
-# Server
-NODE_ENV=development
-PORT=5000
-
-# Database (optional)
-DATABASE_URL=postgresql://user:password@localhost:5432/learn_reels
-
-# API Keys (if needed)
-OPENCODE_API_KEY=your_key_here
+QDRANT_URL=https://xxx.qdrant.io:6333
+QDRANT_API_KEY=your-api-key
+EMBEDDING_MODEL=tfidf  # or ollama
 ```
 
-## Running the Application
+### Usage in Code
 
-### Development Mode
+```javascript
+import vectorDB from './ai/services/vector-db.js';
 
-```bash
-# Run both client and server
-pnpm run dev
+// Initialize
+await vectorDB.init();
 
-# Or run separately
-pnpm run dev:client  # Port 5000
-pnpm run dev         # Server on port 5000
-```
+// Index a question
+await vectorDB.indexQuestion(question);
 
-### Production Build
+// Semantic search
+const results = await vectorDB.semanticSearch('distributed systems', {
+  limit: 10,
+  threshold: 0.15,
+  channel: 'system-design'
+});
 
-```bash
-# Build
-pnpm run build
-
-# Start
-pnpm run start
-
-# Preview
-pnpm run preview
-```
-
-## Code Quality
-
-### Type Checking
-
-```bash
-pnpm run check
-```
-
-### Linting
-
-```bash
-# ESLint (if configured)
-pnpm run lint
-
-# Format code
-pnpm run format
-```
-
-## Working with Questions
-
-### Question Data Structure
-
-Questions are stored in `client/src/lib/questions/` as JSON files:
-
-```json
-{
-  "id": "ch-1",
-  "question": "Your question?",
-  "answer": "Concise answer",
-  "explanation": "Detailed explanation",
-  "tags": ["tag1", "tag2"],
-  "difficulty": "beginner|intermediate|advanced",
-  "channel": "channel-name",
-  "subChannel": "sub-channel-name",
-  "diagram": "mermaid diagram",
-  "lastUpdated": "2025-12-12T09:07:04.186Z"
-}
-```
-
-### Adding Questions Manually
-
-1. Edit the appropriate JSON file in `client/src/lib/questions/`
-2. Add a new question object
-3. Ensure unique ID
-4. Include all required fields
-5. Test locally
-
-### Generating Questions Automatically
-
-```bash
-# Generate 5 questions
-node script/generate-question.js
-
-# Improve 5 questions
-node script/improve-question.js
-
-# Migrate timestamps
-node script/migrate-add-timestamp.js
-```
-
-## Frontend Development
-
-### Component Structure
-
-```typescript
-// Functional component with hooks
-import { useState, useEffect } from 'react';
-
-export default function MyComponent() {
-  const [state, setState] = useState(null);
-
-  useEffect(() => {
-    // Side effects
-  }, []);
-
-  return (
-    <div className="...">
-      {/* JSX */}
-    </div>
-  );
-}
-```
-
-### Styling
-
-- Use Tailwind CSS classes
-- Follow existing design patterns
-- Ensure responsive design
-- Test on mobile devices
-
-### State Management
-
-- Use React hooks (useState, useContext)
-- Use React Query for server state
-- Use localStorage for client state
-
-## Backend Development
-
-### API Routes
-
-Routes are defined in `server/routes.ts`:
-
-```typescript
-app.get('/api/questions', (req, res) => {
-  // Handle request
+// Find similar questions
+const similar = await vectorDB.findSimilar(questionText, {
+  limit: 5,
+  excludeIds: [currentId]
 });
 ```
 
-### Middleware
+## AI Pipelines (LangGraph)
 
-- Express middleware for logging
-- Error handling middleware
-- CORS middleware (if needed)
+### Quality Gate
+
+Validates new questions before adding to database:
+
+```javascript
+import { runQualityGate } from './ai/graphs/quality-gate-graph.js';
+
+const result = await runQualityGate(question, existingQuestions);
+// result.decision: 'approved' | 'rejected' | 'needs_review'
+// result.score: 0-100
+```
+
+### Adaptive Learning
+
+Generates personalized learning paths:
+
+```javascript
+import { generateLearningPath } from './ai/graphs/adaptive-learning-graph.js';
+
+const path = await generateLearningPath({
+  userId: 'user-123',
+  answeredQuestions: [...],
+  correctAnswers: [...],
+  channelId: 'system-design'
+});
+```
+
+## Static Site Generation
+
+Since we deploy to GitHub Pages, all dynamic data is pre-computed:
+
+```bash
+# Generate all static data
+pnpm build:static
+
+# Individual generators
+node script/fetch-questions-for-build.js  # Question JSONs
+node script/generate-similar-questions.js  # Similar questions
+node script/generate-voice-sessions.js     # Voice sessions
+```
+
+### Pre-computed Data Files
+
+| File | Description |
+|------|-------------|
+| `data/{channel}.json` | Questions per channel |
+| `data/similar-questions.json` | Pre-computed similarities |
+| `data/voice-sessions.json` | Voice interview sessions |
+| `data/blog-posts.json` | Generated blog content |
 
 ## Testing
 
-### Manual Testing
-
-1. Test on desktop and mobile
-2. Test keyboard navigation
-3. Test all user flows
-4. Check console for errors
-
-### Automated Testing
+### E2E Tests (Playwright)
 
 ```bash
-# Run tests (if configured)
-pnpm run test
-
-# Watch mode
-pnpm run test:watch
-
-# Coverage
-pnpm run test:coverage
+pnpm test              # Run all
+pnpm test:ui           # Interactive mode
+pnpm test:headed       # See browser
 ```
 
-## Git Workflow
+### Vector DB Tests
 
-### Branch Naming
-
-```
-feature/description
-fix/description
-docs/description
-refactor/description
+```bash
+pnpm vector:test       # Integration tests
 ```
 
-### Commit Messages
+### Test Structure
 
 ```
-type(scope): description
-
-Examples:
-feat(questions): add system design questions
-fix(ui): improve mobile navigation
-docs(readme): update installation
+e2e/
+├── core.spec.ts       # Navigation, responsiveness
+├── home.spec.ts       # Home page features
+├── channels.spec.ts   # Channel browsing
+├── voice-interview.spec.ts
+├── coding.spec.ts
+└── fixtures.ts        # Test utilities
 ```
 
-### Pull Request Process
+## Code Patterns
 
-1. Create feature branch
-2. Make changes
-3. Commit with clear messages
-4. Push to fork
-5. Create pull request
-6. Address review feedback
-7. Merge when approved
+### Adding a New Page
+
+```typescript
+// client/src/pages/NewPage.tsx
+export default function NewPage() {
+  return (
+    <div className="min-h-screen p-4">
+      {/* Content */}
+    </div>
+  );
+}
+
+// Add route in App.tsx
+<Route path="/new-page" component={NewPage} />
+```
+
+### Adding a New Hook
+
+```typescript
+// client/src/hooks/use-feature.ts
+export function useFeature() {
+  const [state, setState] = useState(null);
+  
+  // Logic here
+  
+  return { state, actions };
+}
+```
+
+### Adding a New AI Graph
+
+```javascript
+// script/ai/graphs/new-graph.js
+import { StateGraph, END, START } from '@langchain/langgraph';
+
+const State = Annotation.Root({
+  input: Annotation({ reducer: (_, b) => b, default: () => '' }),
+  output: Annotation({ reducer: (_, b) => b, default: () => null })
+});
+
+function processNode(state) {
+  // Process logic
+  return { output: result };
+}
+
+export function createGraph() {
+  const graph = new StateGraph(State);
+  graph.addNode('process', processNode);
+  graph.addEdge(START, 'process');
+  graph.addEdge('process', END);
+  return graph.compile();
+}
+```
 
 ## Debugging
 
 ### Browser DevTools
+- React DevTools for component inspection
+- Network tab for API/data loading
+- Application tab for localStorage
 
-- Use React DevTools extension
-- Use Network tab for API calls
-- Use Console for errors
-
-### Server Debugging
-
+### Server Logs
 ```bash
-# Run with debugging
-node --inspect script/generate-question.js
-
-# Or use VS Code debugger
+DEBUG=* pnpm dev
 ```
 
-### Logging
-
-```typescript
-console.log('Debug message:', variable);
-console.error('Error:', error);
-console.warn('Warning:', message);
-```
-
-## Performance Optimization
-
-### Frontend
-
-- Code splitting with dynamic imports
-- Image optimization
-- Lazy loading components
-- Memoization with React.memo
-
-### Backend
-
-- Database query optimization
-- Caching strategies
-- Response compression
-- Connection pooling
-
-## Deployment
-
-### GitHub Pages
-
+### Vector DB Issues
 ```bash
-pnpm run deploy:pages
+# Check connection
+pnpm vector:stats
+
+# Re-sync if needed
+pnpm vector:sync --force
 ```
 
-### Docker (Optional)
+## Performance Tips
 
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY . .
-RUN pnpm install
-RUN pnpm run build
-CMD ["pnpm", "start"]
-```
+1. **Lazy load pages** — Use dynamic imports
+2. **Prefetch questions** — Adjacent questions load in background
+3. **Cache embeddings** — TF-IDF vocabulary cached
+4. **Batch operations** — Use `indexQuestions()` for bulk
 
-## Troubleshooting
+## Common Issues
 
-### Common Issues
-
-**Port already in use**
+### Port in use
 ```bash
-# Kill process on port 5000
-lsof -ti:5000 | xargs kill -9
+lsof -ti:5001 | xargs kill -9
 ```
 
-**Dependencies not installing**
+### Vector DB connection failed
+- Check `QDRANT_URL` and `QDRANT_API_KEY`
+- Verify Qdrant Cloud cluster is running
+
+### Build errors
 ```bash
-# Clear cache and reinstall
-pnpm store prune
+rm -rf node_modules dist
 pnpm install
-```
-
-**Build errors**
-```bash
-# Clean build
-rm -rf dist node_modules
-pnpm install
-pnpm run build
+pnpm build
 ```
 
 ## Resources
 
-- [React Documentation](https://react.dev)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Express.js Guide](https://expressjs.com)
-- [Vite Documentation](https://vitejs.dev)
-
-## Getting Help
-
-- Check existing issues and discussions
-- Read the CONTRIBUTING.md guide
-- Ask in GitHub Discussions
-- Contact maintainers
-
-## Code Review Checklist
-
-Before submitting a PR, ensure:
-
-- [ ] Code follows style guidelines
-- [ ] No console errors or warnings
-- [ ] Tests pass (if applicable)
-- [ ] Documentation updated
-- [ ] Commit messages are clear
-- [ ] No hardcoded secrets
-- [ ] Responsive design tested
-- [ ] Keyboard navigation works
-- [ ] Performance acceptable
-- [ ] Accessibility considered
-
-## Additional Notes
-
-- Keep components small and focused
-- Write self-documenting code
-- Add comments for complex logic
-- Test edge cases
-- Consider performance implications
-- Follow existing patterns
-- Ask for help when needed
-
-Happy coding! 🚀
+- [React 19 Docs](https://react.dev)
+- [LangGraph](https://langchain-ai.github.io/langgraph/)
+- [Qdrant](https://qdrant.tech/documentation/)
+- [Playwright](https://playwright.dev)

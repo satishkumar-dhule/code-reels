@@ -9,7 +9,7 @@
  * - Difficulty calibration
  * - Voice interview readiness
  * - SEO & discoverability analysis
- * - Duplicate & similarity detection
+ * - Duplicate & similarity detection (using Qdrant Vector DB)
  * - Actionable improvement recommendations
  * 
  * LangGraph Pipeline:
@@ -22,6 +22,19 @@ import { logAction } from './shared/ledger.js';
 import { addToQueue, getNextWorkItem, completeWorkItem } from './shared/queue.js';
 import { startRun, completeRun, failRun, updateRunStats } from './shared/runs.js';
 import { runWithRetries, parseJson, calculateSimilarity } from '../utils.js';
+
+// Import vector DB service
+let vectorDB = null;
+async function getVectorDB() {
+  if (!vectorDB) {
+    try {
+      vectorDB = (await import('../ai/services/vector-db.js')).default;
+    } catch (error) {
+      console.log('Vector DB not available:', error.message);
+    }
+  }
+  return vectorDB;
+}
 
 const BOT_NAME = 'verifier';
 const db = getDb();
@@ -698,12 +711,43 @@ async function getUnverifiedQuestions(limit = 100, channel = null) {
 }
 
 async function findSimilarQuestions(excludeId, questionText, channel) {
+  const similar = [];
+  
+  // Try vector DB first for semantic similarity
+  const vdb = await getVectorDB();
+  if (vdb) {
+    try {
+      const vectorResults = await vdb.findSimilar(questionText, {
+        limit: 10,
+        threshold: 0.3, // Lower for TF-IDF embeddings
+        channel,
+        excludeIds: [excludeId]
+      });
+      
+      for (const r of vectorResults) {
+        if (r.similarity >= CONFIG.thresholds.duplicateSimilarity * 100) {
+          similar.push({
+            id: r.id,
+            similarity: r.similarity / 100,
+            question: r.question?.substring(0, 80)
+          });
+        }
+      }
+      
+      if (similar.length > 0) {
+        console.log(`   Vector DB found ${similar.length} similar questions`);
+        return similar.sort((a, b) => b.similarity - a.similarity).slice(0, 5);
+      }
+    } catch (error) {
+      console.log(`   Vector DB search failed: ${error.message}, using fallback`);
+    }
+  }
+  
+  // Fallback to TF-IDF comparison
   const result = await db.execute({
     sql: 'SELECT id, question FROM questions WHERE channel = ? AND id != ? AND status = ? LIMIT 150',
     args: [channel, excludeId, 'active']
   });
-  
-  const similar = [];
   
   for (const row of result.rows) {
     const similarity = calculateSimilarity(questionText, row.question);
