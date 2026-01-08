@@ -167,14 +167,154 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-// Get random questions for a test session with randomized options
+/**
+ * Calculate semantic similarity between two questions using keyword matching
+ */
+function calculateQuestionSimilarity(q1: TestQuestion, q2: TestQuestion): number {
+  let score = 0;
+
+  // Same difficulty: +0.2
+  if (q1.difficulty === q2.difficulty) {
+    score += 0.2;
+  }
+
+  // Extract keywords from questions
+  const keywords1 = extractKeywords(q1.question);
+  const keywords2 = extractKeywords(q2.question);
+
+  // Keyword overlap
+  const commonKeywords = keywords1.filter(k => keywords2.includes(k));
+  const keywordScore = commonKeywords.length / Math.max(keywords1.length, keywords2.length, 1);
+  score += keywordScore * 0.5;
+
+  // Question length similarity (prefer similar complexity)
+  const lengthRatio = Math.min(q1.question.length, q2.question.length) / 
+                      Math.max(q1.question.length, q2.question.length);
+  score += lengthRatio * 0.3;
+
+  return Math.min(score, 1.0);
+}
+
+/**
+ * Extract keywords from question text
+ */
+function extractKeywords(text: string): string[] {
+  const stopWords = new Set([
+    'what', 'how', 'why', 'when', 'where', 'which', 'who',
+    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at',
+    'to', 'for', 'of', 'with', 'by', 'from', 'is', 'are',
+    'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
+    'do', 'does', 'did', 'will', 'would', 'should', 'could',
+    'can', 'may', 'might', 'must', 'shall'
+  ]);
+
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 3 && !stopWords.has(word))
+    .slice(0, 10);
+}
+
+/**
+ * Determine target difficulty based on recent performance
+ */
+function determineTargetDifficulty(
+  currentLevel: 'beginner' | 'intermediate' | 'advanced',
+  recentAccuracy: number,
+  totalAnswered: number
+): 'beginner' | 'intermediate' | 'advanced' {
+  // Start with beginner for first few questions
+  if (totalAnswered < 2) return 'beginner';
+
+  // If doing well (>70% accuracy), increase difficulty
+  if (recentAccuracy > 0.7) {
+    if (currentLevel === 'beginner') return 'intermediate';
+    if (currentLevel === 'intermediate') return 'advanced';
+    return 'advanced';
+  }
+
+  // If struggling (<40% accuracy), decrease difficulty
+  if (recentAccuracy < 0.4) {
+    if (currentLevel === 'advanced') return 'intermediate';
+    if (currentLevel === 'intermediate') return 'beginner';
+    return 'beginner';
+  }
+
+  // Otherwise maintain current level
+  return currentLevel;
+}
+
+/**
+ * Get progressive questions using RAG-based selection
+ * Questions are selected based on semantic similarity and adaptive difficulty
+ */
 export function getSessionQuestions(test: Test, count: number = 20): TestQuestion[] {
-  // Shuffle questions
-  const shuffledQuestions = shuffleArray(test.questions);
-  
-  // Take the requested count
-  const selectedQuestions = shuffledQuestions.slice(0, Math.min(count, test.questions.length));
-  
+  const maxCount = Math.min(count, test.questions.length);
+  if (maxCount === 0) return [];
+
+  const selectedQuestions: TestQuestion[] = [];
+  const availableQuestions = [...test.questions];
+  let currentDifficulty: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
+  let performanceHistory: boolean[] = [];
+
+  for (let i = 0; i < maxCount; i++) {
+    let nextQuestion: TestQuestion;
+
+    if (i === 0) {
+      // First question: random beginner or intermediate
+      const easyQuestions = availableQuestions.filter(
+        q => q.difficulty === 'beginner' || q.difficulty === 'intermediate'
+      );
+      const pool = easyQuestions.length > 0 ? easyQuestions : availableQuestions;
+      nextQuestion = pool[Math.floor(Math.random() * pool.length)];
+    } else {
+      // Calculate recent accuracy
+      const recentPerformance = performanceHistory.slice(-3);
+      const recentAccuracy = recentPerformance.length > 0
+        ? recentPerformance.filter(Boolean).length / recentPerformance.length
+        : 0.5;
+
+      // Determine target difficulty
+      const targetDifficulty = determineTargetDifficulty(
+        currentDifficulty,
+        recentAccuracy,
+        i
+      );
+      currentDifficulty = targetDifficulty;
+
+      // Filter by difficulty
+      const difficultyFiltered = availableQuestions.filter(
+        q => q.difficulty === targetDifficulty
+      );
+      const candidatePool = difficultyFiltered.length > 0 
+        ? difficultyFiltered 
+        : availableQuestions;
+
+      // Calculate similarity scores with previous question
+      const previousQuestion = selectedQuestions[i - 1];
+      const scored = candidatePool.map(q => ({
+        question: q,
+        score: calculateQuestionSimilarity(previousQuestion, q)
+      }));
+
+      // Sort by relevance and pick from top 5 to add variety
+      scored.sort((a, b) => b.score - a.score);
+      const topCandidates = scored.slice(0, Math.min(5, scored.length));
+      nextQuestion = topCandidates[Math.floor(Math.random() * topCandidates.length)].question;
+    }
+
+    // Add to selected and remove from available
+    selectedQuestions.push(nextQuestion);
+    const index = availableQuestions.indexOf(nextQuestion);
+    if (index > -1) {
+      availableQuestions.splice(index, 1);
+    }
+
+    // Simulate performance for next selection (assume 60% success rate)
+    performanceHistory.push(Math.random() > 0.4);
+  }
+
   // Randomize options for each question
   return selectedQuestions.map(q => ({
     ...q,

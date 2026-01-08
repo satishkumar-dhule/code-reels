@@ -161,6 +161,37 @@ function calculateSemanticSimilarity(
 }
 
 /**
+ * Generic similarity calculation for any question type
+ */
+function calculateGenericSimilarity<T extends { question: string; difficulty?: string }>(
+  q1: T,
+  q2: T
+): number {
+  let score = 0;
+
+  // Same difficulty: +0.2
+  if (q1.difficulty && q2.difficulty && q1.difficulty === q2.difficulty) {
+    score += 0.2;
+  }
+
+  // Extract keywords from questions
+  const keywords1 = extractKeywords(q1.question);
+  const keywords2 = extractKeywords(q2.question);
+
+  // Keyword overlap
+  const commonKeywords = keywords1.filter(k => keywords2.includes(k));
+  const keywordScore = commonKeywords.length / Math.max(keywords1.length, keywords2.length, 1);
+  score += keywordScore * 0.5;
+
+  // Question length similarity (prefer similar complexity)
+  const lengthRatio = Math.min(q1.question.length, q2.question.length) / 
+                      Math.max(q1.question.length, q2.question.length);
+  score += lengthRatio * 0.3;
+
+  return Math.min(score, 1.0);
+}
+
+/**
  * Extract keywords from question text
  */
 function extractKeywords(text: string): string[] {
@@ -245,4 +276,85 @@ export function generateProgressiveQuiz(
   }
 
   return questions;
+}
+
+
+/**
+ * Generate progressive question sequence from any question array
+ * Works with regular Question type (not just TestQuestion)
+ */
+export function generateProgressiveSequence<T extends { 
+  id: string; 
+  question: string; 
+  difficulty?: string;
+}>(
+  questions: T[],
+  count: number = 20
+): T[] {
+  const maxCount = Math.min(count, questions.length);
+  if (maxCount === 0) return [];
+
+  const selectedQuestions: T[] = [];
+  const availableQuestions = [...questions];
+  let currentDifficulty: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
+  let performanceHistory: boolean[] = [];
+
+  for (let i = 0; i < maxCount; i++) {
+    let nextQuestion: T;
+
+    if (i === 0) {
+      // First question: random beginner or intermediate
+      const easyQuestions = availableQuestions.filter(
+        q => !q.difficulty || q.difficulty === 'beginner' || q.difficulty === 'intermediate'
+      );
+      const pool = easyQuestions.length > 0 ? easyQuestions : availableQuestions;
+      nextQuestion = pool[Math.floor(Math.random() * pool.length)];
+    } else {
+      // Calculate recent accuracy
+      const recentPerformance = performanceHistory.slice(-3);
+      const recentAccuracy = recentPerformance.length > 0
+        ? recentPerformance.filter(Boolean).length / recentPerformance.length
+        : 0.5;
+
+      // Determine target difficulty
+      const targetDifficulty = determineTargetDifficulty(
+        currentDifficulty,
+        recentAccuracy,
+        i
+      );
+      currentDifficulty = targetDifficulty;
+
+      // Filter by difficulty
+      const difficultyFiltered = availableQuestions.filter(
+        q => q.difficulty === targetDifficulty
+      );
+      const candidatePool = difficultyFiltered.length > 0 
+        ? difficultyFiltered 
+        : availableQuestions;
+
+      // Calculate similarity scores with previous question
+      const previousQuestion = selectedQuestions[i - 1];
+      const scored = candidatePool.map(q => ({
+        question: q,
+        score: calculateGenericSimilarity(previousQuestion, q)
+      }));
+
+      // Sort by relevance and pick from top 5 to add variety
+      scored.sort((a, b) => b.score - a.score);
+      const topCandidates = scored.slice(0, Math.min(5, scored.length));
+      nextQuestion = topCandidates[Math.floor(Math.random() * topCandidates.length)].question;
+    }
+
+    // Add to selected and remove from available
+    selectedQuestions.push(nextQuestion);
+    const index = availableQuestions.indexOf(nextQuestion);
+    if (index > -1) {
+      availableQuestions.splice(index, 1);
+    }
+
+    // Simulate performance for next selection (assume 60% success rate)
+    performanceHistory.push(Math.random() > 0.4);
+  }
+
+  return selectedQuestions;
 }

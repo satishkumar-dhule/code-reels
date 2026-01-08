@@ -703,13 +703,15 @@ export function getDomainProgress(certificationId: string, answeredQuestions: Ma
   return progress;
 }
 
-// Generate a practice session with weighted domain distribution
+import { generateProgressiveSequence } from './progressive-quiz';
+
+// Generate a practice session with weighted domain distribution and progressive difficulty
 export function generatePracticeSession(certificationId: string, questionCount: number = 10): CertificationQuestion[] {
   const questions = getQuestionsForCertification(certificationId);
   const config = getExamConfig(certificationId);
   
   if (!config || questions.length === 0) {
-    return shuffleArray(questions).slice(0, questionCount);
+    return generateProgressiveSequence(questions, questionCount);
   }
 
   const session: CertificationQuestion[] = [];
@@ -718,12 +720,13 @@ export function generatePracticeSession(certificationId: string, questionCount: 
   config.domains.forEach(domain => {
     const domainQuestions = questions.filter(q => q.domain === domain.id);
     const count = Math.max(1, Math.round((domain.weight / 100) * questionCount));
-    const selected = shuffleArray(domainQuestions).slice(0, count);
+    // Use progressive selection within each domain
+    const selected = generateProgressiveSequence(domainQuestions, count);
     session.push(...selected);
   });
 
-  // Shuffle final selection and trim to exact count
-  return shuffleArray(session).slice(0, questionCount);
+  // Apply progressive selection to final set (maintains domain distribution but orders progressively)
+  return generateProgressiveSequence(session, questionCount);
 }
 
 function shuffleArray<T>(array: T[]): T[] {

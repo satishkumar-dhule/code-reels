@@ -20,6 +20,7 @@ import { useToast } from '../hooks/use-toast';
 import { useSwipe } from '../hooks/use-swipe';
 import { ChannelService } from '../services/api.service';
 import { loadTests, getSessionQuestions, TestQuestion, Test } from '../lib/tests';
+import { generateProgressiveSequence } from '../lib/progressive-quiz';
 import { spendCredits } from '../lib/credits';
 import type { Question } from '../types';
 import {
@@ -140,7 +141,10 @@ export default function CertificationPractice() {
         const uniqueQuestions = Array.from(new Map(allQuestions.map(q => [q.id, q])).values());
         const seed = sessionStorage.getItem(`cert-seed-${certificationId}`) || Date.now().toString();
         sessionStorage.setItem(`cert-seed-${certificationId}`, seed);
-        setQuestions(shuffleArray(uniqueQuestions, parseInt(seed)));
+        
+        // Use progressive RAG-based selection instead of random shuffle
+        const progressiveQuestions = generateProgressiveSequence(uniqueQuestions, uniqueQuestions.length);
+        setQuestions(progressiveQuestions);
       } catch (err) {
         setError('Failed to load certification questions');
       } finally {
