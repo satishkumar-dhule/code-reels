@@ -256,23 +256,106 @@ async function generateStoryNode(state) {
 }
 
 /**
- * Fallback hook patterns for when AI is unavailable
- * Includes recency-focused hooks for trending topics
+ * Fallback story templates for when AI is unavailable
+ * Each template generates properly formatted LinkedIn content
  */
-const FALLBACK_HOOKS = [
-  (title, emoji) => `${emoji} ${title}\n\nEver wondered why this matters? Here's the breakdown.`,
-  (title, emoji) => `${emoji} What if I told you this one concept could change how you approach ${title.toLowerCase().split(' ').slice(0, 3).join(' ')}?`,
-  (title, emoji) => `${emoji} The hidden truth about ${title.toLowerCase().split(' ').slice(0, 3).join(' ')} nobody talks about.`,
-  (title, emoji) => `${emoji} ${title}\n\nThis single insight separates good engineers from great ones.`,
-  (title, emoji) => `${emoji} Stop making this mistake with ${title.toLowerCase().split(' ').slice(0, 3).join(' ')}.`,
-  (title, emoji) => `${emoji} ${title}\n\nHere's what top engineers know that you don't.`,
-  (title, emoji) => `${emoji} Why do senior devs approach ${title.toLowerCase().split(' ').slice(0, 3).join(' ')} differently?`,
-  (title, emoji) => `${emoji} ${title}\n\nThe counterintuitive approach that actually works.`,
-  // Recency-focused hooks
-  (title, emoji) => `🆕 ${title}\n\nThe 2025 approach that's changing everything.`,
-  (title, emoji) => `${emoji} ${title}\n\nIf you're not using this yet, you're falling behind.`,
-  (title, emoji) => `${emoji} Major update alert: ${title.toLowerCase().split(' ').slice(0, 4).join(' ')} just got better.`,
-  (title, emoji) => `${emoji} ${title}\n\nWhat changed in the last 6 months that you need to know.`
+const FALLBACK_TEMPLATES = [
+  // Template 1: Problem-Solution
+  (title, emoji, excerpt) => {
+    const problem = excerpt ? excerpt.split('.')[0] + '.' : 'A common challenge many engineers face.';
+    return `${emoji} ${title}
+
+${problem}
+
+Here's what you need to know:
+
+🔍 Understanding the root cause is half the battle
+⚡ The right approach saves hours of debugging
+🎯 Prevention beats reaction every time
+
+The details matter more than you think.`;
+  },
+  
+  // Template 2: Story Hook
+  (title, emoji, excerpt) => {
+    return `It was 3am when the alert fired.
+
+${excerpt ? excerpt.split('.').slice(0, 2).join('.') + '.' : 'Something was wrong, but the metrics looked fine.'}
+
+Key lessons learned:
+
+🔍 Monitor what matters, not just what's easy
+⚡ Root cause analysis is a skill worth mastering
+🎯 Documentation saves future you
+
+${emoji} Full breakdown in the article.`;
+  },
+  
+  // Template 3: Contrarian
+  (title, emoji, excerpt) => {
+    const topic = title.toLowerCase().split(' ').slice(0, 4).join(' ');
+    return `Everyone thinks they understand ${topic}.
+
+Most are wrong.
+
+${excerpt ? excerpt.split('.')[0] + '.' : 'The conventional wisdom misses critical nuances.'}
+
+What actually works:
+
+✅ Focus on fundamentals first
+✅ Question "best practices"
+✅ Measure before optimizing
+
+${emoji} The counterintuitive truth awaits.`;
+  },
+  
+  // Template 4: List-based
+  (title, emoji, excerpt) => {
+    return `${emoji} ${title}
+
+${excerpt ? excerpt.split('.')[0] + '.' : 'A topic every engineer should understand.'}
+
+3 things that changed my perspective:
+
+1️⃣ Simplicity beats complexity
+2️⃣ Observability is non-negotiable
+3️⃣ Learn from production incidents
+
+The full article dives deeper into each.`;
+  },
+  
+  // Template 5: Question Hook
+  (title, emoji, excerpt) => {
+    const topic = title.toLowerCase().split(' ').slice(0, 3).join(' ');
+    return `Why do senior engineers approach ${topic} differently?
+
+${excerpt ? excerpt.split('.')[0] + '.' : 'Experience teaches patterns that tutorials miss.'}
+
+The difference comes down to:
+
+🔍 Asking "why" before "how"
+⚡ Building for failure, not just success
+🎯 Prioritizing maintainability
+
+${emoji} Worth a read if you want to level up.`;
+  },
+  
+  // Template 6: Trending/New (for recent topics)
+  (title, emoji, excerpt) => {
+    return `🆕 ${title}
+
+The 2025 approach is different from what you learned.
+
+${excerpt ? excerpt.split('.')[0] + '.' : 'Things have evolved significantly.'}
+
+What's changed:
+
+⚡ New tools simplify old problems
+🎯 Best practices have been updated
+🚀 Performance gains are now achievable
+
+${emoji} Stay current or fall behind.`;
+  }
 ];
 
 // Keywords that indicate recent/trending topics
@@ -293,59 +376,42 @@ function isTrendingTopic(title, channel, tags) {
 }
 
 /**
- * Generate fallback story without AI
+ * Generate fallback story without AI - with proper formatting
  */
 function generateFallbackStory(state) {
   const emoji = getChannelEmoji(state.channel);
-  
-  // Check if this is a trending topic - if so, prefer recency hooks (last 4 in array)
   const isTrending = isTrendingTopic(state.title, state.channel, state.tags);
   
-  let hookIndex;
+  // Select template
+  let templateIndex;
   if (isTrending) {
-    // Use recency-focused hooks (indices 8-11)
-    hookIndex = 8 + Math.floor(Math.random() * 4);
-    console.log(`   📈 Trending topic detected, using recency hook`);
+    // Use trending template (index 5)
+    templateIndex = 5;
+    console.log(`   📈 Trending topic detected, using trending template`);
   } else {
-    // Use standard hooks (indices 0-7)
-    hookIndex = Math.floor(Math.random() * 8);
+    // Random from templates 0-4
+    templateIndex = Math.floor(Math.random() * 5);
   }
   
-  const hookFn = FALLBACK_HOOKS[hookIndex];
+  const templateFn = FALLBACK_TEMPLATES[templateIndex];
   
-  let story = '';
-  
-  if (state.excerpt && state.excerpt.length > 50) {
-    // Use excerpt but ensure it ends properly
-    let excerpt = state.excerpt;
-    
-    // Truncate to ~200 chars at sentence boundary
-    if (excerpt.length > 200) {
-      const sentences = excerpt.match(/[^.!?]+[.!?]+/g) || [];
-      excerpt = '';
-      for (const sentence of sentences) {
-        if ((excerpt + sentence).length <= 200) {
-          excerpt += sentence;
-        } else {
-          break;
-        }
+  // Clean and truncate excerpt
+  let excerpt = state.excerpt || '';
+  if (excerpt.length > 200) {
+    const sentences = excerpt.match(/[^.!?]+[.!?]+/g) || [];
+    excerpt = '';
+    for (const sentence of sentences) {
+      if ((excerpt + sentence).length <= 200) {
+        excerpt += sentence;
+      } else {
+        break;
       }
     }
-    
-    // Ensure it ends with punctuation
-    if (!excerpt.match(/[.!?]$/)) {
-      excerpt = excerpt.trim() + '.';
-    }
-    
-    // Use varied hook + excerpt
-    const hook = hookFn(state.title, emoji);
-    story = `${hook}\n\n${excerpt}`;
-  } else {
-    // Use varied hook only
-    story = hookFn(state.title, emoji);
   }
   
-  console.log(`   Using fallback template #${hookIndex + 1} (${story.length} chars)`);
+  const story = templateFn(state.title, emoji, excerpt);
+  
+  console.log(`   Using fallback template #${templateIndex + 1} (${story.length} chars)`);
   return {
     story,
     qualityIssues: ['AI generation skipped, using fallback']
@@ -450,7 +516,7 @@ function qualityCheck1Node(state) {
 }
 
 /**
- * Node: Build final post content
+ * Node: Build final post content with proper formatting
  */
 function buildPostNode(state) {
   console.log('\n🔨 [BUILD_POST] Assembling final post...');
@@ -460,8 +526,8 @@ function buildPostNode(state) {
   const tagsLower = allTags.map(t => t.toLowerCase());
   const uniqueTags = [...new Set(tagsLower)];
   
-  // Rebuild tags preserving original casing
-  const deduplicatedTags = uniqueTags.map(t => {
+  // Rebuild tags preserving original casing, limit to 5 tags
+  const deduplicatedTags = uniqueTags.slice(0, 5).map(t => {
     const original = allTags.find(at => at.toLowerCase() === t);
     return original || t;
   });
@@ -469,23 +535,34 @@ function buildPostNode(state) {
   const cleanedTags = deduplicatedTags.join(' ') || '#tech #engineering #interview';
   
   if (deduplicatedTags.length < allTags.length) {
-    console.log(`   Removed ${allTags.length - deduplicatedTags.length} duplicate tags`);
+    console.log(`   Removed ${allTags.length - deduplicatedTags.length} duplicate/excess tags`);
   }
   
-  // Build final content
-  const lines = [
-    state.story,
-    '',
-    '🔗 Read the full article:',
-    state.url,
-    '',
-    '🎯 Practice interview questions:',
-    PRACTICE_LINK,
-    '',
-    cleanedTags
-  ];
+  // Ensure story has proper paragraph breaks
+  let story = state.story;
   
-  const finalContent = lines.join('\n');
+  // Normalize line breaks
+  story = story.replace(/\r\n/g, '\n');
+  
+  // Ensure there are blank lines between paragraphs
+  // Replace single newlines between text blocks with double newlines
+  story = story.replace(/([.!?])\n([A-Z🔍⚡🎯🛡️💡🚀✅❌📈1️⃣2️⃣3️⃣4️⃣])/g, '$1\n\n$2');
+  
+  // Clean up excessive newlines (more than 2)
+  story = story.replace(/\n{3,}/g, '\n\n');
+  
+  // Build final content with clear sections
+  const finalContent = `${story.trim()}
+
+─────────────────────────
+
+🔗 Read the full article:
+${state.url}
+
+🎯 Practice interview questions:
+${PRACTICE_LINK}
+
+${cleanedTags}`;
   
   console.log(`   ✅ Post built (${finalContent.length} chars)`);
   
@@ -525,24 +602,16 @@ function qualityCheck2Node(state) {
     issues.push('Practice link missing');
   }
   
-  // Check story doesn't end with cut-off text
-  const storyPart = content.split('🔗')[0].trim();
+  // Check story doesn't end with cut-off text (before the separator)
+  const storyPart = content.split('─────')[0].trim();
   if (storyPart.match(/\.\.\.$|…$|,$/)) {
     issues.push('Story appears cut off - needs fix');
   }
   
-  // Verify all sentences are complete (skip emoji-only lines and flow patterns)
-  const sentences = storyPart.split(/(?<=[.!?])\s+/);
-  for (const sentence of sentences) {
-    const trimmed = sentence.trim();
-    // Skip emoji flows (lines with arrows and emojis)
-    const isEmojiFlow = trimmed.match(/[→➡️⬇️]/) && trimmed.match(/[✅❌🚀💡⚡🔥📈🔧📥📤⚙️1️⃣2️⃣3️⃣4️⃣]/);
-    // Skip lines that are mostly emojis
-    const isEmojiLine = trimmed.replace(/[\s→➡️⬇️✅❌🚀💡⚡🔥📈🔧📥📤⚙️1️⃣2️⃣3️⃣4️⃣🏗️🎨🗄️🔐🤖📊🧪☸️☁️💬🔄]/g, '').length < trimmed.length * 0.3;
-    
-    if (trimmed.length > 20 && !trimmed.match(/[.!?:"]$/) && !isEmojiFlow && !isEmojiLine) {
-      issues.push(`Incomplete sentence detected: "${trimmed.substring(0, 30)}..."`);
-    }
+  // Verify story has proper structure (paragraphs)
+  const paragraphs = storyPart.split(/\n\n+/).filter(p => p.trim().length > 0);
+  if (paragraphs.length < 2) {
+    issues.push('Story lacks paragraph structure');
   }
   
   if (issues.length > 0) {

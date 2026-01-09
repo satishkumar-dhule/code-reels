@@ -1,7 +1,7 @@
 /**
  * LinkedIn Story Generation Template
- * Creates engaging story-style posts for LinkedIn with emoji-based visuals
- * Prioritizes recent technology updates, tools, and patterns (last 6 months)
+ * Creates engaging story-style posts for LinkedIn with proper formatting
+ * Prioritizes recent technology updates, tools, and patterns
  */
 
 // Simple schema format expected by validator: { fieldName: 'type' }
@@ -10,7 +10,6 @@ export const schema = {
 };
 
 // Recent tech trends to prioritize (updated regularly)
-// These represent major updates/releases in the last 6 months
 const RECENT_TECH_TRENDS = [
   // AI/ML (2024-2025)
   { keyword: 'ai', trend: 'AI agents, RAG patterns, LangGraph, Claude 3.5, GPT-4o, Gemini 2.0' },
@@ -45,143 +44,117 @@ const RECENT_TECH_TRENDS = [
   { keyword: 'api', trend: 'GraphQL federation, tRPC, API-first design' }
 ];
 
-// Dynamic hook starters - rotated based on content type
-const HOOK_PATTERNS = [
-  // Question hooks
-  'Ever wondered why {topic}?',
-  'What if I told you {insight}?',
-  'Why do top engineers {action}?',
-  
-  // Stat/number hooks
-  '{percentage}% of {subject} fail because of this one thing.',
-  'This single change reduced {metric} by {number}%.',
-  '{company} saved ${amount} by doing this differently.',
-  
-  // Story hooks
-  'It was 3am when the pager went off...',
-  'The deploy looked fine. Then everything broke.',
-  'A senior engineer once told me: "{quote}"',
-  
-  // Contrarian hooks
-  'Everyone says {common_belief}. They\'re wrong.',
-  'Stop doing {bad_practice}. Here\'s why.',
-  'The "best practice" that\'s actually hurting you.',
-  
-  // Curiosity hooks
-  'The hidden cost of {topic} nobody talks about.',
-  'What {company} learned the hard way about {topic}.',
-  'The counterintuitive truth about {topic}.',
-  
-  // Direct value hooks
-  'How to {benefit} in {timeframe}.',
-  '{number} lessons from debugging {topic} at scale.',
-  'The {topic} playbook top teams use.',
-  
-  // NEW/TRENDING hooks (prioritize recent updates)
-  '🆕 {tool/pattern} just changed everything about {topic}.',
-  'The 2025 way to handle {topic} (hint: it\'s not what you think).',
-  '{technology} got a major update. Here\'s what matters.',
-  'Why everyone\'s switching to {new_approach} in 2025.'
-];
-
 export function build(context) {
   const { title, excerpt, channel, tags: rawTags } = context;
   
-  // Parse tags if it's a string (from database)
+  // Parse tags if it's a string
   let tags = rawTags;
   if (typeof tags === 'string') {
     try {
       tags = JSON.parse(tags);
     } catch {
-      // If not valid JSON, split by comma or use as-is
       tags = tags.includes(',') ? tags.split(',').map(t => t.trim()) : [tags];
     }
   }
   tags = Array.isArray(tags) ? tags : [];
   
-  // Find relevant recent trends based on channel and content
+  // Find relevant recent trends
   const contentText = `${title} ${excerpt} ${channel} ${tags.join(' ')}`.toLowerCase();
   const relevantTrends = RECENT_TECH_TRENDS.filter(t => contentText.includes(t.keyword));
   
   const trendContext = relevantTrends.length > 0 
-    ? `\nRECENT TECH CONTEXT (prioritize mentioning these if relevant):
-${relevantTrends.map(t => `- ${t.keyword.toUpperCase()}: ${t.trend}`).join('\n')}
-
-⚡ IMPORTANT: If the article relates to any recent updates/releases above, 
-LEAD with that angle! Engineers love staying current. Use hooks like:
-- "🆕 [Tool] just shipped [feature]..."
-- "The 2025 approach to [topic]..."
-- "Why [new pattern] is replacing [old pattern]..."
-`
+    ? `\nRECENT TECH CONTEXT (mention if relevant):
+${relevantTrends.map(t => `- ${t.keyword.toUpperCase()}: ${t.trend}`).join('\n')}`
     : '';
-  
+
   return `Create an ENGAGING LinkedIn post for a technical blog article.
 
 Article Title: ${title}
 Topic/Channel: ${channel || 'tech'}
 Summary: ${excerpt || 'Technical interview preparation content'}
 ${trendContext}
-HOOK VARIETY - Use ONE of these patterns (DO NOT always use "Picture this"):
-${HOOK_PATTERNS.map((p, i) => `${i + 1}. ${p}`).join('\n')}
 
-Choose the hook pattern that BEST fits the article content. Vary your approach!
+═══════════════════════════════════════════════════════════════
+CRITICAL: LINKEDIN FORMATTING RULES
+═══════════════════════════════════════════════════════════════
 
-FORMAT REQUIREMENTS:
-1. Start with a HOOK using one of the patterns above (NOT "Picture this" every time!)
-2. Add 2-3 sentences explaining the key insight with real impact
-3. Use an EMOJI FLOW to visualize the concept (see examples below)
-4. End with a curiosity gap like "The full breakdown reveals..." or "Read on to see how..."
+LinkedIn renders posts as plain text. To create visual structure:
 
-EMOJI FLOW EXAMPLES (use these patterns, they render well on LinkedIn):
+1. USE BLANK LINES to separate paragraphs (\\n\\n)
+2. USE BULLET POINTS with emojis at line start
+3. KEEP PARAGRAPHS SHORT (2-3 sentences max)
+4. USE LINE BREAKS between distinct ideas
 
-Before → After pattern:
-❌ Old way: Manual → Slow → Error-prone
-✅ New way: Automated → Fast → Reliable
+═══════════════════════════════════════════════════════════════
+REQUIRED POST STRUCTURE (follow this EXACTLY)
+═══════════════════════════════════════════════════════════════
 
-Flow pattern:
-📥 Input → ⚙️ Process → 📤 Output → ✅ Result
+SECTION 1 - HOOK (1-2 lines)
+Start with an attention-grabbing hook. Examples:
+• "It was 3am when the pager went off..."
+• "Everyone says X. They're wrong."
+• "This single change reduced latency by 90%."
 
-Problem → Solution pattern:
-🔥 Problem → 💡 Solution → 🚀 Impact
+SECTION 2 - CONTEXT (2-3 lines, separated by blank line)
+Brief explanation of the problem or situation.
 
-Numbered steps:
-1️⃣ Detect → 2️⃣ Isolate → 3️⃣ Fix → 4️⃣ Deploy
+SECTION 3 - KEY INSIGHTS (3-5 bullet points)
+Use emoji bullets for each point:
+• 🔍 First insight
+• ⚡ Second insight  
+• 🎯 Third insight
 
-Comparison pattern:
-Junior: 🐢 Debug for hours
-Senior: 🚀 Fix in minutes
+SECTION 4 - TAKEAWAY (1-2 lines)
+End with actionable insight or curiosity gap.
 
-RULES:
-- Total length: 400-600 characters
-- Use 3-5 emojis strategically (🚀 💡 ⚡ 🔥 💰 🎯 ✅ ❌ 📈 🔧)
-- NO hashtags (added separately)
-- NO links (added separately)
-- NO ASCII box diagrams (they break on LinkedIn)
-- Make it feel like a senior engineer sharing insider knowledge
-- The emoji flow should visualize the KEY transformation or process
-- VARY your hooks - don't start every post the same way!
+═══════════════════════════════════════════════════════════════
+EXAMPLE OUTPUT FORMAT
+═══════════════════════════════════════════════════════════════
 
-HOOK SELECTION GUIDE:
-- For incident/outage stories → Use story hooks ("It was 3am...")
-- For performance improvements → Use stat hooks ("Reduced latency by 90%...")
-- For best practices → Use contrarian hooks ("Stop doing X...")
-- For tutorials/how-tos → Use direct value hooks ("How to...")
-- For architecture topics → Use curiosity hooks ("The hidden cost of...")
-- For NEW tools/updates/releases → Use trending hooks ("🆕 X just changed..." or "The 2025 way...")
+It was 3am when the pager went off: OOM errors everywhere.
 
-RECENCY PRIORITY:
-If the topic involves a technology that had updates in the last 6 months:
-1. LEAD with the "what's new" angle
-2. Mention specific version numbers or release names when relevant
-3. Compare old vs new approach
-4. Create urgency: "If you're still doing X, you're missing out on Y"
+Memory metrics looked fine. CPU was stable. But containers kept dying.
 
-Output JSON format:
+The root cause? Hidden memory pressure in cgroups that standard monitoring misses.
+
+Here's what we learned:
+
+🔍 Memory limits ≠ actual memory available
+⚡ Kernel memory accounting is often overlooked
+🎯 Per-container metrics are essential, not optional
+🛡️ Proactive reservations beat reactive scaling
+
+The fix wasn't more memory—it was better visibility.
+
+═══════════════════════════════════════════════════════════════
+FORMATTING RULES
+═══════════════════════════════════════════════════════════════
+
+✅ DO:
+- Use \\n\\n (double newline) between paragraphs
+- Start bullet points with emoji + space
+- Keep each bullet on its own line
+- Use 4-6 emojis total (🔍 ⚡ 🎯 🛡️ 💡 🚀 ✅ ❌ 📈)
+- Total length: 500-800 characters
+
+❌ DON'T:
+- Write wall-of-text paragraphs
+- Use ASCII art or box characters
+- Include hashtags (added separately)
+- Include URLs (added separately)
+- Use markdown formatting (**, ##, etc.)
+
+═══════════════════════════════════════════════════════════════
+OUTPUT
+═══════════════════════════════════════════════════════════════
+
+Output ONLY valid JSON with the story field containing properly formatted text:
+
 {
-  "story": "Your engaging story with emoji flow here..."
+  "story": "Hook line here.\\n\\nContext paragraph here.\\n\\nKey insights:\\n\\n🔍 Point one\\n⚡ Point two\\n🎯 Point three\\n\\nTakeaway line here."
 }
 
-Output ONLY valid JSON.`;
+IMPORTANT: Use \\n for line breaks and \\n\\n for paragraph breaks in the JSON string.`;
 }
 
 export default { schema, build };
