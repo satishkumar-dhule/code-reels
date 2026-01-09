@@ -248,17 +248,25 @@ function determineTargetDifficulty(
 /**
  * Get progressive questions using RAG-based selection
  * Questions are selected based on semantic similarity and adaptive difficulty
+ * 
+ * IMPORTANT: Uses Set to track selected question IDs to prevent duplicates
  */
 export function getSessionQuestions(test: Test, count: number = 20): TestQuestion[] {
   const maxCount = Math.min(count, test.questions.length);
   if (maxCount === 0) return [];
 
   const selectedQuestions: TestQuestion[] = [];
-  const availableQuestions = [...test.questions];
+  const selectedIds = new Set<string>(); // Track selected question IDs to prevent duplicates
   let currentDifficulty: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
   let performanceHistory: boolean[] = [];
 
+  // Helper to get available questions (not yet selected)
+  const getAvailable = () => test.questions.filter(q => !selectedIds.has(q.id));
+
   for (let i = 0; i < maxCount; i++) {
+    const availableQuestions = getAvailable();
+    if (availableQuestions.length === 0) break;
+
     let nextQuestion: TestQuestion;
 
     if (i === 0) {
@@ -283,7 +291,7 @@ export function getSessionQuestions(test: Test, count: number = 20): TestQuestio
       );
       currentDifficulty = targetDifficulty;
 
-      // Filter by difficulty
+      // Filter by difficulty from available questions only
       const difficultyFiltered = availableQuestions.filter(
         q => q.difficulty === targetDifficulty
       );
@@ -304,12 +312,9 @@ export function getSessionQuestions(test: Test, count: number = 20): TestQuestio
       nextQuestion = topCandidates[Math.floor(Math.random() * topCandidates.length)].question;
     }
 
-    // Add to selected and remove from available
+    // Add to selected and mark as used
     selectedQuestions.push(nextQuestion);
-    const index = availableQuestions.indexOf(nextQuestion);
-    if (index > -1) {
-      availableQuestions.splice(index, 1);
-    }
+    selectedIds.add(nextQuestion.id);
 
     // Simulate performance for next selection (assume 60% success rate)
     performanceHistory.push(Math.random() > 0.4);

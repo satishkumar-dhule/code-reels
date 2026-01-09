@@ -393,6 +393,11 @@ export default function TestSession() {
                       }`}>
                         {currentQuestion.type === 'multiple' ? 'Select all that apply' : 'Single choice'}
                       </span>
+                      {currentQuestion.type === 'multiple' && (
+                        <span className="text-[10px] text-muted-foreground">
+                          ({(answers[currentQuestion.id] || []).length} selected)
+                        </span>
+                      )}
                       <span className={`px-2 py-0.5 text-[10px] uppercase rounded ${
                         currentQuestion.difficulty === 'beginner' ? 'bg-green-500/20 text-green-400' :
                         currentQuestion.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
@@ -411,6 +416,7 @@ export default function TestSession() {
                         const isSelected = (answers[currentQuestion.id] || []).includes(option.id);
                         const showCorrect = showFeedback && option.isCorrect;
                         const showWrong = showFeedback === 'incorrect' && isSelected && !option.isCorrect;
+                        const isMultiple = currentQuestion.type === 'multiple';
                         
                         return (
                           <button
@@ -428,7 +434,7 @@ export default function TestSession() {
                             } ${showFeedback ? 'cursor-default' : ''}`}
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`w-6 h-6 rounded-${currentQuestion.type === 'multiple' ? 'md' : 'full'} border-2 flex items-center justify-center flex-shrink-0 ${
+                              <div className={`w-6 h-6 ${isMultiple ? 'rounded-md' : 'rounded-full'} border-2 flex items-center justify-center flex-shrink-0 ${
                                 showCorrect
                                   ? 'border-green-500 bg-green-500'
                                   : showWrong
@@ -447,6 +453,13 @@ export default function TestSession() {
                         );
                       })}
                     </div>
+                    
+                    {/* Helper text for multiple choice */}
+                    {currentQuestion.type === 'multiple' && !showFeedback && (
+                      <p className="mt-3 text-xs text-muted-foreground text-center">
+                        Select all correct answers, then click "Confirm" to continue
+                      </p>
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>

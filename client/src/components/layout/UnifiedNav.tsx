@@ -83,7 +83,7 @@ function getActiveSection(location: string): string {
 }
 
 // ============================================
-// MOBILE BOTTOM NAVIGATION
+// MOBILE BOTTOM NAVIGATION - Premium Design
 // ============================================
 
 export function MobileBottomNav() {
@@ -112,6 +112,7 @@ export function MobileBottomNav() {
   };
 
   const currentSubNav = showMenu ? getSubNav(showMenu) : [];
+  const menuTitle = showMenu === 'learn' ? 'Browse Content' : showMenu === 'practice' ? 'Practice Modes' : 'Your Progress';
 
   return (
     <>
@@ -121,61 +122,94 @@ export function MobileBottomNav() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setShowMenu(null)}
         />
       )}
 
-      {/* Submenu */}
+      {/* Submenu - Improved Design */}
       {showMenu && currentSubNav.length > 0 && (
         <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 100 }}
-          className="fixed bottom-20 left-4 right-4 z-50 bg-card border border-border rounded-2xl p-2 shadow-2xl lg:hidden"
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          transition={{ type: "spring", bounce: 0.25, duration: 0.35 }}
+          className="fixed bottom-[72px] left-3 right-3 z-50 bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden lg:hidden"
         >
-          <div className="text-xs text-muted-foreground px-3 py-2 font-semibold uppercase tracking-wide">
-            {showMenu === 'learn' ? 'Browse Content' : showMenu === 'practice' ? 'Practice Modes' : 'Your Progress'}
-          </div>
-          {currentSubNav.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.path || location.startsWith(item.path.replace(/\/$/, '') + '/');
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setLocation(item.path);
-                  setShowMenu(null);
-                }}
-                className={cn(
-                  "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-colors",
-                  isActive ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                )}
+          {/* Header */}
+          <div className="px-4 py-3 border-b border-border/30 bg-muted/30">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-foreground">{menuTitle}</span>
+              <button 
+                onClick={() => setShowMenu(null)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                <div className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center",
-                  item.id === 'voice' ? "bg-gradient-to-br from-primary to-primary/70" : "bg-muted"
-                )}>
-                  <Icon className={cn("w-5 h-5", item.id === 'voice' && "text-white")} />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-medium">{item.label}</div>
-                  {item.description && <div className="text-xs text-muted-foreground">{item.description}</div>}
-                  {item.badge && <div className="text-xs text-amber-500 font-medium">{item.badge}</div>}
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                Close
               </button>
-            );
-          })}
+            </div>
+          </div>
+          
+          {/* Menu Items */}
+          <div className="p-2 grid grid-cols-2 gap-1.5">
+            {currentSubNav.map((item, index) => {
+              const Icon = item.icon;
+              const isActive = location === item.path || location.startsWith(item.path.replace(/\/$/, '') + '/');
+              const isVoice = item.id === 'voice';
+              
+              return (
+                <motion.button
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  onClick={() => {
+                    setLocation(item.path);
+                    setShowMenu(null);
+                  }}
+                  className={cn(
+                    "flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all",
+                    isActive 
+                      ? "bg-primary/15 border border-primary/30" 
+                      : "hover:bg-muted/50 border border-transparent",
+                    isVoice && !isActive && "bg-gradient-to-br from-primary/10 to-cyan-500/10 border-primary/20"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    isActive 
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
+                      : isVoice 
+                        ? "bg-gradient-to-br from-primary to-cyan-500 text-white shadow-md shadow-primary/20"
+                        : "bg-muted/80"
+                  )}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="text-center">
+                    <div className={cn(
+                      "text-xs font-medium",
+                      isActive ? "text-primary" : "text-foreground"
+                    )}>
+                      {item.label}
+                    </div>
+                    {item.badge && (
+                      <span className="text-[9px] text-amber-500 font-semibold">{item.badge}</span>
+                    )}
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
         </motion.div>
       )}
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation Bar - Premium Design */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-        <div className="pb-safe bg-card/80 backdrop-blur-xl border-t border-border/50">
-          <div className="flex items-center justify-around h-14 px-1">
+        <div className="pb-safe bg-gradient-to-t from-card via-card/98 to-card/90 backdrop-blur-xl border-t border-border/30">
+          <div className="flex items-center justify-around h-16 px-2 max-w-md mx-auto">
             {mainNavItems.map((item) => {
               const isActive = activeSection === item.id;
+              const hasSubmenu = item.id === 'practice' || item.id === 'learn' || item.id === 'progress';
+              const isMenuOpen = showMenu === item.id;
               const Icon = item.icon;
 
               return (
@@ -183,45 +217,78 @@ export function MobileBottomNav() {
                   key={item.id}
                   onClick={() => handleNavClick(item)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center w-14 h-12 rounded-xl transition-all",
-                    isActive ? "text-primary" : "text-muted-foreground",
-                    item.highlight && !isActive && "text-primary/70"
+                    "relative flex flex-col items-center justify-center flex-1 h-14 transition-all",
+                    isActive || isMenuOpen ? "text-primary" : "text-muted-foreground"
                   )}
                 >
-                  {isActive && (
+                  {/* Active indicator pill */}
+                  {(isActive || isMenuOpen) && (
                     <motion.div
-                      layoutId="mobile-nav-indicator"
-                      className="absolute inset-1 bg-primary/10 rounded-lg border border-primary/20"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                      layoutId="nav-pill"
+                      className="absolute -top-1 w-8 h-1 bg-primary rounded-full"
+                      transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
                     />
                   )}
                   
+                  {/* Practice button - special elevated style */}
                   {item.highlight ? (
-                    <div className={cn(
-                      "w-9 h-9 rounded-xl flex items-center justify-center -mt-3 shadow-lg",
-                      isActive 
-                        ? "bg-primary text-primary-foreground shadow-primary/30" 
-                        : "bg-gradient-to-br from-primary to-cyan-500 text-white shadow-primary/20"
-                    )}>
-                      <Icon className="w-4 h-4" />
-                    </div>
+                    <motion.div 
+                      whileTap={{ scale: 0.95 }}
+                      className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center -mt-4 shadow-lg transition-all",
+                        isActive || isMenuOpen
+                          ? "bg-primary text-primary-foreground shadow-primary/40" 
+                          : "bg-gradient-to-br from-primary via-primary to-cyan-500 text-white shadow-primary/30"
+                      )}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </motion.div>
                   ) : (
-                    <Icon className={cn("w-4 h-4 relative z-10", isActive && "text-primary")} />
+                    <motion.div 
+                      whileTap={{ scale: 0.9 }}
+                      className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                        isActive || isMenuOpen ? "bg-primary/10" : "hover:bg-muted/50"
+                      )}
+                    >
+                      <Icon className={cn(
+                        "w-5 h-5 transition-colors",
+                        isActive || isMenuOpen ? "text-primary" : ""
+                      )} />
+                    </motion.div>
                   )}
                   
-                  <span className={cn("text-[9px] font-medium relative z-10 mt-0.5", item.highlight && "-mt-0.5")}>
+                  <span className={cn(
+                    "text-[10px] font-medium mt-0.5 transition-colors",
+                    item.highlight && "-mt-1",
+                    isActive || isMenuOpen ? "text-primary" : ""
+                  )}>
                     {item.label}
                   </span>
+                  
+                  {/* Submenu indicator dot */}
+                  {hasSubmenu && !item.highlight && (
+                    <div className={cn(
+                      "absolute bottom-1 w-1 h-1 rounded-full transition-colors",
+                      isMenuOpen ? "bg-primary" : "bg-muted-foreground/30"
+                    )} />
+                  )}
                 </button>
               );
             })}
             
-            {/* Credits */}
-            <button onClick={() => setLocation('/profile')} className="flex flex-col items-center justify-center w-14 h-12">
-              <div className="flex items-center gap-0.5 px-1.5 py-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-lg">
-                <Coins className="w-3 h-3 text-amber-500" />
-                <span className="text-[10px] font-bold text-amber-500">{formatCredits(balance)}</span>
-              </div>
+            {/* Credits - Compact pill */}
+            <button 
+              onClick={() => setLocation('/profile')} 
+              className="flex flex-col items-center justify-center h-14 px-1"
+            >
+              <motion.div 
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-1 px-2.5 py-1.5 bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/25 rounded-xl shadow-sm"
+              >
+                <Coins className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-xs font-bold text-amber-500">{formatCredits(balance)}</span>
+              </motion.div>
             </button>
           </div>
         </div>

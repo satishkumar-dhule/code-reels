@@ -282,6 +282,8 @@ export function generateProgressiveQuiz(
 /**
  * Generate progressive question sequence from any question array
  * Works with regular Question type (not just TestQuestion)
+ * 
+ * IMPORTANT: Uses Set to track selected question IDs to prevent duplicates
  */
 export function generateProgressiveSequence<T extends { 
   id: string; 
@@ -295,11 +297,17 @@ export function generateProgressiveSequence<T extends {
   if (maxCount === 0) return [];
 
   const selectedQuestions: T[] = [];
-  const availableQuestions = [...questions];
+  const selectedIds = new Set<string>(); // Track selected question IDs to prevent duplicates
   let currentDifficulty: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
   let performanceHistory: boolean[] = [];
 
+  // Helper to get available questions (not yet selected)
+  const getAvailable = () => questions.filter(q => !selectedIds.has(q.id));
+
   for (let i = 0; i < maxCount; i++) {
+    const availableQuestions = getAvailable();
+    if (availableQuestions.length === 0) break;
+
     let nextQuestion: T;
 
     if (i === 0) {
@@ -324,7 +332,7 @@ export function generateProgressiveSequence<T extends {
       );
       currentDifficulty = targetDifficulty;
 
-      // Filter by difficulty
+      // Filter by difficulty from available questions only
       const difficultyFiltered = availableQuestions.filter(
         q => q.difficulty === targetDifficulty
       );
@@ -345,12 +353,9 @@ export function generateProgressiveSequence<T extends {
       nextQuestion = topCandidates[Math.floor(Math.random() * topCandidates.length)].question;
     }
 
-    // Add to selected and remove from available
+    // Add to selected and mark as used
     selectedQuestions.push(nextQuestion);
-    const index = availableQuestions.indexOf(nextQuestion);
-    if (index > -1) {
-      availableQuestions.splice(index, 1);
-    }
+    selectedIds.add(nextQuestion.id);
 
     // Simulate performance for next selection (assume 60% success rate)
     performanceHistory.push(Math.random() > 0.4);
