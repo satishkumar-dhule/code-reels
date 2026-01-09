@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="mainBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBF8F4"/>
+      <stop offset="50%" stop-color="#F5F3F0"/>
+      <stop offset="100%" stop-color="#FBF8F4"/>
+    </linearGradient>
+    <filter id="titleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  
+  <rect width="800" height="500" fill="url(#mainBg)"/>
+  
+    <rect x="50" y="40" width="380" height="320" rx="20" fill="#F5F3F0"/>
+    
+    <g class="desk">
+      <rect x="100" y="250" width="200" height="8" rx="4" fill="#E8D5C4"/>
+      <rect x="100" y="250" width="200" height="3" rx="2" fill="#DEC9B8" opacity="0.5"/>
+      <rect x="115" y="258" width="8" height="45" rx="2" fill="#C4B5A5"/>
+      <rect x="277" y="258" width="8" height="45" rx="2" fill="#C4B5A5"/>
+    </g>
+  
+    <style>
+    @keyframes typing_person_1 {
+      0%, 100% { transform: translateY(0px); }
+      10% { transform: translateY(-2px); }
+      20% { transform: translateY(0px); }
+      30% { transform: translateY(-2px); }
+      40% { transform: translateY(0px); }
+      50% { transform: translateY(-2px); }
+      60% { transform: translateY(0px); }
+    }
+  </style><g class="animated-person" transform="translate(200, 0)"><ellipse cx="0" cy="352.7" rx="16.2" ry="3.6" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-7.2 317.6 Q-10.8 331.1 -19.8 333.8" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M7.2 317.6 Q10.8 331.1 19.8 333.8" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M-10.8 289.70000000000005 Q-12.6 301.85 -9 317.6 L9 317.6 Q12.6 301.85 10.8 289.70000000000005 Q0 286.1 -10.8 289.70000000000005 Z" fill="#00B894"/><g style="animation: typing_person_1 0.8s ease-in-out 0s infinite; transform-origin: center;"><path d="M-10.8 291.5 Q-14.4 298.7 -9 307.7" stroke="#00B894" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="-9" cy="309.5" r="4.5" fill="#FFE4C9"/></g><g style="animation: typing_person_1 0.8s ease-in-out 0.1s infinite; transform-origin: center;"><path d="M10.8 291.5 Q14.4 298.7 9 307.7" stroke="#00B894" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="9" cy="309.5" r="4.5" fill="#FFE4C9"/></g><g style="" transform-origin="0px 257.3px"><circle cx="0" cy="257.3" r="25.2" fill="#FFE4C9"/><path d="M-20.16 253.52 Q-10.08 230.84 0 234.62 Q10.08 230.84 20.16 253.52 Q12.6 245.96 0 243.44 Q-12.6 245.96 -20.16 253.52 Z" fill="#A1543F"/><circle cx="-7.2" cy="255.5" r="3.15" fill="#34495E"/><circle cx="7.2" cy="255.5" r="3.15" fill="#34495E"/><circle cx="-6.3" cy="254.6" r="1.08" fill="#FFFFFF"/><circle cx="8.1" cy="254.6" r="1.08" fill="#FFFFFF"/><path d="M-5.4 264.5 Q0 269.90000000000003 5.4 264.5" stroke="#34495E" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="-10.8" cy="260.90000000000003" r="3.6" fill="#FFB6B6" opacity="0.3"/><circle cx="10.8" cy="260.90000000000003" r="3.6" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    
+    <style>
+    @keyframes typewriter_laptop_2 {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+  
+    @keyframes blink_laptop_2 {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
+    <g class="animated-laptop">
+      <rect x="130" y="225" width="55.25" height="35.699999999999996" rx="4" fill="#2D3436"/>
+      <rect x="132.55" y="227.55" width="50.15" height="30.599999999999998" rx="2" fill="#54A0FF"/>
+      
+        <g clip-path="url(#clip_laptop_2)">
+          <rect x="136.8" y="233.5" width="34" height="4" rx="2" fill="#FFFFFF" opacity="0.5" style="animation: typewriter_laptop_2 2s steps(20) 0.3s infinite;"/>
+          <rect x="136.8" y="240.3" width="29.75" height="4" rx="2" fill="#FFFFFF" opacity="0.4" style="animation: typewriter_laptop_2 2s steps(20) 0.6s infinite;"/>
+          <rect x="136.8" y="247.1" width="38.25" height="4" rx="2" fill="#FFFFFF" opacity="0.4" style="animation: typewriter_laptop_2 2s steps(20) 0.8999999999999999s infinite;"/>
+        </g>
+        <rect x="172.5" y="233.5" width="2" height="12" fill="#FFFFFF" style="animation: blink_laptop_2 1s step-end infinite;"/>
+      
+      <path d="M126.6 260.7 L188.65 260.7 L185.25 264.95 L130 264.95 Z" fill="#5D6D7E"/>
+    </g>
+  
+    
+    <style>
+    @keyframes bob_plant_3 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+  </style>
+    <g class="plant" style="animation: bob_plant_3 4s ease-in-out infinite; transform-origin: 332px 258px;">
+      <path d="M320 230 L344 230 L340 258 L324 258 Z" fill="#FF6B6B"/>
+      <ellipse cx="332" cy="214" rx="14.4" ry="20" fill="#26DE81"/>
+      <ellipse cx="324" cy="220.4" rx="9.600000000000001" ry="14.4" fill="#1ABC9C" transform="rotate(-15 324 220.4)"/>
+      <ellipse cx="340" cy="222" rx="8" ry="12" fill="#2ECC71" transform="rotate(15 340 222)"/>
+    </g>
+  
+    
+    <rect x="80" y="60" width="90" height="110" rx="8" fill="#74B9FF"/>
+    <rect x="80" y="60" width="90" height="110" rx="8" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+    
+    <rect x="450" y="40" width="310" height="150" rx="16" fill="#F0F4F8"/>
+    <style>
+    @keyframes bob_person_4 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+  </style><g class="animated-person" transform="translate(530, 0)"><ellipse cx="0" cy="161.65" rx="9.9" ry="2.2" fill="rgba(0,0,0,0.08)"/><g style="animation: bob_person_4 3s ease-in-out 0.5s infinite; transform-origin: center;"><path d="M-3.3000000000000003 140.2 L-4.4 157.8" stroke="#34495E" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M3.3000000000000003 140.2 L4.4 157.8" stroke="#34495E" stroke-width="5.5" stroke-linecap="round" fill="none"/><ellipse cx="-4.4" cy="160" rx="4.4" ry="2.2" fill="#34495E"/><ellipse cx="4.4" cy="160" rx="4.4" ry="2.2" fill="#34495E"/><path d="M-6.6000000000000005 123.15 Q-7.700000000000001 130.575 -5.5 140.2 L5.5 140.2 Q7.700000000000001 130.575 6.6000000000000005 123.15 Q0 120.95 -6.6000000000000005 123.15 Z" fill="#A29BFE"/><path d="M-6.6000000000000005 124.25 Q-9.9 130.85 -7.700000000000001 138" stroke="#A29BFE" stroke-width="3.8500000000000005" stroke-linecap="round" fill="none"/><circle cx="-7.700000000000001" cy="139.1" r="2.75" fill="#FFE4C9"/><path d="M6.6000000000000005 124.25 Q9.9 130.85 7.700000000000001 138" stroke="#A29BFE" stroke-width="3.8500000000000005" stroke-linecap="round" fill="none"/><circle cx="7.700000000000001" cy="139.1" r="2.75" fill="#FFE4C9"/><g style="" transform-origin="0px 103.35px"><circle cx="0" cy="103.35" r="15.400000000000002" fill="#FFE4C9"/><path d="M-12.320000000000002 101.03999999999999 Q-6.160000000000001 87.17999999999999 0 89.49 Q6.160000000000001 87.17999999999999 12.320000000000002 101.03999999999999 Q7.700000000000001 96.41999999999999 0 94.88 Q-7.700000000000001 96.41999999999999 -12.320000000000002 101.03999999999999 Z" fill="#8D6E63"/><circle cx="-4.4" cy="102.25" r="1.9250000000000003" fill="#34495E"/><circle cx="4.4" cy="102.25" r="1.9250000000000003" fill="#34495E"/><circle cx="-3.8500000000000005" cy="101.7" r="0.66" fill="#FFFFFF"/><circle cx="4.95" cy="101.7" r="0.66" fill="#FFFFFF"/><path d="M-3.3000000000000003 107.75 Q0 111.05 3.3000000000000003 107.75" stroke="#34495E" stroke-width="1.1" fill="none" stroke-linecap="round"/><circle cx="-6.6000000000000005" cy="105.55" r="2.2" fill="#FFB6B6" opacity="0.3"/><circle cx="6.6000000000000005" cy="105.55" r="2.2" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes wave_person_5 {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+  </style><g class="animated-person" transform="translate(620, 0)"><ellipse cx="0" cy="161.65" rx="9.9" ry="2.2" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-3.3000000000000003 140.2 L-4.4 157.8" stroke="#34495E" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M3.3000000000000003 140.2 L4.4 157.8" stroke="#34495E" stroke-width="5.5" stroke-linecap="round" fill="none"/><ellipse cx="-4.4" cy="160" rx="4.4" ry="2.2" fill="#34495E"/><ellipse cx="4.4" cy="160" rx="4.4" ry="2.2" fill="#34495E"/><path d="M-6.6000000000000005 123.15 Q-7.700000000000001 130.575 -5.5 140.2 L5.5 140.2 Q7.700000000000001 130.575 6.6000000000000005 123.15 Q0 120.95 -6.6000000000000005 123.15 Z" fill="#00B894"/><path d="M-6.6000000000000005 124.25 Q-9.9 130.85 -7.700000000000001 138" stroke="#00B894" stroke-width="3.8500000000000005" stroke-linecap="round" fill="none"/><circle cx="-7.700000000000001" cy="139.1" r="2.75" fill="#C68642"/><g style="animation: wave_person_5 0.6s ease-in-out 1s infinite; transform-origin: center;" transform-origin="6.6000000000000005px 124.25px"><path d="M6.6000000000000005 124.25 Q11 116 9.9 107.75" stroke="#00B894" stroke-width="3.8500000000000005" stroke-linecap="round" fill="none"/><circle cx="9.9" cy="106.65" r="2.75" fill="#C68642"/></g><g style="" transform-origin="0px 103.35px"><circle cx="0" cy="103.35" r="15.400000000000002" fill="#C68642"/><ellipse cx="0" cy="99.5" rx="16.17" ry="11.55" fill="#DEB887"/><circle cx="-4.4" cy="102.25" r="1.9250000000000003" fill="#34495E"/><circle cx="4.4" cy="102.25" r="1.9250000000000003" fill="#34495E"/><circle cx="-3.8500000000000005" cy="101.7" r="0.66" fill="#FFFFFF"/><circle cx="4.95" cy="101.7" r="0.66" fill="#FFFFFF"/><path d="M-3.3000000000000003 107.75 Q0 111.05 3.3000000000000003 107.75" stroke="#34495E" stroke-width="1.1" fill="none" stroke-linecap="round"/><circle cx="-6.6000000000000005" cy="105.55" r="2.2" fill="#FFB6B6" opacity="0.3"/><circle cx="6.6000000000000005" cy="105.55" r="2.2" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes nod_person_6 {
+      0%, 100% { transform: rotate(0deg); }
+      30% { transform: rotate(5deg); }
+      60% { transform: rotate(-3deg); }
+    }
+  </style><g class="animated-person" transform="translate(710, 0)"><ellipse cx="0" cy="161.65" rx="9.9" ry="2.2" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-3.3000000000000003 140.2 L-4.4 157.8" stroke="#34495E" stroke-width="5.5" stroke-linecap="round" fill="none"/><path d="M3.3000000000000003 140.2 L4.4 157.8" stroke="#34495E" stroke-width="5.5" stroke-linecap="round" fill="none"/><ellipse cx="-4.4" cy="160" rx="4.4" ry="2.2" fill="#34495E"/><ellipse cx="4.4" cy="160" rx="4.4" ry="2.2" fill="#34495E"/><path d="M-6.6000000000000005 123.15 Q-7.700000000000001 130.575 -5.5 140.2 L5.5 140.2 Q7.700000000000001 130.575 6.6000000000000005 123.15 Q0 120.95 -6.6000000000000005 123.15 Z" fill="#00B894"/><path d="M-6.6000000000000005 124.25 Q-9.9 130.85 -7.700000000000001 138" stroke="#00B894" stroke-width="3.8500000000000005" stroke-linecap="round" fill="none"/><circle cx="-7.700000000000001" cy="139.1" r="2.75" fill="#FFE4C9"/><path d="M6.6000000000000005 124.25 Q9.9 130.85 7.700000000000001 138" stroke="#00B894" stroke-width="3.8500000000000005" stroke-linecap="round" fill="none"/><circle cx="7.700000000000001" cy="139.1" r="2.75" fill="#FFE4C9"/><g style="animation: nod_person_6 2s ease-in-out 1.5s infinite; transform-origin: center;" transform-origin="0px 103.35px"><circle cx="0" cy="103.35" r="15.400000000000002" fill="#FFE4C9"/><circle cx="0" cy="101.03999999999999" r="16.940000000000005" fill="#DEB887"/><circle cx="-4.4" cy="102.25" r="1.9250000000000003" fill="#34495E"/><circle cx="4.4" cy="102.25" r="1.9250000000000003" fill="#34495E"/><circle cx="-3.8500000000000005" cy="101.7" r="0.66" fill="#FFFFFF"/><circle cx="4.95" cy="101.7" r="0.66" fill="#FFFFFF"/><path d="M-3.3000000000000003 107.75 Q0 111.05 3.3000000000000003 107.75" stroke="#34495E" stroke-width="1.1" fill="none" stroke-linecap="round"/><circle cx="-6.6000000000000005" cy="105.55" r="2.2" fill="#FFB6B6" opacity="0.3"/><circle cx="6.6000000000000005" cy="105.55" r="2.2" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    
+    <rect x="450" y="210" width="310" height="150" rx="16" fill="#FDF2F4"/>
+    
+    <style>
+    @keyframes growBar_chart_7 {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+  </style>
+    <g class="animated-chart">
+      <rect x="480" y="240" width="130" height="90" rx="6" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="2"/>
+      <rect x="486.5" y="276" width="13" height="54" rx="3" fill="#54A0FF" style="animation: growBar_chart_7 1s ease-out 0.5s both; transform-origin: bottom;"/><rect x="512.5" y="258" width="13" height="72" rx="3" fill="#00D2D3" style="animation: growBar_chart_7 1s ease-out 0.65s both; transform-origin: bottom;"/><rect x="538.5" y="285" width="13" height="45" rx="3" fill="#FF6B6B" style="animation: growBar_chart_7 1s ease-out 0.8s both; transform-origin: bottom;"/><rect x="564.5" y="249" width="13" height="81" rx="3" fill="#9B59B6" style="animation: growBar_chart_7 1s ease-out 0.95s both; transform-origin: bottom;"/><rect x="590.5" y="267" width="13" height="62.99999999999999" rx="3" fill="#26DE81" style="animation: growBar_chart_7 1s ease-out 1.1s both; transform-origin: bottom;"/>
+    </g>
+  
+    
+    <style>
+    @keyframes slideIn_notif_8 {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  
+    @keyframes scalePulse_notif_8 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  </style>
+    <g class="animated-notification" style="animation: slideIn_notif_8 0.5s ease-out 2s both;">
+      <rect x="630" y="280" width="118" height="32" rx="16" fill="#FF6B6B"/>
+      <circle cx="646" cy="296" r="8" fill="#FFFFFF" style="animation: scalePulse_notif_8 1s ease-in-out 2.5s infinite;"/>
+      <text x="662" y="301" fill="#FFFFFF" font-size="12" font-family="system-ui, sans-serif" font-weight="600">New update!</text>
+    </g>
+  
+    
+    
+    <style>
+    @keyframes float_float_9 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_9 3.0908237465569472s ease-in-out 0s infinite;">
+      <circle cx="40" cy="380" r="14" fill="#FF6B6B" opacity="0.6"/>
+    </g>
+  
+    
+    <style>
+    @keyframes float_float_10 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_10 3.3282959348433576s ease-in-out 0.5s infinite;">
+      <rect x="757.5" y="37.5" width="25" height="25" rx="3" fill="#00D2D3" opacity="0.6" transform="rotate(45 770 50)"/>
+    </g>
+  
+    
+    <style>
+    @keyframes float_float_11 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_11 4.339792343762239s ease-in-out 1s infinite;">
+      <polygon points="430,369 433.3,376.7 441,376.7 434.4,382.2 436.6,391 430,385.5 423.4,391 425.6,382.2 419,376.7 426.7,376.7" fill="#FECA57" opacity="0.7"/>
+    </g>
+  
+  
+  
+    <rect x="180" y="435" width="440" height="50" rx="25" fill="#FFFFFF" filter="url(#titleShadow)"/>
+    <text x="400" y="465" text-anchor="middle" fill="#34495E" font-size="15" font-family="system-ui, -apple-system, sans-serif" font-weight="600">Default - Animated</text>
+  
+</svg>

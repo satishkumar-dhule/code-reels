@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Animated SVG Gallery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 10px; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; max-width: 1400px; margin: 0 auto; }
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    .card img, .card object { width: 100%; height: auto; display: block; }
+    .card-info { padding: 12px 16px; border-top: 1px solid #eee; }
+    .card-title { font-size: 14px; font-weight: 600; }
+    .note { text-align: center; margin-top: 30px; padding: 20px; background: #e8f5e9; border-radius: 8px; max-width: 800px; margin-left: auto; margin-right: auto; }
+  </style>
+</head>
+<body>
+  <h1>🎬 Animated SVG Illustrations</h1>
+  <p class="subtitle">CSS animations embedded in SVG - Open in browser to see animations</p>
+  <div class="gallery">
+    
+    <div class="card">
+      <object type="image/svg+xml" data="animated-collaboration.svg"></object>
+      <div class="card-info">
+        <div class="card-title">collaboration</div>
+      </div>
+    </div>
+    <div class="card">
+      <object type="image/svg+xml" data="animated-remote.svg"></object>
+      <div class="card-info">
+        <div class="card-title">remote</div>
+      </div>
+    </div>
+    <div class="card">
+      <object type="image/svg+xml" data="animated-meeting.svg"></object>
+      <div class="card-info">
+        <div class="card-title">meeting</div>
+      </div>
+    </div>
+    <div class="card">
+      <object type="image/svg+xml" data="animated-coding.svg"></object>
+      <div class="card-info">
+        <div class="card-title">coding</div>
+      </div>
+    </div>
+    <div class="card">
+      <object type="image/svg+xml" data="animated-success.svg"></object>
+      <div class="card-info">
+        <div class="card-title">success</div>
+      </div>
+    </div>
+    <div class="card">
+      <object type="image/svg+xml" data="animated-brainstorm.svg"></object>
+      <div class="card-info">
+        <div class="card-title">brainstorm</div>
+      </div>
+    </div>
+    <div class="card">
+      <object type="image/svg+xml" data="animated-default.svg"></object>
+      <div class="card-info">
+        <div class="card-title">default</div>
+      </div>
+    </div>
+  </div>
+  <div class="note">
+    <strong>💡 Tip:</strong> These SVGs contain CSS animations. Open the gallery.html file in a browser to see the animations in action!
+    <br><br>
+    <strong>🎥 GIF Conversion:</strong> Use tools like <code>svg-to-gif</code>, <code>puppeteer</code>, or online converters to create GIFs for LinkedIn.
+  </div>
+</body>
+</html>

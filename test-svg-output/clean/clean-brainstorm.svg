@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBF8F4"/>
+      <stop offset="100%" stop-color="#F0F4F8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  
+    <!-- Brainstorm room -->
+    <rect x="40" y="35" width="420" height="300" rx="16" fill="#E6F4E8"/>
+    
+    <g>
+      <rect x="70" y="55" width="180" height="110" rx="4" fill="#FFFFFF" stroke="#DFE6E9" stroke-width="2"/>
+      <rect x="85" y="75" width="90" height="5" rx="2" fill="#5B8DEF" opacity="0.7"/>
+      <rect x="85" y="90" width="125.99999999999999" height="5" rx="2" fill="#FF7675" opacity="0.6"/>
+      <rect x="85" y="105" width="72" height="5" rx="2" fill="#00CEC9" opacity="0.6"/>
+      <rect x="200" y="135" width="30" height="22" rx="2" fill="#FDCB6E" opacity="0.8"/>
+    </g>
+    <g transform="translate(180,0)"><ellipse cx="0" cy="300" rx="10.2" ry="2.55" fill="rgba(0,0,0,0.08)"/><line x1="-3.4" y1="272.8" x2="-5.1" y2="297.45" stroke="#2D3436" stroke-width="5.1" stroke-linecap="round"/><line x1="3.4" y1="272.8" x2="5.1" y2="297.45" stroke="#2D3436" stroke-width="5.1" stroke-linecap="round"/><ellipse cx="-5.1" cy="300" rx="5.1" ry="2.55" fill="#2D3436"/><ellipse cx="5.1" cy="300" rx="5.1" ry="2.55" fill="#2D3436"/><rect x="-8.5" y="249" width="17" height="23.8" rx="4.25" fill="#E17055"/><line x1="-8.5" y1="253.25" x2="-11.9" y2="269.57" stroke="#E17055" stroke-width="4.25" stroke-linecap="round"/><circle cx="-11.9" cy="272.12" r="3.4" fill="#8D5524"/><line x1="8.5" y1="253.25" x2="23.8" y2="246.45" stroke="#E17055" stroke-width="4.25" stroke-linecap="round"/><circle cx="25.5" cy="245.6" r="3.4" fill="#8D5524"/><circle cx="0" cy="233.7" r="11.9" fill="#8D5524"/><circle cx="0" cy="219.24999999999997" r="5.1" fill="#5D4037"/><path d="M-8.33 228.94 Q0 220.60999999999999 8.33 228.94" fill="#5D4037"/><circle cx="-4.25" cy="232" r="1.7" fill="#2D3436"/><circle cx="4.25" cy="232" r="1.7" fill="#2D3436"/><path d="M-3.4 237.95 Q0 241.35 3.4 237.95" stroke="#2D3436" stroke-width="1.275" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(320,0)"><ellipse cx="0" cy="300" rx="9.600000000000001" ry="2.4000000000000004" fill="rgba(0,0,0,0.08)"/><line x1="-3.2" y1="274.4" x2="-4.800000000000001" y2="297.6" stroke="#2D3436" stroke-width="4.800000000000001" stroke-linecap="round"/><line x1="3.2" y1="274.4" x2="4.800000000000001" y2="297.6" stroke="#2D3436" stroke-width="4.800000000000001" stroke-linecap="round"/><ellipse cx="-4.800000000000001" cy="300" rx="4.800000000000001" ry="2.4000000000000004" fill="#2D3436"/><ellipse cx="4.800000000000001" cy="300" rx="4.800000000000001" ry="2.4000000000000004" fill="#2D3436"/><rect x="-8" y="251.99999999999997" width="16" height="22.400000000000002" rx="4" fill="#5B8DEF"/><line x1="-8" y1="255.99999999999997" x2="-11.200000000000001" y2="275.2" stroke="#5B8DEF" stroke-width="4" stroke-linecap="round"/><circle cx="-11.200000000000001" cy="277.59999999999997" r="3.2" fill="#FFDCB5"/><line x1="8" y1="255.99999999999997" x2="11.200000000000001" y2="275.2" stroke="#5B8DEF" stroke-width="4" stroke-linecap="round"/><circle cx="11.200000000000001" cy="277.59999999999997" r="3.2" fill="#FFDCB5"/><circle cx="0" cy="237.6" r="11.200000000000001" fill="#FFDCB5"/><path d="M-9.520000000000001 236 Q-5.6000000000000005 225.28 0 226.4 Q5.6000000000000005 225.28 9.520000000000001 236" fill="#DEB887"/><circle cx="-4" cy="236" r="1.6" fill="#2D3436"/><circle cx="4" cy="236" r="1.6" fill="#2D3436"/><path d="M-3.2 241.6 Q0 244.79999999999998 3.2 241.6" stroke="#2D3436" stroke-width="1.2000000000000002" fill="none" stroke-linecap="round"/></g>
+    
+    <g>
+      <path d="M400 220 L415 220 L412.75 238.75 L402.25 238.75 Z" fill="#FF7675"/>
+      <ellipse cx="407.5" cy="211" rx="10.5" ry="13.5" fill="#00B894"/>
+      <ellipse cx="403" cy="214" rx="6" ry="9" fill="#00A884" transform="rotate(-15 403 214)"/>
+      <ellipse cx="412" cy="215.5" rx="5.25" ry="7.5" fill="#00D4A4" transform="rotate(15 412 215.5)"/>
+    </g>
+    
+    <!-- Idea bubbles -->
+    <circle cx="300" cy="75" r="25" fill="#FDCB6E" opacity="0.7"/>
+    <text x="300" y="82" text-anchor="middle" font-size="20">💡</text>
+    <circle cx="360" cy="100" r="18" fill="#FF7675" opacity="0.6"/>
+    <text x="360" y="106" text-anchor="middle" font-size="14">🚀</text>
+    <circle cx="400" cy="65" r="14" fill="#00CEC9" opacity="0.6"/>
+    <text x="400" y="70" text-anchor="middle" font-size="11">✨</text>
+    
+    <!-- Sticky notes panel -->
+    <rect x="480" y="35" width="280" height="300" rx="12" fill="#F0F4F8"/>
+    <rect x="500" y="60" width="70" height="55" rx="3" fill="#FDCB6E" opacity="0.85" transform="rotate(-2 535 87)"/>
+    <rect x="590" y="55" width="70" height="55" rx="3" fill="#FF7675" opacity="0.8" transform="rotate(3 625 82)"/>
+    <rect x="680" y="60" width="70" height="55" rx="3" fill="#5B8DEF" opacity="0.8" transform="rotate(-1 715 87)"/>
+    <rect x="510" y="135" width="70" height="55" rx="3" fill="#00CEC9" opacity="0.8" transform="rotate(2 545 162)"/>
+    <rect x="600" y="130" width="70" height="55" rx="3" fill="#A29BFE" opacity="0.8" transform="rotate(-3 635 157)"/>
+    <rect x="690" y="135" width="70" height="55" rx="3" fill="#00B894" opacity="0.8" transform="rotate(1 725 162)"/>
+    <rect x="520" y="210" width="70" height="55" rx="3" fill="#FF7675" opacity="0.75" transform="rotate(-2 555 237)"/>
+    <rect x="610" y="205" width="70" height="55" rx="3" fill="#FDCB6E" opacity="0.75" transform="rotate(2 645 232)"/>
+    <rect x="700" y="210" width="70" height="55" rx="3" fill="#5B8DEF" opacity="0.75" transform="rotate(-1 735 237)"/>
+    
+    <rect x="19" y="339" width="22" height="22" rx="2" fill="#FF7675" opacity="0.6" transform="rotate(45 30 350)"/>
+    <circle cx="770" cy="350" r="12" fill="#FDCB6E" opacity="0.6"/>
+  
+  <rect x="200" y="440" width="400" height="45" rx="22" fill="#FFFFFF" stroke="#DFE6E9" stroke-width="1.5"/>
+  <text x="400" y="468" text-anchor="middle" fill="#2D3436" font-size="14" font-family="system-ui, -apple-system, sans-serif" font-weight="600">Brainstorm - Clean Design</text>
+</svg>

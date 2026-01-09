@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="mainBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBF8F4"/>
+      <stop offset="50%" stop-color="#F5F3F0"/>
+      <stop offset="100%" stop-color="#FBF8F4"/>
+    </linearGradient>
+    <filter id="titleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  
+  <rect width="800" height="500" fill="url(#mainBg)"/>
+  
+    <rect x="50" y="40" width="420" height="320" rx="20" fill="#F0F4F8"/>
+    
+    <g class="desk">
+      <rect x="100" y="250" width="280" height="8" rx="4" fill="#E8D5C4"/>
+      <rect x="100" y="250" width="280" height="3" rx="2" fill="#DEC9B8" opacity="0.5"/>
+      <rect x="115" y="258" width="8" height="45" rx="2" fill="#C4B5A5"/>
+      <rect x="357" y="258" width="8" height="45" rx="2" fill="#C4B5A5"/>
+    </g>
+  
+    <style>
+    @keyframes typing_person_1 {
+      0%, 100% { transform: translateY(0px); }
+      10% { transform: translateY(-2px); }
+      20% { transform: translateY(0px); }
+      30% { transform: translateY(-2px); }
+      40% { transform: translateY(0px); }
+      50% { transform: translateY(-2px); }
+      60% { transform: translateY(0px); }
+    }
+  </style><g class="animated-person" transform="translate(240, 0)"><ellipse cx="0" cy="352.7" rx="16.2" ry="3.6" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-7.2 317.6 Q-10.8 331.1 -19.8 333.8" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M7.2 317.6 Q10.8 331.1 19.8 333.8" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M-10.8 289.70000000000005 Q-12.6 301.85 -9 317.6 L9 317.6 Q12.6 301.85 10.8 289.70000000000005 Q0 286.1 -10.8 289.70000000000005 Z" fill="#E17055"/><g style="animation: typing_person_1 0.8s ease-in-out 0s infinite; transform-origin: center;"><path d="M-10.8 291.5 Q-14.4 298.7 -9 307.7" stroke="#E17055" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="-9" cy="309.5" r="4.5" fill="#C68642"/></g><g style="animation: typing_person_1 0.8s ease-in-out 0.1s infinite; transform-origin: center;"><path d="M10.8 291.5 Q14.4 298.7 9 307.7" stroke="#E17055" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="9" cy="309.5" r="4.5" fill="#C68642"/></g><g style="" transform-origin="0px 257.3px"><circle cx="0" cy="257.3" r="25.2" fill="#C68642"/><ellipse cx="0" cy="251" rx="26.46" ry="18.9" fill="#8D6E63"/><circle cx="-7.2" cy="255.5" r="3.15" fill="#34495E"/><circle cx="7.2" cy="255.5" r="3.15" fill="#34495E"/><circle cx="-6.3" cy="254.6" r="1.08" fill="#FFFFFF"/><circle cx="8.1" cy="254.6" r="1.08" fill="#FFFFFF"/><path d="M-5.4 264.5 Q0 269.90000000000003 5.4 264.5" stroke="#34495E" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="-10.8" cy="260.90000000000003" r="3.6" fill="#FFB6B6" opacity="0.3"/><circle cx="10.8" cy="260.90000000000003" r="3.6" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    
+    <style>
+    @keyframes typewriter_laptop_2 {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+  
+    @keyframes blink_laptop_2 {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
+    <g class="animated-laptop">
+      <rect x="140" y="220" width="65" height="42" rx="4" fill="#2D3436"/>
+      <rect x="143" y="223" width="59" height="36" rx="2" fill="#9B59B6"/>
+      
+        <g clip-path="url(#clip_laptop_2)">
+          <rect x="148" y="230" width="40" height="4" rx="2" fill="#FFFFFF" opacity="0.5" style="animation: typewriter_laptop_2 2s steps(20) 0s infinite;"/>
+          <rect x="148" y="238" width="35" height="4" rx="2" fill="#FFFFFF" opacity="0.4" style="animation: typewriter_laptop_2 2s steps(20) 0.3s infinite;"/>
+          <rect x="148" y="246" width="45" height="4" rx="2" fill="#FFFFFF" opacity="0.4" style="animation: typewriter_laptop_2 2s steps(20) 0.6s infinite;"/>
+        </g>
+        <rect x="190" y="230" width="2" height="12" fill="#FFFFFF" style="animation: blink_laptop_2 1s step-end infinite;"/>
+      
+      <path d="M136 262 L209 262 L205 267 L140 267 Z" fill="#5D6D7E"/>
+    </g>
+  
+    
+    <style>
+    @keyframes typewriter_laptop_3 {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+  
+    @keyframes blink_laptop_3 {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
+    <g class="animated-laptop">
+      <rect x="250" y="225" width="52" height="33.6" rx="4" fill="#2D3436"/>
+      <rect x="252.4" y="227.4" width="47.2" height="28.8" rx="2" fill="#00D2D3"/>
+      
+        <g clip-path="url(#clip_laptop_3)">
+          <rect x="256.4" y="233" width="32" height="4" rx="2" fill="#FFFFFF" opacity="0.5" style="animation: typewriter_laptop_3 2s steps(20) 0.5s infinite;"/>
+          <rect x="256.4" y="239.4" width="28" height="4" rx="2" fill="#FFFFFF" opacity="0.4" style="animation: typewriter_laptop_3 2s steps(20) 0.8s infinite;"/>
+          <rect x="256.4" y="245.8" width="36" height="4" rx="2" fill="#FFFFFF" opacity="0.4" style="animation: typewriter_laptop_3 2s steps(20) 1.1s infinite;"/>
+        </g>
+        <rect x="290" y="233" width="2" height="12" fill="#FFFFFF" style="animation: blink_laptop_3 1s step-end infinite;"/>
+      
+      <path d="M246.8 258.6 L305.2 258.6 L302 262.6 L250 262.6 Z" fill="#5D6D7E"/>
+    </g>
+  
+    
+    <style>
+    @keyframes bob_plant_4 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+  </style>
+    <g class="plant" style="animation: bob_plant_4 4s ease-in-out infinite; transform-origin: 411.25px 256.25px;">
+      <path d="M400 230 L422.5 230 L418.75 256.25 L403.75 256.25 Z" fill="#FF6B6B"/>
+      <ellipse cx="411.25" cy="215" rx="13.5" ry="18.75" fill="#26DE81"/>
+      <ellipse cx="403.75" cy="221" rx="9" ry="13.5" fill="#1ABC9C" transform="rotate(-15 403.75 221)"/>
+      <ellipse cx="418.75" cy="222.5" rx="7.5" ry="11.25" fill="#2ECC71" transform="rotate(15 418.75 222.5)"/>
+    </g>
+  
+    
+    <rect x="490" y="40" width="270" height="180" rx="16" fill="#2D3436"/>
+    
+        <style>
+    @keyframes typewriter_code_5 {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+  
+    @keyframes blink_code_5 {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
+        <rect x="510" y="65" width="100" height="8" rx="4" fill="#9B59B6" opacity="0.7" style="animation: typewriter_code_5 1.5s ease-out 0s both;"/>
+        <rect x="510" y="85" width="150" height="8" rx="4" fill="#00D2D3" opacity="0.6" style="animation: typewriter_code_5 1.5s ease-out 0.3s both;"/>
+        <rect x="510" y="105" width="80" height="8" rx="4" fill="#FF6B6B" opacity="0.6" style="animation: typewriter_code_5 1.5s ease-out 0.6s both;"/>
+        <rect x="530" y="125" width="120" height="8" rx="4" fill="#54A0FF" opacity="0.5" style="animation: typewriter_code_5 1.5s ease-out 0.9s both;"/>
+        <rect x="530" y="145" width="90" height="8" rx="4" fill="#FECA57" opacity="0.5" style="animation: typewriter_code_5 1.5s ease-out 1.2s both;"/>
+        <rect x="510" y="165" width="60" height="8" rx="4" fill="#9B59B6" opacity="0.6" style="animation: typewriter_code_5 1.5s ease-out 1.5s both;"/>
+        <rect x="510" y="185" width="140" height="8" rx="4" fill="#26DE81" opacity="0.5" style="animation: typewriter_code_5 1.5s ease-out 1.8s both;"/>
+        <rect x="655" y="65" width="3" height="12" fill="#FFFFFF" style="animation: blink_code_5 1s step-end infinite;"/>
+      
+    
+    <rect x="490" y="240" width="270" height="120" rx="16" fill="#FDF2F4"/>
+    <style>
+    @keyframes bob_person_6 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+  </style><g class="animated-person" transform="translate(550, 0)"><ellipse cx="0" cy="331.5" rx="9" ry="2" fill="rgba(0,0,0,0.08)"/><g style="animation: bob_person_6 3s ease-in-out 0.5s infinite; transform-origin: center;"><path d="M-3 312 L-4 328" stroke="#34495E" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M3 312 L4 328" stroke="#34495E" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="-4" cy="330" rx="4" ry="2" fill="#34495E"/><ellipse cx="4" cy="330" rx="4" ry="2" fill="#34495E"/><path d="M-6 296.5 Q-7 303.25 -5 312 L5 312 Q7 303.25 6 296.5 Q0 294.5 -6 296.5 Z" fill="#5D6D7E"/><path d="M-6 297.5 Q-9 303.5 -7 310" stroke="#5D6D7E" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="-7" cy="311" r="2.5" fill="#5C3D2E"/><path d="M6 297.5 Q9 303.5 7 310" stroke="#5D6D7E" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="7" cy="311" r="2.5" fill="#5C3D2E"/><g style="" transform-origin="0px 278.5px"><circle cx="0" cy="278.5" r="14" fill="#5C3D2E"/><path d="M-11.200000000000001 276.4 Q-5.6000000000000005 263.8 0 265.9 Q5.6000000000000005 263.8 11.200000000000001 276.4 Q7 272.2 0 270.8 Q-7 272.2 -11.200000000000001 276.4 Z" fill="#DEB887"/><circle cx="-4" cy="277.5" r="1.75" fill="#34495E"/><circle cx="4" cy="277.5" r="1.75" fill="#34495E"/><circle cx="-3.5" cy="277" r="0.6" fill="#FFFFFF"/><circle cx="4.5" cy="277" r="0.6" fill="#FFFFFF"/><path d="M-3 282.5 Q0 285.5 3 282.5" stroke="#34495E" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="-6" cy="280.5" r="2" fill="#FFB6B6" opacity="0.3"/><circle cx="6" cy="280.5" r="2" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes wave_person_7 {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+  </style><g class="animated-person" transform="translate(630, 0)"><ellipse cx="0" cy="331.5" rx="9" ry="2" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-3 312 L-4 328" stroke="#34495E" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M3 312 L4 328" stroke="#34495E" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="-4" cy="330" rx="4" ry="2" fill="#34495E"/><ellipse cx="4" cy="330" rx="4" ry="2" fill="#34495E"/><path d="M-6 296.5 Q-7 303.25 -5 312 L5 312 Q7 303.25 6 296.5 Q0 294.5 -6 296.5 Z" fill="#81B29A"/><path d="M-6 297.5 Q-9 303.5 -7 310" stroke="#81B29A" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="-7" cy="311" r="2.5" fill="#F5D0B5"/><g style="animation: wave_person_7 0.6s ease-in-out 1s infinite; transform-origin: center;" transform-origin="6px 297.5px"><path d="M6 297.5 Q10 290 9 282.5" stroke="#81B29A" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="9" cy="281.5" r="2.5" fill="#F5D0B5"/></g><g style="" transform-origin="0px 278.5px"><circle cx="0" cy="278.5" r="14" fill="#F5D0B5"/><ellipse cx="0" cy="275" rx="14.700000000000001" ry="10.5" fill="#DEB887"/><circle cx="-4" cy="277.5" r="1.75" fill="#34495E"/><circle cx="4" cy="277.5" r="1.75" fill="#34495E"/><circle cx="-3.5" cy="277" r="0.6" fill="#FFFFFF"/><circle cx="4.5" cy="277" r="0.6" fill="#FFFFFF"/><path d="M-3 282.5 Q0 285.5 3 282.5" stroke="#34495E" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="-6" cy="280.5" r="2" fill="#FFB6B6" opacity="0.3"/><circle cx="6" cy="280.5" r="2" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes nod_person_8 {
+      0%, 100% { transform: rotate(0deg); }
+      30% { transform: rotate(5deg); }
+      60% { transform: rotate(-3deg); }
+    }
+  </style><g class="animated-person" transform="translate(710, 0)"><ellipse cx="0" cy="331.5" rx="9" ry="2" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-3 312 L-4 328" stroke="#34495E" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M3 312 L4 328" stroke="#34495E" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="-4" cy="330" rx="4" ry="2" fill="#34495E"/><ellipse cx="4" cy="330" rx="4" ry="2" fill="#34495E"/><path d="M-6 296.5 Q-7 303.25 -5 312 L5 312 Q7 303.25 6 296.5 Q0 294.5 -6 296.5 Z" fill="#2C3E50"/><path d="M-6 297.5 Q-9 303.5 -7 310" stroke="#2C3E50" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="-7" cy="311" r="2.5" fill="#FFE4C9"/><path d="M6 297.5 Q9 303.5 7 310" stroke="#2C3E50" stroke-width="3.5" stroke-linecap="round" fill="none"/><circle cx="7" cy="311" r="2.5" fill="#FFE4C9"/><g style="animation: nod_person_8 2s ease-in-out 1.5s infinite; transform-origin: center;" transform-origin="0px 278.5px"><circle cx="0" cy="278.5" r="14" fill="#FFE4C9"/><circle cx="0" cy="276.4" r="15.400000000000002" fill="#5D4037"/><circle cx="-4" cy="277.5" r="1.75" fill="#34495E"/><circle cx="4" cy="277.5" r="1.75" fill="#34495E"/><circle cx="-3.5" cy="277" r="0.6" fill="#FFFFFF"/><circle cx="4.5" cy="277" r="0.6" fill="#FFFFFF"/><path d="M-3 282.5 Q0 285.5 3 282.5" stroke="#34495E" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="-6" cy="280.5" r="2" fill="#FFB6B6" opacity="0.3"/><circle cx="6" cy="280.5" r="2" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    
+    <style>
+    @keyframes slideIn_notif_9 {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  
+    @keyframes scalePulse_notif_9 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  </style>
+    <g class="animated-notification" style="animation: slideIn_notif_9 0.5s ease-out 2s both;">
+      <rect x="510" y="250" width="134" height="32" rx="16" fill="#26DE81"/>
+      <circle cx="526" cy="266" r="8" fill="#FFFFFF" style="animation: scalePulse_notif_9 1s ease-in-out 2.5s infinite;"/>
+      <text x="542" y="271" fill="#FFFFFF" font-size="12" font-family="system-ui, sans-serif" font-weight="600">PR Approved ✓</text>
+    </g>
+  
+    
+    
+    <style>
+    @keyframes float_float_10 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_10 3.7791988520581326s ease-in-out 0s infinite;">
+      <circle cx="40" cy="380" r="14" fill="#9B59B6" opacity="0.6"/>
+    </g>
+  
+    
+    <style>
+    @keyframes float_float_11 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_11 4.519867532650673s ease-in-out 0.5s infinite;">
+      <rect x="759" y="369" width="22" height="22" rx="3" fill="#00D2D3" opacity="0.6" transform="rotate(45 770 380)"/>
+    </g>
+  
+  
+  
+    <rect x="180" y="435" width="440" height="50" rx="25" fill="#FFFFFF" filter="url(#titleShadow)"/>
+    <text x="400" y="465" text-anchor="middle" fill="#34495E" font-size="15" font-family="system-ui, -apple-system, sans-serif" font-weight="600">Coding - Animated</text>
+  
+</svg>

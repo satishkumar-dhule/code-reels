@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="mainBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBF8F4"/>
+      <stop offset="50%" stop-color="#F5F3F0"/>
+      <stop offset="100%" stop-color="#FBF8F4"/>
+    </linearGradient>
+    <filter id="titleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+  
+  <rect width="800" height="500" fill="url(#mainBg)"/>
+  
+    <rect x="50" y="40" width="700" height="320" rx="24" fill="#FDF2F4"/>
+    
+    <style>
+    @keyframes confetti_confetti_1 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-13.956257169573291px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_2 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(54.532118285618594px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_3 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(60.90399610986378px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_4 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(17.709114499897737px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_5 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(35.47225766144237px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_6 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(50.89664413912135px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_7 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(69.15742955388959px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_8 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(24.206795848195384px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_9 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(7.189269272151478px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_10 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(84.8511503764048px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_11 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(75.58533454147602px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_12 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(11.838203872340046px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_13 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(44.07581750399635px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_14 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(54.86033914857671px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_15 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(90.38366600708599px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_16 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-80.40261704670678px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_17 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-30.885164727455845px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_18 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(13.056993298611474px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_19 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(81.55072612687121px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_20 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(75.69222162818716px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_21 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-49.64589997619083px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_22 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(35.385073105903984px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_23 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(46.82177164834167px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_24 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(82.09913620344264px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_25 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-64.63728656060789px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_26 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(61.23642987459306px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_27 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(81.08085252970028px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_28 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(16.77021709676933px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_29 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-94.3208794644047px, 300px) rotate(720deg); opacity: 0; }
+    }
+  
+    @keyframes confetti_confetti_30 {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(18.299865120873108px, 300px) rotate(720deg); opacity: 0; }
+    }
+  </style><g class="confetti"><rect x="403.5606340662741" y="50" width="13.91475878088981" height="8.348855268533885" rx="1" fill="#FF6B6B" style="animation: confetti_confetti_1 2.352464023999406s ease-out 0.996825594798735s infinite;"/><circle cx="414.6485236173983" cy="50" r="5.527871015521903" fill="#FF9F43" style="animation: confetti_confetti_2 3.6657504683475666s ease-out 0.3733810622141909s infinite;"/><rect x="395.0250345504327" y="50" width="10.04112935028656" height="6.024677610171936" rx="1" fill="#9B59B6" style="animation: confetti_confetti_3 3.5824004989995477s ease-out 1.5792064571467344s infinite;"/><rect x="389.8976477410554" y="50" width="13.081061430534247" height="7.848636858320548" rx="1" fill="#FECA57" style="animation: confetti_confetti_4 3.970459783205862s ease-out 1.9442556566680342s infinite;"/><circle cx="397.86032453162596" cy="50" r="3.06042472319424" fill="#FF9F43" style="animation: confetti_confetti_5 3.647885936042123s ease-out 0.7605701121704742s infinite;"/><rect x="371.8623031356472" y="50" width="8.13024110709319" height="4.878144664255913" rx="1" fill="#26DE81" style="animation: confetti_confetti_6 2.5915753131214525s ease-out 0.11752360702995635s infinite;"/><rect x="438.83694739695926" y="50" width="10.559732116771652" height="6.3358392700629915" rx="1" fill="#FECA57" style="animation: confetti_confetti_7 3.111966500916371s ease-out 0.6459030111669457s infinite;"/><circle cx="420.23548539388776" cy="50" r="5.056366292134207" fill="#54A0FF" style="animation: confetti_confetti_8 3.716242504729945s ease-out 1.242425342331051s infinite;"/><rect x="353.0656291924342" y="50" width="8.967246830830408" height="5.380348098498245" rx="1" fill="#FF6B6B" style="animation: confetti_confetti_9 2.633763542027762s ease-out 1.3651921697564764s infinite;"/><rect x="378.25886261007133" y="50" width="7.592479311838899" height="4.555487587103339" rx="1" fill="#00D2D3" style="animation: confetti_confetti_10 3.5119783721135573s ease-out 0.5928731228996429s infinite;"/><rect x="437.9323909523736" y="50" width="13.705092397351976" height="8.223055438411185" rx="1" fill="#FF6B6B" style="animation: confetti_confetti_11 2.9998258751054108s ease-out 1.5152371262488562s infinite;"/><rect x="392.853685604754" y="50" width="13.988541711847613" height="8.393125027108567" rx="1" fill="#9B59B6" style="animation: confetti_confetti_12 2.154228417306551s ease-out 0.8695528973008981s infinite;"/><rect x="421.6259649532966" y="50" width="7.985778036490075" height="4.791466821894045" rx="1" fill="#26DE81" style="animation: confetti_confetti_13 3.621198707446046s ease-out 0.00969047213958385s infinite;"/><circle cx="351.10366863705804" cy="50" r="3.9259171479622426" fill="#FF6B6B" style="animation: confetti_confetti_14 2.8312897087477937s ease-out 1.3221057811803862s infinite;"/><rect x="379.5076391741081" y="50" width="12.088321189993728" height="7.252992713996236" rx="1" fill="#FF6B6B" style="animation: confetti_confetti_15 2.7305757947794773s ease-out 1.3454636085257157s infinite;"/><circle cx="396.7582533943524" cy="50" r="3.1223518428340933" fill="#00D2D3" style="animation: confetti_confetti_16 2.4643121744428194s ease-out 0.4883893334095015s infinite;"/><rect x="390.2607582483597" y="50" width="6.739962729787248" height="4.043977637872349" rx="1" fill="#FF6B6B" style="animation: confetti_confetti_17 3.095021769845256s ease-out 1.3961385898185927s infinite;"/><circle cx="413.99496656926175" cy="50" r="3.3483057714730613" fill="#9B59B6" style="animation: confetti_confetti_18 3.11602914050005s ease-out 0.6026024561348531s infinite;"/><circle cx="441.3100267262203" cy="50" r="4.2560626689418" fill="#FF9F43" style="animation: confetti_confetti_19 2.0314208016584114s ease-out 0.6097615217026751s infinite;"/><circle cx="361.145627767427" cy="50" r="3.3589114743712134" fill="#FF9F43" style="animation: confetti_confetti_20 3.6940579804343185s ease-out 1.5809438004561875s infinite;"/><rect x="397.72220331639295" y="50" width="13.571298390965216" height="8.14277903457913" rx="1" fill="#26DE81" style="animation: confetti_confetti_21 2.1565989331238793s ease-out 0.8791762425898444s infinite;"/><circle cx="412.0617054471591" cy="50" r="6.558612258016557" fill="#00D2D3" style="animation: confetti_confetti_22 3.2301595344811327s ease-out 1.9813438513410464s infinite;"/><rect x="408.1545512407243" y="50" width="11.106727169433553" height="6.664036301660132" rx="1" fill="#26DE81" style="animation: confetti_confetti_23 3.195684389171693s ease-out 1.3208687105917072s infinite;"/><rect x="367.9481406967932" y="50" width="12.625917497609779" height="7.575550498565867" rx="1" fill="#FF9F43" style="animation: confetti_confetti_24 3.262303834395408s ease-out 1.184207066898908s infinite;"/><rect x="394.35018564621305" y="50" width="12.191752057173872" height="7.315051234304323" rx="1" fill="#26DE81" style="animation: confetti_confetti_25 3.871596317335793s ease-out 1.7879495044614924s infinite;"/><rect x="372.3284262653434" y="50" width="10.10382314064391" height="6.062293884386345" rx="1" fill="#FD79A8" style="animation: confetti_confetti_26 2.412546335351087s ease-out 0.6610369766350335s infinite;"/><rect x="353.1032519348002" y="50" width="9.717829312214727" height="5.830697587328836" rx="1" fill="#26DE81" style="animation: confetti_confetti_27 2.8593862763698614s ease-out 1.574915963285179s infinite;"/><circle cx="440.8351552452234" cy="50" r="3.4040266189097768" fill="#54A0FF" style="animation: confetti_confetti_28 2.7478116575340716s ease-out 1.3322120115946197s infinite;"/><circle cx="446.13934515835126" cy="50" r="3.4645609499578924" fill="#FD79A8" style="animation: confetti_confetti_29 2.4815692213981633s ease-out 0.5250493494892492s infinite;"/><circle cx="391.25557333492105" cy="50" r="4.326589424334752" fill="#FF9F43" style="animation: confetti_confetti_30 2.37642773360454s ease-out 0.509416875898618s infinite;"/></g>
+    <style>
+    @keyframes sparkle_sparkle_31 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes sparkle_sparkle_32 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes sparkle_sparkle_33 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes sparkle_sparkle_34 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes sparkle_sparkle_35 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes sparkle_sparkle_36 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes sparkle_sparkle_37 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  
+    @keyframes sparkle_sparkle_38 {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  </style><g class="sparkles"><circle cx="429.33853542867485" cy="156.32748948447562" r="7.995322563628363" fill="#FECA57" style="animation: sparkle_sparkle_31 1.2060321901957927s ease-in-out 1.700229146670131s infinite;"/><circle cx="375.94831672949715" cy="170.4552124421655" r="8.261129963894055" fill="#FECA57" style="animation: sparkle_sparkle_32 1.0601574398679636s ease-in-out 1.1622481255793602s infinite;"/><circle cx="394.2742775809107" cy="171.25143311054384" r="4.652506817829055" fill="#FECA57" style="animation: sparkle_sparkle_33 1.9250031712570403s ease-in-out 1.9337478196186306s infinite;"/><circle cx="391.0293788540404" cy="153.8310323610948" r="4.241891454068291" fill="#FECA57" style="animation: sparkle_sparkle_34 1.1329535134382511s ease-in-out 1.5026477224749395s infinite;"/><circle cx="412.56692416287973" cy="150.29462878142482" r="8.711534732528484" fill="#FECA57" style="animation: sparkle_sparkle_35 1.8457279020119808s ease-in-out 1.5760947484306023s infinite;"/><circle cx="395.54636352967873" cy="126.83188434725147" r="5.208057112026911" fill="#FECA57" style="animation: sparkle_sparkle_36 1.90963870714452s ease-in-out 0.6443885535347311s infinite;"/><circle cx="383.2167495066654" cy="126.64462423577525" r="8.536216900807771" fill="#FECA57" style="animation: sparkle_sparkle_37 1.3060576315076984s ease-in-out 1.8813593806777762s infinite;"/><circle cx="374.4080257866108" cy="173.85095875703993" r="5.068169966203106" fill="#FECA57" style="animation: sparkle_sparkle_38 1.8607258463758265s ease-in-out 0.5726071606461272s infinite;"/></g>
+    
+    <style>
+    @keyframes wave_person_39 {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+  </style><g class="animated-person" transform="translate(150, 0)"><ellipse cx="0" cy="322.7" rx="16.2" ry="3.6" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-5.4 287.59999999999997 L-7.2 316.4" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M5.4 287.59999999999997 L7.2 316.4" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="-7.2" cy="320" rx="7.2" ry="3.6" fill="#34495E"/><ellipse cx="7.2" cy="320" rx="7.2" ry="3.6" fill="#34495E"/><path d="M-10.8 259.7 Q-12.6 271.84999999999997 -9 287.59999999999997 L9 287.59999999999997 Q12.6 271.84999999999997 10.8 259.7 Q0 256.09999999999997 -10.8 259.7 Z" fill="#00B894"/><path d="M-10.8 261.49999999999994 Q-16.2 272.29999999999995 -12.6 283.99999999999994" stroke="#00B894" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="-12.6" cy="285.79999999999995" r="4.5" fill="#FFE4C9"/><g style="animation: wave_person_39 0.6s ease-in-out 0s infinite; transform-origin: center;" transform-origin="10.8px 261.49999999999994px"><path d="M10.8 261.49999999999994 Q18 247.99999999999994 16.2 234.49999999999994" stroke="#00B894" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="16.2" cy="232.69999999999993" r="4.5" fill="#FFE4C9"/></g><g style="" transform-origin="0px 227.29999999999998px"><circle cx="0" cy="227.29999999999998" r="25.2" fill="#FFE4C9"/><ellipse cx="0" cy="220.99999999999997" rx="26.46" ry="18.9" fill="#A1543F"/><circle cx="-7.2" cy="225.49999999999997" r="3.15" fill="#34495E"/><circle cx="7.2" cy="225.49999999999997" r="3.15" fill="#34495E"/><circle cx="-6.3" cy="224.59999999999997" r="1.08" fill="#FFFFFF"/><circle cx="8.1" cy="224.59999999999997" r="1.08" fill="#FFFFFF"/><path d="M-5.4 234.49999999999997 Q0 239.89999999999998 5.4 234.49999999999997" stroke="#34495E" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="-10.8" cy="230.89999999999998" r="3.6" fill="#FFB6B6" opacity="0.3"/><circle cx="10.8" cy="230.89999999999998" r="3.6" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes wave_person_40 {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+  </style><g class="animated-person" transform="translate(280, 0)"><ellipse cx="0" cy="322.55" rx="15.299999999999999" ry="3.4" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-5.1 289.4 L-6.8 316.6" stroke="#34495E" stroke-width="8.5" stroke-linecap="round" fill="none"/><path d="M5.1 289.4 L6.8 316.6" stroke="#34495E" stroke-width="8.5" stroke-linecap="round" fill="none"/><ellipse cx="-6.8" cy="320" rx="6.8" ry="3.4" fill="#34495E"/><ellipse cx="6.8" cy="320" rx="6.8" ry="3.4" fill="#34495E"/><path d="M-10.2 263.04999999999995 Q-11.9 274.525 -8.5 289.4 L8.5 289.4 Q11.9 274.525 10.2 263.04999999999995 Q0 259.65 -10.2 263.04999999999995 Z" fill="#00B894"/><path d="M-10.2 264.75 Q-15.299999999999999 274.95 -11.9 286" stroke="#00B894" stroke-width="5.95" stroke-linecap="round" fill="none"/><circle cx="-11.9" cy="287.7" r="4.25" fill="#5C3D2E"/><g style="animation: wave_person_40 0.6s ease-in-out 0.2s infinite; transform-origin: center;" transform-origin="10.2px 264.75px"><path d="M10.2 264.75 Q17 252 15.299999999999999 239.25" stroke="#00B894" stroke-width="5.95" stroke-linecap="round" fill="none"/><circle cx="15.299999999999999" cy="237.55" r="4.25" fill="#5C3D2E"/></g><g style="" transform-origin="0px 232.45000000000002px"><circle cx="0" cy="232.45000000000002" r="23.8" fill="#5C3D2E"/><path d="M-19.040000000000003 228.88000000000002 Q-9.520000000000001 207.46 0 211.03000000000003 Q9.520000000000001 207.46 19.040000000000003 228.88000000000002 Q11.9 221.74 0 219.36 Q-11.9 221.74 -19.040000000000003 228.88000000000002 Z" fill="#2D3436"/><circle cx="-6.8" cy="230.75000000000003" r="2.975" fill="#34495E"/><circle cx="6.8" cy="230.75000000000003" r="2.975" fill="#34495E"/><circle cx="-5.95" cy="229.90000000000003" r="1.02" fill="#FFFFFF"/><circle cx="7.6499999999999995" cy="229.90000000000003" r="1.02" fill="#FFFFFF"/><path d="M-5.1 239.25000000000003 Q0 244.35000000000002 5.1 239.25000000000003" stroke="#34495E" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="-10.2" cy="235.85000000000002" r="3.4" fill="#FFB6B6" opacity="0.3"/><circle cx="10.2" cy="235.85000000000002" r="3.4" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes wave_person_41 {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+  </style><g class="animated-person" transform="translate(400, 0)"><ellipse cx="0" cy="322.7" rx="16.2" ry="3.6" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-5.4 287.59999999999997 L-7.2 316.4" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M5.4 287.59999999999997 L7.2 316.4" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="-7.2" cy="320" rx="7.2" ry="3.6" fill="#34495E"/><ellipse cx="7.2" cy="320" rx="7.2" ry="3.6" fill="#34495E"/><path d="M-10.8 259.7 Q-12.6 271.84999999999997 -9 287.59999999999997 L9 287.59999999999997 Q12.6 271.84999999999997 10.8 259.7 Q0 256.09999999999997 -10.8 259.7 Z" fill="#00B894"/><path d="M-10.8 261.49999999999994 Q-16.2 272.29999999999995 -12.6 283.99999999999994" stroke="#00B894" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="-12.6" cy="285.79999999999995" r="4.5" fill="#FFE4C9"/><g style="animation: wave_person_41 0.6s ease-in-out 0.4s infinite; transform-origin: center;" transform-origin="10.8px 261.49999999999994px"><path d="M10.8 261.49999999999994 Q18 247.99999999999994 16.2 234.49999999999994" stroke="#00B894" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="16.2" cy="232.69999999999993" r="4.5" fill="#FFE4C9"/></g><g style="" transform-origin="0px 227.29999999999998px"><circle cx="0" cy="227.29999999999998" r="25.2" fill="#FFE4C9"/><circle cx="0" cy="223.51999999999998" r="27.720000000000002" fill="#DEB887"/><circle cx="-7.2" cy="225.49999999999997" r="3.15" fill="#34495E"/><circle cx="7.2" cy="225.49999999999997" r="3.15" fill="#34495E"/><circle cx="-6.3" cy="224.59999999999997" r="1.08" fill="#FFFFFF"/><circle cx="8.1" cy="224.59999999999997" r="1.08" fill="#FFFFFF"/><path d="M-5.4 234.49999999999997 Q0 239.89999999999998 5.4 234.49999999999997" stroke="#34495E" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="-10.8" cy="230.89999999999998" r="3.6" fill="#FFB6B6" opacity="0.3"/><circle cx="10.8" cy="230.89999999999998" r="3.6" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes wave_person_42 {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+  </style><g class="animated-person" transform="translate(520, 0)"><ellipse cx="0" cy="322.55" rx="15.299999999999999" ry="3.4" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-5.1 289.4 L-6.8 316.6" stroke="#34495E" stroke-width="8.5" stroke-linecap="round" fill="none"/><path d="M5.1 289.4 L6.8 316.6" stroke="#34495E" stroke-width="8.5" stroke-linecap="round" fill="none"/><ellipse cx="-6.8" cy="320" rx="6.8" ry="3.4" fill="#34495E"/><ellipse cx="6.8" cy="320" rx="6.8" ry="3.4" fill="#34495E"/><path d="M-10.2 263.04999999999995 Q-11.9 274.525 -8.5 289.4 L8.5 289.4 Q11.9 274.525 10.2 263.04999999999995 Q0 259.65 -10.2 263.04999999999995 Z" fill="#81B29A"/><path d="M-10.2 264.75 Q-15.299999999999999 274.95 -11.9 286" stroke="#81B29A" stroke-width="5.95" stroke-linecap="round" fill="none"/><circle cx="-11.9" cy="287.7" r="4.25" fill="#8D5524"/><g style="animation: wave_person_42 0.6s ease-in-out 0.6s infinite; transform-origin: center;" transform-origin="10.2px 264.75px"><path d="M10.2 264.75 Q17 252 15.299999999999999 239.25" stroke="#81B29A" stroke-width="5.95" stroke-linecap="round" fill="none"/><circle cx="15.299999999999999" cy="237.55" r="4.25" fill="#8D5524"/></g><g style="" transform-origin="0px 232.45000000000002px"><circle cx="0" cy="232.45000000000002" r="23.8" fill="#8D5524"/><path d="M-19.040000000000003 228.88000000000002 Q-9.520000000000001 207.46 0 211.03000000000003 Q9.520000000000001 207.46 19.040000000000003 228.88000000000002 Q11.9 221.74 0 219.36 Q-11.9 221.74 -19.040000000000003 228.88000000000002 Z" fill="#2D3436"/><circle cx="-6.8" cy="230.75000000000003" r="2.975" fill="#34495E"/><circle cx="6.8" cy="230.75000000000003" r="2.975" fill="#34495E"/><circle cx="-5.95" cy="229.90000000000003" r="1.02" fill="#FFFFFF"/><circle cx="7.6499999999999995" cy="229.90000000000003" r="1.02" fill="#FFFFFF"/><path d="M-5.1 239.25000000000003 Q0 244.35000000000002 5.1 239.25000000000003" stroke="#34495E" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="-10.2" cy="235.85000000000002" r="3.4" fill="#FFB6B6" opacity="0.3"/><circle cx="10.2" cy="235.85000000000002" r="3.4" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    <style>
+    @keyframes wave_person_43 {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+  </style><g class="animated-person" transform="translate(650, 0)"><ellipse cx="0" cy="322.7" rx="16.2" ry="3.6" fill="rgba(0,0,0,0.08)"/><g style=""><path d="M-5.4 287.59999999999997 L-7.2 316.4" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M5.4 287.59999999999997 L7.2 316.4" stroke="#34495E" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="-7.2" cy="320" rx="7.2" ry="3.6" fill="#34495E"/><ellipse cx="7.2" cy="320" rx="7.2" ry="3.6" fill="#34495E"/><path d="M-10.8 259.7 Q-12.6 271.84999999999997 -9 287.59999999999997 L9 287.59999999999997 Q12.6 271.84999999999997 10.8 259.7 Q0 256.09999999999997 -10.8 259.7 Z" fill="#E17055"/><path d="M-10.8 261.49999999999994 Q-16.2 272.29999999999995 -12.6 283.99999999999994" stroke="#E17055" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="-12.6" cy="285.79999999999995" r="4.5" fill="#8D5524"/><g style="animation: wave_person_43 0.6s ease-in-out 0.8s infinite; transform-origin: center;" transform-origin="10.8px 261.49999999999994px"><path d="M10.8 261.49999999999994 Q18 247.99999999999994 16.2 234.49999999999994" stroke="#E17055" stroke-width="6.3" stroke-linecap="round" fill="none"/><circle cx="16.2" cy="232.69999999999993" r="4.5" fill="#8D5524"/></g><g style="" transform-origin="0px 227.29999999999998px"><circle cx="0" cy="227.29999999999998" r="25.2" fill="#8D5524"/><path d="M-20.16 223.51999999999998 Q-10.08 200.83999999999997 0 204.61999999999998 Q10.08 200.83999999999997 20.16 223.51999999999998 Q12.6 215.95999999999998 0 213.43999999999997 Q-12.6 215.95999999999998 -20.16 223.51999999999998 Z" fill="#DEB887"/><circle cx="-7.2" cy="225.49999999999997" r="3.15" fill="#34495E"/><circle cx="7.2" cy="225.49999999999997" r="3.15" fill="#34495E"/><circle cx="-6.3" cy="224.59999999999997" r="1.08" fill="#FFFFFF"/><circle cx="8.1" cy="224.59999999999997" r="1.08" fill="#FFFFFF"/><path d="M-5.4 234.49999999999997 Q0 239.89999999999998 5.4 234.49999999999997" stroke="#34495E" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="-10.8" cy="230.89999999999998" r="3.6" fill="#FFB6B6" opacity="0.3"/><circle cx="10.8" cy="230.89999999999998" r="3.6" fill="#FFB6B6" opacity="0.3"/></g></g></g>
+    
+    
+        <style>
+    @keyframes bounce_trophy_44 {
+      0%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-15px); }
+      60% { transform: translateY(-7px); }
+    }
+  
+    @keyframes scalePulse_trophy_44 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  </style>
+        <g style="animation: bounce_trophy_44 2s ease-in-out infinite;">
+          <circle cx="400" cy="160" r="50" fill="#FECA57" opacity="0.3"/>
+          <circle cx="400" cy="160" r="35" fill="#FECA57" opacity="0.5" style="animation: scalePulse_trophy_44 1.5s ease-in-out infinite;"/>
+          <text x="400" y="175" text-anchor="middle" font-size="45">🏆</text>
+        </g>
+      
+    
+    
+    <style>
+    @keyframes slideIn_notif_45 {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  
+    @keyframes scalePulse_notif_45 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  </style>
+    <g class="animated-notification" style="animation: slideIn_notif_45 0.5s ease-out 1s both;">
+      <rect x="300" y="250" width="166" height="32" rx="16" fill="#26DE81"/>
+      <circle cx="316" cy="266" r="8" fill="#FFFFFF" style="animation: scalePulse_notif_45 1s ease-in-out 1.5s infinite;"/>
+      <text x="332" y="271" fill="#FFFFFF" font-size="12" font-family="system-ui, sans-serif" font-weight="600">🎉 Goal Achieved!</text>
+    </g>
+  
+    
+    
+    <style>
+    @keyframes float_float_46 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_46 3.408914910390044s ease-in-out 0s infinite;">
+      <polygon points="80,67.5 83.75,76.25 92.5,76.25 85,82.5 87.5,92.5 80,86.25 72.5,92.5 75,82.5 67.5,76.25 76.25,76.25" fill="#FF6B6B" opacity="0.7"/>
+    </g>
+  
+    
+    <style>
+    @keyframes float_float_47 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_47 4.646551599568229s ease-in-out 0.3s infinite;">
+      <rect x="190" y="50" width="20" height="20" rx="3" fill="#FECA57" opacity="0.6" transform="rotate(45 200 60)"/>
+    </g>
+  
+    
+    <style>
+    @keyframes float_float_48 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_48 3.606905383563561s ease-in-out 0.6s infinite;">
+      <circle cx="600" cy="70" r="11" fill="#00D2D3" opacity="0.6"/>
+    </g>
+  
+    
+    <style>
+    @keyframes float_float_49 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+    <g style="animation: float_float_49 4.319270126406621s ease-in-out 0.9s infinite;">
+      <polygon points="720,81 722.7,87.3 729,87.3 723.6,91.8 725.4,99 720,94.5 714.6,99 716.4,91.8 711,87.3 717.3,87.3" fill="#9B59B6" opacity="0.7"/>
+    </g>
+  
+  
+  
+    <rect x="180" y="435" width="440" height="50" rx="25" fill="#FFFFFF" filter="url(#titleShadow)"/>
+    <text x="400" y="465" text-anchor="middle" fill="#34495E" font-size="15" font-family="system-ui, -apple-system, sans-serif" font-weight="600">Success - Animated</text>
+  
+</svg>

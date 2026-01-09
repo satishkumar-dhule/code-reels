@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBF8F4"/>
+      <stop offset="100%" stop-color="#F0F4F8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  
+    <!-- Presentation area -->
+    <rect x="40" y="35" width="440" height="300" rx="16" fill="#FFE8D6"/>
+    
+    <g>
+      <rect x="70" y="55" width="200" height="130" rx="4" fill="#FFFFFF" stroke="#DFE6E9" stroke-width="2"/>
+      <rect x="85" y="75" width="100" height="5" rx="2" fill="#5B8DEF" opacity="0.7"/>
+      <rect x="85" y="90" width="140" height="5" rx="2" fill="#FF7675" opacity="0.6"/>
+      <rect x="85" y="105" width="80" height="5" rx="2" fill="#00CEC9" opacity="0.6"/>
+      <rect x="220" y="155" width="30" height="22" rx="2" fill="#FDCB6E" opacity="0.8"/>
+    </g>
+    <g transform="translate(190,0)"><ellipse cx="0" cy="300" rx="11.399999999999999" ry="2.8499999999999996" fill="rgba(0,0,0,0.08)"/><line x1="-3.8" y1="269.6" x2="-5.699999999999999" y2="297.15" stroke="#2D3436" stroke-width="5.699999999999999" stroke-linecap="round"/><line x1="3.8" y1="269.6" x2="5.699999999999999" y2="297.15" stroke="#2D3436" stroke-width="5.699999999999999" stroke-linecap="round"/><ellipse cx="-5.699999999999999" cy="300" rx="5.699999999999999" ry="2.8499999999999996" fill="#2D3436"/><ellipse cx="5.699999999999999" cy="300" rx="5.699999999999999" ry="2.8499999999999996" fill="#2D3436"/><rect x="-9.5" y="243.00000000000003" width="19" height="26.599999999999998" rx="4.75" fill="#00B894"/><line x1="-9.5" y1="247.75000000000003" x2="-13.299999999999999" y2="265.99" stroke="#00B894" stroke-width="4.75" stroke-linecap="round"/><circle cx="-13.299999999999999" cy="268.84000000000003" r="3.8" fill="#C68642"/><line x1="9.5" y1="247.75000000000003" x2="26.599999999999998" y2="240.15000000000003" stroke="#00B894" stroke-width="4.75" stroke-linecap="round"/><circle cx="28.5" cy="239.20000000000002" r="3.8" fill="#C68642"/><circle cx="0" cy="225.9" r="13.299999999999999" fill="#C68642"/><ellipse cx="0" cy="221.91" rx="13.965" ry="9.309999999999999" fill="#8D6E63"/><circle cx="-4.75" cy="224" r="1.9" fill="#2D3436"/><circle cx="4.75" cy="224" r="1.9" fill="#2D3436"/><path d="M-3.8 230.65 Q0 234.45000000000002 3.8 230.65" stroke="#2D3436" stroke-width="1.4249999999999998" fill="none" stroke-linecap="round"/></g>
+    
+    <g>
+      <path d="M400 220 L417 220 L414.45 241.25 L402.55 241.25 Z" fill="#FF7675"/>
+      <ellipse cx="408.5" cy="209.8" rx="11.9" ry="15.299999999999999" fill="#00B894"/>
+      <ellipse cx="403.4" cy="213.2" rx="6.8" ry="10.2" fill="#00A884" transform="rotate(-15 403.4 213.2)"/>
+      <ellipse cx="413.6" cy="214.9" rx="5.95" ry="8.5" fill="#00D4A4" transform="rotate(15 413.6 214.9)"/>
+    </g>
+    
+    <!-- Audience -->
+    <rect x="500" y="35" width="260" height="145" rx="12" fill="#E8F4F8"/>
+    <g transform="translate(560,0)"><ellipse cx="0" cy="155" rx="6" ry="1.5" fill="rgba(0,0,0,0.08)"/><path d="M-2.5 139 Q-4 146.5 -9 148" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M2.5 139 Q4 146.5 9 148" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="-10" cy="149" rx="2.5" ry="1.5" fill="#2D3436"/><ellipse cx="10" cy="149" rx="2.5" ry="1.5" fill="#2D3436"/><rect x="-5" y="125" width="10" height="14" rx="2.5" fill="#00CEC9"/><path d="M-5 127.5 Q-7 132.5 -4 136.5" stroke="#00CEC9" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="-4" cy="137.5" r="2" fill="#E8C4A0"/><path d="M5 127.5 Q7 132.5 4 136.5" stroke="#00CEC9" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="4" cy="137.5" r="2" fill="#E8C4A0"/><circle cx="0" cy="116" r="7" fill="#E8C4A0"/><path d="M-5.95 115 Q-3.5 108.3 0 109 Q3.5 108.3 5.95 115" fill="#DEB887"/><circle cx="-2.5" cy="115" r="1" fill="#2D3436"/><circle cx="2.5" cy="115" r="1" fill="#2D3436"/><path d="M-2 118.5 Q0 120.5 2 118.5" stroke="#2D3436" stroke-width="0.75" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(660,0)"><ellipse cx="0" cy="155" rx="6" ry="1.5" fill="rgba(0,0,0,0.08)"/><path d="M-2.5 139 Q-4 146.5 -9 148" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M2.5 139 Q4 146.5 9 148" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="-10" cy="149" rx="2.5" ry="1.5" fill="#2D3436"/><ellipse cx="10" cy="149" rx="2.5" ry="1.5" fill="#2D3436"/><rect x="-5" y="125" width="10" height="14" rx="2.5" fill="#FDCB6E"/><path d="M-5 127.5 Q-7 132.5 -4 136.5" stroke="#FDCB6E" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="-4" cy="137.5" r="2" fill="#8D5524"/><path d="M5 127.5 Q7 132.5 4 136.5" stroke="#FDCB6E" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="4" cy="137.5" r="2" fill="#8D5524"/><circle cx="0" cy="116" r="7" fill="#8D5524"/><path d="M-5.95 115 Q-3.5 108.3 0 109 Q3.5 108.3 5.95 115" fill="#2D3436"/><circle cx="-2.5" cy="115" r="1" fill="#2D3436"/><circle cx="2.5" cy="115" r="1" fill="#2D3436"/><path d="M-2 118.5 Q0 120.5 2 118.5" stroke="#2D3436" stroke-width="0.75" fill="none" stroke-linecap="round"/></g>
+    
+    <g>
+      <rect x="580" y="45" width="80" height="30" rx="15" fill="#FFFFFF" stroke="#DFE6E9" stroke-width="1.5"/>
+      <polygon points="587,75 595,87 603,75" fill="#FFFFFF" stroke="#DFE6E9" stroke-width="1.5"/>
+      <rect x="580" y="70" width="80" height="8" fill="#FFFFFF"/>
+      <text x="620" y="64" text-anchor="middle" fill="#2D3436" font-size="11" font-family="system-ui, sans-serif">👏 Nice!</text>
+    </g>
+    
+    <rect x="500" y="195" width="260" height="140" rx="12" fill="#E6F4E8"/>
+    <g transform="translate(560,0)"><ellipse cx="0" cy="310" rx="6" ry="1.5" fill="rgba(0,0,0,0.08)"/><path d="M-2.5 294 Q-4 301.5 -9 303" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M2.5 294 Q4 301.5 9 303" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="-10" cy="304" rx="2.5" ry="1.5" fill="#2D3436"/><ellipse cx="10" cy="304" rx="2.5" ry="1.5" fill="#2D3436"/><rect x="-5" y="280" width="10" height="14" rx="2.5" fill="#A29BFE"/><path d="M-5 282.5 Q-7 287.5 -4 291.5" stroke="#A29BFE" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="-4" cy="292.5" r="2" fill="#E8C4A0"/><path d="M5 282.5 Q7 287.5 4 291.5" stroke="#A29BFE" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="4" cy="292.5" r="2" fill="#E8C4A0"/><circle cx="0" cy="271" r="7" fill="#E8C4A0"/><circle cx="0" cy="262.5" r="3" fill="#DEB887"/><path d="M-4.8999999999999995 268.2 Q0 263.3 4.8999999999999995 268.2" fill="#DEB887"/><circle cx="-2.5" cy="270" r="1" fill="#2D3436"/><circle cx="2.5" cy="270" r="1" fill="#2D3436"/><path d="M-2 273.5 Q0 275.5 2 273.5" stroke="#2D3436" stroke-width="0.75" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(660,0)"><ellipse cx="0" cy="310" rx="6" ry="1.5" fill="rgba(0,0,0,0.08)"/><path d="M-2.5 294 Q-4 301.5 -9 303" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M2.5 294 Q4 301.5 9 303" stroke="#2D3436" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="-10" cy="304" rx="2.5" ry="1.5" fill="#2D3436"/><ellipse cx="10" cy="304" rx="2.5" ry="1.5" fill="#2D3436"/><rect x="-5" y="280" width="10" height="14" rx="2.5" fill="#E17055"/><path d="M-5 282.5 Q-7 287.5 -4 291.5" stroke="#E17055" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="-4" cy="292.5" r="2" fill="#C68642"/><path d="M5 282.5 Q7 287.5 4 291.5" stroke="#E17055" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="4" cy="292.5" r="2" fill="#C68642"/><circle cx="0" cy="271" r="7" fill="#C68642"/><ellipse cx="0" cy="268.9" rx="7.3500000000000005" ry="4.8999999999999995" fill="#DEB887"/><circle cx="-2.5" cy="270" r="1" fill="#2D3436"/><circle cx="2.5" cy="270" r="1" fill="#2D3436"/><path d="M-2 273.5 Q0 275.5 2 273.5" stroke="#2D3436" stroke-width="0.75" fill="none" stroke-linecap="round"/></g>
+    
+    <rect x="19" y="339" width="22" height="22" rx="2" fill="#00CEC9" opacity="0.6" transform="rotate(45 30 350)"/>
+    <circle cx="770" cy="45" r="12" fill="#FF7675" opacity="0.6"/>
+  
+  <rect x="200" y="440" width="400" height="45" rx="22" fill="#FFFFFF" stroke="#DFE6E9" stroke-width="1.5"/>
+  <text x="400" y="468" text-anchor="middle" fill="#2D3436" font-size="14" font-family="system-ui, -apple-system, sans-serif" font-weight="600">Meeting - Clean Design</text>
+</svg>

@@ -483,9 +483,11 @@ export function getAvailableScenes() {
 
 export { detectSceneType as detectScene };
 
-// Import cartoon generator for alternative style
+// Import alternative style generators
 import cartoonGenerator from './cartoon-illustration-generator.js';
 import modernGenerator from './modern-illustration-generator.js';
+import animatedGenerator from './animated-illustration-generator.js';
+import pixelGenerator from './pixel-illustration-generator.js';
 
 // Re-export cartoon functions
 export const generateCartoonIllustration = cartoonGenerator.generateCartoonIllustration;
@@ -498,6 +500,18 @@ export const generateModernIllustration = modernGenerator.generateModernIllustra
 export const generateModernSceneSVG = modernGenerator.generateModernSceneSVG;
 export const getAvailableModernScenes = modernGenerator.getAvailableModernScenes;
 export const detectModernScene = modernGenerator.detectModernScene;
+
+// Re-export animated functions (for LinkedIn/social media)
+export const generateAnimatedIllustration = animatedGenerator.generateAnimatedIllustration;
+export const generateAnimatedSceneSVG = animatedGenerator.generateAnimatedSceneSVG;
+export const getAvailableAnimatedScenes = animatedGenerator.getAvailableAnimatedScenes;
+export const detectAnimatedScene = animatedGenerator.detectAnimatedScene;
+
+// Re-export pixel art functions (16-bit NES style - recommended for social)
+export const generatePixelIllustration = pixelGenerator.generatePixelIllustration;
+export const generatePixelSceneSVG = pixelGenerator.generatePixelSceneSVG;
+export const getAvailablePixelScenes = pixelGenerator.getAvailablePixelScenes;
+export const detectPixelScene = pixelGenerator.detectPixelScene;
 
 export default { 
   generateIllustration, 
@@ -515,4 +529,14 @@ export default {
   generateModernSceneSVG: modernGenerator.generateModernSceneSVG,
   getAvailableModernScenes: modernGenerator.getAvailableModernScenes,
   detectModernScene: modernGenerator.detectModernScene,
+  // Animated style exports (for LinkedIn/social)
+  generateAnimatedIllustration: animatedGenerator.generateAnimatedIllustration,
+  generateAnimatedSceneSVG: animatedGenerator.generateAnimatedSceneSVG,
+  getAvailableAnimatedScenes: animatedGenerator.getAvailableAnimatedScenes,
+  detectAnimatedScene: animatedGenerator.detectAnimatedScene,
+  // Pixel art style exports (16-bit NES style - recommended for social)
+  generatePixelIllustration: pixelGenerator.generatePixelIllustration,
+  generatePixelSceneSVG: pixelGenerator.generatePixelSceneSVG,
+  getAvailablePixelScenes: pixelGenerator.getAvailablePixelScenes,
+  detectPixelScene: pixelGenerator.detectPixelScene,
 };
