@@ -129,16 +129,33 @@ Return ONLY valid JSON:
   "tags": ["tag1", "tag2"]
 }
 
-Requirements:
+CRITICAL REQUIREMENTS:
 - Exactly 4 options with exactly 1 correct answer
 - Question should test practical knowledge
-- Explanation should be educational`;
+- Explanation should be educational
+- ALL OPTIONS MUST BE SIMILAR IN LENGTH (within 20% of each other)
+- The correct answer should NOT be noticeably longer or more detailed than incorrect options
+- Make incorrect options equally detailed and plausible
+- NEVER use "All of the above", "None of the above", or "Both A and B" style options`;
 
   const response = await runWithRetries(prompt);
   const result = parseJson(response);
   
   if (!result || !result.question) {
     return { success: false, error: 'Failed to generate test question' };
+  }
+  
+  // Validate option length balance
+  if (result.options && result.options.length >= 4) {
+    const lengths = result.options.map(o => o.text?.length || 0);
+    const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length;
+    const correctOpt = result.options.find(o => o.isCorrect);
+    const correctLength = correctOpt?.text?.length || 0;
+    
+    // Warn if correct answer is significantly longer
+    if (correctLength > avgLength * 1.3) {
+      console.log(`   ⚠️ Warning: Correct answer is ${Math.round((correctLength / avgLength - 1) * 100)}% longer than average`);
+    }
   }
   
   return {

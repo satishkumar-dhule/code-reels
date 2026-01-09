@@ -50,6 +50,7 @@ const ISSUE_ACTIONS = {
   'potential_duplicate': { action: 'differentiate', priority: 3 },
   'missing_voice_keywords': { action: 'add_voice_keywords', priority: 3 },
   'low_channel_relevance': { action: 'add_channel_terms', priority: 3 },
+  'option_length_bias': { action: 'rebalance_options', priority: 3 },
   
   // Low - Minor Fixes
   'missing_question_mark': { action: 'fix_formatting', priority: 4 },
@@ -318,6 +319,11 @@ async function executeNode(state) {
         case 'polish':
           updatedItem = await polishContent(updatedItem, context);
           actionsPerformed.push('polished');
+          break;
+          
+        case 'rebalance_options':
+          updatedItem = await rebalanceOptions(updatedItem, context);
+          actionsPerformed.push('options_rebalanced');
           break;
           
         default:
@@ -977,6 +983,86 @@ Return ONLY JSON:
     if (result.answer) item.answer = result.answer;
     if (result.explanation) item.explanation = result.explanation;
     item.lastUpdated = new Date().toISOString();
+  }
+  
+  return item;
+}
+
+/**
+ * Rebalance MCQ options to eliminate "longest answer is correct" bias
+ * This is critical for fair test questions - users shouldn't be able to guess
+ * the correct answer just by picking the longest/most detailed option.
+ */
+async function rebalanceOptions(item, context) {
+  // This function handles test questions with options
+  if (!item.options || !Array.isArray(item.options)) {
+    console.log('      ⚠️ No options found for rebalancing');
+    return item;
+  }
+  
+  const correctOptions = item.options.filter(o => o.isCorrect);
+  const incorrectOptions = item.options.filter(o => !o.isCorrect);
+  
+  if (correctOptions.length === 0 || incorrectOptions.length === 0) {
+    return item;
+  }
+  
+  // Calculate current lengths
+  const correctLength = correctOptions.reduce((sum, o) => sum + (o.text?.length || 0), 0) / correctOptions.length;
+  const incorrectAvgLength = incorrectOptions.reduce((sum, o) => sum + (o.text?.length || 0), 0) / incorrectOptions.length;
+  
+  const prompt = `You are fixing a multiple-choice question that has "option length bias" - the correct answer is noticeably longer than incorrect options, making it easy to guess.
+
+QUESTION: "${item.question}"
+
+CURRENT OPTIONS:
+${item.options.map(o => `- ${o.id}: "${o.text}" ${o.isCorrect ? '(CORRECT)' : '(incorrect)'} [${o.text?.length || 0} chars]`).join('\n')}
+
+PROBLEM: Correct answer is ${Math.round(correctLength)} chars, incorrect average is ${Math.round(incorrectAvgLength)} chars.
+
+FIX THIS by either:
+1. Making incorrect options more detailed/specific (preferred)
+2. Making the correct answer more concise
+3. Both approaches combined
+
+IMPORTANT RULES:
+- All options must remain factually accurate
+- Incorrect options should be plausible but clearly wrong
+- Options should be similar in length (within 20% of each other)
+- Keep the same correct answer(s)
+- NEVER use "All of the above", "None of the above", or "Both A and B" style options
+
+Return ONLY JSON:
+{
+  "options": [
+    { "id": "a", "text": "rewritten option text", "isCorrect": false },
+    { "id": "b", "text": "rewritten option text", "isCorrect": true },
+    { "id": "c", "text": "rewritten option text", "isCorrect": false },
+    { "id": "d", "text": "rewritten option text", "isCorrect": false }
+  ],
+  "explanation": "Brief note on what was changed"
+}`;
+
+  const response = await runWithRetries(prompt);
+  const result = parseJson(response);
+  
+  if (result?.options && Array.isArray(result.options)) {
+    // Validate the result
+    const newCorrect = result.options.filter(o => o.isCorrect);
+    const originalCorrectIds = correctOptions.map(o => o.id);
+    const newCorrectIds = newCorrect.map(o => o.id);
+    
+    // Ensure correct answers haven't changed
+    const sameCorrectAnswers = originalCorrectIds.length === newCorrectIds.length &&
+      originalCorrectIds.every(id => newCorrectIds.includes(id));
+    
+    if (sameCorrectAnswers && result.options.length === item.options.length) {
+      item.options = result.options;
+      item.lastUpdated = new Date().toISOString();
+      console.log(`      ✅ Options rebalanced: ${result.explanation || 'lengths normalized'}`);
+    } else {
+      console.log('      ⚠️ Rebalancing changed correct answers - skipping');
+    }
   }
   
   return item;

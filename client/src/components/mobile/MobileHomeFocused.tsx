@@ -60,6 +60,16 @@ const iconMap: Record<string, React.ReactNode> = {
   'gauge': <Gauge className="w-5 h-5 sm:w-6 sm:h-6" />
 };
 
+// Fisher-Yates shuffle to randomize option order (prevents "longest answer" bias)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export function MobileHomeFocused() {
   const [, setLocation] = useLocation();
   const { stats: channelStats } = useChannelStats();
@@ -121,36 +131,40 @@ export function MobileHomeFocused() {
 
         {/* Sidebar Column - Stats, Actions & Review */}
         <div className="lg:col-span-4 mt-3 lg:mt-0">
-          {/* Credits + Stats Combined Card */}
+          {/* Premium Stats Card - Matching Profile Design */}
           <div className="bg-card rounded-xl border border-border overflow-hidden mb-3">
-            {/* Credits Row */}
+            {/* Mini Profile Header - Premium gradient */}
             <button
               onClick={() => setLocation('/profile')}
-              className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-amber-500/10 to-yellow-500/10 hover:from-amber-500/15 hover:to-yellow-500/15 transition-colors border-b border-border/50"
+              className="w-full bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-3 hover:from-violet-500 hover:via-purple-500 hover:to-indigo-600 transition-all"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                  <Coins className="w-5 h-5 text-amber-500" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                    <Coins className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xl font-bold text-white">{formatCredits(balance)}</div>
+                    <div className="text-[10px] text-white/60">Credits</div>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <div className="text-lg font-bold text-amber-400">{formatCredits(balance)}</div>
-                  <div className="text-[10px] text-muted-foreground">Credits</div>
+                <div className="text-right text-[10px]">
+                  <div className="text-green-300">+{config.VOICE_ATTEMPT} voice</div>
+                  <div className="text-red-300/80">-{config.QUESTION_VIEW_COST}/q</div>
                 </div>
-              </div>
-              <div className="text-right text-[10px] text-muted-foreground">
-                <div className="text-green-400">+{config.VOICE_ATTEMPT} voice</div>
-                <div className="text-red-400">-{config.QUESTION_VIEW_COST}/q</div>
               </div>
             </button>
 
-            {/* Quick Stats Row */}
+            {/* Quick Stats Row - Enhanced */}
             {hasChannels && (
               <button 
                 onClick={() => setLocation('/stats')}
                 className="w-full p-3 flex items-center justify-around hover:bg-muted/30 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                    <Target className="w-4 h-4 text-violet-500" />
+                  </div>
                   <div className="text-left">
                     <div className="font-bold text-sm">{totalCompleted}</div>
                     <div className="text-[9px] text-muted-foreground">Done</div>
@@ -158,7 +172,9 @@ export function MobileHomeFocused() {
                 </div>
                 <div className="w-px h-8 bg-border" />
                 <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-orange-500" />
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                    <Flame className="w-4 h-4 text-amber-500" />
+                  </div>
                   <div className="text-left">
                     <div className="font-bold text-sm">{streak}</div>
                     <div className="text-[9px] text-muted-foreground">Streak</div>
@@ -166,7 +182,9 @@ export function MobileHomeFocused() {
                 </div>
                 <div className="w-px h-8 bg-border" />
                 <div className="flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-blue-500" />
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                    <Layers className="w-4 h-4 text-indigo-500" />
+                  </div>
                   <div className="text-left">
                     <div className="font-bold text-sm">{subscribedChannels.length}</div>
                     <div className="text-[9px] text-muted-foreground">Topics</div>
@@ -195,6 +213,83 @@ export function MobileHomeFocused() {
             <div className="grid grid-cols-2 gap-2 mb-3">
               <CodingChallengeCardCompact onStart={() => setLocation('/coding')} />
               <CertificationCardCompact onStart={() => setLocation('/certifications')} />
+            </div>
+          )}
+
+          {/* Quick Links Card */}
+          {hasChannels && (
+            <div className="bg-card rounded-xl border border-border overflow-hidden mb-3">
+              <div className="px-3 py-2 border-b border-border/50">
+                <span className="text-xs font-semibold text-muted-foreground">Quick Links</span>
+              </div>
+              <div className="p-2 grid grid-cols-2 gap-1.5">
+                <button
+                  onClick={() => setLocation('/badges')}
+                  className="flex items-center gap-2 p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                    <Award className="w-4 h-4 text-yellow-500" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-medium">Badges</div>
+                    <div className="text-[9px] text-muted-foreground">Achievements</div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setLocation('/bookmarks')}
+                  className="flex items-center gap-2 p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-medium">Bookmarks</div>
+                    <div className="text-[9px] text-muted-foreground">Saved items</div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setLocation('/tests')}
+                  className="flex items-center gap-2 p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                    <Target className="w-4 h-4 text-green-500" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-medium">Tests</div>
+                    <div className="text-[9px] text-muted-foreground">Quick quizzes</div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setLocation('/stats')}
+                  className="flex items-center gap-2 p-2.5 rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <Activity className="w-4 h-4 text-purple-500" />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-medium">Stats</div>
+                    <div className="text-[9px] text-muted-foreground">Your progress</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Pro Tips Card */}
+          {hasChannels && (
+            <div className="bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-indigo-500/10 rounded-xl border border-violet-500/20 p-3 mb-3">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-violet-300 mb-1">Pro Tip</div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Use Voice Interview mode to practice speaking your answers out loud. 
+                    It's the best way to prepare for real interviews!
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -248,7 +343,7 @@ function QuickQuizCard({
           const newSession = initializeQuizSession();
           setQuizSession(newSession);
           
-          // Generate progressive questions
+          // Generate progressive questions with shuffled options
           const progressiveQuestions: TestQuestion[] = [];
           let previousQuestion: TestQuestion | undefined;
           
@@ -256,7 +351,13 @@ function QuickQuizCard({
             const next = selectNextQuestion(relevantTests, newSession, previousQuestion);
             if (!next) break;
             
-            progressiveQuestions.push(next.question);
+            // Shuffle options to prevent "longest answer" bias from being exploitable
+            const questionWithShuffledOptions = {
+              ...next.question,
+              options: shuffleArray([...next.question.options])
+            };
+            
+            progressiveQuestions.push(questionWithShuffledOptions);
             previousQuestion = next.question;
             
             // Update session for next selection (simulate average performance)
@@ -287,7 +388,13 @@ function QuickQuizCard({
         const next = selectNextQuestion(tests, newSession, previousQuestion);
         if (!next) break;
         
-        progressiveQuestions.push(next.question);
+        // Shuffle options to prevent "longest answer" bias from being exploitable
+        const questionWithShuffledOptions = {
+          ...next.question,
+          options: shuffleArray([...next.question.options])
+        };
+        
+        progressiveQuestions.push(questionWithShuffledOptions);
         previousQuestion = next.question;
         
         // Update session for next selection
