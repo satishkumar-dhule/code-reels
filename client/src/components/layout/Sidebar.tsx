@@ -71,8 +71,9 @@ export function Sidebar({ isOpen, onToggle, onSearch }: SidebarProps) {
     { id: 'badges', icon: <Trophy className="w-5 h-5" />, label: 'Badges', path: '/badges' },
     { id: 'tests', icon: <Target className="w-5 h-5" />, label: 'Tests', path: '/tests' },
     { id: 'bots', icon: <Bot className="w-5 h-5" />, label: 'Bot Activity', path: '/bot-activity' },
+    { id: 'docs', icon: <BookOpen className="w-5 h-5" />, label: 'Docs', path: '/docs' },
     { id: 'new', icon: <Sparkles className="w-5 h-5" />, label: "What's New", path: '/whats-new' },
-    { id: 'about', icon: <BookOpen className="w-5 h-5" />, label: 'About', path: '/about' },
+    { id: 'about', icon: <FileText className="w-5 h-5" />, label: 'About', path: '/about' },
   ];
 
   const isActive = (path?: string) => path && location === path;
