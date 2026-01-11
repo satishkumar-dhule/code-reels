@@ -496,8 +496,8 @@ function Header({ channel, onBack, onSearch, currentIndex, totalQuestions, progr
           <ChevronLeft className="w-5 h-5" />
         </button>
         
-        <div className="shrink-0 min-w-0">
-          <h1 className="font-semibold text-sm sm:text-base truncate">{channel.name}</h1>
+        <div className="shrink-0 min-w-0 max-w-[200px] sm:max-w-none">
+          <h1 className="font-semibold text-sm sm:text-base leading-tight">{channel.name}</h1>
           {totalQuestions > 0 && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>{currentIndex + 1} of {totalQuestions}</span>

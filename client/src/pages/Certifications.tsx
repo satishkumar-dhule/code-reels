@@ -332,13 +332,13 @@ function FeaturedCertCard({
           </div>
         </div>
         
-        <h3 className="font-semibold mt-3 line-clamp-1">{certification.name}</h3>
+        <h3 className="font-semibold mt-3 leading-tight">{certification.name}</h3>
         <p className="text-xs text-muted-foreground">{certification.provider}</p>
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
           {certification.description}
         </p>
 
@@ -422,11 +422,11 @@ function CertificationCard({
         </div>
       </div>
 
-      <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors line-clamp-1">
+      <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors leading-tight">
         {certification.name}
       </h3>
       <p className="text-xs text-muted-foreground mb-2">{certification.provider}</p>
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+      <p className="text-sm text-muted-foreground line-clamp-3 mb-3">
         {certification.description}
       </p>
 

@@ -105,6 +105,41 @@ async function fetchQuestionHistory() {
       console.log('   No coding_challenges table found, skipping');
     }
 
+    // Get tests
+    console.log('📊 Fetching tests...');
+    try {
+      const testsResult = await client.execute(`
+        SELECT id, channel_name, created_at
+        FROM tests
+      `);
+      console.log(`   Found ${testsResult.rows.length} tests`);
+
+      for (const row of testsResult.rows) {
+        const testId = row.id;
+        const createdAt = row.created_at || new Date().toISOString();
+        
+        historyByQuestion.set(testId, [{
+          eventType: 'created',
+          eventSource: 'system',
+          sourceName: 'test-generator',
+          changesSummary: `Test created for ${row.channel_name} channel`,
+          changedFields: null,
+          reason: null,
+          metadata: null,
+          createdAt: createdAt,
+        }]);
+        
+        summaryByQuestion.set(testId, {
+          questionType: 'test',
+          totalEvents: 1,
+          latestEvent: { eventType: 'created', createdAt },
+          eventTypes: { created: 1 }
+        });
+      }
+    } catch (e) {
+      console.log('   No tests table found, skipping');
+    }
+
     // Now overlay actual history records from question_history table
     console.log('📊 Fetching history records...');
     try {

@@ -331,7 +331,8 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
           onMouseEnter={() => setHoveredItem(item.id)}
           onMouseLeave={() => setHoveredItem(null)}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 group",
+            "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 group overflow-hidden",
+            isCollapsed && "justify-center px-2",
             active 
               ? "bg-primary/15 text-primary" 
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -349,7 +350,7 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
           </div>
           
           {showLabel && !isCollapsed && (
-            <span className="text-sm font-medium flex-1 text-left">
+            <span className="text-sm font-medium flex-1 text-left truncate">
               {item.label}
             </span>
           )}
@@ -408,7 +409,7 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 bottom-0 bg-card/95 backdrop-blur-xl border-r border-border z-40 flex flex-col transition-all duration-200",
+      "fixed left-0 top-0 bottom-0 bg-card/95 backdrop-blur-xl border-r border-border z-40 flex flex-col transition-all duration-200 overflow-hidden",
       isCollapsed ? "w-16" : "w-64"
     )}>
       {/* Header with Logo and Collapse Toggle */}
@@ -453,26 +454,29 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
       )}
 
       {/* Search */}
-      <div className={cn("px-2 py-2", isCollapsed && "px-2")}>
+      <div className={cn("px-2 py-2", isCollapsed && "px-1")}>
         <button
           onClick={onSearchClick}
           className={cn(
-            "w-full flex items-center gap-2 px-3 py-2 bg-muted/50 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors",
+            "w-full flex items-center gap-2 px-3 py-2 bg-muted/50 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors overflow-hidden",
             isCollapsed && "justify-center px-2"
           )}
         >
           <Search className="w-4 h-4 shrink-0" />
           {!isCollapsed && (
             <>
-              <span className="text-sm flex-1 text-left">Search</span>
-              <kbd className="text-[10px] px-1.5 py-0.5 bg-background rounded border border-border font-mono">⌘K</kbd>
+              <span className="text-sm flex-1 text-left truncate">Search</span>
+              <kbd className="text-[10px] px-1.5 py-0.5 bg-background rounded border border-border font-mono shrink-0">⌘K</kbd>
             </>
           )}
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-1">
+      <nav className={cn(
+        "flex-1 overflow-y-auto overflow-x-hidden px-2 py-1",
+        isCollapsed && "px-1"
+      )}>
         {/* Home */}
         <NavItem item={{ id: 'home', label: 'Home', icon: Home, path: '/' }} />
         
@@ -490,21 +494,21 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
       </nav>
 
       {/* Credits Footer */}
-      <div className="p-2 border-t border-border">
+      <div className={cn("p-2 border-t border-border", isCollapsed && "p-1")}>
         <button
           onClick={() => setLocation('/profile')}
           className={cn(
-            "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/20 transition-colors",
-            isCollapsed && "justify-center px-2"
+            "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/20 transition-colors overflow-hidden",
+            isCollapsed && "justify-center px-1.5"
           )}
         >
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shrink-0">
             <Coins className="w-4 h-4 text-white" />
           </div>
           {!isCollapsed && (
-            <div className="flex-1 text-left">
+            <div className="flex-1 text-left min-w-0">
               <div className="text-[10px] text-muted-foreground">Credits</div>
-              <div className="text-sm font-bold text-amber-500">{formatCredits(balance)}</div>
+              <div className="text-sm font-bold text-amber-500 truncate">{formatCredits(balance)}</div>
             </div>
           )}
         </button>

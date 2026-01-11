@@ -117,7 +117,7 @@ export function CardHeader({
         )}
         <div className="flex-1 min-w-0">
           {typeof title === 'string' ? (
-            <h3 className="font-semibold text-base truncate">{title}</h3>
+            <h3 className="font-semibold text-base leading-tight">{title}</h3>
           ) : (
             title
           )}

@@ -26,6 +26,7 @@ import {
   ChevronRight, ChevronLeft, Lightbulb, BarChart3, Play,
   Pause, RotateCcw, Flag, BookOpen, Zap, Trophy, AlertCircle
 } from 'lucide-react';
+import { useUnifiedToast } from '../hooks/use-unified-toast';
 
 type ExamMode = 'practice' | 'timed' | 'review';
 type SessionState = 'setup' | 'active' | 'results';
@@ -63,6 +64,23 @@ export default function CertificationExam() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+
+  const { toast } = useUnifiedToast();
+
+  // Redirect to home when certification not found
+  useEffect(() => {
+    if (!certification && certificationId) {
+      toast({
+        title: "Certification not found",
+        description: "Redirecting to home page...",
+        variant: "warning",
+      });
+      const timer = setTimeout(() => {
+        setLocation('/');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [certification, certificationId, toast, setLocation]);
 
   // Timer effect
   useEffect(() => {
@@ -214,9 +232,7 @@ export default function CertificationExam() {
         <div className="text-center">
           <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
           <h2 className="text-xl font-semibold mb-2">Certification not found</h2>
-          <button onClick={() => setLocation('/certifications')} className="text-primary hover:underline">
-            Browse certifications
-          </button>
+          <p className="text-muted-foreground text-sm">Redirecting to home...</p>
         </div>
       </div>
     );

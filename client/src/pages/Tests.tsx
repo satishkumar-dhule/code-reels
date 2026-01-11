@@ -155,15 +155,15 @@ export default function Tests() {
 
                       {/* Test info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold truncate">{test.title}</h3>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h3 className="font-bold leading-tight">{test.title}</h3>
                           {isPassed && (
                             <span className="px-1.5 py-0.5 bg-green-500/20 text-green-500 text-[9px] uppercase rounded">
                               Passed
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
+                        <p className="text-xs text-muted-foreground line-clamp-2">
                           {test.description}
                         </p>
                         <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">

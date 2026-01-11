@@ -342,15 +342,28 @@ export default function CertificationPractice() {
     }
   }, [loading, certification, questions.length, error]);
 
+  // Redirect to home when certification not found
+  useEffect(() => {
+    if (!certification && certificationId) {
+      toast({
+        title: "Certification not found",
+        description: "Redirecting to home page...",
+        variant: "warning",
+      });
+      const timer = setTimeout(() => {
+        setLocation('/');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [certification, certificationId, toast, setLocation]);
+
   if (!certification) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Award className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
           <h2 className="text-xl font-semibold mb-2">Certification not found</h2>
-          <button onClick={() => setLocation('/certifications')} className="text-primary hover:underline">
-            Browse all certifications
-          </button>
+          <p className="text-muted-foreground text-sm">Redirecting to home...</p>
         </div>
       </div>
     );
@@ -640,8 +653,8 @@ export default function CertificationPractice() {
               </button>
               
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h1 className="font-semibold text-sm truncate">{certification.name}</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="font-semibold text-sm leading-tight">{certification.name}</h1>
                   <span className="text-[10px] text-muted-foreground shrink-0">{certification.provider}</span>
                 </div>
                 {/* Inline progress bar */}

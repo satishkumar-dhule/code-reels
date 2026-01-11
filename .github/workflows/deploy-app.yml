@@ -29,6 +29,7 @@ jobs:
       - name: Fetch data from Turso
         run: |
           node script/fetch-questions-for-build.js
+          node script/fetch-question-history.js
           node script/fetch-bot-monitor-data.js
         env:
           TURSO_DATABASE_URL_RO: ${{ secrets.TURSO_DATABASE_URL_RO }}
