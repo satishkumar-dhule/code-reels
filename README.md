@@ -5,20 +5,21 @@
 <h1 align="center">🎬 Code Reels</h1>
 
 <p align="center">
-  <strong>Interview prep that actually works</strong><br/>
-  Swipe-based learning • AI-powered content • Semantic search
+  <strong>Free technical interview prep that actually works</strong><br/>
+  1000+ questions • 30+ topics • AI-powered learning
 </p>
 
 <p align="center">
   <a href="https://open-interview.github.io/">🚀 Try it now</a> •
   <a href="#features">Features</a> •
-  <a href="#ai-pipeline">AI Pipeline</a> •
+  <a href="#practice-modes">Practice Modes</a> •
   <a href="#getting-started">Get Started</a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/github/stars/open-interview/open-interview?style=for-the-badge&logo=github&color=yellow" alt="Stars" />
   <img src="https://img.shields.io/badge/questions-1000+-blue?style=for-the-badge" alt="Questions" />
+  <img src="https://img.shields.io/badge/certifications-25+-green?style=for-the-badge" alt="Certifications" />
   <img src="https://img.shields.io/badge/AI_Powered-Vector_DB-purple?style=for-the-badge" alt="AI" />
 </p>
 
@@ -29,13 +30,55 @@
 | Feature | Description |
 |---------|-------------|
 | 📱 **Swipe Learning** | TikTok-style cards. One concept per swipe. |
-| 🎤 **Voice Practice** | AI interviewer with real-time feedback |
-| 🧠 **Spaced Repetition** | Science-backed review scheduling |
+| 🎤 **Voice Interview** | AI interviewer with real-time speech recognition |
+| 🧠 **Spaced Repetition** | Science-backed SRS review scheduling |
 | 🔍 **Semantic Search** | Vector DB powered similarity matching |
-| 💻 **Coding Challenges** | In-browser editor with Python & JS |
-| 🎯 **30+ Topics** | System Design → AI/ML → DevOps |
-| 🏆 **Gamification** | 50 levels, 40+ achievements, credits, streaks |
-| 📊 **Adaptive Learning** | Personalized paths based on performance |
+| 💻 **Coding Challenges** | In-browser editor with Python & JavaScript |
+| 📝 **Channel Tests** | 20-question quizzes with adaptive difficulty |
+| 🎓 **Certification Prep** | 25+ tracks (AWS, K8s, Terraform, Azure, GCP) |
+| 🏆 **Gamification** | 50 levels, 40+ achievements, XP, streaks |
+| 📊 **Adaptive Learning** | RAG-based personalized question selection |
+
+<p align="center">
+  <img src="docs/screenshots/reels-desktop.png" alt="Question Reels" width="45%" />
+  <img src="docs/screenshots/voice-interview-desktop.png" alt="Voice Interview" width="45%" />
+</p>
+
+---
+
+## 🎯 Practice Modes
+
+### Swipe Learning
+Browse questions like social media reels. Reveal answers with a tap. Track progress per channel.
+
+### Voice Interview
+Practice speaking your answers out loud. Real-time speech recognition tracks your words and auto-stops when you've covered the key points.
+
+### Training Mode
+Read & record answers with progressive reveal. Answers split into ~30 word segments for manageable practice.
+
+### Channel Tests
+20-question quizzes per topic with:
+- RAG-based progressive question selection
+- Adaptive difficulty based on performance
+- Pass status that expires when new content is added
+- Shareable badges on completion
+
+### Certification Practice
+Focused prep for 25+ industry certifications:
+
+| Provider | Certifications |
+|----------|---------------|
+| **AWS** | SAA, SAP, DVA, SysOps, Security, Database, ML, Networking |
+| **Kubernetes** | CKA, CKAD, CKS |
+| **HashiCorp** | Terraform Associate |
+| **Google Cloud** | ACE, PCA |
+| **Microsoft** | AZ-900, AZ-104, AZ-305 |
+| **CompTIA** | Security+, Linux+ |
+| **Cisco** | CCNA |
+
+### SRS Review Sessions
+Spaced repetition reviews with 4-button rating (Again, Hard, Good, Easy). Questions resurface at optimal intervals.
 
 ---
 
@@ -62,24 +105,18 @@ Fully automated content generation and quality control:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Vector Database Integration
+### Daily Automation
+- **00:00 UTC** — Question generation bot
+- **06:00 UTC** — Question improvement bot  
+- **12:00 UTC** — Deduplication bot
 
-Questions are indexed in **Qdrant** for semantic operations:
-
+### Vector Database (Qdrant)
 | Operation | Use Case |
 |-----------|----------|
-| `vector:sync` | Index all questions to Qdrant |
-| `vector:search` | Semantic search across content |
-| `vector:duplicates` | Find near-duplicate questions |
-| `vector:similar` | Pre-compute similar questions |
-| `vector:stats` | Collection statistics |
-
-### ML Decision Service
-
-Local ML models (via OpenCode) make decisions on:
-- **Duplicate detection** — Exact, near, and semantic duplicates
-- **Channel fit** — Does question belong in this topic?
-- **Quality scoring** — Content quality assessment
+| `vector:sync` | Index all questions |
+| `vector:search` | Semantic search |
+| `vector:duplicates` | Find near-duplicates |
+| `vector:similar` | Pre-compute related questions |
 
 ---
 
@@ -88,30 +125,29 @@ Local ML models (via OpenCode) make decisions on:
 ```
 ├── client/                 # React 19 + TypeScript + Tailwind
 │   ├── src/
-│   │   ├── pages/         # Route components
-│   │   ├── components/    # Reusable UI
-│   │   ├── hooks/         # Custom hooks (adaptive learning, SRS)
-│   │   └── lib/           # Utilities
-│   └── public/data/       # Static JSON (GitHub Pages)
+│   │   ├── pages/         # 20+ route components
+│   │   ├── components/    # Reusable UI (unified design system)
+│   │   ├── hooks/         # Custom hooks (SRS, adaptive, voice)
+│   │   ├── context/       # Achievement, credits, rewards, theme
+│   │   └── lib/           # Utilities, configs, data loaders
 │
 ├── script/                 # Build-time automation
-│   ├── ai/
-│   │   ├── graphs/        # LangGraph pipelines
-│   │   ├── services/      # Vector DB, ML decisions
-│   │   └── providers/     # Qdrant, embeddings
-│   └── bots/              # Creator, verifier, processor
+│   ├── bots/              # Creator, verifier, processor, test builder
+│   └── ai/                # LangGraph pipelines, vector services
 │
 └── server/                 # Express (dev only)
 ```
 
-### Key Technologies
+### Tech Stack
 
 | Layer | Tech |
 |-------|------|
-| Frontend | React 19, Vite, Tailwind, Framer Motion |
+| Frontend | React 19, Vite 7, Tailwind 4, Framer Motion |
+| UI | Radix primitives, shadcn/ui components |
 | Search | Pagefind (static), Qdrant (semantic) |
-| AI | LangGraph, TF-IDF embeddings, OpenCode |
+| AI | LangGraph, TF-IDF embeddings |
 | Database | Turso (SQLite edge), Qdrant Cloud |
+| Testing | Playwright E2E |
 | Deploy | GitHub Pages (static) |
 
 ---
@@ -148,28 +184,13 @@ QDRANT_API_KEY=...
 
 ## 📦 Scripts
 
-### Development
 | Command | Description |
 |---------|-------------|
 | `pnpm dev` | Start dev server (port 5001) |
 | `pnpm build:static` | Build for GitHub Pages |
 | `pnpm test` | Run Playwright E2E tests |
-
-### Vector DB
-| Command | Description |
-|---------|-------------|
-| `pnpm vector:init` | Initialize Qdrant collection |
-| `pnpm vector:sync` | Sync all questions to vector DB |
-| `pnpm vector:search "query"` | Semantic search |
-| `pnpm vector:similar` | Generate similar questions JSON |
-| `pnpm vector:test` | Run integration tests |
-
-### Content Generation
-| Command | Description |
-|---------|-------------|
-| `node script/generate-question.js` | Generate new questions |
-| `node script/generate-blog.js` | Generate blog posts |
-| `node script/bots/verifier-bot.js` | Verify content quality |
+| `pnpm vector:sync` | Sync questions to Qdrant |
+| `pnpm bot:all` | Run all content bots |
 
 ---
 
@@ -185,36 +206,14 @@ QDRANT_API_KEY=...
 
 ---
 
-## 🧪 Testing
-
-```bash
-# Run all tests
-pnpm test
-
-# Interactive mode
-pnpm test:ui
-
-# Specific test file
-pnpm test e2e/home.spec.ts
-```
-
-Tests cover:
-- Navigation & responsiveness
-- Question viewing & filtering
-- Voice interview flow
-- Credits & gamification
-- SRS review sessions
-
----
-
 ## 📊 Topics
 
 | Category | Topics |
 |----------|--------|
 | 🏗️ Engineering | System Design, Algorithms, Frontend, Backend, Database |
-| ☁️ Cloud | AWS, Kubernetes, Terraform, DevOps, SRE |
-| 🤖 AI/ML | Machine Learning, GenAI, LLMOps, NLP, Computer Vision |
-| 📱 Mobile | iOS, Android, React Native |
+| ☁️ Cloud | AWS, Kubernetes, Terraform, Docker, GCP, Azure |
+| 🔒 Security | Security, Networking, Linux |
+| 🤖 AI/ML | Machine Learning, Generative AI, Data Engineering |
 | 🧪 Testing | Unit, E2E, API, Performance |
 | 👥 Soft Skills | Behavioral, Engineering Management |
 
@@ -222,7 +221,7 @@ Tests cover:
 
 ## 🤝 Contributing
 
-PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
+PRs welcome! See [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 Areas of interest:
 - New questions & topics

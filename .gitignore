@@ -59,3 +59,4 @@ coverage/
 .cache/
 playwright-report/
 .kiro/
+playwright-report/index.html
