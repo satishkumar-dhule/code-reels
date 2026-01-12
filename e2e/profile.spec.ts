@@ -81,9 +81,16 @@ test.describe('Profile Settings', () => {
       }
     } else {
       await page.evaluate(() => window.scrollTo(0, 500));
-      const bookmarksLink = page.locator('main button, main a').filter({ hasText: /Bookmarks/i }).first();
+      // More specific selector - look for button with Bookmarks label and Saved questions sublabel
+      const bookmarksLink = page.locator('button').filter({ 
+        has: page.locator('text="Bookmarks"')
+      }).filter({
+        has: page.locator('text="Saved questions"')
+      }).first();
+      
       if (await bookmarksLink.isVisible({ timeout: 3000 })) {
         await bookmarksLink.click({ force: true });
+        await page.waitForTimeout(500); // Wait for navigation
         await expect(page).toHaveURL(/\/bookmarks/);
       }
     }
