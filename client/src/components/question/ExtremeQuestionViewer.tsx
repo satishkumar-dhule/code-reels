@@ -147,20 +147,58 @@ export function ExtremeQuestionViewer({ channelId, questionId }: ExtremeQuestion
     }
   }, [targetQuestionId, questions.length, channelId, loading, questionIdFromSearch]);
 
-  // Auto-subscribe to channel if not subscribed
+  // Auto-subscribe to channel if not subscribed (only if it has questions)
   useEffect(() => {
     if (channelId && channel && !isSubscribed(channelId)) {
-      subscribeChannel(channelId);
-      toast({
-        title: "Channel added",
-        description: `${channel.name} added to your channels`,
-      });
+      // Wait for loading to complete before subscribing
+      if (!loading) {
+        // Only subscribe if channel has questions
+        if (totalQuestions > 0 && questions.length > 0) {
+          subscribeChannel(channelId);
+          toast({
+            title: "Channel added",
+            description: `${channel.name} added to your channels`,
+          });
+        } else {
+          // Show toast that channel cannot be added
+          toast({
+            title: "Cannot add channel",
+            description: `${channel.name} has no questions available`,
+            variant: "destructive"
+          });
+          // Redirect to home after a short delay
+          setTimeout(() => {
+            setLocation('/');
+          }, 2000);
+        }
+      }
     }
     // Track channel visit for recommendations
     if (channelId) {
       RecommendationService.trackChannelVisit(channelId);
     }
-  }, [channelId, channel]);
+  }, [channelId, channel, loading, totalQuestions, questions.length]);
+
+  // Auto-unsubscribe from channel if it has no questions (for already subscribed channels)
+  const { unsubscribeChannel } = useUserPreferences();
+  useEffect(() => {
+    // Wait for loading to complete and check if subscribed
+    if (!loading && channelId && channel && isSubscribed(channelId)) {
+      // If no questions available after loading, auto-unsubscribe
+      if (totalQuestions === 0 || questions.length === 0) {
+        unsubscribeChannel(channelId);
+        toast({
+          title: "Channel removed",
+          description: `${channel.name} has no questions available and was removed from your channels`,
+          variant: "destructive"
+        });
+        // Redirect to home after a short delay
+        setTimeout(() => {
+          setLocation('/');
+        }, 2000);
+      }
+    }
+  }, [loading, totalQuestions, questions.length, channelId, channel, isSubscribed]);
 
   // Reset index when filters change
   useEffect(() => {

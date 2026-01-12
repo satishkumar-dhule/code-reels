@@ -142,10 +142,12 @@ export interface CodingStats {
 export interface UserPreferences {
   role: string | null;
   subscribedChannels: string[];
+  subscribedCertifications?: string[];
   onboardingComplete: boolean;
   createdAt: string;
   shuffleQuestions?: boolean;
   prioritizeUnvisited?: boolean;
+  hideCertifications?: boolean;
 }
 
 export interface UserProgress {

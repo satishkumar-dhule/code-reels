@@ -988,3 +988,583 @@ html {
 body, #root {
   overflow-x: hidden;
 }
+
+/* ===== CHANNEL PLACEHOLDER ANIMATIONS ===== */
+
+/* Shimmer effect for placeholder cards */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shimmer 3s infinite;
+}
+
+/* Floating particles for placeholder cards */
+@keyframes float-particle {
+  0% {
+    transform: translateY(0) translateX(0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) translateX(var(--float-x, 0)) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.float-particle {
+  animation: float-particle 3s ease-in-out infinite;
+}
+
+/* Pulse animation for add icon */
+@keyframes pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.pulse-scale {
+  animation: pulse-scale 2s ease-in-out infinite;
+}
+
+/* Gradient animation for placeholder background */
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-flow {
+  background-size: 200% 200%;
+  animation: gradient-flow 8s ease infinite;
+}
+
+/* Bounce animation for interactive elements */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+/* Glow pulse for placeholder cards */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Rotate animation for plus icon */
+@keyframes rotate-gentle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.rotate-gentle {
+  animation: rotate-gentle 10s linear infinite;
+}
+
+/* Scale pulse for interactive cards */
+@keyframes scale-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.scale-pulse {
+  animation: scale-pulse 3s ease-in-out infinite;
+}
+
+/* Fade in up animation */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.5s ease-out;
+}
+
+/* Stat number animation */
+@keyframes stat-count {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.stat-number {
+  display: inline-block;
+  animation: stat-count 0.5s ease-out;
+}
+
+/* Channel card hover effect */
+.channel-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.channel-card-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Ripple effect for buttons */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple 0.6s ease-out;
+}
+
+.ripple-effect:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* ===== PREMIUM CHANNELS GRID ===== */
+
+.channels-grid {
+  display: grid;
+  gap: 1rem;
+  grid-auto-rows: 1fr;
+  width: 100%;
+}
+
+/* Base grid - normal size (7-9 cards) */
+.channels-grid-normal {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+/* Large cards for few items (1-3 cards) */
+.channels-grid-large {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+  gap: 1.5rem;
+}
+
+.channels-grid-large > * {
+  min-height: 180px;
+}
+
+/* Medium cards (4-6 cards) */
+.channels-grid-medium {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 1.25rem;
+}
+
+.channels-grid-medium > * {
+  min-height: 160px;
+}
+
+/* Compact cards for many items (10+ cards) */
+.channels-grid-compact {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 0.875rem;
+}
+
+.channels-grid-compact > * {
+  min-height: 130px;
+}
+
+/* Ensure all grid items have equal height */
+.channels-grid > * {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+  .channels-grid-large {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  
+  .channels-grid-medium {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  
+  .channels-grid-normal {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  
+  .channels-grid-compact {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .channels-grid {
+    gap: 1.25rem;
+  }
+  
+  .channels-grid-compact {
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .channels-grid-large {
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2rem;
+  }
+  
+  .channels-grid-medium {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .channels-grid-normal {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .channels-grid-compact {
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  /* For very large screens, limit max columns */
+  .channels-grid-large {
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  }
+  
+  .channels-grid-compact {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+/* Premium card hover effects */
+.channels-grid > div {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.channels-grid > div:hover {
+  z-index: 10;
+}
+
+/* Staggered animation for grid items */
+@keyframes grid-item-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.channels-grid > * {
+  animation: grid-item-fade-in 0.5s ease-out backwards;
+}
+
+.channels-grid > *:nth-child(1) { animation-delay: 0.05s; }
+.channels-grid > *:nth-child(2) { animation-delay: 0.1s; }
+.channels-grid > *:nth-child(3) { animation-delay: 0.15s; }
+.channels-grid > *:nth-child(4) { animation-delay: 0.2s; }
+.channels-grid > *:nth-child(5) { animation-delay: 0.25s; }
+.channels-grid > *:nth-child(6) { animation-delay: 0.3s; }
+.channels-grid > *:nth-child(7) { animation-delay: 0.35s; }
+.channels-grid > *:nth-child(8) { animation-delay: 0.4s; }
+.channels-grid > *:nth-child(9) { animation-delay: 0.45s; }
+
+/* Mesh gradient animation for placeholders */
+@keyframes mesh-gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.mesh-gradient {
+  background-size: 200% 200%;
+  animation: mesh-gradient 8s ease infinite;
+}
+
+/* Orb floating animation */
+@keyframes orb-float {
+  0% {
+    transform: translateY(0) translateX(0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-120px) translateX(var(--float-x, 0)) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.orb-float {
+  animation: orb-float 3s ease-out infinite;
+}
+
+/* Card glow effect */
+@keyframes card-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(var(--primary-rgb, 59, 130, 246), 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(var(--primary-rgb, 59, 130, 246), 0.2);
+  }
+}
+
+.card-glow {
+  animation: card-glow 3s ease-in-out infinite;
+}
+
+/* Progress bar shine */
+@keyframes progress-bar-shine {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+  }
+}
+
+.progress-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: progress-bar-shine 2s ease-in-out infinite;
+}
+
+/* Icon rotation on hover */
+@keyframes icon-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.icon-wiggle:hover {
+  animation: icon-wiggle 0.5s ease-in-out;
+}
+
+/* Backdrop blur enhancement for cards */
+.card-backdrop {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background-color: rgba(var(--card-rgb, 0, 0, 0), 0.7);
+}
+
+/* Smooth scale transition */
+.scale-smooth {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Text gradient animation */
+@keyframes text-gradient-flow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.text-gradient-animated {
+  background: linear-gradient(90deg, 
+    hsl(var(--primary)) 0%, 
+    hsl(var(--secondary)) 50%, 
+    hsl(var(--primary)) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: text-gradient-flow 3s ease infinite;
+}
+
+/* Border gradient animation */
+@keyframes border-gradient-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.border-gradient-animated::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    hsl(var(--primary)) 90deg,
+    transparent 180deg,
+    hsl(var(--secondary)) 270deg,
+    transparent 360deg
+  );
+  border-radius: inherit;
+  animation: border-gradient-rotate 3s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.border-gradient-animated:hover::before {
+  opacity: 0.5;
+}
+
+/* Particle system for placeholders */
+.particle-system {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, currentColor, transparent);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+/* Smooth entrance animation */
+@keyframes smooth-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.smooth-entrance {
+  animation: smooth-entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glass morphism effect */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Neon glow effect */
+@keyframes neon-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 10px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 20px currentColor);
+  }
+}
+
+.neon-glow {
+  animation: neon-glow 2s ease-in-out infinite;
+}

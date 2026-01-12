@@ -32,6 +32,7 @@ const CertificationExam = React.lazy(() => import("@/pages/CertificationExam"));
 const TrainingMode = React.lazy(() => import("@/pages/TrainingMode"));
 const Documentation = React.lazy(() => import("@/pages/Documentation"));
 const ExtremeQuestionViewer = React.lazy(() => import("@/pages/ExtremeQuestionViewer"));
+const LearningPaths = React.lazy(() => import("@/pages/LearningPaths"));
 import { ProgressiveOnboarding } from "./components/ProgressiveOnboarding";
 import { ThemeProvider } from "./context/ThemeContext";
 import { UserPreferencesProvider, useUserPreferences } from "./context/UserPreferencesContext";
@@ -125,6 +126,7 @@ function Router() {
         <Route path="/coding/:id" component={CodingChallenge} />
         <Route path="/bot-activity" component={BotActivity} />
         <Route path="/channels" component={Channels} />
+        <Route path="/learning-paths" component={LearningPaths} />
         <Route path="/profile" component={Profile} />
         <Route path="/notifications" component={Notifications} />
         <Route path="/bookmarks" component={Bookmarks} />

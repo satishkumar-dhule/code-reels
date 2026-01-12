@@ -211,14 +211,8 @@ export function PagefindSearch({ isOpen, onClose }: PagefindSearchProps) {
   const navigateToQuestion = (result: SearchResultItem) => {
     const channel = result.channel;
     
-    if (channel && !isSubscribed(channel)) {
-      subscribeChannel(channel);
-      const channelConfig = allChannelsConfig.find(c => c.id === channel);
-      toast({
-        title: "Channel Subscribed",
-        description: `You've been subscribed to ${channelConfig?.name || channel}`,
-      });
-    }
+    // Don't auto-subscribe here - let the viewer handle it with proper validation
+    // This ensures channels with no questions won't be added
     
     // Navigate using question ID directly in URL path
     if (channel) {

@@ -19,7 +19,7 @@ import {
   CheckCircle, ArrowRight, Sparkles, Award, Users, Globe,
   Cpu, Terminal, Layout, Database, Activity, GitBranch, Server,
   Layers, Smartphone, Shield, Workflow, Box, Cloud,
-  Network, MessageCircle, Eye, FileText, Monitor, Gauge
+  Network, MessageCircle, Eye, FileText, Monitor, Gauge, X
 } from 'lucide-react';
 
 // Icon mapping for channels
@@ -367,7 +367,32 @@ function QuickActionsGrid({ onNavigate }: { onNavigate: (path: string) => void }
   );
 }
 
-// Channels Overview - Redesigned
+// Helper function to calculate placeholder count dynamically based on screen size
+function getPlaceholderCount(channelCount: number): number {
+  if (channelCount === 0) return 6; // Show 6 placeholders when empty
+  if (channelCount >= 12) return 0; // Don't add placeholders if we have many channels
+  
+  // Always fill to create a visually complete grid
+  // We want at least 6 cards total for a nice layout
+  const minCards = 6;
+  if (channelCount < minCards) {
+    return minCards - channelCount;
+  }
+  
+  // For more than 6, fill to the next multiple of 3
+  const remainder = channelCount % 3;
+  return remainder === 0 ? 0 : 3 - remainder;
+}
+
+// Get optimal card size based on total number of cards
+function getCardSizeClass(totalCards: number): string {
+  if (totalCards <= 3) return 'channels-grid-large'; // Large cards for 1-3 items
+  if (totalCards <= 6) return 'channels-grid-medium'; // Medium cards for 4-6 items
+  if (totalCards <= 9) return 'channels-grid-normal'; // Normal cards for 7-9 items
+  return 'channels-grid-compact'; // Compact cards for 10+ items
+}
+
+// Channels Overview - Redesigned with Premium UX
 function ChannelsOverview({
   channels,
   questionCounts,
@@ -380,40 +405,324 @@ function ChannelsOverview({
   onManageChannels: () => void;
 }) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [placeholderCount, setPlaceholderCount] = useState(0);
+  const { unsubscribeChannel } = useUserPreferences();
+  const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; channelId: string; channelName: string }>({
+    isOpen: false,
+    channelId: '',
+    channelName: ''
+  });
+
+  // Update placeholder count on resize and channel changes
+  useEffect(() => {
+    const updatePlaceholderCount = () => {
+      setPlaceholderCount(getPlaceholderCount(channels.length));
+    };
+    
+    updatePlaceholderCount();
+    window.addEventListener('resize', updatePlaceholderCount);
+    return () => window.removeEventListener('resize', updatePlaceholderCount);
+  }, [channels.length]);
+
+  // Calculate total cards for optimal sizing
+  const totalCards = channels.length + placeholderCount;
+  const cardSizeClass = getCardSizeClass(totalCards);
+
+  const handleUnsubscribeClick = (channelId: string, channelName: string) => {
+    setConfirmDialog({ isOpen: true, channelId, channelName });
+  };
+
+  const handleConfirmUnsubscribe = () => {
+    if (confirmDialog.channelId) {
+      unsubscribeChannel(confirmDialog.channelId);
+    }
+  };
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Your Channels</h2>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-            className="px-3 py-1.5 text-sm bg-muted rounded-lg hover:bg-muted/80 transition-colors"
-          >
-            {viewMode === 'grid' ? 'List' : 'Grid'}
-          </button>
-          <button
-            onClick={onManageChannels}
-            className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Manage
-          </button>
+    <>
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold">Your Channels</h2>
+            {channels.length > 0 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold"
+              >
+                {channels.length}
+              </motion.div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+              className="px-3 py-1.5 text-sm bg-muted rounded-lg hover:bg-muted/80 transition-colors flex items-center gap-2"
+            >
+              {viewMode === 'grid' ? (
+                <>
+                  <Layout className="w-4 h-4" />
+                  Grid
+                </>
+              ) : (
+                <>
+                  <Activity className="w-4 h-4" />
+                  List
+                </>
+              )}
+            </button>
+            <button
+              onClick={onManageChannels}
+              className="px-4 py-1.5 text-sm bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-        {channels.map((channel, i) => (
-          <ChannelCard
-            key={channel.id}
-            channel={channel}
-            questionCount={questionCounts[channel.id] || 0}
-            onClick={() => onChannelClick(channel.id)}
-            index={i}
-            viewMode={viewMode}
+        {/* Premium Grid Layout with Dynamic Sizing */}
+        <div 
+          className={viewMode === 'grid' 
+            ? `channels-grid ${cardSizeClass}` 
+            : 'flex flex-col gap-3'
+          }
+        >
+          {channels.map((channel, i) => (
+            <ChannelCard
+              key={channel.id}
+              channel={channel}
+              questionCount={questionCounts[channel.id] || 0}
+              onClick={() => onChannelClick(channel.id)}
+              onUnsubscribe={() => handleUnsubscribeClick(channel.id, channel.name)}
+              index={i}
+              viewMode={viewMode}
+            />
+          ))}
+          
+          {/* Premium Placeholder Cards with Advanced Animations */}
+          {viewMode === 'grid' && placeholderCount > 0 && (
+            <>
+              {Array.from({ length: placeholderCount }).map((_, i) => (
+                <PlaceholderCard
+                  key={`placeholder-${i}`}
+                  index={channels.length + i}
+                  onClick={onManageChannels}
+                  variant={i % 3}
+                />
+              ))}
+            </>
+          )}
+        </div>
+
+        {/* Empty State */}
+        {channels.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-12"
+          >
+            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-primary" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Start Your Learning Journey</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Subscribe to channels to begin practicing interview questions
+            </p>
+            <button
+              onClick={onManageChannels}
+              className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold hover:shadow-xl transition-all"
+            >
+              Browse Channels
+            </button>
+          </motion.div>
+        )}
+      </section>
+
+      <ConfirmationDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, channelId: '', channelName: '' })}
+        onConfirm={handleConfirmUnsubscribe}
+        title="Unsubscribe from Channel?"
+        message={`Are you sure you want to unsubscribe from "${confirmDialog.channelName}"? Your progress will be saved.`}
+        confirmText="Unsubscribe"
+        cancelText="Cancel"
+        type="warning"
+      />
+    </>
+  );
+}
+
+// Premium Placeholder Card with Multiple Variants
+function PlaceholderCard({ 
+  index, 
+  onClick, 
+  variant = 0 
+}: { 
+  index: number; 
+  onClick: () => void; 
+  variant: number;
+}) {
+  const variants = [
+    {
+      gradient: 'from-blue-500/10 via-cyan-500/10 to-teal-500/10',
+      icon: <Sparkles className="w-6 h-6" />,
+      title: 'Discover New Topics',
+      desc: 'Expand your knowledge',
+      accentColor: 'text-cyan-500'
+    },
+    {
+      gradient: 'from-purple-500/10 via-pink-500/10 to-rose-500/10',
+      icon: <Target className="w-6 h-6" />,
+      title: 'Set Learning Goals',
+      desc: 'Track your progress',
+      accentColor: 'text-pink-500'
+    },
+    {
+      gradient: 'from-orange-500/10 via-amber-500/10 to-yellow-500/10',
+      icon: <Zap className="w-6 h-6" />,
+      title: 'Level Up Skills',
+      desc: 'Master new concepts',
+      accentColor: 'text-amber-500'
+    }
+  ];
+
+  const variantData = variants[variant % variants.length];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ 
+        delay: index * 0.05,
+        type: "spring",
+        stiffness: 100,
+        damping: 15
+      }}
+      whileHover={{ 
+        scale: 1.03,
+        y: -5,
+        transition: { duration: 0.2 }
+      }}
+      onClick={onClick}
+      className="group relative p-4 bg-gradient-to-br from-card/50 to-card rounded-xl border-2 border-dashed border-border/50 hover:border-primary/50 transition-all overflow-hidden cursor-pointer backdrop-blur-sm"
+    >
+      {/* Animated mesh gradient background */}
+      <motion.div
+        className={`absolute inset-0 bg-gradient-to-br ${variantData.gradient} opacity-50`}
+        animate={{
+          scale: [1, 1.2, 1],
+          rotate: [0, 5, 0],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          repeatType: 'reverse',
+        }}
+      />
+
+      {/* Radial gradient overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
+
+      {/* Animated border glow */}
+      <motion.div
+        className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(var(--primary), 0.1), transparent)',
+        }}
+        animate={{
+          x: ['-100%', '200%'],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          repeatDelay: 1,
+        }}
+      />
+
+      {/* Floating orbs - reduced count for performance */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={i}
+            className={`absolute w-1.5 h-1.5 ${variantData.accentColor} rounded-full opacity-20`}
+            animate={{
+              y: [0, -100],
+              x: [0, (Math.random() - 0.5) * 40],
+              opacity: [0, 0.6, 0],
+              scale: [0, 1.5, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: i * 0.6 + variant * 0.2,
+              ease: "easeOut"
+            }}
+            style={{
+              left: `${20 + i * 30}%`,
+              top: '85%',
+            }}
           />
         ))}
       </div>
-    </section>
+
+      {/* Content */}
+      <div className="relative flex flex-col items-center justify-center text-center space-y-3 min-h-[100px]">
+        {/* Icon with pulse animation */}
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className={`w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center ${variantData.accentColor} group-hover:from-primary/30 group-hover:to-secondary/30 transition-all shadow-lg`}
+        >
+          <div className="w-5 h-5">
+            {variantData.icon}
+          </div>
+        </motion.div>
+
+        {/* Text content */}
+        <div className="space-y-0.5">
+          <motion.h3 
+            className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors"
+            animate={{
+              opacity: [0.7, 1, 0.7],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+            }}
+          >
+            {variantData.title}
+          </motion.h3>
+          <p className="text-xs text-muted-foreground">
+            {variantData.desc}
+          </p>
+        </div>
+
+        {/* Plus indicator */}
+        <motion.div
+          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center"
+          whileHover={{ scale: 1.2, rotate: 90 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Plus className="w-3 h-3 text-primary" />
+        </motion.div>
+      </div>
+
+      {/* Shimmer effect on hover */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+        initial={{ x: '-100%' }}
+        whileHover={{ x: '200%' }}
+        transition={{ duration: 0.8 }}
+      />
+    </motion.div>
   );
 }
 
@@ -422,62 +731,158 @@ function ChannelCard({
   channel,
   questionCount,
   onClick,
+  onUnsubscribe,
   index,
   viewMode
 }: {
   channel: any;
   questionCount: number;
   onClick: () => void;
+  onUnsubscribe?: () => void;
   index: number;
   viewMode: 'grid' | 'list';
 }) {
   const { completed } = useProgress(channel.id);
-  const progress = questionCount > 0 ? Math.round((completed.length / questionCount) * 100) : 0;
+  const progress = questionCount > 0 ? Math.min(100, Math.round((completed.length / questionCount) * 100)) : 0;
   const config = allChannelsConfig.find(c => c.id === channel.id);
 
+  // Determine progress color
+  const getProgressColor = (prog: number) => {
+    if (prog >= 80) return 'from-green-500 to-emerald-500';
+    if (prog >= 50) return 'from-blue-500 to-cyan-500';
+    if (prog >= 25) return 'from-orange-500 to-amber-500';
+    return 'from-gray-500 to-slate-500';
+  };
+
   return (
-    <motion.button
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      onClick={onClick}
-      className={`group relative p-4 bg-card rounded-xl border border-border hover:border-primary/50 transition-all text-left overflow-hidden ${
-        viewMode === 'list' ? 'flex items-center gap-4' : ''
+      transition={{ 
+        delay: index * 0.05,
+        type: "spring",
+        stiffness: 100,
+        damping: 15
+      }}
+      whileHover={{ 
+        scale: viewMode === 'grid' ? 1.02 : 1.01,
+        y: viewMode === 'grid' ? -4 : 0,
+        transition: { duration: 0.2 }
+      }}
+      className={`group relative bg-card rounded-xl border border-border hover:border-primary/50 transition-all overflow-hidden cursor-pointer ${
+        viewMode === 'list' ? 'flex items-center gap-4 p-4' : 'flex flex-col p-4'
       }`}
     >
-      {/* Progress Background */}
-      <div 
-        className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent transition-all"
-        style={{ width: `${progress}%` }}
+      {/* Animated progress background */}
+      <motion.div 
+        className={`absolute inset-0 bg-gradient-to-r ${getProgressColor(progress)} opacity-0 group-hover:opacity-5 transition-opacity`}
+        initial={{ width: 0 }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 1, ease: "easeOut" }}
       />
+
+      {/* Glow effect on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 blur-xl" />
+      </div>
       
-      <div className={`relative ${viewMode === 'list' ? 'flex items-center gap-4 flex-1' : 'space-y-3'}`}>
-        {/* Icon */}
-        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-          {(config?.icon && iconMap[config.icon]) || <Code className="w-6 h-6" />}
-        </div>
+      <div className={`relative ${viewMode === 'list' ? 'flex items-center gap-4 flex-1' : 'flex flex-col flex-1 space-y-3'}`}>
+        {/* Icon with animated background */}
+        <motion.div 
+          className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center text-primary flex-shrink-0 overflow-hidden"
+          whileHover={{ rotate: [0, -5, 5, 0] }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative z-10">
+            {(config?.icon && iconMap[config.icon]) || <Code className="w-6 h-6" />}
+          </div>
+        </motion.div>
         
         {/* Content */}
-        <div className={`${viewMode === 'list' ? 'flex-1' : ''}`}>
-          <h3 className="font-semibold text-sm mb-1 text-foreground">{channel.name}</h3>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>{completed.length}/{questionCount} completed</span>
-            <span>{progress}%</span>
+        <button 
+          onClick={onClick} 
+          className={`${viewMode === 'list' ? 'flex-1' : 'w-full flex-1 flex flex-col'} text-left group/content`}
+        >
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <h3 className="font-semibold text-sm text-foreground group-hover/content:text-primary transition-colors line-clamp-1">
+              {channel.name}
+            </h3>
+            {progress === 100 && (
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                className="flex-shrink-0"
+              >
+                <Trophy className="w-3.5 h-3.5 text-amber-500" />
+              </motion.div>
+            )}
           </div>
           
-          {/* Progress Bar */}
-          <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary rounded-full transition-all"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+            <span className="flex items-center gap-1">
+              <CheckCircle className="w-3 h-3" />
+              {completed.length}/{questionCount}
+            </span>
+            <span className="flex items-center gap-1">
+              <Target className="w-3 h-3" />
+              {progress}%
+            </span>
           </div>
-        </div>
+          
+          {/* Enhanced Progress Bar */}
+          <div className="mt-auto">
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden relative">
+              <motion.div 
+                className={`h-full bg-gradient-to-r ${getProgressColor(progress)} rounded-full relative`}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 1, ease: "easeOut", delay: index * 0.1 }}
+              >
+                {/* Shimmer effect on progress bar */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  animate={{
+                    x: ['-100%', '200%'],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 1,
+                  }}
+                />
+              </motion.div>
+            </div>
+          </div>
+        </button>
 
-        {/* Arrow */}
-        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
+        {/* Actions */}
+        <div className={`flex items-center gap-1 ${viewMode === 'list' ? 'flex-shrink-0' : 'absolute top-2 right-2'}`}>
+          {onUnsubscribe && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onUnsubscribe();
+              }}
+              className="p-1.5 rounded-lg bg-muted/50 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+              title="Unsubscribe"
+            >
+              <X className="w-3.5 h-3.5" />
+            </motion.button>
+          )}
+          <motion.button 
+            onClick={onClick} 
+            className="p-1.5 rounded-lg bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+            whileHover={{ x: 3 }}
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </motion.button>
+        </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 }
 
@@ -735,7 +1140,7 @@ function LearningPathSection({ onNavigate }: { onNavigate: (path: string) => voi
       title: 'Frontend',
       desc: 'React, JS, CSS',
       progress: 65,
-      channels: ['react', 'javascript', 'css'],
+      channels: ['react', 'javascript', 'html-css'],
       color: 'from-blue-500 to-cyan-500',
       icon: <Layout className="w-4 h-4" />
     },
@@ -743,7 +1148,7 @@ function LearningPathSection({ onNavigate }: { onNavigate: (path: string) => voi
       title: 'Backend',
       desc: 'APIs, DBs, System Design',
       progress: 40,
-      channels: ['system-design', 'database', 'backend'],
+      channels: ['system-design', 'databases', 'nodejs'],
       color: 'from-green-500 to-emerald-500',
       icon: <Server className="w-4 h-4" />
     },
@@ -765,20 +1170,29 @@ function LearningPathSection({ onNavigate }: { onNavigate: (path: string) => voi
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">Learning Paths</h3>
-        <button className="text-xs text-primary hover:underline">
+        <button 
+          onClick={() => onNavigate('/learning-paths')}
+          className="text-xs text-primary hover:underline"
+        >
           View All
         </button>
       </div>
 
       <div className="space-y-4">
         {paths.map((path, i) => (
-          <motion.div
+          <motion.button
             key={i}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
             whileHover={{ scale: 1.02 }}
-            className="group cursor-pointer"
+            onClick={() => {
+              // Navigate to the first channel in the learning path
+              if (path.channels.length > 0) {
+                onNavigate(`/extreme/channel/${path.channels[0]}`);
+              }
+            }}
+            className="group cursor-pointer w-full text-left"
           >
             <div className="flex items-center gap-3 mb-2">
               <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${path.color} flex items-center justify-center text-white`}>
@@ -803,7 +1217,7 @@ function LearningPathSection({ onNavigate }: { onNavigate: (path: string) => voi
                 />
               </div>
             </div>
-          </motion.div>
+          </motion.button>
         ))}
       </div>
 
@@ -933,5 +1347,97 @@ function CommunityStatsCard() {
         </div>
       </div>
     </motion.div>
+  );
+}
+
+
+// Confirmation Dialog Component
+function ConfirmationDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  type = "warning"
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  type?: "warning" | "danger";
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={onClose}
+        />
+
+        {/* Dialog */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-start gap-4 p-6 pb-4">
+            <div className={`p-3 rounded-xl ${
+              type === "danger" 
+                ? "bg-red-500/10 text-red-500" 
+                : "bg-amber-500/10 text-amber-500"
+            }`}>
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-foreground mb-1">{title}</h3>
+              <p className="text-sm text-muted-foreground">{message}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 p-6 pt-2 border-t border-border bg-muted/30">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2.5 bg-muted hover:bg-muted/80 text-foreground rounded-lg font-medium transition-colors"
+            >
+              {cancelText}
+            </button>
+            <button
+              onClick={() => {
+                onConfirm();
+                onClose();
+              }}
+              className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${
+                type === "danger"
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "bg-primary hover:bg-primary/90 text-primary-foreground"
+              }`}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
   );
 }

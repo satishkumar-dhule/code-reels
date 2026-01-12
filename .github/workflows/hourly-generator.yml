@@ -66,12 +66,15 @@ jobs:
           INPUT_CHANNEL: ${{ steps.channels.outputs.channels }}
           BALANCE_CHANNELS: 'true'
           AGGRESSIVE_MODE: 'true'
+          ENSURE_MINIMUM: 'true'
         run: |
           echo "🚀 Starting aggressive question generation..."
           echo "Target channels: ${INPUT_CHANNEL:-auto-balanced}"
           echo "Count: ${INPUT_LIMIT}"
+          echo "Mode: Ensure every channel has at least 1 question"
           
           # Run generator with aggressive settings
+          # This will prioritize ALL channels with 0 questions first
           node script/generate-question.js
       
       - name: Sync to Vector DB
@@ -90,9 +93,10 @@ jobs:
         run: |
           echo "## 🚀 Aggressive Generator Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Mode:** ${{ inputs.aggressive == 'true' && 'Aggressive' || 'Normal' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Target:** ${{ steps.channels.outputs.channels || 'Auto-balanced' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ inputs.aggressive == 'true' && 'Aggressive (Ensure Minimum Coverage)' || 'Normal' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** ${{ steps.channels.outputs.channels || 'Auto-balanced (prioritize empty channels)' }}" >> $GITHUB_STEP_SUMMARY
           echo "**Count:** ${{ steps.channels.outputs.count }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Strategy:** Channels with 0 questions get absolute priority" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
 
   # Trigger deployment if questions were added

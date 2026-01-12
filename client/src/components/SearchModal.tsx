@@ -126,14 +126,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     
     const { question } = result;
     
-    if (!isSubscribed(question.channel)) {
-      subscribeChannel(question.channel);
-      const channelConfig = allChannelsConfig.find(c => c.id === question.channel);
-      toast({
-        title: "Channel Subscribed",
-        description: `You've been subscribed to ${channelConfig?.name || question.channel}`,
-      });
-    }
+    // Don't auto-subscribe here - let the viewer handle it with proper validation
+    // This ensures channels with no questions won't be added
     
     // Navigate using question ID directly in URL path
     setLocation(`/channel/${question.channel}/${question.id}`);

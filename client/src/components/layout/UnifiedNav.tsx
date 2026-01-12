@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useCredits } from '../../context/CreditsContext';
 import { useSidebar } from '../../context/SidebarContext';
+import { useUserPreferences } from '../../context/UserPreferencesContext';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 
@@ -92,6 +93,7 @@ function getActiveSection(location: string): string {
 export function MobileBottomNav() {
   const [location, setLocation] = useLocation();
   const { balance, formatCredits } = useCredits();
+  const { preferences } = useUserPreferences();
   const [showMenu, setShowMenu] = useState<string | null>(null);
 
   const activeSection = getActiveSection(location);
@@ -106,12 +108,27 @@ export function MobileBottomNav() {
   };
 
   const getSubNav = (id: string) => {
+    let items: NavItem[] = [];
     switch (id) {
-      case 'learn': return learnSubNav;
-      case 'practice': return practiceSubNav;
-      case 'progress': return progressSubNav;
-      default: return [];
+      case 'learn': 
+        items = learnSubNav;
+        break;
+      case 'practice': 
+        items = practiceSubNav;
+        break;
+      case 'progress': 
+        items = progressSubNav;
+        break;
+      default: 
+        return [];
     }
+    
+    // Filter out certifications if user has hidden them
+    if (preferences.hideCertifications && id === 'learn') {
+      return items.filter(item => item.id !== 'certifications');
+    }
+    
+    return items;
   };
 
   const currentSubNav = showMenu ? getSubNav(showMenu) : [];
@@ -313,10 +330,16 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
   const [location, setLocation] = useLocation();
   const { balance, formatCredits } = useCredits();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { preferences } = useUserPreferences();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   const isActive = (path: string) => 
     location === path || location.startsWith(path.replace(/\/$/, '') + '/');
+  
+  // Filter learn items based on preferences
+  const filteredLearnSubNav = preferences.hideCertifications 
+    ? learnSubNav.filter(item => item.id !== 'certifications')
+    : learnSubNav;
 
   const NavItem = ({ item, showLabel = true }: { item: NavItem; showLabel?: boolean }) => {
     const Icon = item.icon;
@@ -482,7 +505,7 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
         
         {/* Learn Section */}
         <SectionHeader icon={GraduationCap} label="Learn" />
-        {learnSubNav.map(item => <NavItem key={item.id} item={item} />)}
+        {filteredLearnSubNav.map(item => <NavItem key={item.id} item={item} />)}
         
         {/* Practice Section */}
         <SectionHeader icon={Mic} label="Practice" />

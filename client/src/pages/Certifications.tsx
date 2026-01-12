@@ -9,12 +9,13 @@ import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useIsMobile } from '../hooks/use-mobile';
+import { useUserPreferences } from '../context/UserPreferencesContext';
 import { SEOHead } from '../components/SEOHead';
 import {
   Search, Award, Clock, ChevronRight, Play, BookOpen,
   Cloud, Shield, Database, Brain, Code, Users, Box,
   Terminal, Server, Cpu, Layers, Network, GitBranch,
-  Target, Zap, GraduationCap, Lock, Loader2
+  Target, Zap, GraduationCap, Lock, Loader2, Check, Plus, X, AlertTriangle
 } from 'lucide-react';
 
 // Certification type from API
@@ -103,9 +104,31 @@ export default function Certifications() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const { isCertificationSubscribed, toggleCertificationSubscription, unsubscribeCertification } = useUserPreferences();
+  const [confirmDialog, setConfirmDialog] = useState<{ isOpen: boolean; certId: string; certName: string }>({
+    isOpen: false,
+    certId: '',
+    certName: ''
+  });
   
   // Fetch certifications from API
   const { certifications, loading, error } = useCertifications();
+
+  const handleToggleSubscription = (certId: string, certName: string, isCurrentlySubscribed: boolean) => {
+    if (isCurrentlySubscribed) {
+      // Show confirmation for unsubscribe
+      setConfirmDialog({ isOpen: true, certId, certName });
+    } else {
+      // Subscribe immediately without confirmation
+      toggleCertificationSubscription(certId);
+    }
+  };
+
+  const handleConfirmUnsubscribe = () => {
+    if (confirmDialog.certId) {
+      unsubscribeCertification(confirmDialog.certId);
+    }
+  };
 
   // Filter certifications
   const filteredCertifications = certifications.filter(cert => {
@@ -201,6 +224,8 @@ export default function Certifications() {
                     key={cert.id}
                     certification={cert}
                     index={index}
+                    isSubscribed={isCertificationSubscribed(cert.id)}
+                    onToggleSubscribe={() => handleToggleSubscription(cert.id, cert.name, isCertificationSubscribed(cert.id))}
                     onPractice={() => navigate(`/certification/${cert.id}`)}
                     onExam={() => navigate(`/certification/${cert.id}/exam`)}
                   />
@@ -273,6 +298,8 @@ export default function Certifications() {
                       key={cert.id}
                       certification={cert}
                       index={index}
+                      isSubscribed={isCertificationSubscribed(cert.id)}
+                      onToggleSubscribe={() => handleToggleSubscription(cert.id, cert.name, isCertificationSubscribed(cert.id))}
                       onClick={() => navigate(`/certification/${cert.id}`)}
                     />
                   ))}
@@ -293,6 +320,18 @@ export default function Certifications() {
           )}
         </div>
       </AppLayout>
+
+      {/* Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, certId: '', certName: '' })}
+        onConfirm={handleConfirmUnsubscribe}
+        title="Unsubscribe from Certification?"
+        message={`Are you sure you want to unsubscribe from "${confirmDialog.certName}"? Your progress will be saved.`}
+        confirmText="Unsubscribe"
+        cancelText="Cancel"
+        type="warning"
+      />
     </>
   );
 }
@@ -302,11 +341,15 @@ export default function Certifications() {
 function FeaturedCertCard({ 
   certification, 
   index,
+  isSubscribed,
+  onToggleSubscribe,
   onPractice,
   onExam,
 }: { 
   certification: Certification;
   index: number;
+  isSubscribed: boolean;
+  onToggleSubscribe: () => void;
   onPractice: () => void;
   onExam: () => void;
 }) {
@@ -326,6 +369,20 @@ function FeaturedCertCard({
             {iconMap[certification.icon] || <Award className="w-5 h-5" />}
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleSubscribe();
+              }}
+              className={`p-1.5 rounded-lg transition-all ${
+                isSubscribed
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+              }`}
+              title={isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+            >
+              {isSubscribed ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            </button>
             <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${diff.bg} ${diff.color} capitalize`}>
               {certification.difficulty}
             </span>
@@ -384,10 +441,14 @@ function FeaturedCertCard({
 function CertificationCard({ 
   certification, 
   index,
+  isSubscribed,
+  onToggleSubscribe,
   onClick
 }: { 
   certification: Certification;
   index: number;
+  isSubscribed: boolean;
+  onToggleSubscribe: () => void;
   onClick: () => void;
 }) {
   const diff = difficultyConfig[certification.difficulty];
@@ -411,6 +472,20 @@ function CertificationCard({
           {iconMap[certification.icon] || <Award className="w-5 h-5" />}
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSubscribe();
+            }}
+            className={`p-1.5 rounded-lg transition-all ${
+              isSubscribed
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+            }`}
+            title={isSubscribed ? 'Unsubscribe' : 'Subscribe'}
+          >
+            {isSubscribed ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+          </button>
           {hasQuestions && (
             <span className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-amber-500/10 text-amber-500">
               EXAM
@@ -449,5 +524,95 @@ function CertificationCard({
         <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
       </div>
     </motion.div>
+  );
+}
+
+
+// Confirmation Dialog Component
+function ConfirmationDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  type = "warning"
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  type?: "warning" | "danger";
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Dialog */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start gap-4 p-6 pb-4">
+          <div className={`p-3 rounded-xl ${
+            type === "danger" 
+              ? "bg-red-500/10 text-red-500" 
+              : "bg-amber-500/10 text-amber-500"
+          }`}>
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-foreground mb-1">{title}</h3>
+            <p className="text-sm text-muted-foreground">{message}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 p-6 pt-2 border-t border-border bg-muted/30">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 bg-muted hover:bg-muted/80 text-foreground rounded-lg font-medium transition-colors"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+            className={`flex-1 px-4 py-2.5 rounded-lg font-medium transition-colors ${
+              type === "danger"
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-primary hover:bg-primary/90 text-primary-foreground"
+            }`}
+          >
+            {confirmText}
+          </button>
+        </div>
+      </motion.div>
+    </div>
   );
 }

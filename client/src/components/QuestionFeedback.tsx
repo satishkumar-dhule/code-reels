@@ -138,10 +138,10 @@ export function QuestionFeedback({ questionId, className = '' }: QuestionFeedbac
     <div className={`relative inline-flex ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1 rounded text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/30 transition-all"
+        className="p-2 rounded-lg bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
         title="Flag question for review"
       >
-        <Flag className="w-3 h-3" />
+        <Flag className="w-4 h-4" />
       </button>
 
       <AnimatePresence>

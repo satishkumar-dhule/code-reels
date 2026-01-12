@@ -17,7 +17,7 @@ import { MetricCard } from '../components/unified';
 import {
   Code, Trophy, Target, Flame, BookOpen, ChevronRight,
   Bell, HelpCircle, Zap, Calendar, TrendingUp, Bookmark, Shuffle, Eye,
-  Coins, Gift, History, Mic, Volume2, Play
+  Coins, Gift, History, Mic, Volume2, Play, Award
 } from 'lucide-react';
 import {
   isTTSSupported,
@@ -33,7 +33,7 @@ import {
 export default function Profile() {
   const [, setLocation] = useLocation();
   const { stats: channelStats } = useChannelStats();
-  const { getSubscribedChannels, preferences, toggleShuffleQuestions, togglePrioritizeUnvisited } = useUserPreferences();
+  const { getSubscribedChannels, preferences, toggleShuffleQuestions, togglePrioritizeUnvisited, toggleHideCertifications } = useUserPreferences();
   const { stats: activityStats } = useGlobalStats();
   const { balance, state: creditsState, history, onRedeemCoupon, formatCredits, config } = useCredits();
   const { levelProgress, currentStreak } = useLevel();
@@ -240,6 +240,13 @@ export default function Profile() {
                 sublabel="Show new questions first"
                 enabled={preferences.prioritizeUnvisited !== false}
                 onToggle={togglePrioritizeUnvisited}
+              />
+              <ToggleItem
+                icon={<Award className="w-5 h-5" />}
+                label="Hide Certifications"
+                sublabel="Remove certifications from navigation"
+                enabled={preferences.hideCertifications === true}
+                onToggle={toggleHideCertifications}
               />
               <MenuItem
                 icon={<Bell className="w-5 h-5" />}

@@ -10,6 +10,7 @@ export type { UserPreferences };
 const defaultPreferences: UserPreferences = {
   role: DEFAULTS.ROLE,
   subscribedChannels: [],
+  subscribedCertifications: [],
   onboardingComplete: false,
   createdAt: new Date().toISOString(),
   shuffleQuestions: true,
@@ -24,11 +25,16 @@ interface UserPreferencesContextType {
   toggleSubscription: (channelId: string) => void;
   isSubscribed: (channelId: string) => boolean;
   getSubscribedChannels: () => typeof allChannelsConfig;
+  subscribeCertification: (certId: string) => void;
+  unsubscribeCertification: (certId: string) => void;
+  toggleCertificationSubscription: (certId: string) => void;
+  isCertificationSubscribed: (certId: string) => boolean;
   resetPreferences: () => void;
   skipOnboarding: () => void;
   needsOnboarding: boolean;
   toggleShuffleQuestions: () => void;
   togglePrioritizeUnvisited: () => void;
+  toggleHideCertifications: () => void;
 }
 
 const UserPreferencesContext = createContext<UserPreferencesContextType | null>(null);
@@ -151,6 +157,53 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const toggleHideCertifications = useCallback(() => {
+    setPreferences(prev => ({
+      ...prev,
+      hideCertifications: !prev.hideCertifications
+    }));
+  }, []);
+
+  const subscribeCertification = useCallback((certId: string) => {
+    setPreferences(prev => {
+      const current = prev.subscribedCertifications || [];
+      if (current.includes(certId)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        subscribedCertifications: [...current, certId]
+      };
+    });
+  }, []);
+
+  const unsubscribeCertification = useCallback((certId: string) => {
+    setPreferences(prev => ({
+      ...prev,
+      subscribedCertifications: (prev.subscribedCertifications || []).filter(id => id !== certId)
+    }));
+  }, []);
+
+  const toggleCertificationSubscription = useCallback((certId: string) => {
+    setPreferences(prev => {
+      const current = prev.subscribedCertifications || [];
+      if (current.includes(certId)) {
+        return {
+          ...prev,
+          subscribedCertifications: current.filter(id => id !== certId)
+        };
+      }
+      return {
+        ...prev,
+        subscribedCertifications: [...current, certId]
+      };
+    });
+  }, []);
+
+  const isCertificationSubscribed = useCallback((certId: string) => {
+    return (preferences.subscribedCertifications || []).includes(certId);
+  }, [preferences.subscribedCertifications]);
+
   return (
     <UserPreferencesContext.Provider value={{
       preferences,
@@ -160,11 +213,16 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       toggleSubscription,
       isSubscribed,
       getSubscribedChannels,
+      subscribeCertification,
+      unsubscribeCertification,
+      toggleCertificationSubscription,
+      isCertificationSubscribed,
       resetPreferences,
       skipOnboarding,
       needsOnboarding: !preferences.onboardingComplete,
       toggleShuffleQuestions,
-      togglePrioritizeUnvisited
+      togglePrioritizeUnvisited,
+      toggleHideCertifications
     }}>
       {children}
     </UserPreferencesContext.Provider>

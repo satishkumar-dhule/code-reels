@@ -119,59 +119,80 @@ function selectChannelsWeighted(channelCounts, allChannels, limit) {
   const medianCount = counts[Math.floor(counts.length / 2)];
   const maxCount = Math.max(...counts, 1);
   
-  // PRIORITY 1: Always select channels with 0 questions first
+  // PRIORITY 1: ALWAYS select ALL channels with 0 questions first (MANDATORY)
   const emptyChannels = sortedByCount.filter(c => c.count === 0).map(c => c.channel);
   if (emptyChannels.length > 0) {
-    console.log(`\n🎯 PRIORITY: Found ${emptyChannels.length} channels with 0 questions`);
+    console.log(`\n🎯 CRITICAL PRIORITY: Found ${emptyChannels.length} channels with 0 questions - MUST ADD AT LEAST 1 EACH`);
     emptyChannels.forEach(ch => {
       const isCert = CERTIFICATION_CHANNELS.includes(ch);
-      console.log(`   ${ch}${isCert ? ' (certification)' : ''}`);
+      console.log(`   ${ch}${isCert ? ' (certification)' : ''} - NEEDS IMMEDIATE ATTENTION`);
     });
     
-    // If we have enough empty channels, just return those
+    // If we have empty channels, they take absolute priority
+    // Allocate at least 1 question per empty channel
+    const emptyChannelAllocation = Math.min(emptyChannels.length, limit);
+    
+    // Prioritize certifications among empty channels
+    const emptyCerts = emptyChannels.filter(ch => CERTIFICATION_CHANNELS.includes(ch));
+    const emptyNonCerts = emptyChannels.filter(ch => !CERTIFICATION_CHANNELS.includes(ch));
+    const prioritizedEmpty = [...emptyCerts, ...emptyNonCerts];
+    
+    // If we have more empty channels than limit, select the most important ones
     if (emptyChannels.length >= limit) {
-      // Prioritize certifications among empty channels
-      const emptyCerts = emptyChannels.filter(ch => CERTIFICATION_CHANNELS.includes(ch));
-      const emptyNonCerts = emptyChannels.filter(ch => !CERTIFICATION_CHANNELS.includes(ch));
-      const prioritized = [...emptyCerts, ...emptyNonCerts].slice(0, limit);
-      console.log(`   Selecting ${limit} empty channels (certs first)`);
-      return prioritized;
+      console.log(`   ⚠️  ${emptyChannels.length} empty channels but only ${limit} slots available`);
+      console.log(`   Selecting ${limit} highest priority empty channels (certifications first)`);
+      return prioritizedEmpty.slice(0, limit);
     }
     
-    // Otherwise, start with all empty channels and fill the rest with weighted selection
-    console.log(`   Will fill remaining ${limit - emptyChannels.length} slots with weighted selection`);
+    // Otherwise, allocate 1 question to each empty channel, then fill remaining slots
+    console.log(`   Allocating 1 question to each of ${emptyChannels.length} empty channels`);
+    console.log(`   Remaining ${limit - emptyChannels.length} slots for weighted selection`);
+    
+    const selected = [...prioritizedEmpty];
+    const remainingLimit = limit - selected.length;
+    
+    if (remainingLimit > 0) {
+      // Fill remaining slots with weighted selection from non-empty channels
+      const nonEmptyChannels = sortedByCount.filter(c => c.count > 0).map(c => c.channel);
+      const additionalSelections = selectFromNonEmpty(channelCounts, nonEmptyChannels, remainingLimit, maxCount);
+      selected.push(...additionalSelections);
+    }
+    
+    return selected;
   }
   
+  // No empty channels - proceed with normal weighted selection
+  return selectFromNonEmpty(channelCounts, allChannels, limit, maxCount);
+}
+
+// Helper function for weighted selection from non-empty channels
+function selectFromNonEmpty(channelCounts, channels, limit, maxCount) {
   // Exclude channels in top 25% (those with most questions)
+  const sortedByCount = [...channels].map(ch => ({
+    channel: ch,
+    count: channelCounts[ch] || 0
+  })).sort((a, b) => a.count - b.count);
+  
+  const counts = sortedByCount.map(c => c.count);
+  const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
   const excludeThreshold = counts[Math.floor(counts.length * 0.75)];
+  
   const eligibleChannels = sortedByCount
-    .filter(c => c.count <= excludeThreshold && c.count > 0) // Exclude empty (already handled)
+    .filter(c => c.count <= excludeThreshold)
     .map(c => c.channel);
   
-  console.log(`\n📈 Channel Statistics:`);
+  console.log(`\n📈 Weighted Selection Statistics:`);
   console.log(`   Average: ${avgCount.toFixed(1)} questions`);
-  console.log(`   Median: ${medianCount} questions`);
-  console.log(`   Max: ${maxCount} questions`);
-  console.log(`   Empty channels: ${emptyChannels.length}`);
   console.log(`   Exclude threshold (top 25%): >${excludeThreshold} questions`);
-  console.log(`   Eligible for weighted selection: ${eligibleChannels.length}/${allChannels.length}`);
-  
-  // Start with empty channels
-  const selected = [...emptyChannels];
-  const remainingLimit = limit - selected.length;
-  
-  if (remainingLimit <= 0) {
-    return selected.slice(0, limit);
-  }
+  console.log(`   Eligible channels: ${eligibleChannels.length}/${channels.length}`);
   
   // If all channels are excluded (unlikely), fall back to bottom half
   const channelsToUse = eligibleChannels.length > 0 
     ? eligibleChannels 
-    : sortedByCount.filter(c => c.count > 0).slice(0, Math.ceil(sortedByCount.length / 2)).map(c => c.channel);
+    : sortedByCount.slice(0, Math.ceil(sortedByCount.length / 2)).map(c => c.channel);
   
   // Calculate weights - exponential preference for channels with fewer questions
   // Weight formula: (maxCount - count + 1)^3 / maxCount^2
-  // This gives MUCH higher weight to channels with very few questions
   const weights = channelsToUse.map(ch => {
     const count = channelCounts[ch] || 0;
     const deficit = maxCount - count + 1;
@@ -186,6 +207,7 @@ function selectChannelsWeighted(channelCounts, allChannels, limit) {
     return weight;
   });
   
+  const selected = [];
   const available = [...channelsToUse];
   const availableWeights = [...weights];
   

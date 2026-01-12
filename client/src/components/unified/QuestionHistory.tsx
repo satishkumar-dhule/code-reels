@@ -219,19 +219,21 @@ export function QuestionHistoryIcon({
           setIsOpen(true);
         }}
         className={`
-          ${buttonSizeClasses[size]} rounded-lg transition-all inline-flex items-center
+          p-2 rounded-lg transition-all inline-flex items-center gap-1.5
           ${historyCount > 0 
-            ? 'bg-[#238636]/20 hover:bg-[#238636]/30 text-[#3fb950] border border-[#238636]/50 hover:border-[#238636]'
-            : 'bg-[#21262d] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9] border border-[#30363d] hover:border-[#484f58]'
+            ? 'bg-green-500/10 text-green-500 border border-green-500/30 hover:bg-green-500/20'
+            : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:bg-muted'
           }
           ${className}
         `}
         title={historyCount > 0 ? `${historyCount} history event${historyCount !== 1 ? 's' : ''}` : 'View history'}
       >
-        <History className={sizeClasses[size]} />
-        <span className="text-[10px] font-semibold tabular-nums">
-          {historyCount}
-        </span>
+        <History className="w-4 h-4" />
+        {historyCount > 0 && (
+          <span className="text-[10px] font-semibold tabular-nums">
+            {historyCount}
+          </span>
+        )}
       </button>
 
       {/* History Modal */}
