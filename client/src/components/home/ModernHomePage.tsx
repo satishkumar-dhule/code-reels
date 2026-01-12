@@ -99,7 +99,7 @@ export function ModernHomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 w-full overflow-x-hidden">
       {/* Hero Section */}
       <HeroSection 
         streak={streak}
@@ -110,10 +110,10 @@ export function ModernHomePage() {
       />
 
       {/* Main Content Grid */}
-      <div className="max-w-7xl mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="w-full max-w-7xl mx-auto px-4 pb-20 overflow-x-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
           {/* Primary Column */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-6 w-full min-w-0">
             {/* Quick Actions */}
             <QuickActionsGrid onNavigate={setLocation} />
             
@@ -127,7 +127,7 @@ export function ModernHomePage() {
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-6 w-full min-w-0">
             {/* Streak Badge - Enhanced */}
             <StreakBadgeCard 
               streak={streak}
@@ -234,10 +234,10 @@ function HeroSection({
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       
-      <div className="relative max-w-7xl mx-auto px-4 py-12">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+      <div className="relative w-full max-w-7xl mx-auto px-4 py-12 overflow-x-hidden">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 w-full">
           {/* Welcome Message */}
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 w-full min-w-0">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -256,22 +256,22 @@ function HeroSection({
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center gap-6"
+              className="flex flex-wrap items-center gap-4 lg:gap-6"
             >
               <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" />
+                <Target className="w-5 h-5 text-primary flex-shrink-0" />
                 <span className="font-semibold stat-number">{totalCompleted}</span>
-                <span className="text-sm text-muted-foreground">completed</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">completed</span>
               </div>
               <div className="flex items-center gap-2">
-                <Flame className="w-5 h-5 text-orange-500" />
+                <Flame className="w-5 h-5 text-orange-500 flex-shrink-0" />
                 <span className="font-semibold stat-number">{streak}</span>
-                <span className="text-sm text-muted-foreground">day streak</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">day streak</span>
               </div>
               <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-amber-500" />
+                <Sparkles className="w-5 h-5 text-amber-500 flex-shrink-0" />
                 <span className="font-semibold stat-number">{formatCredits(balance)}</span>
-                <span className="text-sm text-muted-foreground">credits</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">credits</span>
               </div>
             </motion.div>
           </div>
@@ -281,13 +281,14 @@ function HeroSection({
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
+            className="flex-shrink-0 w-full lg:w-auto"
           >
             <button
               onClick={onStartPractice}
-              className="group relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all overflow-hidden"
+              className="group relative w-full lg:w-auto px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative flex items-center gap-3">
+              <div className="relative flex items-center justify-center gap-3">
                 <Mic className="w-6 h-6" />
                 Voice Interview
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -338,9 +339,9 @@ function QuickActionsGrid({ onNavigate }: { onNavigate: (path: string) => void }
   ];
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 w-full overflow-x-hidden">
       <h2 className="text-xl font-semibold">Quick Start</h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 w-full">
         {actions.map((action, i) => (
           <motion.button
             key={action.id}
@@ -348,16 +349,16 @@ function QuickActionsGrid({ onNavigate }: { onNavigate: (path: string) => void }
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             onClick={() => onNavigate(action.path)}
-            className="group relative p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-all overflow-hidden"
+            className="group relative p-4 lg:p-6 bg-card rounded-xl border border-border hover:border-primary/50 transition-all overflow-hidden w-full min-w-0"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-            <div className="relative space-y-3">
-              <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center`}>
-                <action.icon className="w-6 h-6 text-white" />
+            <div className="relative space-y-2 lg:space-y-3">
+              <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center flex-shrink-0`}>
+                <action.icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
               </div>
               <div className="text-left">
-                <h3 className="font-semibold text-sm">{action.title}</h3>
-                <p className="text-xs text-muted-foreground">{action.desc}</p>
+                <h3 className="font-semibold text-xs lg:text-sm truncate">{action.title}</h3>
+                <p className="text-[10px] lg:text-xs text-muted-foreground truncate">{action.desc}</p>
               </div>
             </div>
           </motion.button>
@@ -440,43 +441,43 @@ function ChannelsOverview({
 
   return (
     <>
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold">Your Channels</h2>
+      <section className="space-y-4 w-full overflow-x-hidden">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <h2 className="text-xl font-semibold truncate">Your Channels</h2>
             {channels.length > 0 && (
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold"
+                className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold flex-shrink-0"
               >
                 {channels.length}
               </motion.div>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              className="px-3 py-1.5 text-sm bg-muted rounded-lg hover:bg-muted/80 transition-colors flex items-center gap-2"
+              className="px-2 lg:px-3 py-1.5 text-xs lg:text-sm bg-muted rounded-lg hover:bg-muted/80 transition-colors flex items-center gap-1 lg:gap-2"
             >
               {viewMode === 'grid' ? (
                 <>
-                  <Layout className="w-4 h-4" />
-                  Grid
+                  <Layout className="w-3 h-3 lg:w-4 lg:h-4" />
+                  <span className="hidden sm:inline">Grid</span>
                 </>
               ) : (
                 <>
-                  <Activity className="w-4 h-4" />
-                  List
+                  <Activity className="w-3 h-3 lg:w-4 lg:h-4" />
+                  <span className="hidden sm:inline">List</span>
                 </>
               )}
             </button>
             <button
               onClick={onManageChannels}
-              className="px-4 py-1.5 text-sm bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+              className="px-3 lg:px-4 py-1.5 text-xs lg:text-sm bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-1 lg:gap-2"
             >
-              <Plus className="w-4 h-4" />
-              Add
+              <Plus className="w-3 h-3 lg:w-4 lg:h-4" />
+              <span className="hidden sm:inline">Add</span>
             </button>
           </div>
         </div>
@@ -484,8 +485,8 @@ function ChannelsOverview({
         {/* Premium Grid Layout with Dynamic Sizing */}
         <div 
           className={viewMode === 'grid' 
-            ? `channels-grid ${cardSizeClass}` 
-            : 'flex flex-col gap-3'
+            ? `channels-grid ${cardSizeClass} w-full` 
+            : 'flex flex-col gap-3 w-full'
           }
         >
           {channels.map((channel, i) => (

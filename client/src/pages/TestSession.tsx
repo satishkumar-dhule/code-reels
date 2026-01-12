@@ -289,10 +289,10 @@ export default function TestSession() {
       />
 
       <DesktopSidebarWrapper>
-      <div className="min-h-screen bg-background text-foreground font-mono">
+      <div className="min-h-screen bg-background text-foreground font-mono w-full overflow-x-hidden">
         {/* Ready State - Vibrant Channel Theme */}
         {sessionState === 'ready' && (
-          <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="min-h-screen flex items-center justify-center p-4 w-full overflow-x-hidden">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -388,7 +388,7 @@ export default function TestSession() {
 
         {/* In Progress State */}
         {sessionState === 'in-progress' && currentQuestion && (
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen flex flex-col w-full overflow-x-hidden">
             {/* Header */}
             <header className="border-b border-border p-3 flex items-center justify-between gap-2">
               <div className="flex items-center gap-3">
@@ -427,8 +427,8 @@ export default function TestSession() {
             </header>
 
             {/* Question */}
-            <div className="flex-1 p-4 overflow-y-auto">
-              <div className="max-w-2xl mx-auto">
+            <div className="flex-1 p-4 overflow-y-auto w-full overflow-x-hidden">
+              <div className="max-w-2xl mx-auto w-full">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentQuestion.id}
@@ -530,8 +530,8 @@ export default function TestSession() {
             </div>
 
             {/* Navigation */}
-            <footer className="border-t border-border p-3">
-              <div className="max-w-2xl mx-auto flex items-center justify-between">
+            <footer className="border-t border-border p-3 w-full overflow-x-hidden">
+              <div className="max-w-2xl mx-auto flex items-center justify-between w-full">
                 <button
                   onClick={goPrev}
                   disabled={currentIndex === 0}
@@ -612,7 +612,7 @@ export default function TestSession() {
 
         {/* Review State - Magical Collapsible Answer Review */}
         {sessionState === 'review' && result && (
-          <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-muted/20">
+          <div className="min-h-screen flex flex-col bg-gradient-to-b from-background via-background to-muted/20 w-full overflow-x-hidden">
             {/* Vibrant Header with Score Summary */}
             <header className={`border-b p-4 relative overflow-hidden ${
               result.passed ? 'border-green-500/30' : 'border-orange-500/30'
@@ -1001,7 +1001,7 @@ export default function TestSession() {
 
         {/* Completed State - Vibrant Results */}
         {sessionState === 'completed' && result && (
-          <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="min-h-screen flex items-center justify-center p-4 w-full overflow-x-hidden">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
