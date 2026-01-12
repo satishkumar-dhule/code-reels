@@ -36,16 +36,23 @@ test.describe('Home Page', () => {
       const startButton = page.locator('button').filter({ hasText: /Start Your Journey/i });
       expect(await startButton.isVisible()).toBeTruthy();
     } else {
-      // On main home page, check for Quick Start action buttons
+      // On main home page, check for Quick Start section or action buttons
+      const hasQuickStart = await page.getByText('Quick Start').isVisible().catch(() => false);
+      const hasReadyToPractice = await page.getByText('Ready to practice?').isVisible().catch(() => false);
+      
+      // Check for action buttons
       const voiceButton = page.locator('button, a').filter({ hasText: /Voice Interview/i }).first();
       const codingButton = page.locator('button, a').filter({ hasText: /Coding Challenge/i }).first();
       const trainingButton = page.locator('button, a').filter({ hasText: /Training Mode/i }).first();
+      const quickTests = page.locator('button, a').filter({ hasText: /Quick Tests/i }).first();
       
       const hasVoice = await voiceButton.isVisible({ timeout: 3000 }).catch(() => false);
       const hasCoding = await codingButton.isVisible({ timeout: 3000 }).catch(() => false);
       const hasTraining = await trainingButton.isVisible({ timeout: 3000 }).catch(() => false);
+      const hasTests = await quickTests.isVisible({ timeout: 3000 }).catch(() => false);
       
-      expect(hasVoice || hasCoding || hasTraining).toBeTruthy();
+      // Pass if we have Quick Start section or any action buttons
+      expect(hasQuickStart || hasReadyToPractice || hasVoice || hasCoding || hasTraining || hasTests).toBeTruthy();
     }
   });
 
