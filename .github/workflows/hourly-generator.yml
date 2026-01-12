@@ -105,31 +105,9 @@ jobs:
           echo "**Strategy:** Channels with 0 questions get absolute priority" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
 
-  # Trigger deployment if questions were added
-  trigger-deploy:
-    name: 🚀 Trigger Deploy
-    needs: [generate, generate-certifications]
-    if: always() && (needs.generate.result == 'success' || needs.generate-certifications.result == 'success')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger deploy workflow
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // Only trigger deploy during business hours to avoid spam
-            const hour = new Date().getUTCHours();
-            if (hour >= 6 && hour <= 22) {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: 'deploy-app.yml',
-                ref: 'main'
-              });
-              console.log('Triggered deploy workflow');
-            } else {
-              console.log('Skipping deploy during off-hours');
-            }
+  # Note: Deployment removed to avoid hourly deployments
+  # Questions are added to database but deployment happens separately
+  # Use manual deployment or scheduled deployment workflow instead
 
   # Generate certification exam questions
   generate-certifications:
