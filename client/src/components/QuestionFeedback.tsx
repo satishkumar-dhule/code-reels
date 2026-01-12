@@ -24,7 +24,7 @@ const FEEDBACK_OPTIONS: FeedbackOption[] = [
 ];
 
 // GitHub repo for issues
-const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || 'open-interview/open-interview.github.io';
+const GITHUB_REPO = import.meta.env.VITE_GITHUB_REPO || 'open-interview/open-interview';
 
 const FEEDBACK_STORAGE_KEY = 'question-feedback';
 

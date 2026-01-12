@@ -1,0 +1,131 @@
+name: 🏷️ Setup Repository Labels
+
+# Creates required labels for the issue processor system
+# Run this once to set up labels, or when new labels are needed
+
+on:
+  workflow_dispatch:
+  
+  # Run on repository creation or when this workflow is added
+  push:
+    paths:
+      - '.github/workflows/setup-labels.yml'
+    branches:
+      - main
+
+jobs:
+  setup-labels:
+    name: 🏷️ Create Labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or update labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const labels = [
+              {
+                name: 'bot:processor',
+                color: '0052cc',
+                description: 'Issue created by QuestionFeedback component for processing'
+              },
+              {
+                name: 'bot:in-progress',
+                color: 'fbca04',
+                description: 'Issue is currently being processed by the bot'
+              },
+              {
+                name: 'bot:completed',
+                color: '0e8a16',
+                description: 'Issue has been successfully processed by the bot'
+              },
+              {
+                name: 'bot:failed',
+                color: 'd93f0b',
+                description: 'Issue processing failed'
+              },
+              {
+                name: 'feedback:improve',
+                color: '1d76db',
+                description: 'Request to improve existing question content'
+              },
+              {
+                name: 'feedback:rewrite',
+                color: 'f9d0c4',
+                description: 'Request to completely rewrite question content'
+              },
+              {
+                name: 'feedback:disable',
+                color: 'b60205',
+                description: 'Request to disable/remove question'
+              }
+            ];
+            
+            console.log('Creating/updating repository labels...');
+            
+            for (const label of labels) {
+              try {
+                // Try to get existing label
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name
+                });
+                
+                // Label exists, update it
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                
+                console.log(`✅ Updated label: ${label.name}`);
+                
+              } catch (error) {
+                if (error.status === 404) {
+                  // Label doesn't exist, create it
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    color: label.color,
+                    description: label.description
+                  });
+                  
+                  console.log(`🆕 Created label: ${label.name}`);
+                } else {
+                  console.log(`❌ Error with label ${label.name}: ${error.message}`);
+                }
+              }
+            }
+            
+            console.log('\n✅ Label setup complete!');
+            
+            // List all labels for verification
+            const { data: allLabels } = await github.rest.issues.listLabelsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            console.log('\n📋 Current repository labels:');
+            for (const label of allLabels) {
+              console.log(`   • ${label.name} (#${label.color})`);
+            }
+
+      - name: Generate Summary
+        run: |
+          echo "## 🏷️ Repository Labels Setup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** Complete" >> $GITHUB_STEP_SUMMARY
+          echo "**Labels Created/Updated:**" >> $GITHUB_STEP_SUMMARY
+          echo "- \`bot:processor\` - Issue created by QuestionFeedback component" >> $GITHUB_STEP_SUMMARY
+          echo "- \`bot:in-progress\` - Issue currently being processed" >> $GITHUB_STEP_SUMMARY
+          echo "- \`bot:completed\` - Issue successfully processed" >> $GITHUB_STEP_SUMMARY
+          echo "- \`bot:failed\` - Issue processing failed" >> $GITHUB_STEP_SUMMARY
+          echo "- \`feedback:improve\` - Request to improve question" >> $GITHUB_STEP_SUMMARY
+          echo "- \`feedback:rewrite\` - Request to rewrite question" >> $GITHUB_STEP_SUMMARY
+          echo "- \`feedback:disable\` - Request to disable question" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY

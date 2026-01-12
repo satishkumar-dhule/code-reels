@@ -31,6 +31,7 @@ const CertificationPractice = React.lazy(() => import("@/pages/CertificationPrac
 const CertificationExam = React.lazy(() => import("@/pages/CertificationExam"));
 const TrainingMode = React.lazy(() => import("@/pages/TrainingMode"));
 const Documentation = React.lazy(() => import("@/pages/Documentation"));
+const ExtremeQuestionViewer = React.lazy(() => import("@/pages/ExtremeQuestionViewer"));
 import { ProgressiveOnboarding } from "./components/ProgressiveOnboarding";
 import { ThemeProvider } from "./context/ThemeContext";
 import { UserPreferencesProvider, useUserPreferences } from "./context/UserPreferencesContext";
@@ -137,6 +138,8 @@ function Router() {
         <Route path="/certification/:id" component={CertificationPractice} />
         <Route path="/certification/:id/exam" component={CertificationExam} />
         <Route path="/certification/:id/:questionIndex" component={CertificationPractice} />
+        <Route path="/extreme/channel/:id" component={ExtremeQuestionViewer} />
+        <Route path="/extreme/channel/:id/:questionId" component={ExtremeQuestionViewer} />
         <Route path="/channel/:id" component={QuestionViewer} />
         <Route path="/channel/:id/:index" component={QuestionViewer} />
         <Route component={NotFound} />

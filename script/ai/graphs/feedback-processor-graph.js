@@ -54,6 +54,7 @@ const FeedbackState = Annotation.Root({
   // Input
   maxIssues: Annotation({ reducer: (_, b) => b, default: () => 10 }),
   singleIssue: Annotation({ reducer: (_, b) => b, default: () => null }),
+  externalIssues: Annotation({ reducer: (_, b) => b, default: () => null }),
   
   // Current issue being processed
   currentIssue: Annotation({ reducer: (_, b) => b, default: () => null }),
@@ -177,10 +178,32 @@ async function githubApi(endpoint, options = {}) {
  * Node: Fetch open issues with bot:processor label
  */
 async function fetchIssuesNode(state) {
-  console.log('\n📥 [FETCH_ISSUES] Getting feedback issues from GitHub...');
+  console.log('\n📥 [FETCH_ISSUES] Getting feedback issues...');
   
   // Initialize processing history table
   await initProcessingHistory();
+  
+  // Handle external issues (from cross-repo sync)
+  if (state.externalIssues) {
+    console.log(`   Processing ${state.externalIssues.length} external issues`);
+    
+    // Convert external issues to the expected format
+    const formattedIssues = state.externalIssues.map(issue => ({
+      number: issue.number,
+      title: issue.title,
+      body: issue.body,
+      html_url: issue.url,
+      labels: [
+        { name: 'bot:processor' },
+        // Extract feedback type from title if available
+        ...(issue.title.includes('[IMPROVE]') ? [{ name: 'feedback:improve' }] : []),
+        ...(issue.title.includes('[REWRITE]') ? [{ name: 'feedback:rewrite' }] : []),
+        ...(issue.title.includes('[DISABLE]') ? [{ name: 'feedback:disable' }] : [])
+      ]
+    }));
+    
+    return { issues: formattedIssues };
+  }
   
   if (!GITHUB_TOKEN) {
     console.log('   ⚠️ GITHUB_TOKEN not set, skipping');
@@ -426,13 +449,17 @@ async function executeActionNode(state) {
   
   console.log(`\n⚡ [EXECUTE_ACTION] Running ${state.feedbackType} action...`);
   
+  const isExternalIssue = state.externalIssues !== null;
+  
   try {
-    // Add in-progress label to issue
-    if (state.currentIssue) {
+    // Add in-progress label to issue (skip for external issues)
+    if (state.currentIssue && !isExternalIssue) {
       await githubApi(`/issues/${state.currentIssue.number}/labels`, {
         method: 'POST',
         body: JSON.stringify({ labels: ['bot:in-progress'] })
       });
+    } else if (isExternalIssue) {
+      console.log('   ⏭️ Skipping in-progress label for external issue');
     }
     
     let updatedQuestion = null;
@@ -613,6 +640,7 @@ async function closeIssueNode(state) {
   console.log(`\n📝 [CLOSE_ISSUE] Updating issue #${state.currentIssue.number}...`);
   
   const success = !state.error;
+  const isExternalIssue = state.externalIssues !== null;
   
   try {
     // Build result comment
@@ -640,24 +668,29 @@ async function closeIssueNode(state) {
       comment += `\n---\n*Processed by processor-bot using AI*`;
     }
     
-    // Post comment
-    await githubApi(`/issues/${state.currentIssue.number}/comments`, {
-      method: 'POST',
-      body: JSON.stringify({ body: comment })
-    });
-    
-    // Close issue with appropriate labels
-    await githubApi(`/issues/${state.currentIssue.number}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ 
-        state: 'closed',
-        labels: state.error 
-          ? ['bot:processor', `feedback:${state.feedbackType}`, 'bot:failed']
-          : ['bot:processor', `feedback:${state.feedbackType}`, 'bot:completed']
-      })
-    });
-    
-    console.log('   ✅ Issue closed');
+    // Skip GitHub API calls for external issues (handled by cross-repo sync)
+    if (!isExternalIssue) {
+      // Post comment
+      await githubApi(`/issues/${state.currentIssue.number}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ body: comment })
+      });
+      
+      // Close issue with appropriate labels
+      await githubApi(`/issues/${state.currentIssue.number}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ 
+          state: 'closed',
+          labels: state.error 
+            ? ['bot:processor', `feedback:${state.feedbackType}`, 'bot:failed']
+            : ['bot:processor', `feedback:${state.feedbackType}`, 'bot:completed']
+        })
+      });
+      
+      console.log('   ✅ Issue closed');
+    } else {
+      console.log('   ✅ External issue processed (will be closed by cross-repo sync)');
+    }
     
     // Record processing completion to prevent circular loops
     await recordProcessingComplete(
@@ -771,7 +804,9 @@ export async function processFeedback(options = {}) {
   console.log('🔄 LANGGRAPH FEEDBACK PROCESSOR PIPELINE');
   console.log('═'.repeat(60));
   
-  if (options.singleIssue) {
+  if (options.externalIssues) {
+    console.log(`   Mode: External issues processing (${options.externalIssues.length} issues)`);
+  } else if (options.singleIssue) {
     console.log(`   Mode: Single issue #${options.singleIssue}`);
   } else {
     console.log(`   Mode: Batch processing (max ${options.maxIssues || 10} issues)`);
@@ -781,7 +816,8 @@ export async function processFeedback(options = {}) {
   
   const initialState = {
     maxIssues: options.maxIssues || 10,
-    singleIssue: options.singleIssue || null
+    singleIssue: options.singleIssue || null,
+    externalIssues: options.externalIssues || null
   };
   
   const result = await graph.invoke(initialState);

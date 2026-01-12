@@ -9,7 +9,7 @@ import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { allChannelsConfig } from '../lib/channels-config';
 import { formatTag } from '../lib/utils';
 
-type FilterType = 'all' | 'company' | 'video' | 'diagram' | 'coding';
+type FilterType = 'all' | 'tags' | 'company' | 'video' | 'diagram' | 'coding';
 
 function isQuestionResult(result: UnifiedSearchResult): result is SearchResult {
   return result.type === 'question';
@@ -41,6 +41,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const filters: { id: FilterType; label: string; icon: React.ReactNode }[] = [
     { id: 'all', label: 'All', icon: <Filter className="w-3 h-3" /> },
+    { id: 'tags', label: 'Tags', icon: <Tag className="w-3 h-3" /> },
     { id: 'coding', label: 'Coding', icon: <Code2 className="w-3 h-3" /> },
     { id: 'company', label: 'Company', icon: <Building2 className="w-3 h-3" /> },
     { id: 'video', label: 'Video', icon: <Video className="w-3 h-3" /> },
@@ -77,6 +78,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     let filtered = results;
     
     switch (activeFilter) {
+      case 'tags':
+        filtered = results.filter(r => isQuestionResult(r) && r.matchedIn.includes('tags'));
+        break;
       case 'coding':
         filtered = results.filter(r => isCodingResult(r));
         break;
@@ -147,6 +151,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const getFilterCount = (filterId: FilterType) => {
     if (filterId === 'all') return results.length;
+    if (filterId === 'tags') return results.filter(r => isQuestionResult(r) && r.matchedIn.includes('tags')).length;
     if (filterId === 'coding') return results.filter(r => isCodingResult(r)).length;
     if (filterId === 'company') return results.filter(r => isQuestionResult(r) && r.question.companies?.length).length;
     if (filterId === 'video') return results.filter(r => isQuestionResult(r) && (r.question.videos?.shortVideo || r.question.videos?.longVideo)).length;
@@ -205,9 +210,23 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <p className="text-sm text-foreground line-clamp-2">{result.question.question}</p>
           <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{result.question.answer}</p>
           {result.question.tags?.length > 0 && (
-            <div className="flex items-center gap-1 mt-2">
-              <Tag className="w-3 h-3 text-muted-foreground/50" />
-              <span className="text-[10px] text-muted-foreground/50">{result.question.tags.slice(0, 3).map(formatTag).join(', ')}</span>
+            <div className="flex items-center gap-1 mt-2 flex-wrap">
+              <Tag className="w-3 h-3 text-muted-foreground/50 shrink-0" />
+              {result.question.tags.slice(0, 5).map((tag, idx) => (
+                <span 
+                  key={idx}
+                  className={`text-[10px] px-1.5 py-0.5 rounded ${
+                    result.matchedIn.includes('tags') 
+                      ? 'bg-primary/20 text-primary font-semibold border border-primary/30' 
+                      : 'text-muted-foreground/70 bg-muted/50'
+                  }`}
+                >
+                  {formatTag(tag)}
+                </span>
+              ))}
+              {result.question.tags.length > 5 && (
+                <span className="text-[10px] text-muted-foreground/50">+{result.question.tags.length - 5}</span>
+              )}
             </div>
           )}
         </div>
@@ -220,9 +239,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     <div className="p-8 text-center text-muted-foreground">
       <Search className="w-12 h-12 mx-auto mb-4 opacity-30" />
       <p className="text-base mb-1">Type to search</p>
-      <p className="text-sm opacity-70 mb-6">Search questions, topics, or tags</p>
+      <p className="text-sm opacity-70 mb-2">Search questions, topics, or tags</p>
+      <div className="flex items-center justify-center gap-2 mb-6 text-xs">
+        <span className="px-2 py-1 bg-primary/10 text-primary rounded font-mono">tag:react</span>
+        <span className="text-muted-foreground/50">or</span>
+        <span className="px-2 py-1 bg-primary/10 text-primary rounded font-mono">#kubernetes</span>
+      </div>
       <div className="flex flex-wrap justify-center gap-2">
-        {['react hooks', 'system design', 'sql joins', 'kubernetes'].map(term => (
+        {['react hooks', 'tag:system-design', '#sql', 'kubernetes'].map(term => (
           <button
             key={term}
             onClick={() => setQuery(term)}

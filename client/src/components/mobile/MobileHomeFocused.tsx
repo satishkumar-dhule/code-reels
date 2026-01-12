@@ -671,7 +671,7 @@ function QuickQuizCard({
   );
 }
 
-// Continue Learning Section - shows all subscribed channels
+// Continue Learning Section - shows all subscribed channels with dynamic sizing
 function ContinueLearningSection({ 
   channels, 
   questionCounts,
@@ -687,19 +687,38 @@ function ContinueLearningSection({
   onSeeAll: () => void;
   fillHeight?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(false);
+  // Show all channels - let CSS grid and scroll handle the layout
+  const visibleChannels = channels;
+  const [scrollState, setScrollState] = useState({ hasTop: false, hasBottom: false });
   
-  // Determine visible count based on screen size and expanded state
-  const mobileLimit = 4;
-  const desktopLimit = 6;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-  const limit = isMobile ? mobileLimit : desktopLimit;
-  const hiddenCount = channels.length - limit;
+  // Calculate optimal height based on content
+  const mobileRowHeight = 72; // Approximate height of each channel row on mobile
+  const desktopCardHeight = 120; // Approximate height of each channel card on desktop
+  const desktopCols = 3; // lg:grid-cols-3
+  const tabletCols = 2; // sm:grid-cols-2
   
-  // If only 1-2 more channels, just show them all (no point hiding so few)
-  const shouldShowAll = hiddenCount <= 2;
-  const hasMore = !shouldShowAll && channels.length > limit;
-  const visibleChannels = (expanded || shouldShowAll) ? channels : channels.slice(0, limit);
+  // Calculate dynamic heights
+  const mobileOptimalHeight = Math.min(visibleChannels.length * mobileRowHeight, 400);
+  const desktopRows = Math.ceil(visibleChannels.length / desktopCols);
+  const tabletRows = Math.ceil(visibleChannels.length / tabletCols);
+  const desktopOptimalHeight = Math.min(desktopRows * desktopCardHeight + 32, 400); // +32 for padding
+  const tabletOptimalHeight = Math.min(tabletRows * desktopCardHeight + 32, 400);
+  
+  // Use CSS custom properties for dynamic heights
+  const dynamicStyle = {
+    '--mobile-height': `${mobileOptimalHeight}px`,
+    '--tablet-height': `${tabletOptimalHeight}px`,
+    '--desktop-height': `${desktopOptimalHeight}px`,
+  } as React.CSSProperties;
+  
+  // Handle scroll events to show/hide fade indicators
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    setScrollState({
+      hasTop: scrollTop > 0,
+      hasBottom: scrollTop < scrollHeight - clientHeight - 1
+    });
+  };
 
   return (
     <section className={fillHeight ? 'lg:flex-1 lg:min-h-0 lg:flex lg:flex-col' : 'mb-3'}>
@@ -714,48 +733,54 @@ function ContinueLearningSection({
           </div>
         </button>
         
-        {/* Desktop: Grid layout, Mobile: List - with scroll when needed */}
-        <div className={`sm:hidden divide-y divide-border/50 ${fillHeight ? 'lg:flex-1 lg:overflow-y-auto lg:min-h-0' : ''}`}>
-          {visibleChannels.map((channel) => (
-            <ChannelRow
-              key={channel.id}
-              channel={channel}
-              questionCount={questionCounts[channel.id] || 0}
-              onClick={() => onChannelClick(channel.id)}
-              onUnsubscribe={() => onUnsubscribe(channel.id)}
-            />
-          ))}
+        {/* Mobile: List with dynamic height scroll */}
+        <div className={`sm:hidden scroll-container ${scrollState.hasTop ? 'has-scroll-top' : ''} ${scrollState.hasBottom ? 'has-scroll-bottom' : ''}`} style={dynamicStyle}>
+          <div className="overflow-y-auto force-scrollbar divide-y divide-border/50 dynamic-mobile-height" onScroll={handleScroll}>
+            {visibleChannels.map((channel) => (
+              <ChannelRow
+                key={channel.id}
+                channel={channel}
+                questionCount={questionCounts[channel.id] || 0}
+                onClick={() => onChannelClick(channel.id)}
+                onUnsubscribe={() => onUnsubscribe(channel.id)}
+              />
+            ))}
+          </div>
         </div>
         
-        <div className={`hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3 sm:p-4 auto-rows-min content-start ${fillHeight ? 'lg:flex-1 lg:overflow-y-auto lg:min-h-0' : ''}`}>
-          {visibleChannels.map((channel) => (
-            <ChannelCard
-              key={channel.id}
-              channel={channel}
-              questionCount={questionCounts[channel.id] || 0}
-              onClick={() => onChannelClick(channel.id)}
-              onUnsubscribe={() => onUnsubscribe(channel.id)}
-            />
-          ))}
+        {/* Tablet: Grid with dynamic height scroll */}
+        <div className={`hidden sm:block lg:hidden scroll-container ${scrollState.hasTop ? 'has-scroll-top' : ''} ${scrollState.hasBottom ? 'has-scroll-bottom' : ''}`} style={dynamicStyle}>
+          <div className="overflow-y-auto force-scrollbar dynamic-tablet-height" onScroll={handleScroll}>
+            <div className="grid grid-cols-2 gap-3 p-3 sm:p-4">
+              {visibleChannels.map((channel) => (
+                <ChannelCard
+                  key={channel.id}
+                  channel={channel}
+                  questionCount={questionCounts[channel.id] || 0}
+                  onClick={() => onChannelClick(channel.id)}
+                  onUnsubscribe={() => onUnsubscribe(channel.id)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
-
-        {hasMore && !expanded && (
-          <button 
-            onClick={() => setExpanded(true)}
-            className="w-full py-2 sm:py-3 text-xs sm:text-sm text-primary font-medium hover:bg-muted/50 border-t border-border/50 flex-shrink-0 mt-auto"
-          >
-            +{hiddenCount} more channels
-          </button>
-        )}
         
-        {expanded && hasMore && (
-          <button 
-            onClick={() => setExpanded(false)}
-            className="w-full py-2 sm:py-3 text-xs sm:text-sm text-muted-foreground font-medium hover:bg-muted/50 border-t border-border/50 flex-shrink-0 mt-auto"
-          >
-            Show less
-          </button>
-        )}
+        {/* Desktop: Grid with dynamic height scroll */}
+        <div className={`hidden lg:block scroll-container ${scrollState.hasTop ? 'has-scroll-top' : ''} ${scrollState.hasBottom ? 'has-scroll-bottom' : ''}`} style={dynamicStyle}>
+          <div className="overflow-y-auto force-scrollbar dynamic-desktop-height" onScroll={handleScroll}>
+            <div className="grid grid-cols-3 gap-3 p-3 sm:p-4">
+              {visibleChannels.map((channel) => (
+                <ChannelCard
+                  key={channel.id}
+                  channel={channel}
+                  questionCount={questionCounts[channel.id] || 0}
+                  onClick={() => onChannelClick(channel.id)}
+                  onUnsubscribe={() => onUnsubscribe(channel.id)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

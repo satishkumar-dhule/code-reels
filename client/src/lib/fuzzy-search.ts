@@ -96,6 +96,11 @@ export function searchQuestions(query: string, limit: number = 20): SearchResult
   const allQuestions = getAllQuestions();
   const resultsMap = new Map<string, SearchResult>(); // Dedupe by question ID
   
+  // Check if this is an explicit tag search (e.g., "tag:react" or "#react")
+  const tagSearchMatch = query.match(/^(?:tag:|#)(.+)$/i);
+  const isTagSearch = !!tagSearchMatch;
+  const searchQuery = isTagSearch ? tagSearchMatch[1].trim() : query;
+  
   for (const question of allQuestions) {
     // Skip if we already have a result for this question ID (keep highest score)
     const existingResult = resultsMap.get(question.id);
@@ -103,34 +108,46 @@ export function searchQuestions(query: string, limit: number = 20): SearchResult
     const matchedIn: ('question' | 'answer' | 'tags' | 'channel')[] = [];
     let totalScore = 0;
     
-    // Search in question text (highest weight)
-    const questionScore = fuzzyScore(query, question.question);
-    if (questionScore > 0) {
-      totalScore += questionScore * 3;
-      matchedIn.push('question');
-    }
-    
-    // Search in answer
-    const answerScore = fuzzyScore(query, question.answer);
-    if (answerScore > 0) {
-      totalScore += answerScore * 1.5;
-      matchedIn.push('answer');
-    }
-    
-    // Search in tags
-    const tagsText = question.tags?.join(' ') || '';
-    const tagsScore = fuzzyScore(query, tagsText);
-    if (tagsScore > 0) {
-      totalScore += tagsScore * 2;
-      matchedIn.push('tags');
-    }
-    
-    // Search in channel/subchannel
-    const channelText = `${question.channel} ${question.subChannel}`.replace(/-/g, ' ');
-    const channelScore = fuzzyScore(query, channelText);
-    if (channelScore > 0) {
-      totalScore += channelScore * 1.5;
-      matchedIn.push('channel');
+    // If explicit tag search, only search in tags with high priority
+    if (isTagSearch) {
+      const tagsText = question.tags?.join(' ') || '';
+      const tagsScore = fuzzyScore(searchQuery, tagsText);
+      if (tagsScore > 0) {
+        totalScore += tagsScore * 10; // Very high weight for explicit tag searches
+        matchedIn.push('tags');
+      }
+    } else {
+      // Normal search across all fields
+      
+      // Search in question text (highest weight)
+      const questionScore = fuzzyScore(searchQuery, question.question);
+      if (questionScore > 0) {
+        totalScore += questionScore * 3;
+        matchedIn.push('question');
+      }
+      
+      // Search in answer
+      const answerScore = fuzzyScore(searchQuery, question.answer);
+      if (answerScore > 0) {
+        totalScore += answerScore * 1.5;
+        matchedIn.push('answer');
+      }
+      
+      // Search in tags (higher weight than before)
+      const tagsText = question.tags?.join(' ') || '';
+      const tagsScore = fuzzyScore(searchQuery, tagsText);
+      if (tagsScore > 0) {
+        totalScore += tagsScore * 4; // Increased from 2 to 4
+        matchedIn.push('tags');
+      }
+      
+      // Search in channel/subchannel
+      const channelText = `${question.channel} ${question.subChannel}`.replace(/-/g, ' ');
+      const channelScore = fuzzyScore(searchQuery, channelText);
+      if (channelScore > 0) {
+        totalScore += channelScore * 1.5;
+        matchedIn.push('channel');
+      }
     }
     
     if (totalScore > 0) {

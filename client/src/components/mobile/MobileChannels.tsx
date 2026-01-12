@@ -225,8 +225,18 @@ function CategorySection({
   onToggle: (id: string) => void;
   onNavigate: (id: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  const displayedChannels = expanded ? channels : channels.slice(0, 3);
+  // Show all channels - let scroll handle overflow
+  const displayedChannels = channels;
+  
+  // Calculate optimal height based on content
+  const itemHeight = 64; // Approximate height of each channel item
+  const optimalHeight = Math.min(displayedChannels.length * itemHeight, 320);
+  const minHeight = Math.min(itemHeight * 2, optimalHeight); // Show at least 2 items or actual content
+  
+  const dynamicStyle = {
+    '--category-height': `${optimalHeight}px`,
+    '--category-min-height': `${minHeight}px`,
+  } as React.CSSProperties;
 
   return (
     <section>
@@ -240,28 +250,22 @@ function CategorySection({
         <span className="text-xs text-muted-foreground">{channels.length} channels</span>
       </div>
       
-      <div className="px-4 space-y-2">
-        {displayedChannels.map((channel, index) => (
-          <ChannelListCard
-            key={channel.id}
-            channel={channel}
-            isSubscribed={isSubscribed(channel.id)}
-            onToggle={() => onToggle(channel.id)}
-            questionCount={questionCounts[channel.id] || 0}
-            newThisWeek={newThisWeekCounts[channel.id]}
-            index={index}
-            onNavigate={() => onNavigate(channel.id)}
-            compact
-          />
-        ))}
-        {channels.length > 3 && (
-          <button 
-            onClick={() => setExpanded(!expanded)}
-            className="w-full py-2 text-sm text-primary font-medium hover:bg-primary/5 rounded-lg transition-colors"
-          >
-            {expanded ? 'Show less' : `Show ${channels.length - 3} more`}
-          </button>
-        )}
+      <div className="px-4" style={dynamicStyle}>
+        <div className="space-y-2 overflow-y-auto force-scrollbar dynamic-category-height">
+          {displayedChannels.map((channel, index) => (
+            <ChannelListCard
+              key={channel.id}
+              channel={channel}
+              isSubscribed={isSubscribed(channel.id)}
+              onToggle={() => onToggle(channel.id)}
+              questionCount={questionCounts[channel.id] || 0}
+              newThisWeek={newThisWeekCounts[channel.id]}
+              index={index}
+              onNavigate={() => onNavigate(channel.id)}
+              compact
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1275,6 +1275,46 @@ async function main() {
   
   await initBotTables();
   
+  // Check if processing external issues
+  const isExternalMode = process.argv.includes('--external-issues');
+  const externalIssuesFile = process.env.EXTERNAL_ISSUES_FILE;
+  
+  if (isExternalMode) {
+    console.log('🔗 External Issues Mode - Processing issues from external repository');
+    
+    if (!externalIssuesFile) {
+      console.error('❌ EXTERNAL_ISSUES_FILE environment variable not set');
+      process.exit(1);
+    }
+    
+    try {
+      const fs = await import('fs');
+      const externalIssues = JSON.parse(fs.readFileSync(externalIssuesFile, 'utf8'));
+      console.log(`📥 Found ${externalIssues.length} external issues to process`);
+      
+      // Process external issues directly using the feedback processor
+      const { processFeedback } = await import('../ai/graphs/feedback-processor-graph.js');
+      const result = await processFeedback({ 
+        externalIssues,
+        maxIssues: externalIssues.length
+      });
+      
+      console.log('\n' + '='.repeat(50));
+      console.log('📊 EXTERNAL ISSUES PROCESSING SUMMARY');
+      console.log('='.repeat(50));
+      console.log(`   Total Processed: ${result.processedCount || 0}`);
+      console.log(`   ✅ Successful: ${(result.results || []).filter(r => r.success).length}`);
+      console.log(`   ❌ Failed: ${(result.results || []).filter(r => !r.success).length}`);
+      console.log('='.repeat(50));
+      
+      return;
+      
+    } catch (error) {
+      console.error('❌ Error processing external issues:', error);
+      process.exit(1);
+    }
+  }
+  
   // Process user feedback first (converts to work items)
   const feedbackResult = await processUserFeedback();
   if (feedbackResult.processed > 0) {
