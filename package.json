@@ -99,6 +99,8 @@
     "bot:verifier": "node script/bots/verifier-bot.js",
     "bot:processor": "node script/bots/processor-bot.js",
     "bot:sessions": "node script/bots/session-builder-bot.js",
+    "bot:reconcile": "node script/bots/reconciliation-bot.js",
+    "bot:reconcile:dry": "node script/bots/reconciliation-bot.js --dry-run",
     "intelligence:generate": "node script/generate-interview-intelligence.js",
     "deploy:pages": "tsx script/deploy-pages.ts",
     "preview": "rm -f dist/public/404.html && vite preview --port 3333",

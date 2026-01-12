@@ -1,8 +1,16 @@
 name: 🤖 Content Pipeline
 
-# Unified content generation pipeline
-# Runs: Creator → Verifier → Processor → Blog Generator
+# Unified content generation and quality assurance pipeline
+# Runs: Creator → Analysis → Verifier → Processor → Blog Generator
 # Schedule: Daily at 2:00 AM UTC
+#
+# Pipeline Flow:
+# 1. Creator Bot: Generates new questions
+# 2. Analysis Bot: Detects quality issues, channel mismatches, enrichment opportunities
+# 3. Verifier Bot: Deep quality validation (legacy, runs in parallel)
+# 4. Processor Bot: Fixes all detected issues from work queue
+# 5. Blog Generator: Creates blog content from questions
+# 6. Monitor Update: Updates bot activity dashboard
 
 on:
   schedule:
@@ -17,6 +25,7 @@ on:
         options:
           - all
           - creator
+          - analysis
           - verifier
           - processor
           - blog-generator
@@ -24,6 +33,18 @@ on:
         description: 'Number of items to process'
         required: false
         default: '5'
+      analysis_focus:
+        description: 'Analysis focus area'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - quality
+          - channels
+          - enrichment
+          - voice
+          - duplicates
 
 jobs:
   creator:
@@ -44,10 +65,40 @@ jobs:
           COUNT: ${{ inputs.count || '5' }}
         run: node script/bots/creator-bot.js
 
+  analysis:
+    name: 🔍 Analysis Bot
+    if: always() && (github.event_name == 'schedule' || inputs.stage == 'all' || inputs.stage == 'analysis')
+    needs: [creator]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-bot
+      - name: Run Analysis Bot
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+          OLLAMA_URL: ${{ secrets.OLLAMA_URL }}
+        run: |
+          FOCUS="${{ inputs.analysis_focus || 'all' }}"
+          LIMIT="${{ inputs.count || '100' }}"
+          
+          if [ "$FOCUS" = "all" ]; then
+            # Run comprehensive analysis
+            echo "🔍 Running comprehensive analysis..."
+            node script/bots/analysis-bot.js --limit=$LIMIT
+          else
+            # Run focused analysis
+            echo "🔍 Running focused analysis: $FOCUS"
+            node script/bots/analysis-bot.js --focus=$FOCUS --limit=$LIMIT
+          fi
+
   verifier:
     name: ✅ Verifier Bot
     if: always() && (github.event_name == 'schedule' || inputs.stage == 'all' || inputs.stage == 'verifier')
-    needs: [creator]
+    needs: [analysis]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -126,7 +177,7 @@ jobs:
 
   summary:
     name: 📋 Summary
-    needs: [creator, verifier, processor, blog-generator, update-monitor]
+    needs: [creator, analysis, verifier, processor, blog-generator, update-monitor]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -137,6 +188,7 @@ jobs:
           echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| 📝 Creator | ${{ needs.creator.result == 'success' && '✅' || needs.creator.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 Analysis | ${{ needs.analysis.result == 'success' && '✅' || needs.analysis.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ✅ Verifier | ${{ needs.verifier.result == 'success' && '✅' || needs.verifier.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| ⚙️ Processor | ${{ needs.processor.result == 'success' && '✅' || needs.processor.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 📰 Blog Generator | ${{ needs.blog-generator.result == 'success' && '✅' || needs.blog-generator.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
