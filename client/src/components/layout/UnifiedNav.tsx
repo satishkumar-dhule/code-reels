@@ -223,9 +223,9 @@ export function MobileBottomNav() {
       )}
 
       {/* Bottom Navigation Bar - Premium Design */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-        <div className="pb-safe bg-gradient-to-t from-card via-card/98 to-card/90 backdrop-blur-xl border-t border-border/30">
-          <div className="flex items-center justify-around h-16 px-2 max-w-md mx-auto">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden w-full overflow-hidden">
+        <div className="pb-safe bg-gradient-to-t from-card via-card/98 to-card/90 backdrop-blur-xl border-t border-border/30 w-full">
+          <div className="flex items-center justify-around h-16 px-2 max-w-md mx-auto w-full">
             {mainNavItems.map((item) => {
               const isActive = activeSection === item.id;
               const hasSubmenu = item.id === 'practice' || item.id === 'learn' || item.id === 'progress';
@@ -237,7 +237,7 @@ export function MobileBottomNav() {
                   key={item.id}
                   onClick={() => handleNavClick(item)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center flex-1 h-14 transition-all",
+                    "relative flex flex-col items-center justify-center flex-1 h-14 transition-all min-w-0",
                     isActive || isMenuOpen ? "text-primary" : "text-muted-foreground"
                   )}
                 >
@@ -255,7 +255,7 @@ export function MobileBottomNav() {
                     <motion.div 
                       whileTap={{ scale: 0.95 }}
                       className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center -mt-4 shadow-lg transition-all",
+                        "w-12 h-12 rounded-2xl flex items-center justify-center -mt-4 shadow-lg transition-all flex-shrink-0",
                         isActive || isMenuOpen
                           ? "bg-primary text-primary-foreground shadow-primary/40" 
                           : "bg-gradient-to-br from-primary via-primary to-cyan-500 text-white shadow-primary/30"
@@ -267,7 +267,7 @@ export function MobileBottomNav() {
                     <motion.div 
                       whileTap={{ scale: 0.9 }}
                       className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                        "w-10 h-10 rounded-xl flex items-center justify-center transition-all flex-shrink-0",
                         isActive || isMenuOpen ? "bg-primary/10" : "hover:bg-muted/50"
                       )}
                     >
@@ -279,7 +279,7 @@ export function MobileBottomNav() {
                   )}
                   
                   <span className={cn(
-                    "text-[10px] font-medium mt-0.5 transition-colors",
+                    "text-[10px] font-medium mt-0.5 transition-colors truncate max-w-full",
                     item.highlight && "-mt-1",
                     isActive || isMenuOpen ? "text-primary" : ""
                   )}>
@@ -555,46 +555,46 @@ export function UnifiedMobileHeader({ title, showBack, onSearchClick }: UnifiedM
   const { balance, formatCredits } = useCredits();
 
   return (
-    <header className="sticky top-0 z-40 lg:hidden bg-card/80 backdrop-blur-xl border-b border-border/50">
-      <div className="flex items-center justify-between h-12 px-3">
+    <header className="sticky top-0 z-40 lg:hidden bg-card/80 backdrop-blur-xl border-b border-border/50 w-full overflow-hidden">
+      <div className="flex items-center justify-between h-12 px-3 max-w-full">
         {/* Left: Back or Logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-shrink">
           {showBack ? (
             <button
               onClick={() => window.history.back()}
-              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors flex-shrink-0"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
           ) : (
-            <button onClick={() => setLocation('/')} className="flex items-center gap-1.5">
+            <button onClick={() => setLocation('/')} className="flex items-center gap-1.5 flex-shrink-0">
               <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary via-primary to-cyan-500 flex items-center justify-center shadow-md shadow-primary/20">
                 <Mic className="w-3 h-3 text-white" />
               </div>
-              <span className="font-bold text-sm bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">CodeReels</span>
+              <span className="font-bold text-sm bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text whitespace-nowrap">CodeReels</span>
             </button>
           )}
           
           {title && (
-            <h1 className="font-semibold text-sm truncate max-w-[160px] ml-1">{title}</h1>
+            <h1 className="font-semibold text-sm truncate max-w-[160px] ml-1 overflow-hidden">{title}</h1>
           )}
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* Credits */}
           <button
             onClick={() => setLocation('/profile')}
-            className="flex items-center gap-0.5 px-1.5 py-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-md"
+            className="flex items-center gap-0.5 px-1.5 py-1 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-md flex-shrink-0"
           >
-            <Coins className="w-3 h-3 text-amber-500" />
-            <span className="text-[10px] font-bold text-amber-500">{formatCredits(balance)}</span>
+            <Coins className="w-3 h-3 text-amber-500 flex-shrink-0" />
+            <span className="text-[10px] font-bold text-amber-500 whitespace-nowrap">{formatCredits(balance)}</span>
           </button>
 
           {/* Search */}
           <button
             onClick={onSearchClick}
-            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors flex-shrink-0"
           >
             <Search className="w-3.5 h-3.5" />
           </button>

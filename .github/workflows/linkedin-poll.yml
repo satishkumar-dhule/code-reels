@@ -1,0 +1,89 @@
+name: 📊 LinkedIn Poll Publisher
+
+# Posts questions from the database as LinkedIn polls
+# Runs daily or can be triggered manually
+
+on:
+  schedule:
+    # Run daily at 10:00 AM UTC (adjust to your preferred time)
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+    inputs:
+      question_id:
+        description: 'Specific question ID to post (leave empty for random)'
+        required: false
+        default: ''
+      channel:
+        description: 'Filter by channel (leave empty for any)'
+        required: false
+        default: ''
+      difficulty:
+        description: 'Filter by difficulty'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - beginner
+          - intermediate
+          - advanced
+      poll_duration:
+        description: 'Poll duration in hours (1-168)'
+        required: false
+        default: '24'
+      dry_run:
+        description: 'Dry run (test without posting)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  post-poll:
+    name: 📊 Post LinkedIn Poll
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: ./.github/actions/setup-bot
+      
+      - name: Post Poll to LinkedIn
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          QUESTION_ID: ${{ inputs.question_id }}
+          CHANNEL: ${{ inputs.channel }}
+          DIFFICULTY: ${{ inputs.difficulty }}
+          POLL_DURATION: ${{ inputs.poll_duration || '24' }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          echo "📊 Posting LinkedIn poll..."
+          echo "Question ID: ${QUESTION_ID:-Random}"
+          echo "Channel: ${CHANNEL:-Any}"
+          echo "Difficulty: ${DIFFICULTY:-Any}"
+          echo "Poll Duration: ${POLL_DURATION} hours"
+          echo "Dry Run: ${DRY_RUN}"
+          
+          node script/post-linkedin-poll.js
+      
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "## 📊 LinkedIn Poll Publisher Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Question ID:** ${{ inputs.question_id || 'Random' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Channel:** ${{ inputs.channel || 'Any' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Difficulty:** ${{ inputs.difficulty || 'Any' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Poll Duration:** ${{ inputs.poll_duration || '24' }} hours" >> $GITHUB_STEP_SUMMARY
+          echo "**Dry Run:** ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Poll posted successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Failed to post poll" >> $GITHUB_STEP_SUMMARY
+          fi

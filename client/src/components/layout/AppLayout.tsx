@@ -44,7 +44,7 @@ export function AppLayout({
   }
 
   return (
-    <div className="min-h-screen min-h-dvh bg-background">
+    <div className="min-h-screen min-h-dvh bg-background overflow-x-hidden w-full">
       {/* Desktop Sidebar - hidden on mobile */}
       <div className="hidden lg:block">
         <DesktopSidebar onSearchClick={() => setSearchOpen(true)} />
@@ -59,12 +59,12 @@ export function AppLayout({
 
       {/* Main content area - adjusts based on sidebar collapsed state */}
       <div className={cn(
-        "transition-all duration-200",
+        "transition-all duration-200 w-full overflow-x-hidden",
         isCollapsed ? "lg:pl-16" : "lg:pl-64"
       )}>
         {/* Page content with bottom padding for mobile nav */}
         <main className={`
-          pb-20 lg:pb-4
+          pb-20 lg:pb-4 w-full overflow-x-hidden
           ${fullWidth ? '' : 'max-w-5xl mx-auto px-3 lg:px-4 py-3 lg:py-4'}
         `}>
           {children}
