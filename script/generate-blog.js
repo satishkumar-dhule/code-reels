@@ -216,9 +216,28 @@ async function initBlogPostsTable() {
   console.log('✅ Table ready\n');
 }
 
+// Allowed channels for blog generation
+const ALLOWED_BLOG_CHANNELS = [
+  'sre',
+  'devops',
+  'kubernetes',
+  'aws',
+  'terraform',
+  'docker',
+  'linux',
+  'unix',
+  'generative-ai',
+  'llm-ops',
+  'machine-learning',
+  'prompt-engineering'
+];
+
 // Get next question to convert
 async function getNextQuestionForBlog(limit = 1) {
   // First, find channels that have the least blog posts to ensure variety
+  // Only select from allowed channels: SRE, DevOps, AI, LLM, GenAI
+  const channelFilter = ALLOWED_BLOG_CHANNELS.map(() => '?').join(',');
+  
   const result = await client.execute({
     sql: `
     SELECT q.id, q.question, q.answer, q.explanation, q.diagram, 
@@ -228,12 +247,13 @@ async function getNextQuestionForBlog(limit = 1) {
     WHERE bp.id IS NULL
       AND q.explanation IS NOT NULL 
       AND LENGTH(q.explanation) > 100
+      AND q.channel IN (${channelFilter})
     ORDER BY 
       (SELECT COUNT(*) FROM blog_posts WHERE channel = q.channel) ASC,
       RANDOM()
     LIMIT ?
   `,
-    args: [limit]
+    args: [...ALLOWED_BLOG_CHANNELS, limit]
   });
   
   if (result.rows.length === 0) return [];

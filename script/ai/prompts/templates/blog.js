@@ -57,6 +57,14 @@ export const guidelines = [
   'The FIRST source in the sources array MUST be the reference for the opening story/case study',
   'Example: "In 2017, Stripe faced a critical API failure that cost them millions [1]..." where [1] links to the source',
   
+  // LOGICAL FLOW & COHERENCE - NEW CRITICAL REQUIREMENTS
+  'Each section must LOGICALLY flow from the previous one - use transition words and phrases',
+  'Start each section by connecting to what came before: "Building on this...", "However...", "This leads to..."',
+  'Use transition words throughout: however, therefore, moreover, consequently, specifically, for example',
+  'Each paragraph should have ONE main idea that connects to the overall narrative',
+  'Avoid jumping between unrelated topics - maintain a clear thread throughout',
+  'The conclusion must tie back to the introduction and summarize the journey',
+  
   // STORYTELLING FOCUS
   'Write like youre telling a story to a friend over coffee, not writing documentation',
   'Start with a HOOK: a problem, a failure, a "picture this" moment, or a provocative question',

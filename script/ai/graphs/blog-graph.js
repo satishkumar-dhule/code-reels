@@ -14,6 +14,7 @@ import { Annotation } from '@langchain/langgraph';
 import ai from '../index.js';
 import { generateBlogIllustrations, generatePixelIllustration } from '../utils/blog-illustration-generator.js';
 import vectorDB from '../services/vector-db.js';
+import { validateBlogQuality } from '../services/blog-quality-gates.js';
 
 /**
  * Validate a URL by checking if it returns a valid response
@@ -83,6 +84,10 @@ const BlogState = Annotation.Root({
   
   // Blog content
   blogContent: Annotation({ reducer: (_, b) => b, default: () => null }),
+  
+  // Quality validation
+  qualityResults: Annotation({ reducer: (_, b) => b, default: () => null }),
+  qualityPassed: Annotation({ reducer: (_, b) => b, default: () => false }),
   
   // Processing state
   retryCount: Annotation({ reducer: (_, b) => b, default: () => 0 }),
@@ -318,10 +323,52 @@ async function validateCitationsNode(state) {
   
   if (sources.length < 8) {
     console.log(`   ⚠️ Need more sources (have ${sources.length}, need 8+)`);
-    // Could trigger regeneration here, but for now just log
+  }
+  
+  if (citationMatches.length < 5) {
+    console.log(`   ⚠️ Need more inline citations (have ${citationMatches.length}, need 5+)`);
   }
   
   return {}; // Pass through
+}
+
+/**
+ * Node: Run comprehensive quality gates
+ */
+async function qualityGatesNode(state) {
+  console.log('\n🚦 [QUALITY_GATES] Running comprehensive validation...');
+  
+  if (!state.blogContent) {
+    return { 
+      error: 'No blog content to validate',
+      qualityPassed: false
+    };
+  }
+  
+  // Run quality validation
+  const qualityResults = await validateBlogQuality(state.blogContent, {
+    question: state.question,
+    channel: state.channel,
+    tags: state.tags
+  });
+  
+  console.log(`\n   ${qualityResults.passed ? '✅ PASSED' : '❌ FAILED'} - Overall Score: ${qualityResults.overallScore.toFixed(1)}/100`);
+  
+  if (!qualityResults.passed) {
+    console.log(`   Critical issues found:`);
+    qualityResults.issues.slice(0, 5).forEach(issue => {
+      console.log(`      - ${issue}`);
+    });
+    
+    if (qualityResults.issues.length > 5) {
+      console.log(`      ... and ${qualityResults.issues.length - 5} more issues`);
+    }
+  }
+  
+  return {
+    qualityResults,
+    qualityPassed: qualityResults.passed
+  };
 }
 
 /**
@@ -433,21 +480,16 @@ function finalValidateNode(state) {
     return { status: 'error', error: 'No blog content' };
   }
   
-  const blog = state.blogContent;
-  const issues = [];
-  
-  if (!blog.title) issues.push('Missing title');
-  if (!blog.introduction) issues.push('Missing introduction');
-  if (!blog.sections || blog.sections.length < 2) issues.push('Need more sections');
-  if (!blog.conclusion) issues.push('Missing conclusion');
-  if (!blog.sources || blog.sources.length < 5) issues.push('Need more sources');
-  
-  if (issues.length > 0) {
-    console.log(`   ⚠️ Issues: ${issues.join(', ')}`);
-    // Could retry here, but for now proceed with warnings
+  // Check quality gates
+  if (!state.qualityPassed) {
+    console.log(`   ❌ Quality gates failed`);
+    return { 
+      status: 'error', 
+      error: `Quality validation failed: ${state.qualityResults?.issues?.join('; ') || 'Unknown issues'}`
+    };
   }
   
-  console.log(`   ✅ Blog validated`);
+  console.log(`   ✅ Blog validated and passed all quality gates`);
   return { status: 'completed' };
 }
 
@@ -475,6 +517,7 @@ export function createBlogGraph() {
   graph.addNode('validate_case', validateCaseNode);
   graph.addNode('generate_blog', generateBlogNode);
   graph.addNode('validate_citations', validateCitationsNode);
+  graph.addNode('quality_gates', qualityGatesNode);
   graph.addNode('validate_images', validateImagesNode);
   graph.addNode('final_validate', finalValidateNode);
   
@@ -500,7 +543,8 @@ export function createBlogGraph() {
   
   // Blog generation flow
   graph.addEdge('generate_blog', 'validate_citations');
-  graph.addEdge('validate_citations', 'validate_images');
+  graph.addEdge('validate_citations', 'quality_gates');
+  graph.addEdge('quality_gates', 'validate_images');
   graph.addEdge('validate_images', 'final_validate');
   
   // End

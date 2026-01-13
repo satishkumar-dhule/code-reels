@@ -4,10 +4,31 @@ import { client } from "./db";
 
 // Helper to parse JSON fields from DB
 function parseQuestion(row: any) {
+  // Sanitize answer field - ensure no JSON/MCQ format
+  let answer = row.answer;
+  
+  // Check if answer contains MCQ JSON format
+  if (answer && typeof answer === 'string' && answer.trim().startsWith('[{')) {
+    try {
+      const parsed = JSON.parse(answer);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Extract correct answer text
+        const correctOption = parsed.find((opt: any) => opt.isCorrect === true);
+        if (correctOption && correctOption.text) {
+          answer = correctOption.text;
+          console.warn(`⚠️  Question ${row.id} had MCQ format in answer - sanitized on-the-fly`);
+        }
+      }
+    } catch (e) {
+      // If parsing fails, leave as is but log warning
+      console.warn(`⚠️  Question ${row.id} has malformed answer field`);
+    }
+  }
+  
   return {
     id: row.id,
     question: row.question,
-    answer: row.answer,
+    answer: answer,
     explanation: row.explanation,
     diagram: row.diagram,
     difficulty: row.difficulty,

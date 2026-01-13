@@ -63,7 +63,19 @@ const channelCache = new Map<string, ChannelData>();
 const statsCache: { data: ChannelDetailedStats[] | null } = { data: null };
 
 async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url);
+  // Add cache busting parameter to force fresh data
+  // This helps users get latest data without manual cache clear
+  const cacheBuster = `v=${Date.now()}`;
+  const urlWithCache = url.includes('?') ? `${url}&${cacheBuster}` : `${url}?${cacheBuster}`;
+  
+  const response = await fetch(urlWithCache, {
+    cache: 'no-cache', // Don't use browser cache
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    }
+  });
+  
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}: ${response.status}`);
   }
@@ -71,12 +83,49 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 // Load channel data (questions, subchannels, companies)
+/**
+ * Sanitize answer field - remove MCQ JSON format if present
+ * This handles any cached or old data that might have MCQ format
+ */
+function sanitizeAnswer(answer: string | undefined): string | undefined {
+  if (!answer || typeof answer !== 'string') return answer;
+  
+  // Check if answer contains MCQ JSON format
+  const trimmed = answer.trim();
+  if (trimmed.startsWith('[{')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Extract correct answer text
+        const correctOption = parsed.find((opt: any) => opt.isCorrect === true);
+        if (correctOption && correctOption.text) {
+          console.warn('⚠️ Sanitized MCQ format in answer field (old cached data)');
+          return correctOption.text;
+        }
+      }
+    } catch (e) {
+      // If parsing fails, return original
+    }
+  }
+  
+  return answer;
+}
+
 async function loadChannelData(channelId: string): Promise<ChannelData> {
   if (channelCache.has(channelId)) {
     return channelCache.get(channelId)!;
   }
 
   const data = await fetchJson<ChannelData>(`${DATA_BASE}/${channelId}.json`);
+  
+  // Sanitize all questions in the channel data
+  if (data.questions && Array.isArray(data.questions)) {
+    data.questions = data.questions.map(q => ({
+      ...q,
+      answer: sanitizeAnswer(q.answer)
+    }));
+  }
+  
   channelCache.set(channelId, data);
   return data;
 }
