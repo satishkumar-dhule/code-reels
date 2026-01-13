@@ -18,6 +18,17 @@ async function clearOldNewFlags() {
   console.log('🧹 Clearing is_new flag for questions older than 7 days...\n');
 
   try {
+    // Check if is_new column exists
+    const tableInfo = await dbClient.execute('PRAGMA table_info(questions)');
+    const hasColumn = tableInfo.rows.some(row => row.name === 'is_new');
+
+    if (!hasColumn) {
+      console.log('⚠️  Column is_new does not exist yet');
+      console.log('💡 Run migration: node script/migrations/add-is-new-column.js');
+      console.log('✅ Skipping maintenance (no error)');
+      return;
+    }
+
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const cutoffDate = sevenDaysAgo.toISOString();

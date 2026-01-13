@@ -18,6 +18,14 @@ jobs:
       
       - uses: ./.github/actions/setup-bot
       
+      - name: Run migrations (if needed)
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: |
+          echo "🔄 Running database migrations..."
+          node script/migrations/add-is-new-column.js || echo "⚠️  Migration skipped or already applied"
+      
       - name: Clear old NEW flags
         env:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
