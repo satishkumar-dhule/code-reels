@@ -774,7 +774,7 @@ function ChannelCard({
         y: viewMode === 'grid' ? -4 : 0,
         transition: { duration: 0.2 }
       }}
-      className={`group relative bg-card rounded-xl border border-border hover:border-primary/50 transition-all overflow-hidden cursor-pointer ${
+      className={`group relative bg-card rounded-xl border border-border hover:border-primary/50 transition-all cursor-pointer ${
         viewMode === 'list' ? 'flex items-center gap-4 p-4' : 'flex flex-col p-4'
       }`}
     >
@@ -866,13 +866,14 @@ function ChannelCard({
           {onUnsubscribe && (
             <motion.button
               initial={{ opacity: 0, scale: 0.8 }}
-              whileHover={{ scale: 1.1 }}
+              animate={{ opacity: 0.6 }}
+              whileHover={{ scale: 1.1, opacity: 1 }}
               whileTap={{ scale: 0.9 }}
               onClick={(e) => {
                 e.stopPropagation();
                 onUnsubscribe();
               }}
-              className="p-1.5 rounded-lg bg-muted/50 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm"
+              className="p-1.5 rounded-lg bg-muted/50 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all group-hover:opacity-100 backdrop-blur-sm"
               title="Unsubscribe"
             >
               <X className="w-3.5 h-3.5" />

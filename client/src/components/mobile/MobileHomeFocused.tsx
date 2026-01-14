@@ -888,7 +888,7 @@ function ChannelCard({
           e.stopPropagation();
           setConfirmingUnsubscribe(true);
         }}
-        className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 border border-border opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-all"
+        className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 border border-border opacity-60 group-hover:opacity-100 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-all"
         title="Unsubscribe"
       >
         <X className="w-3.5 h-3.5" />
