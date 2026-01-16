@@ -6,39 +6,39 @@
 
 import { generateLinkedInPost } from './ai/graphs/linkedin-graph.js';
 
-// Test posts with different topics
+// Test posts with different topics - using the main site URL which exists
 const testPosts = [
   {
     title: 'Understanding Kubernetes Pod Scheduling and Resource Management',
-    url: 'https://open-interview.github.io/blog/kubernetes-pod-scheduling',
+    url: 'https://open-interview.github.io/',
     excerpt: 'Learn how Kubernetes scheduler makes decisions about pod placement and why resource requests and limits are critical for cluster stability.',
     channel: 'kubernetes',
     tags: '#kubernetes #devops #cloudnative'
   },
   {
     title: 'Database Sharding Strategies for High-Scale Applications',
-    url: 'https://open-interview.github.io/blog/database-sharding',
+    url: 'https://open-interview.github.io/',
     excerpt: 'Explore different approaches to database sharding including hash-based, range-based, and geographic sharding patterns.',
     channel: 'database',
     tags: '#database #systemdesign #scalability'
   },
   {
     title: 'Building Resilient Microservices with Circuit Breakers',
-    url: 'https://open-interview.github.io/blog/circuit-breakers',
+    url: 'https://open-interview.github.io/',
     excerpt: 'Circuit breakers prevent cascading failures in distributed systems by detecting failures and preventing requests to unhealthy services.',
     channel: 'system-design',
     tags: '#microservices #resilience #systemdesign'
   },
   {
     title: 'React Server Components: A Deep Dive into the New Paradigm',
-    url: 'https://open-interview.github.io/blog/react-server-components',
+    url: 'https://open-interview.github.io/',
     excerpt: 'React Server Components fundamentally change how we think about data fetching and rendering in React applications.',
     channel: 'frontend',
     tags: '#react #frontend #webdev'
   },
   {
     title: 'Implementing Idempotency in Distributed Systems',
-    url: 'https://open-interview.github.io/blog/idempotency',
+    url: 'https://open-interview.github.io/',
     excerpt: 'Idempotency ensures operations can be safely retried without unintended side effects, critical for reliable distributed systems.',
     channel: 'system-design',
     tags: '#distributedsystems #api #reliability'
@@ -48,7 +48,7 @@ const testPosts = [
 async function testPostGeneration() {
   console.log('🧪 Testing Dynamic LinkedIn Post Generation\n');
   console.log('═'.repeat(70));
-  console.log('Testing varied hooks and educational content');
+  console.log('Testing varied hooks and educational content with AI');
   console.log('═'.repeat(70));
   
   const results = [];
