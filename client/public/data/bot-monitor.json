@@ -20,12 +20,12 @@
     },
     {
       "botName": "processor",
-      "totalRuns": 695,
-      "successfulRuns": 673,
+      "totalRuns": 699,
+      "successfulRuns": 677,
       "totalCreated": 0,
       "totalUpdated": 1853,
       "totalDeleted": 0,
-      "lastRun": "2026-01-20T22:29:06.365Z"
+      "lastRun": "2026-01-20T23:30:00.777Z"
     },
     {
       "botName": "verifier",
@@ -38,6 +38,86 @@
     }
   ],
   "runs": [
+    {
+      "id": 787,
+      "botName": "processor",
+      "startedAt": "2026-01-20T23:30:00.777Z",
+      "completedAt": "2026-01-20T23:30:01.291Z",
+      "status": "completed",
+      "itemsProcessed": 0,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 0,
+        "updated": 0,
+        "deleted": 0,
+        "skipped": 0,
+        "failed": 0,
+        "actionCounts": {}
+      }
+    },
+    {
+      "id": 786,
+      "botName": "processor",
+      "startedAt": "2026-01-20T23:19:40.264Z",
+      "completedAt": "2026-01-20T23:19:40.627Z",
+      "status": "completed",
+      "itemsProcessed": 0,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 0,
+        "updated": 0,
+        "deleted": 0,
+        "skipped": 0,
+        "failed": 0,
+        "actionCounts": {}
+      }
+    },
+    {
+      "id": 785,
+      "botName": "processor",
+      "startedAt": "2026-01-20T22:47:49.056Z",
+      "completedAt": "2026-01-20T22:47:49.453Z",
+      "status": "completed",
+      "itemsProcessed": 0,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 0,
+        "updated": 0,
+        "deleted": 0,
+        "skipped": 0,
+        "failed": 0,
+        "actionCounts": {}
+      }
+    },
+    {
+      "id": 784,
+      "botName": "processor",
+      "startedAt": "2026-01-20T22:43:49.686Z",
+      "completedAt": "2026-01-20T22:43:50.135Z",
+      "status": "completed",
+      "itemsProcessed": 0,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 0,
+        "updated": 0,
+        "deleted": 0,
+        "skipped": 0,
+        "failed": 0,
+        "actionCounts": {}
+      }
+    },
     {
       "id": 783,
       "botName": "processor",
@@ -938,54 +1018,6 @@
       "id": 738,
       "botName": "processor",
       "startedAt": "2026-01-20T06:52:54.503Z",
-      "completedAt": null,
-      "status": "running",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": null
-    },
-    {
-      "id": 737,
-      "botName": "processor",
-      "startedAt": "2026-01-20T06:31:21.005Z",
-      "completedAt": null,
-      "status": "running",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": null
-    },
-    {
-      "id": 736,
-      "botName": "processor",
-      "startedAt": "2026-01-20T05:59:28.639Z",
-      "completedAt": null,
-      "status": "running",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": null
-    },
-    {
-      "id": 735,
-      "botName": "processor",
-      "startedAt": "2026-01-20T05:52:40.729Z",
-      "completedAt": null,
-      "status": "running",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": null
-    },
-    {
-      "id": 734,
-      "botName": "processor",
-      "startedAt": "2026-01-20T05:35:57.633Z",
       "completedAt": null,
       "status": "running",
       "itemsProcessed": 0,
@@ -2999,5 +3031,5 @@
       "createdAt": "2026-01-20T06:12:49.562Z"
     }
   ],
-  "generatedAt": "2026-01-20T22:29:48.291Z"
+  "generatedAt": "2026-01-20T23:30:15.994Z"
 }
