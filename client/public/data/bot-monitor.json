@@ -2159,6 +2159,78 @@
   ],
   "ledger": [
     {
+      "id": 4748,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5016",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:06:53.220Z"
+    },
+    {
+      "id": 4747,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5017",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:06:45.716Z"
+    },
+    {
+      "id": 4746,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5018",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:06:25.660Z"
+    },
+    {
+      "id": 4745,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5019",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:06:06.319Z"
+    },
+    {
+      "id": 4744,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5020",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:05:58.079Z"
+    },
+    {
+      "id": 4743,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5020",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:05:50.289Z"
+    },
+    {
+      "id": 4742,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5021",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:05:42.696Z"
+    },
+    {
+      "id": 4741,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-5022",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-21T04:05:34.332Z"
+    },
+    {
       "id": 4740,
       "botName": "processor",
       "action": "update",
@@ -2985,79 +3057,7 @@
       "itemId": "q-4993",
       "reason": "{\"status\":\"completed\",\"issuesFound\":3,\"workItemsCreated\":3,\"issues\":[\"insufficient_tags\",\"missing_videos\",\"missing_voice_keywords\"]}",
       "createdAt": "2026-01-21T03:48:05.231Z"
-    },
-    {
-      "id": 4648,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-4994",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":4,\"workItemsCreated\":4,\"issues\":[\"channel_mismatch\",\"insufficient_tags\",\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:48:03.836Z"
-    },
-    {
-      "id": 4647,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-4995",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":3,\"workItemsCreated\":3,\"issues\":[\"insufficient_tags\",\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:48:02.078Z"
-    },
-    {
-      "id": 4646,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-4996",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":3,\"workItemsCreated\":3,\"issues\":[\"insufficient_tags\",\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:48:00.729Z"
-    },
-    {
-      "id": 4645,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-4997",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":3,\"workItemsCreated\":3,\"issues\":[\"insufficient_tags\",\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:47:59.244Z"
-    },
-    {
-      "id": 4644,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-4998",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":3,\"workItemsCreated\":3,\"issues\":[\"low_channel_relevance\",\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:47:57.823Z"
-    },
-    {
-      "id": 4643,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-4999",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":2,\"workItemsCreated\":2,\"issues\":[\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:47:56.473Z"
-    },
-    {
-      "id": 4642,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-5000",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":3,\"workItemsCreated\":3,\"issues\":[\"insufficient_tags\",\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:47:55.414Z"
-    },
-    {
-      "id": 4641,
-      "botName": "analysis",
-      "action": "analyze",
-      "itemType": "question",
-      "itemId": "q-5001",
-      "reason": "{\"status\":\"completed\",\"issuesFound\":3,\"workItemsCreated\":3,\"issues\":[\"insufficient_tags\",\"missing_videos\",\"missing_voice_keywords\"]}",
-      "createdAt": "2026-01-21T03:47:54.071Z"
     }
   ],
-  "generatedAt": "2026-01-21T04:01:46.683Z"
+  "generatedAt": "2026-01-21T04:10:28.429Z"
 }
