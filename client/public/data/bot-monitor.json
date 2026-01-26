@@ -20,12 +20,12 @@
     },
     {
       "botName": "processor",
-      "totalRuns": 1093,
-      "successfulRuns": 1064,
+      "totalRuns": 1096,
+      "successfulRuns": 1066,
       "totalCreated": 0,
-      "totalUpdated": 3042,
+      "totalUpdated": 3113,
       "totalDeleted": 0,
-      "lastRun": "2026-01-26T05:31:08.819Z"
+      "lastRun": "2026-01-26T06:49:29.853Z"
     },
     {
       "botName": "verifier",
@@ -39,9 +39,9 @@
   ],
   "runs": [
     {
-      "id": 1199,
+      "id": 1202,
       "botName": "processor",
-      "startedAt": "2026-01-26T05:31:08.819Z",
+      "startedAt": "2026-01-26T06:49:29.853Z",
       "completedAt": null,
       "status": "running",
       "itemsProcessed": 0,
@@ -49,6 +49,62 @@
       "itemsUpdated": 0,
       "itemsDeleted": 0,
       "summary": null
+    },
+    {
+      "id": 1201,
+      "botName": "processor",
+      "startedAt": "2026-01-26T06:32:51.227Z",
+      "completedAt": null,
+      "status": "running",
+      "itemsProcessed": 0,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": null
+    },
+    {
+      "id": 1200,
+      "botName": "processor",
+      "startedAt": "2026-01-26T05:49:35.389Z",
+      "completedAt": "2026-01-26T06:07:15.491Z",
+      "status": "completed",
+      "itemsProcessed": 50,
+      "itemsCreated": 0,
+      "itemsUpdated": 31,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 50,
+        "updated": 31,
+        "deleted": 0,
+        "skipped": 19,
+        "failed": 0,
+        "actionCounts": {
+          "polished": 50
+        }
+      }
+    },
+    {
+      "id": 1199,
+      "botName": "processor",
+      "startedAt": "2026-01-26T05:31:08.819Z",
+      "completedAt": "2026-01-26T05:49:28.000Z",
+      "status": "completed",
+      "itemsProcessed": 50,
+      "itemsCreated": 0,
+      "itemsUpdated": 40,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 50,
+        "updated": 40,
+        "deleted": 0,
+        "skipped": 10,
+        "failed": 0,
+        "actionCounts": {
+          "polished": 50
+        }
+      }
     },
     {
       "id": 1198,
@@ -970,66 +1026,6 @@
       "botName": "processor",
       "startedAt": "2026-01-25T15:57:51.110Z",
       "completedAt": "2026-01-25T15:57:51.467Z",
-      "status": "completed",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": {
-        "message": "Processor Bot completed",
-        "processed": 0,
-        "updated": 0,
-        "deleted": 0,
-        "skipped": 0,
-        "failed": 0,
-        "actionCounts": {}
-      }
-    },
-    {
-      "id": 1152,
-      "botName": "processor",
-      "startedAt": "2026-01-25T15:45:10.025Z",
-      "completedAt": "2026-01-25T15:45:10.493Z",
-      "status": "completed",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": {
-        "message": "Processor Bot completed",
-        "processed": 0,
-        "updated": 0,
-        "deleted": 0,
-        "skipped": 0,
-        "failed": 0,
-        "actionCounts": {}
-      }
-    },
-    {
-      "id": 1151,
-      "botName": "processor",
-      "startedAt": "2026-01-25T15:41:38.005Z",
-      "completedAt": "2026-01-25T15:41:38.493Z",
-      "status": "completed",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": {
-        "message": "Processor Bot completed",
-        "processed": 0,
-        "updated": 0,
-        "deleted": 0,
-        "skipped": 0,
-        "failed": 0,
-        "actionCounts": {}
-      }
-    },
-    {
-      "id": 1150,
-      "botName": "processor",
-      "startedAt": "2026-01-25T15:27:36.655Z",
-      "completedAt": "2026-01-25T15:27:37.084Z",
       "status": "completed",
       "itemsProcessed": 0,
       "itemsCreated": 0,
@@ -2150,905 +2146,905 @@
   ],
   "ledger": [
     {
-      "id": 7028,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7464",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:37:27.767Z"
-    },
-    {
-      "id": 7027,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7465",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:37:15.694Z"
-    },
-    {
-      "id": 7026,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7465",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:37:05.107Z"
-    },
-    {
-      "id": 7025,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7466",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:36:50.923Z"
-    },
-    {
-      "id": 7024,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7466",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:36:35.202Z"
-    },
-    {
-      "id": 7023,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7467",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:36:03.089Z"
-    },
-    {
-      "id": 7022,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7475",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:35:30.572Z"
-    },
-    {
-      "id": 7021,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7468",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:35:06.622Z"
-    },
-    {
-      "id": 7020,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7468",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:34:46.400Z"
-    },
-    {
-      "id": 7019,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7469",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:34:30.399Z"
-    },
-    {
-      "id": 7018,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7469",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:34:07.942Z"
-    },
-    {
-      "id": 7017,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7470",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:33:56.289Z"
-    },
-    {
-      "id": 7016,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7470",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:33:46.120Z"
-    },
-    {
-      "id": 7015,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7471",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:33:36.790Z"
-    },
-    {
-      "id": 7014,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7472",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:33:26.143Z"
-    },
-    {
-      "id": 7013,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7472",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:33:15.352Z"
-    },
-    {
-      "id": 7012,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7473",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:33:05.244Z"
-    },
-    {
-      "id": 7011,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7473",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:32:28.140Z"
-    },
-    {
-      "id": 7010,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7474",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:31:55.747Z"
-    },
-    {
-      "id": 7009,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7474",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:31:42.162Z"
-    },
-    {
-      "id": 7008,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7475",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:31:21.159Z"
-    },
-    {
-      "id": 7007,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7476",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:29:29.903Z"
-    },
-    {
-      "id": 7006,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7476",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:29:10.706Z"
-    },
-    {
-      "id": 7005,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7477",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:28:58.122Z"
-    },
-    {
-      "id": 7004,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7478",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:28:36.935Z"
-    },
-    {
-      "id": 7003,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7479",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:23:09.901Z"
-    },
-    {
-      "id": 7002,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7480",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:22:43.080Z"
-    },
-    {
-      "id": 7001,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7480",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:22:37.896Z"
-    },
-    {
-      "id": 7000,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7481",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:22:26.331Z"
-    },
-    {
-      "id": 6999,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7481",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:22:15.100Z"
-    },
-    {
-      "id": 6998,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7482",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:21:56.141Z"
-    },
-    {
-      "id": 6997,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7482",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:21:52.828Z"
-    },
-    {
-      "id": 6996,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-3152",
-      "reason": "Processed: improved, diagram_added, voice_keywords_added",
-      "createdAt": "2026-01-26T05:21:41.465Z"
-    },
-    {
-      "id": 6995,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7483",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:21:40.615Z"
-    },
-    {
-      "id": 6994,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7483",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:21:13.932Z"
-    },
-    {
-      "id": 6993,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7484",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:20:47.292Z"
-    },
-    {
-      "id": 6992,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7484",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:20:34.501Z"
-    },
-    {
-      "id": 6991,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7485",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:20:21.676Z"
-    },
-    {
-      "id": 6990,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7485",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:19:38.904Z"
-    },
-    {
-      "id": 6989,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-5876",
-      "reason": "Processed: improved, voice_keywords_added",
-      "createdAt": "2026-01-26T05:19:30.014Z"
-    },
-    {
-      "id": 6988,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-6132",
-      "reason": "Processed: improved, diagram_added, voice_keywords_added",
-      "createdAt": "2026-01-26T05:19:09.553Z"
-    },
-    {
-      "id": 6987,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7386",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:18:56.732Z"
-    },
-    {
-      "id": 6986,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7389",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:18:31.230Z"
-    },
-    {
-      "id": 6985,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7387",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:18:25.268Z"
-    },
-    {
-      "id": 6984,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7388",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:18:04.070Z"
-    },
-    {
-      "id": 6983,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7389",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:17:36.553Z"
-    },
-    {
-      "id": 6982,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7390",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:17:19.808Z"
-    },
-    {
-      "id": 6981,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7392",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:17:19.538Z"
-    },
-    {
-      "id": 6980,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7391",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:17:09.977Z"
-    },
-    {
-      "id": 6979,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7394",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:16:33.875Z"
-    },
-    {
-      "id": 6978,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7393",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:16:27.996Z"
-    },
-    {
-      "id": 6977,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7396",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:16:19.699Z"
-    },
-    {
-      "id": 6976,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7395",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:15:56.176Z"
-    },
-    {
-      "id": 6975,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7397",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:15:43.271Z"
-    },
-    {
-      "id": 6974,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7399",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:15:34.773Z"
-    },
-    {
-      "id": 6973,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7398",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:15:26.910Z"
-    },
-    {
-      "id": 6972,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7400",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:15:19.209Z"
-    },
-    {
-      "id": 6971,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7402",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:15:03.379Z"
-    },
-    {
-      "id": 6970,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7401",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:14:48.595Z"
-    },
-    {
-      "id": 6969,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7403",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:14:28.608Z"
-    },
-    {
-      "id": 6968,
+      "id": 7145,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7404",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:14:25.740Z"
+      "createdAt": "2026-01-26T06:49:34.609Z"
     },
     {
-      "id": 6967,
+      "id": 7144,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7404",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:49:20.938Z"
+    },
+    {
+      "id": 7143,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7405",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:14:19.650Z"
+      "createdAt": "2026-01-26T06:49:05.358Z"
     },
     {
-      "id": 6966,
+      "id": 7142,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7408",
+      "itemId": "q-7405",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:14:16.478Z"
+      "createdAt": "2026-01-26T06:47:06.719Z"
     },
     {
-      "id": 6965,
+      "id": 7141,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7406",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:14:10.889Z"
+      "createdAt": "2026-01-26T06:46:53.065Z"
     },
     {
-      "id": 6964,
+      "id": 7140,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7407",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:13:55.360Z"
+      "createdAt": "2026-01-26T06:46:28.090Z"
     },
     {
-      "id": 6963,
+      "id": 7139,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7410",
+      "itemId": "q-7407",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:13:33.094Z"
+      "createdAt": "2026-01-26T06:45:51.085Z"
     },
     {
-      "id": 6962,
+      "id": 7138,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7408",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:45:28.593Z"
+    },
+    {
+      "id": 7137,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7408",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:44:37.700Z"
+    },
+    {
+      "id": 7136,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7409",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:13:32.557Z"
+      "createdAt": "2026-01-26T06:44:04.200Z"
     },
     {
-      "id": 6961,
+      "id": 7135,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7409",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:42:56.166Z"
+    },
+    {
+      "id": 7134,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7410",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:13:14.218Z"
+      "createdAt": "2026-01-26T06:42:42.634Z"
     },
     {
-      "id": 6960,
+      "id": 7133,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7410",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:13:13.515Z"
+      "createdAt": "2026-01-26T06:42:26.547Z"
     },
     {
-      "id": 6959,
+      "id": 7132,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7411",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:12:42.519Z"
+      "createdAt": "2026-01-26T06:42:16.511Z"
     },
     {
-      "id": 6958,
+      "id": 7131,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7411",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:42:03.914Z"
+    },
+    {
+      "id": 7130,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7412",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:12:40.604Z"
+      "createdAt": "2026-01-26T06:41:53.383Z"
     },
     {
-      "id": 6957,
+      "id": 7129,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7412",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:41:39.950Z"
+    },
+    {
+      "id": 7128,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7413",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:12:18.416Z"
+      "createdAt": "2026-01-26T06:41:30.283Z"
     },
     {
-      "id": 6956,
+      "id": 7127,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7413",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:41:18.343Z"
+    },
+    {
+      "id": 7126,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7414",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:57.481Z"
+      "createdAt": "2026-01-26T06:41:03.067Z"
     },
     {
-      "id": 6955,
+      "id": 7125,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7417",
+      "itemId": "q-7414",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:47.984Z"
+      "createdAt": "2026-01-26T06:40:29.465Z"
     },
     {
-      "id": 6954,
+      "id": 7124,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7415",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:40.829Z"
+      "createdAt": "2026-01-26T06:40:01.328Z"
     },
     {
-      "id": 6953,
+      "id": 7123,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7415",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:39:42.641Z"
+    },
+    {
+      "id": 7122,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7416",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:28.179Z"
+      "createdAt": "2026-01-26T06:39:32.790Z"
     },
     {
-      "id": 6952,
+      "id": 7121,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7416",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:39:17.365Z"
+    },
+    {
+      "id": 7120,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7417",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:38:09.785Z"
+    },
+    {
+      "id": 7119,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7417",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:37:57.008Z"
+    },
+    {
+      "id": 7118,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7418",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:20.534Z"
+      "createdAt": "2026-01-26T06:37:30.216Z"
     },
     {
-      "id": 6951,
+      "id": 7117,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7418",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:36:56.218Z"
+    },
+    {
+      "id": 7116,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7419",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:18.308Z"
+      "createdAt": "2026-01-26T06:36:18.117Z"
     },
     {
-      "id": 6950,
+      "id": 7115,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7419",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:35:41.475Z"
+    },
+    {
+      "id": 7114,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7420",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:08.413Z"
+      "createdAt": "2026-01-26T06:35:05.981Z"
     },
     {
-      "id": 6949,
+      "id": 7113,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7423",
+      "itemId": "q-7420",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:11:03.278Z"
+      "createdAt": "2026-01-26T06:34:42.741Z"
     },
     {
-      "id": 6948,
+      "id": 7112,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7421",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:10:47.801Z"
+      "createdAt": "2026-01-26T06:33:58.920Z"
     },
     {
-      "id": 6947,
+      "id": 7111,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7421",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:33:47.377Z"
+    },
+    {
+      "id": 7110,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7422",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:10:29.472Z"
+      "createdAt": "2026-01-26T06:33:29.625Z"
     },
     {
-      "id": 6946,
+      "id": 7109,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7422",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:33:03.953Z"
+    },
+    {
+      "id": 7108,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7423",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:07:13.431Z"
+    },
+    {
+      "id": 7107,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7423",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:06:48.855Z"
+    },
+    {
+      "id": 7106,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7424",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:10:12.486Z"
+      "createdAt": "2026-01-26T06:06:34.247Z"
     },
     {
-      "id": 6945,
+      "id": 7105,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7424",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:06:23.471Z"
+    },
+    {
+      "id": 7104,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7425",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:10:09.836Z"
+      "createdAt": "2026-01-26T06:06:13.185Z"
     },
     {
-      "id": 6944,
+      "id": 7103,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7426",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:09:51.838Z"
+      "createdAt": "2026-01-26T06:06:04.264Z"
     },
     {
-      "id": 6943,
+      "id": 7102,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7425",
+      "itemId": "q-7426",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:09:39.606Z"
+      "createdAt": "2026-01-26T06:05:53.428Z"
     },
     {
-      "id": 6942,
+      "id": 7101,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7427",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:09:13.172Z"
+      "createdAt": "2026-01-26T06:05:32.813Z"
     },
     {
-      "id": 6941,
-      "botName": "processor",
-      "action": "update",
-      "itemType": "question",
-      "itemId": "q-7429",
-      "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:09:06.708Z"
-    },
-    {
-      "id": 6940,
+      "id": 7100,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7428",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:08:48.020Z"
+      "createdAt": "2026-01-26T06:05:22.536Z"
     },
     {
-      "id": 6939,
+      "id": 7099,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7429",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:05:10.309Z"
+    },
+    {
+      "id": 7098,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7429",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:05:00.944Z"
+    },
+    {
+      "id": 7097,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7430",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:08:36.655Z"
+      "createdAt": "2026-01-26T06:04:25.112Z"
     },
     {
-      "id": 6938,
+      "id": 7096,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7430",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:04:09.798Z"
+    },
+    {
+      "id": 7095,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7431",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:08:24.856Z"
+      "createdAt": "2026-01-26T06:03:57.493Z"
     },
     {
-      "id": 6937,
+      "id": 7094,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7433",
+      "itemId": "q-7431",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:08:18.968Z"
+      "createdAt": "2026-01-26T06:03:35.862Z"
     },
     {
-      "id": 6936,
+      "id": 7093,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7432",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:07:58.378Z"
+      "createdAt": "2026-01-26T06:03:22.304Z"
     },
     {
-      "id": 6935,
+      "id": 7092,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7432",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:02:23.268Z"
+    },
+    {
+      "id": 7091,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7433",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:07:42.008Z"
+      "createdAt": "2026-01-26T06:01:36.862Z"
     },
     {
-      "id": 6934,
+      "id": 7090,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7435",
+      "itemId": "q-7433",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:07:21.102Z"
+      "createdAt": "2026-01-26T06:01:17.687Z"
     },
     {
-      "id": 6933,
+      "id": 7089,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7434",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:07:13.425Z"
+      "createdAt": "2026-01-26T06:01:05.075Z"
     },
     {
-      "id": 6932,
+      "id": 7088,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
-      "itemId": "q-7437",
+      "itemId": "q-7434",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:06:50.054Z"
+      "createdAt": "2026-01-26T06:00:15.890Z"
     },
     {
-      "id": 6931,
+      "id": 7087,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7435",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T06:00:07.309Z"
+    },
+    {
+      "id": 7086,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7435",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:59:42.742Z"
+    },
+    {
+      "id": 7085,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7436",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:06:49.622Z"
+      "createdAt": "2026-01-26T05:59:03.216Z"
     },
     {
-      "id": 6930,
+      "id": 7084,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7436",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:58:46.607Z"
+    },
+    {
+      "id": 7083,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7437",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:58:37.420Z"
+    },
+    {
+      "id": 7082,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7437",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:58:14.163Z"
+    },
+    {
+      "id": 7081,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7438",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:06:22.179Z"
+      "createdAt": "2026-01-26T05:57:58.279Z"
     },
     {
-      "id": 6929,
+      "id": 7080,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7438",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:57:49.176Z"
+    },
+    {
+      "id": 7079,
       "botName": "processor",
       "action": "update",
       "itemType": "question",
       "itemId": "q-7439",
       "reason": "Processed: polished",
-      "createdAt": "2026-01-26T05:06:15.319Z"
+      "createdAt": "2026-01-26T05:57:01.903Z"
+    },
+    {
+      "id": 7078,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7439",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:56:50.963Z"
+    },
+    {
+      "id": 7077,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7440",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:56:38.928Z"
+    },
+    {
+      "id": 7076,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7440",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:56:12.311Z"
+    },
+    {
+      "id": 7075,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7441",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:56:00.389Z"
+    },
+    {
+      "id": 7074,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7441",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:55:47.829Z"
+    },
+    {
+      "id": 7073,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7442",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:55:28.347Z"
+    },
+    {
+      "id": 7072,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7442",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:55:09.622Z"
+    },
+    {
+      "id": 7071,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7443",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:53:52.357Z"
+    },
+    {
+      "id": 7070,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7443",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:53:31.723Z"
+    },
+    {
+      "id": 7069,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7444",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:53:23.761Z"
+    },
+    {
+      "id": 7068,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7444",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:53:05.009Z"
+    },
+    {
+      "id": 7067,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7445",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:52:48.818Z"
+    },
+    {
+      "id": 7066,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7445",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:52:27.291Z"
+    },
+    {
+      "id": 7065,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7446",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:52:03.411Z"
+    },
+    {
+      "id": 7064,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7446",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:51:53.853Z"
+    },
+    {
+      "id": 7063,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7447",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:51:41.557Z"
+    },
+    {
+      "id": 7062,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7447",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:51:15.226Z"
+    },
+    {
+      "id": 7061,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7448",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:50:37.363Z"
+    },
+    {
+      "id": 7060,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7448",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:50:25.799Z"
+    },
+    {
+      "id": 7059,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7449",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:49:59.647Z"
+    },
+    {
+      "id": 7058,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7449",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:49:25.328Z"
+    },
+    {
+      "id": 7057,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7450",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:48:55.501Z"
+    },
+    {
+      "id": 7056,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7450",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:48:33.289Z"
+    },
+    {
+      "id": 7055,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7451",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:48:13.051Z"
+    },
+    {
+      "id": 7054,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7451",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:47:43.649Z"
+    },
+    {
+      "id": 7053,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7452",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:47:08.193Z"
+    },
+    {
+      "id": 7052,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7452",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:46:45.396Z"
+    },
+    {
+      "id": 7051,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7453",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:46:34.887Z"
+    },
+    {
+      "id": 7050,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7453",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:45:56.700Z"
+    },
+    {
+      "id": 7049,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7454",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:45:29.356Z"
+    },
+    {
+      "id": 7048,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7454",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:45:08.600Z"
+    },
+    {
+      "id": 7047,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7455",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:44:57.180Z"
+    },
+    {
+      "id": 7046,
+      "botName": "processor",
+      "action": "update",
+      "itemType": "question",
+      "itemId": "q-7455",
+      "reason": "Processed: polished",
+      "createdAt": "2026-01-26T05:44:42.884Z"
     }
   ],
-  "generatedAt": "2026-01-26T05:37:46.048Z"
+  "generatedAt": "2026-01-26T06:49:52.816Z"
 }
