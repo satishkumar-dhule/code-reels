@@ -11,6 +11,7 @@ import { useGlobalStats } from '../hooks/use-progress';
 import { useCredits } from '../context/CreditsContext';
 import { channels, getQuestions, getAllQuestions, getQuestionDifficulty } from '../lib/data';
 import { SEOHead } from '../components/SEOHead';
+import { PullToRefresh, SkeletonCard } from '../components/mobile';
 import {
   Trophy, Flame, Zap, Target, TrendingUp, Calendar, BarChart2, Award
 } from 'lucide-react';
@@ -19,6 +20,7 @@ export default function StatsGenZ() {
   const [, setLocation] = useLocation();
   const { stats } = useGlobalStats();
   const { balance } = useCredits();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Calculate stats
   const { totalCompleted, totalQuestions, streak, moduleProgress } = useMemo(() => {
@@ -64,6 +66,14 @@ export default function StatsGenZ() {
   const level = Math.floor(balance / 100);
   const xpInLevel = balance % 100;
 
+  // Refresh handler for pull-to-refresh
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    // Simulate refresh (in a real app, this would refetch data)
+    await new Promise(resolve => setTimeout(resolve, 500));
+    window.location.reload();
+  };
+
   return (
     <>
       <SEOHead
@@ -73,8 +83,9 @@ export default function StatsGenZ() {
       />
 
       <AppLayout>
-        <div className="min-h-screen bg-background text-foreground">
-          <div className="max-w-7xl mx-auto px-6 py-12">
+        <PullToRefresh onRefresh={handleRefresh}>
+          <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+            <div className="max-w-7xl mx-auto px-6 py-12">
             {/* Header */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -94,7 +105,14 @@ export default function StatsGenZ() {
             </motion.div>
 
             {/* Top Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            {isLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                {[...Array(4)].map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
               {/* Streak */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -143,6 +161,7 @@ export default function StatsGenZ() {
                 <div className="text-sm text-muted-foreground">completed</div>
               </motion.div>
             </div>
+            )}
 
             {/* Level Progress */}
             <motion.div
@@ -277,6 +296,7 @@ export default function StatsGenZ() {
             </motion.div>
           </div>
         </div>
+        </PullToRefresh>
       </AppLayout>
     </>
   );

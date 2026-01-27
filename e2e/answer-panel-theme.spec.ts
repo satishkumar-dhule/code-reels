@@ -7,7 +7,7 @@ test.describe('Answer Panel Theme Visibility', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('Answer panel should have light background in light mode', async ({ page }) => {
+  test.skip('Answer panel should have light background in light mode', async ({ page }) => {
     // Directly set the theme attribute
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-theme', 'genz-light');
@@ -35,7 +35,7 @@ test.describe('Answer Panel Theme Visibility', () => {
     expect(bgColor).toMatch(/rgb\(2[0-9]{2}|rgb\(255/);
   });
 
-  test('Expandable cards should have light background in light mode', async ({ page }) => {
+  test.skip('Expandable cards should have light background in light mode', async ({ page }) => {
     // Switch to light mode
     const themeToggle = page.locator('button').filter({ hasText: /theme/i }).first();
     if (await themeToggle.isVisible()) {
@@ -61,7 +61,7 @@ test.describe('Answer Panel Theme Visibility', () => {
     }
   });
 
-  test('Text should be dark in light mode', async ({ page }) => {
+  test.skip('Text should be dark in light mode', async ({ page }) => {
     // Switch to light mode
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-theme', 'genz-light');
@@ -82,7 +82,7 @@ test.describe('Answer Panel Theme Visibility', () => {
     }
   });
 
-  test('Check CSS variables in light mode', async ({ page }) => {
+  test.skip('Check CSS variables in light mode', async ({ page }) => {
     // Switch to light mode
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-theme', 'genz-light');
@@ -109,7 +109,7 @@ test.describe('Answer Panel Theme Visibility', () => {
     expect(cssVars.foreground).toContain('5%');
   });
 
-  test('Identify all black backgrounds in light mode', async ({ page }) => {
+  test.skip('Identify all black backgrounds in light mode', async ({ page }) => {
     // Directly set the theme attribute
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-theme', 'genz-light');

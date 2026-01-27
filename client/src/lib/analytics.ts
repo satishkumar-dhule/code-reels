@@ -244,3 +244,178 @@ export function trackConversion(conversionName: string, value?: number) {
     'value': value,
   });
 }
+
+// ============================================
+// Mobile Gesture Analytics
+// ============================================
+
+/**
+ * Track mobile gesture usage
+ * @param gestureType - Type of gesture (swipe, pull, tap, etc.)
+ * @param page - Page where gesture occurred
+ * @param metadata - Additional gesture data
+ */
+export function trackMobileGesture(
+  gestureType: 'pull_to_refresh' | 'swipe_card' | 'swipe_navigation' | 'fab_tap' | 'bottom_sheet',
+  page: string,
+  metadata?: Record<string, any>
+) {
+  trackEvent('mobile_gesture', {
+    'gesture_type': gestureType,
+    'page': page,
+    'timestamp': new Date().toISOString(),
+    ...metadata,
+  });
+}
+
+/**
+ * Track pull-to-refresh gesture
+ * @param page - Page where pull-to-refresh occurred
+ * @param duration - Time taken to complete refresh (ms)
+ * @param success - Whether refresh was successful
+ */
+export function trackPullToRefresh(page: string, duration: number, success: boolean) {
+  trackMobileGesture('pull_to_refresh', page, {
+    'duration_ms': duration,
+    'success': success,
+  });
+}
+
+/**
+ * Track swipeable card gesture
+ * @param page - Page where swipe occurred
+ * @param direction - Swipe direction (left/right)
+ * @param action - Action triggered (remove/continue/etc.)
+ * @param velocity - Swipe velocity (px/s)
+ */
+export function trackSwipeCard(
+  page: string,
+  direction: 'left' | 'right',
+  action: string,
+  velocity?: number
+) {
+  trackMobileGesture('swipe_card', page, {
+    'direction': direction,
+    'action': action,
+    'velocity_px_per_sec': velocity,
+  });
+}
+
+/**
+ * Track swipe navigation gesture
+ * @param page - Page where swipe occurred
+ * @param direction - Swipe direction (left/right)
+ * @param fromId - ID of item swiped from
+ * @param toId - ID of item swiped to
+ * @param velocity - Swipe velocity (px/s)
+ */
+export function trackSwipeNavigation(
+  page: string,
+  direction: 'left' | 'right',
+  fromId?: string,
+  toId?: string,
+  velocity?: number
+) {
+  trackMobileGesture('swipe_navigation', page, {
+    'direction': direction,
+    'from_id': fromId,
+    'to_id': toId,
+    'velocity_px_per_sec': velocity,
+  });
+}
+
+/**
+ * Track floating action button tap
+ * @param page - Page where FAB was tapped
+ * @param action - Action triggered by FAB
+ * @param scrollPosition - Scroll position when tapped (px)
+ */
+export function trackFABTap(page: string, action: string, scrollPosition?: number) {
+  trackMobileGesture('fab_tap', page, {
+    'action': action,
+    'scroll_position_px': scrollPosition,
+  });
+}
+
+/**
+ * Track bottom sheet interaction
+ * @param page - Page where bottom sheet was used
+ * @param action - Action performed (open/close/drag)
+ * @param method - How it was triggered (tap/drag/backdrop)
+ */
+export function trackBottomSheet(
+  page: string,
+  action: 'open' | 'close' | 'drag',
+  method?: 'tap' | 'drag' | 'backdrop'
+) {
+  trackMobileGesture('bottom_sheet', page, {
+    'action': action,
+    'method': method,
+  });
+}
+
+/**
+ * Track haptic feedback usage
+ * @param pattern - Haptic pattern used (light/medium/impact/success/error)
+ * @param context - Context where haptic was triggered
+ */
+export function trackHapticFeedback(
+  pattern: 'light' | 'medium' | 'impact' | 'success' | 'error',
+  context: string
+) {
+  trackEvent('haptic_feedback', {
+    'pattern': pattern,
+    'context': context,
+    'timestamp': new Date().toISOString(),
+  });
+}
+
+/**
+ * Track skeleton loader display
+ * @param page - Page where skeleton was shown
+ * @param duration - How long skeleton was visible (ms)
+ * @param count - Number of skeleton items shown
+ */
+export function trackSkeletonLoader(page: string, duration: number, count?: number) {
+  trackEvent('skeleton_loader', {
+    'page': page,
+    'duration_ms': duration,
+    'count': count,
+  });
+}
+
+/**
+ * Track gesture success rate
+ * @param gestureType - Type of gesture
+ * @param success - Whether gesture was successful
+ * @param attempts - Number of attempts before success
+ */
+export function trackGestureSuccess(
+  gestureType: string,
+  success: boolean,
+  attempts?: number
+) {
+  trackEvent('gesture_success', {
+    'gesture_type': gestureType,
+    'success': success,
+    'attempts': attempts,
+  });
+}
+
+/**
+ * Track mobile performance metrics
+ * @param metric - Performance metric name
+ * @param value - Metric value
+ * @param page - Page where metric was measured
+ */
+export function trackMobilePerformance(
+  metric: 'animation_fps' | 'gesture_latency' | 'load_time',
+  value: number,
+  page: string
+) {
+  trackEvent('mobile_performance', {
+    'metric': metric,
+    'value': value,
+    'page': page,
+  });
+}

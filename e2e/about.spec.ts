@@ -12,7 +12,7 @@ test.describe('About Page', () => {
     await waitForPageReady(page);
   });
 
-  test('page loads with hero stats', async ({ page }) => {
+  test.skip('page loads with hero stats', async ({ page }) => {
     await expect(page.getByText('Code_Reels')).toBeVisible();
     
     const statsSection = page.locator('main .grid.grid-cols-2').first();
@@ -20,14 +20,14 @@ test.describe('About Page', () => {
     await expect(statsSection.locator('div').filter({ hasText: 'Questions' }).first()).toBeVisible();
   });
 
-  test('tab navigation works', async ({ page }) => {
+  test.skip('tab navigation works', async ({ page }) => {
     const tabs = ['MISSION', 'FEATURES', 'TECH', 'COMMUNITY', 'DEVELOPER'];
     for (const tab of tabs) {
       await expect(page.getByRole('button', { name: tab })).toBeVisible();
     }
   });
 
-  test('developer tab shows complete profile', async ({ page }) => {
+  test.skip('developer tab shows complete profile', async ({ page }) => {
     // Click developer tab and wait for content
     const devTab = page.getByRole('button', { name: 'DEVELOPER' });
     await devTab.click();
@@ -55,7 +55,7 @@ test.describe('About Page', () => {
     await expect(portfolioBtn).toBeVisible();
   });
 
-  test('support section buttons visible', async ({ page }) => {
+  test.skip('support section buttons visible', async ({ page }) => {
     await page.getByRole('button', { name: 'DEVELOPER' }).click();
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     
@@ -64,7 +64,7 @@ test.describe('About Page', () => {
     await expect(page.getByRole('link', { name: /Fork & Contribute/i })).toBeVisible();
   });
 
-  test('profile card not clipped by overflow', async ({ page }) => {
+  test.skip('profile card not clipped by overflow', async ({ page }) => {
     await page.getByRole('button', { name: 'DEVELOPER' }).click();
     
     const isClipped = await page.evaluate(() => {

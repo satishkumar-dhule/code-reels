@@ -1,5 +1,5 @@
 /**
- * Service Worker for Code Reels
+ * Service Worker for Open-Interview
  * Enables offline support and faster repeat visits
  */
 

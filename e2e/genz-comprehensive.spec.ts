@@ -284,8 +284,8 @@ test.describe('Gen Z Theme - Sidebar Navigation', () => {
     const sidebar = page.locator('aside').first();
     await expect(sidebar).toBeVisible();
     
-    // Check for CodeReels logo
-    await expect(sidebar.locator('text=CodeReels')).toBeVisible();
+    // Check for Open-Interview logo
+    await expect(sidebar.locator('text=Open-Interview')).toBeVisible();
   });
 
   test('should navigate using sidebar', async ({ page }) => {

@@ -9,6 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AppLayout } from '../components/layout/AppLayout';
 import { SEOHead } from '../components/SEOHead';
 import { allChannelsConfig } from '../lib/channels-config';
+import { BottomSheet, FloatingButton } from '../components/mobile';
+import * as ScrollArea from '@radix-ui/react-scroll-area';
 import {
   Plus, Trash2, Edit, ChevronRight, Brain, Check, Target, Clock, Sparkles, Award,
   Code, Server, Rocket, X, Search, Star, Zap, Trophy, Building2
@@ -363,7 +365,7 @@ export default function UnifiedLearningPathsGenZ() {
   return (
     <>
       <SEOHead
-        title="Learning Paths - CodeReels"
+        title="Learning Paths - Open-Interview"
         description="Choose your career path and start learning"
       />
 
@@ -705,34 +707,40 @@ export default function UnifiedLearningPathsGenZ() {
           </div>
         </div>
 
-        {/* Unified Path Modal - Create/Edit/View */}
+        {/* Unified Path Modal - MOBILE-FIRST: Full screen on mobile, centered on desktop */}
         <AnimatePresence>
           {showPathModal && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-end md:items-center justify-center md:p-6"
               onClick={closePathModal}
             >
               <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[32px] max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+                className="bg-white dark:bg-gray-900 border-t md:border border-gray-200 dark:border-gray-800 rounded-t-[24px] md:rounded-[32px] max-w-4xl w-full h-[90vh] md:h-auto md:max-h-[85vh] overflow-hidden flex flex-col mb-16 md:mb-0"
               >
-                {/* Header */}
-                <div className="p-8 border-b border-gray-200 dark:border-gray-800">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-3xl font-black">
+                {/* MOBILE-FIRST: Drag handle on mobile */}
+                <div className="flex justify-center pt-3 pb-2 md:hidden">
+                  <div className="w-12 h-1 bg-gray-300 dark:bg-gray-700 rounded-full" />
+                </div>
+
+                {/* Header - MOBILE-FIRST: Compact on mobile */}
+                <div className="px-4 py-3 md:p-8 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+                  <div className="flex items-center justify-between mb-2 md:mb-4">
+                    <h2 className="text-lg md:text-3xl font-black truncate pr-2">
                       {modalMode === 'create' ? 'Create Path' : modalMode === 'edit' ? 'Edit Path' : selectedPath?.name}
                     </h2>
                     <button
                       onClick={closePathModal}
-                      className="w-10 h-10 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full flex items-center justify-center transition-all"
+                      className="w-9 h-9 md:w-10 md:h-10 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full flex items-center justify-center transition-all flex-shrink-0 touch-manipulation"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   </div>
 
@@ -748,16 +756,16 @@ export default function UnifiedLearningPathsGenZ() {
                           setEditForm(prev => ({ ...prev, name: e.target.value }));
                         }
                       }}
-                      className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[16px] text-xl focus:outline-none focus:border-primary transition-all"
+                      className="w-full px-4 py-3 md:px-6 md:py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[12px] md:rounded-[16px] text-base md:text-xl focus:outline-none focus:border-primary transition-all"
                     />
                   )}
 
                   {isReadonly && selectedPath?.description && (
-                    <div className="mt-4">
-                      <p className="text-gray-600 dark:text-gray-400">{selectedPath.description}</p>
+                    <div className="mt-2 md:mt-4">
+                      <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">{selectedPath.description}</p>
                       
                       {/* Path Stats */}
-                      <div className="grid grid-cols-3 gap-4 mt-4">
+                      <div className="grid grid-cols-3 gap-2 md:gap-4 mt-3 md:mt-4">
                         <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-[12px]">
                           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-xs mb-1">
                             <Clock className="w-3 h-3" />
@@ -813,11 +821,11 @@ export default function UnifiedLearningPathsGenZ() {
                   )}
                 </div>
 
-                {/* Tabs */}
-                <div className="flex border-b border-gray-200 dark:border-gray-800 px-8">
+                {/* Tabs - MOBILE-FIRST: Smaller text on mobile */}
+                <div className="flex border-b border-gray-200 dark:border-gray-800 px-4 md:px-8 flex-shrink-0">
                   <button
                     onClick={() => setModalTab('channels')}
-                    className={`flex-1 py-4 text-sm font-bold transition-colors relative ${
+                    className={`flex-1 py-3 md:py-4 text-xs md:text-sm font-bold transition-colors relative ${
                       modalTab === 'channels'
                         ? 'text-primary'
                         : 'text-gray-600 dark:text-gray-400 hover:text-foreground'
@@ -833,7 +841,7 @@ export default function UnifiedLearningPathsGenZ() {
                   </button>
                   <button
                     onClick={() => setModalTab('certifications')}
-                    className={`flex-1 py-4 text-sm font-bold transition-colors relative ${
+                    className={`flex-1 py-3 md:py-4 text-xs md:text-sm font-bold transition-colors relative ${
                       modalTab === 'certifications'
                         ? 'text-primary'
                         : 'text-gray-600 dark:text-gray-400 hover:text-foreground'
@@ -849,26 +857,26 @@ export default function UnifiedLearningPathsGenZ() {
                   </button>
                 </div>
 
-                {/* Search */}
+                {/* Search - MOBILE-FIRST: Compact */}
                 {!isReadonly && (
-                  <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+                  <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
                     <div className="relative">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-400" />
                       <input
                         type="text"
                         placeholder={`Search ${modalTab}...`}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[12px] focus:outline-none focus:border-primary transition-all"
+                        className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 text-sm md:text-base bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[10px] md:rounded-[12px] focus:outline-none focus:border-primary transition-all"
                       />
                     </div>
                   </div>
                 )}
 
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-8">
+                {/* Content - MOBILE-FIRST: Scrollable with proper flex and padding */}
+                <div className="flex-1 overflow-y-auto p-3 md:p-8 overscroll-contain pb-safe">
                   {modalTab === 'channels' ? (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 pb-4">
                       {(isReadonly ? 
                         Object.values(allChannelsConfig).filter(c => currentChannels.includes(c.id)) :
                         filteredChannels
@@ -891,24 +899,24 @@ export default function UnifiedLearningPathsGenZ() {
                               }
                             }}
                             disabled={isReadonly}
-                            className={`p-4 rounded-[12px] border text-left transition-all ${
+                            className={`p-3 md:p-4 rounded-[10px] md:rounded-[12px] border text-left transition-all touch-manipulation ${
                               isSelected
                                 ? 'bg-gradient-to-r from-primary/20 to-cyan-500/20 border-primary'
                                 : isReadonly
                                   ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary/30 cursor-pointer'
+                                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary/30 cursor-pointer active:scale-95'
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-semibold">{channel.name}</span>
-                              {isSelected && <Check className="w-5 h-5 text-primary" />}
+                              <span className="font-semibold text-sm md:text-base">{channel.name}</span>
+                              {isSelected && <Check className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />}
                             </div>
                           </button>
                         );
                       })}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 pb-4">
                       {(isReadonly ?
                         certifications.filter(c => currentCertifications.includes(c.id)) :
                         filteredCerts
@@ -931,20 +939,20 @@ export default function UnifiedLearningPathsGenZ() {
                               }
                             }}
                             disabled={isReadonly}
-                            className={`p-4 rounded-[12px] border text-left transition-all ${
+                            className={`p-3 md:p-4 rounded-[10px] md:rounded-[12px] border text-left transition-all touch-manipulation ${
                               isSelected
                                 ? 'bg-gradient-to-r from-primary/20 to-cyan-500/20 border-primary'
                                 : isReadonly
                                   ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary/30 cursor-pointer'
+                                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-primary/30 cursor-pointer active:scale-95'
                             }`}
                           >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">{cert.provider}</div>
-                                <div className="font-semibold text-sm">{cert.name}</div>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400 mb-0.5 md:mb-1">{cert.provider}</div>
+                                <div className="font-semibold text-xs md:text-sm truncate">{cert.name}</div>
                               </div>
-                              {isSelected && <Check className="w-5 h-5 text-primary" />}
+                              {isSelected && <Check className="w-4 h-4 md:w-5 md:h-5 text-primary flex-shrink-0" />}
                             </div>
                           </button>
                         );
@@ -953,15 +961,16 @@ export default function UnifiedLearningPathsGenZ() {
                   )}
                 </div>
 
-                {/* Footer */}
-                <div className="p-8 border-t border-gray-200 dark:border-gray-800">
+                {/* Footer - MOBILE-FIRST: Sticky button with proper safe area */}
+                <div className="p-4 md:p-8 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex-shrink-0 pb-safe-offset-4">
                   {isReadonly ? (
                     <button
                       onClick={() => {
                         activateCustomPath(selectedPath.id);
                         closePathModal();
                       }}
-                      className="w-full py-4 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-[16px] font-bold text-xl hover:scale-105 transition-all"
+                      className="w-full py-4 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-[14px] md:rounded-[16px] font-bold text-base md:text-xl hover:scale-105 active:scale-95 transition-all touch-manipulation min-h-[52px] md:min-h-[56px] shadow-lg"
+                      aria-label="Activate this learning path"
                     >
                       Activate This Path
                     </button>
@@ -972,7 +981,8 @@ export default function UnifiedLearningPathsGenZ() {
                         (modalMode === 'create' && (!customForm.name || (customForm.channels.length === 0 && customForm.certifications.length === 0))) ||
                         (modalMode === 'edit' && (!editForm.name || (editForm.channels.length === 0 && editForm.certifications.length === 0)))
                       }
-                      className="w-full py-4 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-[16px] font-bold text-xl disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-all"
+                      className="w-full py-4 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-[14px] md:rounded-[16px] font-bold text-base md:text-xl disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95 transition-all touch-manipulation min-h-[52px] md:min-h-[56px] shadow-lg"
+                      aria-label={modalMode === 'create' ? 'Create new learning path' : 'Save changes to learning path'}
                     >
                       {modalMode === 'create' ? 'Create Path' : 'Save Changes'}
                     </button>
@@ -982,6 +992,15 @@ export default function UnifiedLearningPathsGenZ() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Floating Action Button for Create Path */}
+        <FloatingButton
+          icon={<Plus className="w-6 h-6" />}
+          label="Create"
+          onClick={() => openPathModal(null, 'create')}
+          position="bottom-right"
+          hideOnScroll={true}
+        />
       </AppLayout>
     </>
   );

@@ -6,6 +6,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Safe area utilities for mobile */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility pb-safe-offset-4 {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+@utility mb-safe {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -51,7 +64,7 @@
   --secondary: hsl(0 0% 10%);
   --secondary-foreground: hsl(0 0% 100%);
   --muted: hsl(0 0% 10%);
-  --muted-foreground: hsl(0 0% 40%);
+  --muted-foreground: hsl(0 0% 60%);
   --accent: hsl(0 0% 10%);
   --accent-foreground: hsl(0 0% 100%);
   
@@ -192,7 +205,7 @@ html.genz-light body,
   --secondary: hsl(0 0% 10%);
   --secondary-foreground: hsl(0 0% 98%);
   --muted: hsl(0 0% 10%);
-  --muted-foreground: hsl(0 0% 53%);
+  --muted-foreground: hsl(0 0% 60%);
   --accent: hsl(0 0% 10%);
   --accent-foreground: hsl(0 0% 98%);
   
@@ -2073,3 +2086,102 @@ body, #root {
   }
 }
 /* Cache bust: 1768965541 */
+
+
+/* ===== REDUCED MOTION SUPPORT ===== */
+/* Respect user's motion preferences for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable or minimize all animations and transitions */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Keep essential loading indicators visible but simplified */
+  .skeleton-loading,
+  .loading-spinner,
+  .animate-pulse-slow,
+  .pulse-primary,
+  .streak-glow {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  
+  /* Disable decorative animations completely */
+  .animate-gradient-shift,
+  .animate-shimmer,
+  .animate-pulse-glow,
+  .animate-float,
+  .hover-lift,
+  .glow-hover,
+  .glow-hover-cyan,
+  .glow-hover-purple {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  /* Simplify page entrance animation */
+  main {
+    animation: none !important;
+  }
+}
+
+
+/* ===== TOUCH TARGET ACCESSIBILITY (WCAG 2.1 AA) ===== */
+/* Ensure all interactive elements meet minimum 44x44px touch target size */
+
+/* Override any conflicting styles to ensure touch target compliance */
+button:not(.no-min-size),
+a:not(.no-min-size),
+input[type="button"]:not(.no-min-size),
+input[type="submit"]:not(.no-min-size),
+input[type="reset"]:not(.no-min-size) {
+  min-height: 44px;
+}
+
+/* Form controls */
+input:not([type="checkbox"]):not([type="radio"]):not(.no-min-size),
+select:not(.no-min-size),
+textarea:not(.no-min-size) {
+  min-height: 44px;
+}
+
+/* Ensure icon buttons and close buttons meet minimum size */
+button[aria-label]:not(:has(span)):not(:has(div)):not(.no-min-size),
+[role="button"][aria-label]:not(.no-min-size),
+.close-btn:not(.no-min-size),
+[aria-label*="close"]:not(.no-min-size),
+[aria-label*="Close"]:not(.no-min-size) {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.75rem;
+}
+
+/* Navigation items */
+nav a:not(.no-min-size),
+nav button:not(.no-min-size),
+[role="navigation"] a:not(.no-min-size),
+[role="navigation"] button:not(.no-min-size) {
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+}
+
+/* Mobile: Increase to Android recommendation (48px) */
+@media (max-width: 768px) {
+  button:not(.no-min-size),
+  a:not(.no-min-size),
+  input:not([type="checkbox"]):not([type="radio"]):not(.no-min-size),
+  select:not(.no-min-size) {
+    min-height: 48px;
+  }
+  
+  button[aria-label]:not(:has(span)):not(:has(div)):not(.no-min-size),
+  [role="button"][aria-label]:not(.no-min-size) {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}

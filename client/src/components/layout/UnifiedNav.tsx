@@ -49,12 +49,13 @@ interface NavItem {
   description?: string;
 }
 
-// Main navigation - 4 core sections
+// Main navigation - 5 core sections (MOBILE-FIRST)
 const mainNavItems: NavItem[] = [
   { id: 'home', label: 'Home', icon: Home, path: '/' },
-  { id: 'learn', label: 'Learn', icon: GraduationCap, path: '/channels' },
-  { id: 'practice', label: 'Practice', icon: Mic, path: '/voice-interview', highlight: true },
-  { id: 'progress', label: 'Progress', icon: BarChart3, path: '/stats' },
+  { id: 'paths', label: 'Paths', icon: Brain, path: '/learning-paths', description: 'Learning paths' },
+  { id: 'practice', label: 'Practice', icon: Mic, path: '/voice-interview', highlight: true, description: 'Practice modes' },
+  { id: 'learn', label: 'Learn', icon: GraduationCap, path: '/channels', description: 'Topics & certs' },
+  { id: 'progress', label: 'Progress', icon: BarChart3, path: '/stats', description: 'Your stats' },
 ];
 
 // Learn section - Browse learning content
@@ -78,12 +79,13 @@ const progressSubNav: NavItem[] = [
   { id: 'badges', label: 'Badges', icon: Trophy, path: '/badges', description: 'Achievements' },
   { id: 'bookmarks', label: 'Bookmarks', icon: Bookmark, path: '/bookmarks', description: 'Saved questions' },
   { id: 'profile', label: 'Profile', icon: User, path: '/profile', description: 'Settings & credits' },
-  { id: 'about', label: 'About', icon: Info, path: '/about', description: 'About Code Reels' },
+  { id: 'about', label: 'About', icon: Info, path: '/about', description: 'About Open-Interview' },
 ];
 
 function getActiveSection(location: string): string {
   if (location === '/') return 'home';
-  if (location === '/channels' || location.startsWith('/channel/') || location === '/certifications' || location.startsWith('/certification/')) return 'learn';
+  if (location === '/learning-paths' || location.startsWith('/learning-path/')) return 'paths';
+  if (location === '/channels' || location.startsWith('/channel/') || location === '/certifications' || location.startsWith('/certification/') || location === '/my-path') return 'learn';
   if (location.startsWith('/voice') || location.startsWith('/test') || location.startsWith('/coding') || location === '/review' || location === '/training') return 'practice';
   if (location === '/stats' || location === '/badges' || location === '/bookmarks' || location === '/profile' || location === '/about') return 'progress';
   if (location === '/bot-activity') return 'bots';
@@ -104,7 +106,11 @@ export function MobileBottomNav() {
   const activeSection = getActiveSection(location);
 
   const handleNavClick = (item: NavItem) => {
-    if (item.id === 'practice' || item.id === 'learn' || item.id === 'progress') {
+    // Paths goes directly to learning paths page (no submenu)
+    if (item.id === 'paths') {
+      setShowMenu(null);
+      setLocation(item.path);
+    } else if (item.id === 'practice' || item.id === 'learn' || item.id === 'progress') {
       setShowMenu(showMenu === item.id ? null : item.id);
     } else {
       setShowMenu(null);
@@ -139,7 +145,7 @@ export function MobileBottomNav() {
 
   return (
     <>
-      {/* Backdrop Overlay - Gen Z Dark */}
+      {/* Backdrop Overlay */}
       <AnimatePresence>
         {showMenu && (
           <motion.div
@@ -152,36 +158,45 @@ export function MobileBottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Submenu - Gen Z Glassmorphism */}
+      {/* REVAMPED: Full-screen Submenu with better UX */}
       <AnimatePresence>
         {showMenu && currentSubNav.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-            className="fixed bottom-20 left-3 right-3 z-50 bg-card/90 backdrop-blur-xl border border-border rounded-[24px] shadow-2xl overflow-hidden lg:hidden"
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-x-0 bottom-0 z-50 bg-background border-t border-border rounded-t-[32px] shadow-2xl overflow-hidden lg:hidden max-h-[80vh] flex flex-col"
           >
-            {/* Header with Neon Accent */}
-            <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 to-cyan-500/10">
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-12 h-1 bg-muted-foreground/30 rounded-full" />
+            </div>
+
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-border">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-1 h-4 bg-gradient-to-b from-primary to-cyan-500 rounded-full" />
-                  <span className="text-sm font-bold text-foreground">
+                <div>
+                  <h3 className="text-2xl font-black text-foreground">
                     {showMenu === 'learn' ? 'Learn' : showMenu === 'practice' ? 'Practice' : 'Progress'}
-                  </span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {showMenu === 'learn' ? 'Browse topics and certifications' : 
+                     showMenu === 'practice' ? 'Choose your practice mode' : 
+                     'Track your progress'}
+                  </p>
                 </div>
                 <button 
                   onClick={() => setShowMenu(null)}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors font-semibold"
+                  className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
                 >
-                  Close
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
               </div>
             </div>
             
-            {/* Menu Items - Gen Z Grid */}
-            <div className="p-3 grid grid-cols-2 gap-2">
+            {/* Menu Items - Single Column for Better Touch Targets */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 pb-24">
               {currentSubNav.map((item, index) => {
                 const Icon = item.icon;
                 const isActive = location === item.path || location.startsWith(item.path + '/');
@@ -190,61 +205,68 @@ export function MobileBottomNav() {
                 return (
                   <motion.button
                     key={item.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => {
                       setLocation(item.path);
                       setShowMenu(null);
                     }}
                     className={cn(
-                      "flex flex-col items-center gap-2 p-3 rounded-[16px] transition-all relative overflow-hidden",
+                      "w-full flex items-center gap-4 p-4 rounded-[20px] transition-all relative overflow-hidden",
                       isActive 
-                        ? "bg-gradient-to-br from-primary/20 to-cyan-500/20 border border-primary/30" 
-                        : "bg-muted/50 hover:bg-muted border border-border",
+                        ? "bg-gradient-to-br from-primary/20 to-cyan-500/20 border-2 border-primary/50" 
+                        : "bg-muted/50 hover:bg-muted border-2 border-transparent",
                       isVoice && !isActive && "bg-gradient-to-br from-primary/10 to-cyan-500/10 border-primary/20"
                     )}
                   >
-                    {/* Neon Glow Effect */}
-                    {isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-cyan-500/20 blur-xl" />
-                    )}
-                    
+                    {/* Icon */}
                     <div className={cn(
-                      "w-12 h-12 rounded-[12px] flex items-center justify-center transition-all relative z-10",
+                      "w-14 h-14 rounded-[16px] flex items-center justify-center flex-shrink-0 transition-all",
                       isActive 
                         ? "bg-gradient-to-br from-primary to-cyan-500 shadow-lg shadow-primary/30" 
                         : isVoice 
                           ? "bg-gradient-to-br from-primary/30 to-cyan-500/30"
-                          : "bg-muted"
+                          : "bg-background"
                     )}>
                       <Icon className={cn(
-                        "w-6 h-6",
+                        "w-7 h-7",
                         isActive ? "text-primary-foreground" : "text-foreground"
                       )} strokeWidth={2} />
                     </div>
                     
-                    <div className="text-center relative z-10">
-                      <div className={cn(
-                        "text-xs font-bold",
-                        isActive ? "text-primary" : "text-foreground"
-                      )}>
-                        {item.label}
-                      </div>
-                      {item.badge && (
+                    {/* Content */}
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2 mb-1">
                         <span className={cn(
-                          "text-[9px] font-bold mt-0.5 inline-block",
-                          item.badge === 'NEW' ? "text-primary" : "text-amber-400"
+                          "text-base font-bold",
+                          isActive ? "text-primary" : "text-foreground"
                         )}>
-                          {item.badge}
+                          {item.label}
                         </span>
-                      )}
+                        {item.badge && (
+                          <span className={cn(
+                            "text-xs font-bold px-2 py-0.5 rounded-full",
+                            item.badge === 'NEW' 
+                              ? "bg-emerald-500/20 text-emerald-400" 
+                              : "bg-amber-500/20 text-amber-400"
+                          )}>
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
                       {item.description && (
-                        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
+                        <p className="text-sm text-muted-foreground">
                           {item.description}
-                        </div>
+                        </p>
                       )}
                     </div>
+
+                    {/* Arrow */}
+                    <ChevronRight className={cn(
+                      "w-5 h-5 flex-shrink-0",
+                      isActive ? "text-primary" : "text-muted-foreground"
+                    )} />
                   </motion.button>
                 );
               })}
@@ -253,9 +275,9 @@ export function MobileBottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Bottom Navigation Bar - Gen Z Theme-Aware */}
+      {/* REVAMPED: Bottom Navigation Bar - Cleaner, More Accessible */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
-        <div className="bg-background border-t border-border backdrop-blur-xl">
+        <div className="bg-background/95 backdrop-blur-xl border-t border-border shadow-2xl">
           <div className="flex items-center justify-around h-16 px-2 max-w-md mx-auto">
             {mainNavItems.map((item) => {
               const isActive = activeSection === item.id;
@@ -269,78 +291,46 @@ export function MobileBottomNav() {
                   onClick={() => handleNavClick(item)}
                   className={cn(
                     "relative flex flex-col items-center justify-center flex-1 h-full transition-all",
-                    item.highlight && "scale-110",
                     isActive || isMenuOpen ? "text-primary" : "text-muted-foreground"
                   )}
+                  aria-label={item.label}
                 >
-                  {/* Active Neon Indicator */}
+                  {/* Active Indicator */}
                   {(isActive || isMenuOpen) && (
                     <motion.div
                       layoutId="mobile-nav-indicator"
-                      className="absolute top-0 w-10 h-1 bg-gradient-to-r from-primary to-cyan-500 rounded-full"
+                      className="absolute top-0 w-12 h-1 bg-gradient-to-r from-primary to-cyan-500 rounded-full"
                       transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
                     />
                   )}
                   
-                  {/* Practice button - Special Neon Style */}
-                  {item.highlight ? (
-                    <motion.div 
-                      whileTap={{ scale: 0.9 }}
-                      className={cn(
-                        "w-12 h-12 rounded-[16px] flex items-center justify-center shadow-lg transition-all mb-1",
-                        isActive || isMenuOpen
-                          ? "bg-gradient-to-br from-primary to-cyan-500 shadow-primary/50" 
-                          : "bg-gradient-to-br from-primary/20 to-cyan-500/20 border border-primary/30"
-                      )}
-                    >
-                      <Icon className={cn(
-                        "w-6 h-6",
-                        isActive || isMenuOpen ? "text-primary-foreground" : "text-primary"
-                      )} strokeWidth={2.5} />
-                    </motion.div>
-                  ) : (
-                    <motion.div 
-                      whileTap={{ scale: 0.9 }}
-                      className={cn(
-                        "w-10 h-10 rounded-[12px] flex items-center justify-center transition-all mb-1",
-                        isActive || isMenuOpen ? "bg-primary/10" : "hover:bg-muted/50"
-                      )}
-                    >
-                      <Icon className="w-5 h-5" strokeWidth={2} />
-                    </motion.div>
-                  )}
+                  {/* Icon Container */}
+                  <motion.div 
+                    whileTap={{ scale: 0.9 }}
+                    className={cn(
+                      "w-12 h-12 rounded-[16px] flex items-center justify-center transition-all",
+                      item.highlight
+                        ? isActive || isMenuOpen
+                          ? "bg-gradient-to-br from-primary to-cyan-500 shadow-lg shadow-primary/50" 
+                          : "bg-gradient-to-br from-primary/20 to-cyan-500/20"
+                        : isActive || isMenuOpen 
+                          ? "bg-primary/15" 
+                          : "bg-transparent"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "w-6 h-6",
+                      item.highlight && (isActive || isMenuOpen) ? "text-primary-foreground" : ""
+                    )} strokeWidth={2.5} />
+                  </motion.div>
                   
-                  <span className={cn(
-                    "text-[10px] font-bold transition-colors",
-                    isActive || isMenuOpen ? "text-primary" : "text-muted-foreground"
-                  )}>
+                  {/* Label - Hidden for cleaner look */}
+                  <span className="sr-only">
                     {item.label}
                   </span>
-                  
-                  {/* Submenu indicator */}
-                  {hasSubmenu && !item.highlight && (
-                    <div className={cn(
-                      "absolute bottom-1 w-1 h-1 rounded-full transition-colors",
-                      isMenuOpen ? "bg-primary" : "bg-muted"
-                    )} />
-                  )}
                 </button>
               );
             })}
-            
-            {/* Credits - Neon Pill */}
-            <button 
-              onClick={() => setLocation('/profile')} 
-              className="flex flex-col items-center justify-center h-14"
-            >
-              <motion.div 
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-1 px-2 py-1.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-[12px] shadow-sm"
-              >
-                <Coins className="w-3.5 h-3.5 text-amber-400" strokeWidth={2.5} />
-                <span className="text-xs font-bold text-amber-400">{formatCredits(balance)}</span>
-              </motion.div>
-            </button>
           </div>
         </div>
       </nav>
@@ -477,7 +467,7 @@ export function DesktopSidebar({ onSearchClick }: DesktopSidebarProps) {
           </div>
           {!isCollapsed && (
             <div className="text-left">
-              <div className="font-semibold text-sm leading-tight">CodeReels</div>
+              <div className="font-semibold text-sm leading-tight">Open-Interview</div>
               <div className="text-[10px] text-muted-foreground">Interview Prep</div>
             </div>
           )}
@@ -603,7 +593,7 @@ export function UnifiedMobileHeader({ title, showBack, onSearchClick }: UnifiedM
                 <Brain className="w-4 h-4 text-primary-foreground" strokeWidth={2.5} />
               </div>
               <div>
-                <span className="font-black text-sm text-foreground">CodeReels</span>
+                <span className="font-black text-sm text-foreground">Open-Interview</span>
                 {!title && <div className="text-[10px] text-muted-foreground">Interview Prep</div>}
               </div>
             </button>

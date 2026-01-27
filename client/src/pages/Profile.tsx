@@ -473,6 +473,8 @@ function ToggleItem({
       type="button"
       onClick={onToggle}
       className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors border-b border-border/50 last:border-b-0 active:bg-muted/70 cursor-pointer touch-manipulation"
+      aria-label={`${label}: ${enabled ? 'enabled' : 'disabled'}`}
+      aria-pressed={enabled}
     >
       <div className="flex items-center gap-3 pointer-events-none">
         <span className={enabled ? 'text-primary' : 'text-muted-foreground'}>{icon}</span>
@@ -485,6 +487,7 @@ function ToggleItem({
         className={`w-11 h-6 rounded-full transition-colors relative ${
           enabled ? 'bg-primary' : 'bg-muted'
         }`}
+        aria-hidden="true"
       >
         <div 
           className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${

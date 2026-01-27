@@ -1,9 +1,11 @@
 /**
  * GenZ Progress Bar - Neon progress indicator
+ * Supports reduced motion for accessibility
  */
 
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
+import { useReducedMotion } from '../../hooks/use-reduced-motion';
 
 interface GenZProgressProps {
   value: number;
@@ -20,6 +22,7 @@ export function GenZProgress({
   showLabel = false,
   className,
 }: GenZProgressProps) {
+  const prefersReducedMotion = useReducedMotion();
   const percentage = Math.min((value / max) * 100, 100);
 
   const colors = {
@@ -35,7 +38,10 @@ export function GenZProgress({
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          transition={{ 
+            duration: prefersReducedMotion ? 0.01 : 0.5, 
+            ease: 'easeOut' 
+          }}
           className={`h-full bg-gradient-to-r ${colors[color]}`}
         />
       </div>

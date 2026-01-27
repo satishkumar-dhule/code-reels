@@ -77,6 +77,11 @@ export function AppLayout({
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
 
+      {/* Footer - Hidden but provides landmark for accessibility */}
+      <footer className="sr-only" role="contentinfo">
+        Code Reels - Technical Interview Preparation Platform
+      </footer>
+
       {/* Theme Toggle - Floating button */}
       <ThemeToggle />
 

@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { getChannel } from '../lib/data';
 import { useQuestionsWithPrefetch, useSubChannels, useCompaniesWithCounts } from '../hooks/use-questions';
 import { useProgress, trackActivity } from '../hooks/use-progress';
@@ -18,7 +18,11 @@ import { UnifiedSearch } from '../components/UnifiedSearch';
 import { VoiceReminder } from '../components/VoiceReminder';
 import { GenZAnswerPanel } from '../components/question/GenZAnswerPanel';
 import { QuestionFeedback } from '../components/QuestionFeedback';
+import { AICompanion } from '../components/AICompanion';
+import { FloatingButton } from '../components/mobile';
+import { Haptics } from '../lib/haptics';
 import { trackQuestionView } from '../hooks/use-analytics';
+import { trackSwipeNavigation, trackHapticFeedback } from '../lib/analytics';
 import { useUnifiedToast } from '../hooks/use-unified-toast';
 import {
   getCard, recordReview, addToSRS,
@@ -27,7 +31,7 @@ import {
 } from '../lib/spaced-repetition';
 import {
   ChevronLeft, ChevronRight, Search, X, Bookmark, Share2,
-  Filter, Brain, RotateCcw, Check, Zap
+  Filter, Brain, RotateCcw, Check, Zap, ArrowRight
 } from 'lucide-react';
 
 export default function QuestionViewerGenZ() {
@@ -68,6 +72,11 @@ export default function QuestionViewerGenZ() {
   const [srsCard, setSrsCard] = useState<ReviewCard | null>(null);
   const [showRatingButtons, setShowRatingButtons] = useState(false);
   const [hasRated, setHasRated] = useState(false);
+  
+  // Swipe gesture state
+  const x = useMotionValue(0);
+  const opacity = useTransform(x, [-200, 0, 200], [0.5, 1, 0.5]);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   
   // Get current theme from context
   const { theme } = useTheme();
@@ -266,6 +275,54 @@ export default function QuestionViewerGenZ() {
     });
   };
 
+  // Handle swipe gesture for navigation
+  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const threshold = 100;
+    const velocity = info.velocity.x;
+    const page = window.location.pathname;
+    
+    // Swipe left (next question)
+    if (info.offset.x < -threshold || velocity < -500) {
+      setSwipeDirection('left');
+      Haptics.medium(); // Haptic feedback on swipe
+      trackHapticFeedback('medium', 'swipe_navigation_left');
+      trackSwipeNavigation(
+        page, 
+        'left', 
+        currentQuestion?.id, 
+        questions[currentIndex + 1]?.id,
+        Math.abs(velocity)
+      );
+      setTimeout(() => {
+        nextQuestion();
+        setSwipeDirection(null);
+        x.set(0);
+      }, 150);
+    }
+    // Swipe right (previous question)
+    else if (info.offset.x > threshold || velocity > 500) {
+      setSwipeDirection('right');
+      Haptics.medium(); // Haptic feedback on swipe
+      trackHapticFeedback('medium', 'swipe_navigation_right');
+      trackSwipeNavigation(
+        page, 
+        'right', 
+        currentQuestion?.id, 
+        questions[currentIndex - 1]?.id,
+        Math.abs(velocity)
+      );
+      setTimeout(() => {
+        prevQuestion();
+        setSwipeDirection(null);
+        x.set(0);
+      }, 150);
+    }
+    // Snap back
+    else {
+      x.set(0);
+    }
+  };
+
   if (loading && !currentQuestion) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
@@ -444,8 +501,36 @@ export default function QuestionViewerGenZ() {
                 Answer
               </button>
             </div>
-            {/* Mobile Content */}
-            <div className="flex-1 overflow-y-auto p-6 pb-24">
+            
+            {/* Mobile Content with Swipe Gestures */}
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              style={{ x, opacity }}
+              onDragEnd={handleDragEnd}
+              className="flex-1 overflow-y-auto p-6 pb-24 relative"
+            >
+              {/* Swipe Indicators */}
+              {swipeDirection === 'left' && (
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="absolute top-1/2 right-4 -translate-y-1/2 z-10 bg-primary/20 backdrop-blur-sm rounded-full p-4"
+                >
+                  <ChevronRight className="w-8 h-8 text-primary" />
+                </motion.div>
+              )}
+              {swipeDirection === 'right' && (
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 z-10 bg-primary/20 backdrop-blur-sm rounded-full p-4"
+                >
+                  <ChevronLeft className="w-8 h-8 text-primary" />
+                </motion.div>
+              )}
+              
               {mobileView === 'question' ? (
                 <QuestionContent
                   question={currentQuestion}
@@ -466,7 +551,18 @@ export default function QuestionViewerGenZ() {
                   isCompleted={isCompleted}
                 />
               )}
-            </div>
+            </motion.div>
+            
+            {/* Floating Action Button - Next Question */}
+            {currentIndex < totalQuestions - 1 && (
+              <FloatingButton
+                icon={<ArrowRight className="w-6 h-6" />}
+                onClick={nextQuestion}
+                position="bottom-right"
+                hideOnScroll={false}
+                className="lg:hidden"
+              />
+            )}
           </div>
         </div>
 
@@ -542,6 +638,73 @@ export default function QuestionViewerGenZ() {
 
       <UnifiedSearch isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
       <VoiceReminder />
+      <AICompanion
+        pageContent={{
+          type: 'question',
+          title: channel.name,
+          question: currentQuestion.question,
+          answer: currentQuestion.answer,
+          explanation: currentQuestion.explanation,
+          tags: currentQuestion.tags,
+          difficulty: currentQuestion.difficulty,
+        }}
+        onNavigate={(path) => setLocation(path)}
+        onAction={(action, data) => {
+          switch (action) {
+            case 'nextQuestion':
+              handleNext();
+              break;
+            case 'previousQuestion':
+              handlePrevious();
+              break;
+            case 'showAnswer':
+              setShowAnswer(true);
+              break;
+            case 'hideAnswer':
+              setShowAnswer(false);
+              break;
+            case 'bookmark':
+              handleBookmark();
+              break;
+            case 'addToSRS':
+              handleAddToSRS();
+              break;
+            case 'share':
+              handleShare();
+              break;
+            case 'showSearch':
+              setShowSearchModal(true);
+              break;
+            case 'filterByDifficulty':
+              if (data?.difficulty) {
+                setDifficultyFilter(data.difficulty);
+              }
+              break;
+            case 'filterBySubChannel':
+              if (data?.subChannel) {
+                setSelectedSubChannel(data.subChannel);
+              }
+              break;
+            case 'clearFilters':
+              setDifficultyFilter('all');
+              setSelectedSubChannel('all');
+              break;
+          }
+        }}
+        availableActions={[
+          'nextQuestion',
+          'previousQuestion',
+          'showAnswer',
+          'hideAnswer',
+          'bookmark',
+          'addToSRS',
+          'share',
+          'showSearch',
+          'filterByDifficulty',
+          'filterBySubChannel',
+          'clearFilters',
+        ]}
+      />
     </>
   );
 }

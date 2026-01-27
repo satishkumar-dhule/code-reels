@@ -345,6 +345,7 @@ function AchievementCard({
           <button
             onClick={onDismiss}
             className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors flex-shrink-0"
+            aria-label="Dismiss achievement notification"
           >
             <X className="w-3 h-3 text-white" />
           </button>
@@ -407,6 +408,7 @@ function LevelUpCard({
         <button
           onClick={onDismiss}
           className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+          aria-label="Dismiss level up notification"
         >
           <X className="w-3 h-3 text-white" />
         </button>
@@ -471,6 +473,7 @@ function ToastCard({
           <button
             onClick={onDismiss}
             className="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0"
+            aria-label="Dismiss toast notification"
           >
             <X className="w-3 h-3 text-white/50" />
           </button>
@@ -532,6 +535,7 @@ function BadgeCard({
           <button
             onClick={onDismiss}
             className="w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors flex-shrink-0"
+            aria-label="Dismiss badge notification"
           >
             <X className="w-3 h-3 text-white" />
           </button>
@@ -581,6 +585,7 @@ function SystemCard({
           <button
             onClick={onDismiss}
             className="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0"
+            aria-label="Dismiss system notification"
           >
             <X className="w-3 h-3 text-white/50" />
           </button>

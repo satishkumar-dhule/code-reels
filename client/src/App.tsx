@@ -49,6 +49,7 @@ import { usePageViewTracking, useSessionTracking, useInteractionTracking } from 
 import { preloadQuestions, getQuestionByIdAsync } from "./lib/questions-loader";
 import PixelMascot from "./components/PixelMascot";
 import BackgroundMascots from "./components/BackgroundMascots";
+import { AICompanion } from "./components/AICompanion";
 
 // Handle SPA redirect from 404.html (GitHub Pages)
 function useSpaRedirect() {
@@ -195,6 +196,8 @@ function AppContent() {
       <BackgroundMascots />
       <GlobalCreditSplash />
       <AchievementNotificationManager />
+      {/* AI Companion - DISABLED */}
+      {/* <GlobalAICompanion /> */}
       {/* Progressive onboarding - DISABLED for Gen Z redesign */}
       {/* {needsOnboarding && <ProgressiveOnboarding />} */}
     </>
@@ -209,6 +212,163 @@ function GlobalCreditSplash() {
       amount={creditChange.amount} 
       show={creditChange.show} 
       onComplete={clearCreditChange}
+    />
+  );
+}
+
+// Global AI Companion - available on every page
+function GlobalAICompanion() {
+  const [location, setLocation] = useLocation();
+  
+  // Determine page type and content based on current route
+  const getPageContext = () => {
+    if (location === '/') {
+      return {
+        type: 'home',
+        title: 'Home',
+        content: 'Welcome! Explore learning paths, certifications, and practice questions.',
+      };
+    } else if (location.startsWith('/learning-paths')) {
+      return {
+        type: 'learning-paths',
+        title: 'Learning Paths',
+        content: 'Browse and activate structured learning paths',
+      };
+    } else if (location.startsWith('/certifications')) {
+      return {
+        type: 'certifications',
+        title: 'Certifications',
+        content: 'Prepare for professional certifications',
+      };
+    } else if (location.startsWith('/channels')) {
+      return {
+        type: 'channels',
+        title: 'All Channels',
+        content: 'Browse all available learning channels',
+      };
+    } else if (location.startsWith('/profile')) {
+      return {
+        type: 'profile',
+        title: 'Profile',
+        content: 'View your progress and achievements',
+      };
+    } else if (location.startsWith('/bookmarks')) {
+      return {
+        type: 'bookmarks',
+        title: 'Bookmarks',
+        content: 'Your saved questions',
+      };
+    } else if (location.startsWith('/review')) {
+      return {
+        type: 'review',
+        title: 'SRS Review',
+        content: 'Spaced repetition review session',
+      };
+    } else if (location.startsWith('/voice-interview') || location.startsWith('/training')) {
+      return {
+        type: 'voice-interview',
+        title: 'Voice Interview Practice',
+        content: 'Practice answering questions with voice',
+      };
+    } else if (location.startsWith('/coding')) {
+      return {
+        type: 'coding',
+        title: 'Coding Challenges',
+        content: 'Practice coding problems',
+      };
+    } else if (location.startsWith('/tests')) {
+      return {
+        type: 'tests',
+        title: 'Tests',
+        content: 'Take practice tests',
+      };
+    } else if (location.startsWith('/badges')) {
+      return {
+        type: 'badges',
+        title: 'Badges & Achievements',
+        content: 'View your earned badges',
+      };
+    } else if (location.startsWith('/stats')) {
+      return {
+        type: 'stats',
+        title: 'Statistics',
+        content: 'View your learning statistics',
+      };
+    }
+    
+    return {
+      type: 'general',
+      title: 'Learning Platform',
+      content: 'Your personalized learning companion',
+    };
+  };
+  
+  // Available actions based on current page
+  const getAvailableActions = () => {
+    if (location === '/') {
+      return ['exploreLearningPaths', 'viewCertifications', 'startPractice', 'viewProfile'];
+    } else if (location.startsWith('/learning-paths')) {
+      return ['activatePath', 'viewPathDetails', 'startPath'];
+    } else if (location.startsWith('/certifications')) {
+      return ['startCertification', 'viewProgress'];
+    }
+    return [];
+  };
+  
+  // Handle navigation
+  const handleNavigate = (path: string) => {
+    setLocation(path);
+  };
+  
+  // Handle actions
+  const handleAction = (action: string, data?: any) => {
+    console.log('Global action:', action, data);
+    
+    switch (action) {
+      case 'exploreLearningPaths':
+        setLocation('/learning-paths');
+        break;
+      case 'viewCertifications':
+        setLocation('/certifications');
+        break;
+      case 'startPractice':
+        setLocation('/channels');
+        break;
+      case 'viewProfile':
+        setLocation('/profile');
+        break;
+      case 'viewBookmarks':
+        setLocation('/bookmarks');
+        break;
+      case 'startReview':
+        setLocation('/review');
+        break;
+      case 'voiceInterview':
+        setLocation('/voice-interview');
+        break;
+      case 'codingChallenges':
+        setLocation('/coding');
+        break;
+      case 'takeTest':
+        setLocation('/tests');
+        break;
+      case 'viewBadges':
+        setLocation('/badges');
+        break;
+      case 'viewStats':
+        setLocation('/stats');
+        break;
+      default:
+        console.warn('Unknown global action:', action);
+    }
+  };
+  
+  return (
+    <AICompanion
+      pageContent={getPageContext()}
+      onNavigate={handleNavigate}
+      onAction={handleAction}
+      availableActions={getAvailableActions()}
     />
   );
 }

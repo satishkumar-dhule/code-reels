@@ -1,11 +1,10 @@
 /**
- * Mobile Components Index
- * Export all mobile-specific components
+ * Mobile Components Library
+ * Battle-tested patterns from Meta, Twitter, TikTok
  */
 
-export { MobileFeed } from './MobileFeed';
-export { MobileHomeFocused } from './MobileHomeFocused';
-export { GettingStartedCard } from './GettingStartedCard';
-export { CoachMarksProvider, useCoachMarks } from './CoachMarks';
-export { EmptyState, InlineEmptyState, WelcomeBanner } from './EmptyState';
-export { SwipeHint, TapHint } from './SwipeHint';
+export { BottomSheet } from './BottomSheet';
+export { FloatingButton } from './FloatingButton';
+export { Skeleton, SkeletonCard, SkeletonList, SkeletonText } from './SkeletonLoader';
+export { PullToRefresh } from './PullToRefresh';
+export { SwipeableCard } from './SwipeableCard';

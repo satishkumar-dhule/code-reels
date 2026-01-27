@@ -7,13 +7,14 @@
  * Works with: regular questions, test questions, and coding challenges
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   History, X, Bot, User, Settings, FileDown,
   Plus, Edit, Trash2, CheckCircle, AlertTriangle, 
   Sparkles, RefreshCw, Clock, ChevronDown, Info
 } from 'lucide-react';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 export type QuestionType = 'question' | 'test' | 'coding';
 export type EventType = 'created' | 'updated' | 'improved' | 'flagged' | 'verified' | 'enriched' | 'deleted' | 'restored';
@@ -170,6 +171,10 @@ export function QuestionHistoryIcon({
   const [summary, setSummary] = useState<HistorySummary | null>(null);
   const [historyData, setHistoryData] = useState<QuestionHistoryData | null>(null);
   const [loading, setLoading] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  // Apply focus trapping to modal
+  useFocusTrap(modalRef, { enabled: isOpen, returnFocus: true });
 
   // Load summary from index on mount
   useEffect(() => {
@@ -251,6 +256,7 @@ export function QuestionHistoryIcon({
             
             {/* Modal */}
             <motion.div
+              ref={modalRef}
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -258,6 +264,9 @@ export function QuestionHistoryIcon({
               className="relative w-full max-w-md max-h-[80vh] overflow-hidden
                          bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Question History"
             >
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-[#30363d] bg-[#0d1117]">

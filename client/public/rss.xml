@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Code Reels - Interview Questions</title>
+    <title>Open-Interview - Interview Questions</title>
     <description>Master technical interviews with 325 questions across 32 channels. System design, algorithms, frontend, backend, DevOps, and more.</description>
     <link>https://open-interview.github.io</link>
     <atom:link href="https://open-interview.github.io/rss.xml" rel="self" type="application/rss+xml"/>

@@ -307,3 +307,77 @@ body {
   }
 }
 /* Cache bust: 1768965554 */
+
+
+/* ===== REDUCED MOTION SUPPORT ===== */
+/* Respect user's motion preferences for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable or minimize all animations and transitions */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  /* Disable decorative animations */
+  .shimmer,
+  .pulse,
+  .bounce {
+    animation: none !important;
+  }
+  
+  /* Keep progress bar functional but instant */
+  .genz-progress-fill {
+    transition: width 0.01ms !important;
+  }
+}
+
+
+/* ===== TOUCH TARGET ACCESSIBILITY ===== */
+/* Ensure all interactive elements meet WCAG 2.1 AA minimum touch target size (44x44px) */
+
+/* Neon buttons - ensure minimum size */
+.neon-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 16px 32px;
+}
+
+/* Glass cards with interactive elements */
+.glass-card button,
+.glass-card a {
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+}
+
+/* Progress bar controls */
+.progress-bar-container button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Icon buttons in GenZ style */
+.icon-btn,
+button[class*="icon"] {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile optimizations for GenZ components */
+@media (max-width: 768px) {
+  .neon-button {
+    min-height: 48px; /* Android recommendation */
+    padding: 18px 36px;
+  }
+  
+  .glass-card button,
+  .glass-card a {
+    min-height: 48px;
+  }
+}

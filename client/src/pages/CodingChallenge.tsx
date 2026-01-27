@@ -461,7 +461,7 @@ export default function CodingChallenge() {
       <div className="min-h-screen bg-background text-foreground">
         {/* Challenge List View */}
         {viewState === 'list' && (
-          <div className="p-3 sm:p-4">
+          <main className="p-3 sm:p-4">
             <div className="max-w-4xl mx-auto">
               {/* Header */}
               <header className="flex items-center justify-between mb-6">
@@ -690,12 +690,12 @@ export default function CodingChallenge() {
                 )}
               </div>
             </div>
-          </div>
+          </main>
         )}
 
         {/* Challenge View */}
         {viewState === 'challenge' && currentChallenge && (
-          <div className="h-screen flex flex-col" data-testid="challenge-view">
+          <main className="h-screen flex flex-col" data-testid="challenge-view">
             {/* Header */}
             <header className="border-b border-border p-3 flex items-center justify-between flex-shrink-0">
               <button
@@ -750,6 +750,8 @@ export default function CodingChallenge() {
                   onClick={() => setIsProblemCollapsed(!isProblemCollapsed)}
                   className="lg:hidden flex items-center justify-between p-3 bg-muted/20 border-b border-border hover:bg-muted/30 transition-colors"
                   data-testid="problem-collapse-toggle"
+                  aria-expanded={!isProblemCollapsed}
+                  aria-controls="problem-description-content"
                 >
                   <div className="flex items-center gap-2">
                     <FileText className="w-4 h-4 text-primary" />
@@ -765,6 +767,7 @@ export default function CodingChallenge() {
                 <AnimatePresence initial={false}>
                   {!isProblemCollapsed && (
                     <motion.div
+                      id="problem-description-content"
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -930,6 +933,8 @@ export default function CodingChallenge() {
                   onClick={() => setIsCodeCollapsed(!isCodeCollapsed)}
                   className="lg:hidden flex items-center justify-between p-3 bg-muted/20 border-b border-border hover:bg-muted/30 transition-colors"
                   data-testid="code-collapse-toggle"
+                  aria-expanded={!isCodeCollapsed}
+                  aria-controls="code-editor-content"
                 >
                   <div className="flex items-center gap-2">
                     <Code className="w-4 h-4 text-primary" />
@@ -948,6 +953,7 @@ export default function CodingChallenge() {
                 <AnimatePresence initial={false}>
                   {!isCodeCollapsed && (
                     <motion.div
+                      id="code-editor-content"
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -1246,7 +1252,7 @@ export default function CodingChallenge() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </main>
         )}
       </div>
       </DesktopSidebarWrapper>

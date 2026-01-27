@@ -8,6 +8,7 @@ import { useUserPreferences } from '../context/UserPreferencesContext';
 import { useUnifiedToast } from '@/hooks/use-unified-toast';
 import { allChannelsConfig } from '../lib/channels-config';
 import { formatTag } from '../lib/utils';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 type FilterType = 'all' | 'tags' | 'company' | 'video' | 'diagram' | 'coding';
 
@@ -34,11 +35,17 @@ export function SearchModal({ isOpen, onClose, initialQuery }: SearchModalProps)
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const inputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
+  const mobileContainerRef = useRef<HTMLDivElement>(null);
+  const desktopContainerRef = useRef<HTMLDivElement>(null);
   const [, setLocation] = useLocation();
   const { isSubscribed, subscribeChannel } = useUserPreferences();
   const { toast } = useUnifiedToast();
   
   const debouncedQuery = useDebounce(query, 150);
+  
+  // Apply focus trapping to both mobile and desktop modals
+  useFocusTrap(mobileContainerRef, { enabled: isOpen, initialFocus: mobileInputRef, returnFocus: true });
+  useFocusTrap(desktopContainerRef, { enabled: isOpen, initialFocus: inputRef, returnFocus: true });
 
   // Set initial query when modal opens
   useEffect(() => {
@@ -277,12 +284,16 @@ export function SearchModal({ isOpen, onClose, initialQuery }: SearchModalProps)
         <>
           {/* Mobile: Fullscreen glass design */}
           <motion.div
+            ref={mobileContainerRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="lg:hidden fixed inset-0 z-[200] bg-background/95 backdrop-blur-xl flex flex-col"
             style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed' }}
             data-testid="search-modal-mobile"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search modal"
           >
             {/* Mobile Header */}
             <div className="flex items-center justify-between px-4 h-14 border-b border-border flex-shrink-0">
@@ -380,11 +391,15 @@ export function SearchModal({ isOpen, onClose, initialQuery }: SearchModalProps)
             data-testid="search-modal-desktop"
           >
             <motion.div
+              ref={desktopContainerRef}
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
               className="w-full max-w-2xl bg-card border border-border rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
               onClick={e => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Search modal"
             >
               {/* Desktop Search Input */}
               <div className="flex items-center gap-3 p-4 border-b border-border">

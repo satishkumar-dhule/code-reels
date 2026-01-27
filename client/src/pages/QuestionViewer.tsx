@@ -428,7 +428,7 @@ export default function QuestionViewer() {
         />
 
         {/* Main Content - Desktop: Split View, Mobile: Tabs */}
-        <div className="flex-1 flex overflow-hidden isolate" data-testid="reels-content">
+        <main className="flex-1 flex overflow-hidden isolate" data-testid="reels-content">
           {/* Desktop Split View */}
           <div className="hidden lg:flex flex-1">
             {/* Question Panel */}
@@ -499,7 +499,7 @@ export default function QuestionViewer() {
               )}
             </div>
           </div>
-        </div>
+        </main>
 
         {/* Navigation Footer */}
         <NavigationFooter
