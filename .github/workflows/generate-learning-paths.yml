@@ -6,6 +6,9 @@ on:
     - cron: '0 2 * * *'
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: write
+
 jobs:
   generate-paths:
     runs-on: ubuntu-latest
@@ -48,3 +51,5 @@ jobs:
           git config --global user.email 'bot@github-actions'
           git add -A
           git diff --quiet && git diff --staged --quiet || (git commit -m "🎓 Update curated learning paths [automated]" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
