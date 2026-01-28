@@ -20,12 +20,12 @@
     },
     {
       "botName": "processor",
-      "totalRuns": 1262,
-      "successfulRuns": 1229,
+      "totalRuns": 1264,
+      "successfulRuns": 1231,
       "totalCreated": 0,
       "totalUpdated": 3526,
       "totalDeleted": 0,
-      "lastRun": "2026-01-28T16:32:51.253Z"
+      "lastRun": "2026-01-28T17:30:08.904Z"
     },
     {
       "botName": "verifier",
@@ -38,6 +38,46 @@
     }
   ],
   "runs": [
+    {
+      "id": 1376,
+      "botName": "processor",
+      "startedAt": "2026-01-28T17:30:08.904Z",
+      "completedAt": "2026-01-28T17:30:09.399Z",
+      "status": "completed",
+      "itemsProcessed": 0,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 0,
+        "updated": 0,
+        "deleted": 0,
+        "skipped": 0,
+        "failed": 0,
+        "actionCounts": {}
+      }
+    },
+    {
+      "id": 1375,
+      "botName": "processor",
+      "startedAt": "2026-01-28T16:53:45.572Z",
+      "completedAt": "2026-01-28T16:53:45.957Z",
+      "status": "completed",
+      "itemsProcessed": 0,
+      "itemsCreated": 0,
+      "itemsUpdated": 0,
+      "itemsDeleted": 0,
+      "summary": {
+        "message": "Processor Bot completed",
+        "processed": 0,
+        "updated": 0,
+        "deleted": 0,
+        "skipped": 0,
+        "failed": 0,
+        "actionCounts": {}
+      }
+    },
     {
       "id": 1374,
       "botName": "processor",
@@ -1029,46 +1069,6 @@
       "botName": "processor",
       "startedAt": "2026-01-27T23:29:35.880Z",
       "completedAt": "2026-01-27T23:29:36.376Z",
-      "status": "completed",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": {
-        "message": "Processor Bot completed",
-        "processed": 0,
-        "updated": 0,
-        "deleted": 0,
-        "skipped": 0,
-        "failed": 0,
-        "actionCounts": {}
-      }
-    },
-    {
-      "id": 1326,
-      "botName": "processor",
-      "startedAt": "2026-01-27T23:19:10.347Z",
-      "completedAt": "2026-01-27T23:19:10.815Z",
-      "status": "completed",
-      "itemsProcessed": 0,
-      "itemsCreated": 0,
-      "itemsUpdated": 0,
-      "itemsDeleted": 0,
-      "summary": {
-        "message": "Processor Bot completed",
-        "processed": 0,
-        "updated": 0,
-        "deleted": 0,
-        "skipped": 0,
-        "failed": 0,
-        "actionCounts": {}
-      }
-    },
-    {
-      "id": 1325,
-      "botName": "processor",
-      "startedAt": "2026-01-27T22:50:36.375Z",
-      "completedAt": "2026-01-27T22:50:36.896Z",
       "status": "completed",
       "itemsProcessed": 0,
       "itemsCreated": 0,
@@ -3089,5 +3089,5 @@
       "createdAt": "2026-01-28T06:00:58.873Z"
     }
   ],
-  "generatedAt": "2026-01-28T16:49:13.253Z"
+  "generatedAt": "2026-01-28T17:38:33.714Z"
 }
