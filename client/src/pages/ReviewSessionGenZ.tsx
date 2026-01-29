@@ -314,8 +314,9 @@ export default function ReviewSessionGenZ() {
       />
 
       <AppLayout>
-        <div className="min-h-screen bg-background text-foreground">
-          <div className="max-w-4xl mx-auto px-6 py-8">
+        {/* iPhone 13 FIX: Ensure content fits within viewport with safe areas */}
+        <div className="min-h-screen bg-background text-foreground overflow-x-hidden w-full">
+          <div className="max-w-4xl mx-auto px-6 py-8 w-full" style={{ maxWidth: '100vw' }}>
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <button
@@ -361,10 +362,12 @@ export default function ReviewSessionGenZ() {
                 animate={{ opacity: 1, scale: 1, rotateY: 0 }}
                 exit={{ opacity: 0, scale: 0.9, rotateY: 10 }}
                 transition={{ duration: 0.3 }}
-                className="relative"
+                className="relative w-full overflow-hidden"
+                style={{ maxWidth: '100%' }}
               >
                 {/* Question Card */}
-                <div className="p-8 bg-muted/50 backdrop-blur-xl rounded-[32px] border border-border min-h-[400px] flex flex-col">
+                <div className="p-8 bg-muted/50 backdrop-blur-xl rounded-[32px] border border-border min-h-[400px] flex flex-col w-full overflow-hidden"
+                     style={{ maxWidth: '100%' }}>
                   {/* Tags */}
                   <div className="flex items-center gap-2 mb-6">
                     <span className="px-3 py-1 bg-[#00ff88]/20 text-primary rounded-full text-xs font-bold uppercase">
@@ -655,7 +658,7 @@ export default function ReviewSessionGenZ() {
             </AnimatePresence>
 
             {/* Stats Footer */}
-            <div className="mt-8 grid grid-cols-3 gap-4">
+            <div className="mt-8 grid grid-cols-3 gap-4 w-full" style={{ maxWidth: '100%' }}>
               <div className="p-4 bg-muted/50 rounded-[16px] text-center">
                 <div className="text-2xl font-black">{cards.length}</div>
                 <div className="text-xs text-muted-foreground">Total Cards</div>

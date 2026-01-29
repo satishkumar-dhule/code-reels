@@ -370,29 +370,30 @@ export default function UnifiedLearningPathsGenZ() {
       />
 
       <AppLayout>
-        <div className="min-h-screen bg-background text-foreground">
-          <div className="max-w-7xl mx-auto px-6 py-12">
-            {/* Header */}
+        {/* iPhone 13 FIX: Add safe area insets and constrain width on mobile */}
+        <div className="min-h-screen bg-background text-foreground pt-safe pb-safe">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 w-full overflow-x-hidden">
+            {/* Header - iPhone 13 FIX: Responsive text sizing */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-12"
+              className="mb-8 md:mb-12"
             >
-              <h1 className="text-6xl md:text-7xl font-black mb-4">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-3 md:mb-4">
                 Learning
                 <br />
                 <span className="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">
                   Paths
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-400">
+              <p className="text-base md:text-xl text-gray-600 dark:text-gray-400">
                 {activePaths.length > 0 && `${activePaths.length} active • `}
                 {customPaths.length} custom • {curatedPaths.length} curated
               </p>
             </motion.div>
 
-            {/* View Tabs */}
-            <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+            {/* View Tabs - iPhone 13 FIX: Better mobile scrolling */}
+            <div className="flex gap-2 mb-6 md:mb-8 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
               {[
                 { id: 'all', label: 'All Paths', icon: Sparkles },
                 { id: 'custom', label: 'My Custom', icon: Brain },
@@ -401,47 +402,47 @@ export default function UnifiedLearningPathsGenZ() {
                 <button
                   key={id}
                   onClick={() => setView(id as any)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-[16px] font-bold transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 rounded-[16px] font-bold transition-all whitespace-nowrap text-sm md:text-base ${
                     view === id
                       ? 'bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground'
                       : 'bg-muted/50 text-gray-600 dark:text-gray-400 hover:bg-muted'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 h-4 md:w-5 md:h-5" />
                   {label}
                 </button>
               ))}
             </div>
 
-            {/* Create New Path Button */}
+            {/* Create New Path Button - iPhone 13 FIX: Responsive sizing */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => openPathModal(null, 'create')}
-              className="w-full p-8 bg-gradient-to-r from-primary/20 to-cyan-500/20 backdrop-blur-xl rounded-[24px] border-2 border-dashed border-primary/30 hover:border-primary/60 transition-all group mb-8"
+              className="w-full p-6 md:p-8 bg-gradient-to-r from-primary/20 to-cyan-500/20 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border-2 border-dashed border-primary/30 hover:border-primary/60 transition-all group mb-6 md:mb-8"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-cyan-500 rounded-full flex items-center justify-center">
-                    <Plus className="w-8 h-8 text-primary-foreground" strokeWidth={3} />
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-primary to-cyan-500 rounded-full flex items-center justify-center">
+                    <Plus className="w-6 h-6 md:w-8 md:h-8 text-primary-foreground" strokeWidth={3} />
                   </div>
                   <div className="text-left">
-                    <h3 className="text-2xl font-bold mb-1">Create Custom Path</h3>
-                    <p className="text-gray-600 dark:text-gray-400">Build your own learning journey</p>
+                    <h3 className="text-lg md:text-2xl font-bold mb-0.5 md:mb-1">Create Custom Path</h3>
+                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">Build your own learning journey</p>
                   </div>
                 </div>
-                <ChevronRight className="w-8 h-8 text-primary group-hover:translate-x-2 transition-transform" />
+                <ChevronRight className="w-6 h-6 md:w-8 md:h-8 text-primary group-hover:translate-x-2 transition-transform" />
               </div>
             </motion.button>
 
-            {/* Active Paths Section */}
+            {/* Active Paths Section - iPhone 13 FIX: Better mobile layout */}
             {activePaths.length > 0 && (view === 'all' || view === 'custom') && (
-              <div className="mb-12">
-                <h2 className="text-3xl font-black mb-6 flex items-center gap-3">
-                  <Zap className="w-8 h-8 text-primary" />
+              <div className="mb-8 md:mb-12">
+                <h2 className="text-2xl md:text-3xl font-black mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                  <Zap className="w-6 h-6 md:w-8 md:h-8 text-primary" />
                   Active Paths
                 </h2>
-                <div className="grid gap-6">
+                <div className="grid gap-4 md:gap-6">
                   {activePaths.map((path: any) => {
                     const Icon = path.icon || Brain;
                     const isCustom = path.type === 'custom';
@@ -451,35 +452,35 @@ export default function UnifiedLearningPathsGenZ() {
                         key={path.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="relative p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-xl rounded-[24px] border border-primary/30 hover:border-primary/60 transition-all group"
+                        className="relative p-4 md:p-6 bg-gradient-to-br from-card to-card/50 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-primary/30 hover:border-primary/60 transition-all group"
                       >
-                        <div className="absolute top-4 right-4 px-3 py-1 bg-primary text-primary-foreground rounded-full text-xs font-bold flex items-center gap-1">
+                        <div className="absolute top-3 right-3 md:top-4 md:right-4 px-2.5 py-1 md:px-3 md:py-1 bg-primary text-primary-foreground rounded-full text-xs font-bold flex items-center gap-1">
                           <Check className="w-3 h-3" />
                           Active
                         </div>
 
-                        <div className="flex items-start gap-4 mb-4">
-                          <div className={`w-16 h-16 bg-gradient-to-br ${path.color || 'from-purple-500 to-pink-500'} rounded-[16px] flex items-center justify-center`}>
-                            <Icon className="w-8 h-8 text-foreground" strokeWidth={2.5} />
+                        <div className="flex items-start gap-3 md:gap-4 mb-3 md:mb-4">
+                          <div className={`w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br ${path.color || 'from-purple-500 to-pink-500'} rounded-[14px] md:rounded-[16px] flex items-center justify-center flex-shrink-0`}>
+                            <Icon className="w-6 h-6 md:w-8 md:h-8 text-foreground" strokeWidth={2.5} />
                           </div>
-                          <div className="flex-1">
-                            <h3 className="text-2xl font-bold mb-1">{path.name}</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{path.description || `Created ${new Date(path.createdAt).toLocaleDateString()}`}</p>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg md:text-2xl font-bold mb-0.5 md:mb-1 truncate">{path.name}</h3>
+                            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{path.description || `Created ${new Date(path.createdAt).toLocaleDateString()}`}</p>
                           </div>
                         </div>
 
                         <div className="flex gap-2">
                           <button
                             onClick={() => setLocation(`/channel/${path.channels[0]}`)}
-                            className="flex-1 py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-[16px] font-bold hover:scale-105 transition-all"
+                            className="flex-1 py-2.5 md:py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-[14px] md:rounded-[16px] font-bold text-sm md:text-base hover:scale-105 transition-all"
                           >
                             Continue Learning
                           </button>
                           <button
                             onClick={() => deactivateCustomPath(path.id)}
-                            className="px-4 py-3 bg-muted/50 hover:bg-muted rounded-[16px] transition-all"
+                            className="px-3 md:px-4 py-2.5 md:py-3 bg-muted/50 hover:bg-muted rounded-[14px] md:rounded-[16px] transition-all"
                           >
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4 md:w-5 md:h-5" />
                           </button>
                         </div>
                       </motion.div>
@@ -489,14 +490,14 @@ export default function UnifiedLearningPathsGenZ() {
               </div>
             )}
 
-            {/* Custom Paths Section */}
+            {/* Custom Paths Section - iPhone 13 FIX: Better mobile grid */}
             {(view === 'all' || view === 'custom') && customPaths.length > 0 && (
-              <div className="mb-12">
-                <h2 className="text-3xl font-black mb-6 flex items-center gap-3">
-                  <Brain className="w-8 h-8 text-purple-400" />
+              <div className="mb-8 md:mb-12">
+                <h2 className="text-2xl md:text-3xl font-black mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                  <Brain className="w-6 h-6 md:w-8 md:h-8 text-purple-400" />
                   My Custom Paths
                 </h2>
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {customPaths.map((path) => {
                     const isActive = activePaths.some((p: any) => p.id === path.id);
                     
@@ -505,41 +506,41 @@ export default function UnifiedLearningPathsGenZ() {
                         key={path.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="p-6 bg-white dark:bg-gray-900 backdrop-blur-xl rounded-[24px] border border-gray-200 dark:border-gray-800 hover:border-primary/30 transition-all"
+                        className="p-4 md:p-6 bg-white dark:bg-gray-900 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-gray-200 dark:border-gray-800 hover:border-primary/30 transition-all"
                       >
-                        <div className="flex items-start justify-between mb-4">
-                          <h3 className="text-xl font-bold">{path.name}</h3>
-                          <div className="flex gap-2">
+                        <div className="flex items-start justify-between mb-3 md:mb-4">
+                          <h3 className="text-lg md:text-xl font-bold flex-1 min-w-0 truncate">{path.name}</h3>
+                          <div className="flex gap-1.5 md:gap-2 flex-shrink-0 ml-2">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 openPathModal(path, 'edit');
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-[8px] transition-all"
+                              className="p-1.5 md:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-[8px] transition-all"
                             >
-                              <Edit className="w-4 h-4 text-primary" />
+                              <Edit className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
                             </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteCustomPath(path.id);
                               }}
-                              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-[8px] transition-all"
+                              className="p-1.5 md:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-[8px] transition-all"
                             >
-                              <Trash2 className="w-4 h-4 text-red-500" />
+                              <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-500" />
                             </button>
                           </div>
                         </div>
 
-                        <div className="space-y-2 mb-4">
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="space-y-2 mb-3 md:mb-4">
+                          <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
                             {path.channels.length} channels • {path.certifications.length} certifications
                           </div>
                         </div>
 
                         <button
                           onClick={() => isActive ? deactivateCustomPath(path.id) : activateCustomPath(path.id)}
-                          className={`w-full py-3 rounded-[16px] font-bold transition-all ${
+                          className={`w-full py-2.5 md:py-3 rounded-[14px] md:rounded-[16px] font-bold text-sm md:text-base transition-all ${
                             isActive
                               ? 'bg-muted text-foreground'
                               : 'bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground hover:scale-105'
@@ -554,49 +555,49 @@ export default function UnifiedLearningPathsGenZ() {
               </div>
             )}
 
-            {/* Curated Paths Section */}
+            {/* Curated Paths Section - iPhone 13 FIX: Better mobile layout */}
             {(view === 'all' || view === 'curated') && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-3xl font-black flex items-center gap-3">
-                    <Star className="w-8 h-8 text-amber-400" />
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <h2 className="text-2xl md:text-3xl font-black flex items-center gap-2 md:gap-3">
+                    <Star className="w-6 h-6 md:w-8 md:h-8 text-amber-400" />
                     Curated Career Paths
                     {curatedSearchQuery && (
-                      <span className="text-lg font-normal text-gray-600 dark:text-gray-400">
+                      <span className="text-base md:text-lg font-normal text-gray-600 dark:text-gray-400">
                         ({filterCuratedPaths(curatedPaths, curatedSearchQuery).length} results)
                       </span>
                     )}
                   </h2>
                 </div>
                 
-                {/* Search Box for Curated Paths */}
-                <div className="mb-6">
+                {/* Search Box for Curated Paths - iPhone 13 FIX: Better mobile sizing */}
+                <div className="mb-4 md:mb-6">
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-400" />
                     <input
                       type="text"
                       placeholder="Search paths by name, company, certification, or topic..."
                       value={curatedSearchQuery}
                       onChange={(e) => setCuratedSearchQuery(e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] text-base focus:outline-none focus:border-primary transition-all"
+                      className="w-full pl-10 md:pl-12 pr-10 md:pr-4 py-3 md:py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[14px] md:rounded-[16px] text-sm md:text-base focus:outline-none focus:border-primary transition-all"
                     />
                     {curatedSearchQuery && (
                       <button
                         onClick={() => setCuratedSearchQuery('')}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all"
+                        className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     )}
                   </div>
                   {curatedSearchQuery && (
-                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="mt-2 text-xs md:text-sm text-gray-600 dark:text-gray-400">
                       💡 Searching in: path names, descriptions, companies, certifications, topics, and skills
                     </div>
                   )}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {curatedPaths
                     .filter(path => {
                       if (!curatedSearchQuery) return true;
@@ -639,20 +640,20 @@ export default function UnifiedLearningPathsGenZ() {
                         key={path.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="p-6 bg-white dark:bg-gray-900 backdrop-blur-xl rounded-[24px] border border-gray-200 dark:border-gray-800 hover:border-primary/30 transition-all group cursor-pointer"
+                        className="p-4 md:p-6 bg-white dark:bg-gray-900 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-gray-200 dark:border-gray-800 hover:border-primary/30 transition-all group cursor-pointer"
                         onClick={() => openPathModal(path, 'view')}
                       >
-                        <div className="flex items-start gap-4 mb-4">
-                          <div className={`w-16 h-16 bg-gradient-to-br ${path.color} rounded-[16px] flex items-center justify-center`}>
-                            <Icon className="w-8 h-8 text-foreground" strokeWidth={2.5} />
+                        <div className="flex items-start gap-3 md:gap-4 mb-3 md:mb-4">
+                          <div className={`w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br ${path.color} rounded-[14px] md:rounded-[16px] flex items-center justify-center flex-shrink-0`}>
+                            <Icon className="w-6 h-6 md:w-8 md:h-8 text-foreground" strokeWidth={2.5} />
                           </div>
-                          <div className="flex-1">
-                            <h3 className="text-xl font-bold mb-1">{path.name}</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{path.description}</p>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg md:text-xl font-bold mb-0.5 md:mb-1 line-clamp-2">{path.name}</h3>
+                            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{path.description}</p>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2 mb-4 text-xs text-gray-600 dark:text-gray-400">
+                        <div className="grid grid-cols-3 gap-1.5 md:gap-2 mb-3 md:mb-4 text-xs text-gray-600 dark:text-gray-400">
                           <div>
                             <Clock className="w-3 h-3 inline mr-1" />
                             {path.duration}
@@ -668,13 +669,13 @@ export default function UnifiedLearningPathsGenZ() {
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-primary">{path.salary}</span>
+                          <span className="text-xs md:text-sm font-bold text-primary truncate">{path.salary}</span>
                           {isActive ? (
-                            <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-bold">
+                            <span className="px-2.5 py-1 md:px-3 md:py-1 bg-primary/20 text-primary rounded-full text-xs font-bold">
                               Active
                             </span>
                           ) : (
-                            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                            <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-gray-600 dark:text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                           )}
                         </div>
                       </motion.div>
@@ -682,16 +683,16 @@ export default function UnifiedLearningPathsGenZ() {
                   })}
                 </div>
                 
-                {/* No Results Message */}
+                {/* No Results Message - iPhone 13 FIX: Better mobile sizing */}
                 {curatedSearchQuery && filterCuratedPaths(curatedPaths, curatedSearchQuery).length === 0 && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center py-12"
+                    className="text-center py-8 md:py-12"
                   >
-                    <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-2xl font-bold mb-2">No paths found</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    <Search className="w-12 h-12 md:w-16 md:h-16 text-gray-400 mx-auto mb-3 md:mb-4" />
+                    <h3 className="text-xl md:text-2xl font-bold mb-2">No paths found</h3>
+                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-3 md:mb-4">
                       Try searching for something else or{' '}
                       <button
                         onClick={() => setCuratedSearchQuery('')}

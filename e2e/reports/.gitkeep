@@ -1,0 +1,9 @@
+# iPhone 13 UI Audit Reports
+
+This directory contains audit reports and screenshots from iPhone 13 UI audits.
+
+## Structure
+
+- `iphone13-audit-report.json` - Machine-readable audit results
+- `iphone13-audit-report.md` - Human-readable audit summary
+- `screenshots/` - Screenshots of issues found during audit

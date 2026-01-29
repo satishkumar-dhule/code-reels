@@ -253,7 +253,7 @@ export function GenZHomePage() {
   // Onboarding for new users - show path selection
   if (activePaths.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-6 relative overflow-hidden">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4 md:p-6 relative overflow-hidden pt-safe pb-safe">
         {/* Animated background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-cyan-500/10" />
         <div className="absolute inset-0">
@@ -278,10 +278,11 @@ export function GenZHomePage() {
           ))}
         </div>
 
+        {/* iPhone 13 FIX: Constrain hero section width to 390px on mobile */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative z-10 max-w-4xl text-center space-y-12"
+          className="relative z-10 w-full max-w-[390px] md:max-w-4xl text-center space-y-12"
         >
           {/* Logo */}
           <motion.div
@@ -461,7 +462,9 @@ export function GenZHomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* PROBLEM 2 & 8 FIXED: Top Stats Bar with clear labels and benefits */}
-      <div className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border">
+      {/* iPhone 13 FIX: Removed pt-safe since AppLayout header already has it */}
+      {/* Position below the mobile header (h-14 + pt-safe from UnifiedMobileHeader) */}
+      <div className="sticky top-[calc(56px+env(safe-area-inset-top,0px))] lg:top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
@@ -536,8 +539,9 @@ export function GenZHomePage() {
       </div>
 
       {/* Main Content - Wrapped with PullToRefresh */}
+      {/* iPhone 13 FIX: Removed pb-safe since AppLayout already handles it, max-w-[390px] for mobile width constraint */}
       <PullToRefresh onRefresh={handleRefresh}>
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div className="w-full max-w-[390px] md:max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
           <div className="space-y-12">
             {/* MOBILE-OPTIMIZED: Active Paths Progress - Compact Cards */}
             {activePaths.length > 0 && (

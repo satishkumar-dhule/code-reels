@@ -219,6 +219,14 @@
   padding-right: var(--safe-area-right);
 }
 
+/* Mobile safe container - applies all safe area insets */
+.mobile-safe-container {
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
+}
+
 /* Custom scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;

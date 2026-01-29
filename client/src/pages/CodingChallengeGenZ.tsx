@@ -239,31 +239,31 @@ export default function CodingChallengeGenZ() {
       />
 
       <AppLayout fullWidth hideNav>
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-background text-foreground pt-safe">
           {/* List View */}
           {viewState === 'list' && (
-            <div className="max-w-7xl mx-auto px-6 py-12">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 pb-safe">
               {/* Header */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-12"
+                className="mb-8 md:mb-12"
               >
                 <button
                   onClick={goBack}
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 md:mb-6 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span className="text-sm font-semibold">HOME</span>
                 </button>
                 
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center">
-                    <Code className="w-8 h-8 text-primary-foreground" />
+                <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center flex-shrink-0">
+                    <Code className="w-6 h-6 md:w-8 md:h-8 text-primary-foreground" />
                   </div>
-                  <div>
-                    <h1 className="text-4xl font-black mb-2">CODING CHALLENGES</h1>
-                    <p className="text-muted-foreground">Master algorithms & data structures</p>
+                  <div className="min-w-0 flex-1">
+                    <h1 className="text-2xl md:text-4xl font-black mb-1 md:mb-2">CODING CHALLENGES</h1>
+                    <p className="text-sm md:text-base text-muted-foreground">Master algorithms & data structures</p>
                   </div>
                 </div>
               </motion.div>
@@ -273,27 +273,27 @@ export default function CodingChallengeGenZ() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12"
+                className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-12"
               >
-                <div className="p-6 bg-muted/50 border border-border rounded-2xl">
-                  <Trophy className="w-8 h-8 text-[#ffd700] mb-3" />
-                  <div className="text-3xl font-black mb-1">{stats.passedChallenges}</div>
-                  <div className="text-sm text-muted-foreground">Solved</div>
+                <div className="p-4 md:p-6 bg-muted/50 border border-border rounded-2xl">
+                  <Trophy className="w-6 h-6 md:w-8 md:h-8 text-[#ffd700] mb-2 md:mb-3" />
+                  <div className="text-2xl md:text-3xl font-black mb-1">{stats.passedChallenges}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">Solved</div>
                 </div>
-                <div className="p-6 bg-muted/50 border border-border rounded-2xl">
-                  <Target className="w-8 h-8 text-cyan-500 mb-3" />
-                  <div className="text-3xl font-black mb-1">{stats.totalAttempts}</div>
-                  <div className="text-sm text-muted-foreground">Attempts</div>
+                <div className="p-4 md:p-6 bg-muted/50 border border-border rounded-2xl">
+                  <Target className="w-6 h-6 md:w-8 md:h-8 text-cyan-500 mb-2 md:mb-3" />
+                  <div className="text-2xl md:text-3xl font-black mb-1">{stats.totalAttempts}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">Attempts</div>
                 </div>
-                <div className="p-6 bg-muted/50 border border-border rounded-2xl">
-                  <Flame className="w-8 h-8 text-[#ff0080] mb-3" />
-                  <div className="text-3xl font-black mb-1">{challenges.length}</div>
-                  <div className="text-sm text-muted-foreground">Total Challenges</div>
+                <div className="p-4 md:p-6 bg-muted/50 border border-border rounded-2xl">
+                  <Flame className="w-6 h-6 md:w-8 md:h-8 text-[#ff0080] mb-2 md:mb-3" />
+                  <div className="text-2xl md:text-3xl font-black mb-1">{challenges.length}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">Total Challenges</div>
                 </div>
-                <div className="p-6 bg-gradient-to-br from-[#ffd700]/20 to-[#ff0080]/20 border border-[#ffd700]/30 rounded-2xl">
-                  <Award className="w-8 h-8 text-[#ffd700] mb-3" />
-                  <div className="text-3xl font-black mb-1">{formatCredits(balance)}</div>
-                  <div className="text-sm text-muted-foreground">Credits</div>
+                <div className="p-4 md:p-6 bg-gradient-to-br from-[#ffd700]/20 to-[#ff0080]/20 border border-[#ffd700]/30 rounded-2xl">
+                  <Award className="w-6 h-6 md:w-8 md:h-8 text-[#ffd700] mb-2 md:mb-3" />
+                  <div className="text-2xl md:text-3xl font-black mb-1">{formatCredits(balance)}</div>
+                  <div className="text-xs md:text-sm text-muted-foreground">Credits</div>
                 </div>
               </motion.div>
 
@@ -302,40 +302,40 @@ export default function CodingChallengeGenZ() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="mb-12"
+                className="mb-8 md:mb-12"
               >
-                <h2 className="text-xl font-black mb-4 flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-primary" />
+                <h2 className="text-lg md:text-xl font-black mb-3 md:mb-4 flex items-center gap-2">
+                  <Zap className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                   QUICK START
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                   <button
                     onClick={() => startRandom()}
-                    className="p-6 bg-gradient-to-br from-primary/20 to-cyan-500/20 border border-primary/30 rounded-2xl hover:from-primary/30 hover:to-cyan-500/30 transition-all group"
+                    className="p-4 md:p-6 bg-gradient-to-br from-primary/20 to-cyan-500/20 border border-primary/30 rounded-2xl hover:from-primary/30 hover:to-cyan-500/30 transition-all group"
                   >
-                    <Sparkles className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
-                    <div className="text-lg font-black mb-1">Random Challenge</div>
-                    <div className="text-sm text-muted-foreground">Surprise me!</div>
+                    <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-primary mb-2 md:mb-3 group-hover:scale-110 transition-transform" />
+                    <div className="text-base md:text-lg font-black mb-1">Random Challenge</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">Surprise me!</div>
                   </button>
                   <button
                     onClick={() => startRandom('easy')}
-                    className="p-6 bg-muted/50 border border-primary/30 rounded-2xl hover:bg-muted transition-all group"
+                    className="p-4 md:p-6 bg-muted/50 border border-primary/30 rounded-2xl hover:bg-muted transition-all group"
                   >
-                    <div className="w-8 h-8 rounded-full bg-[#00ff88]/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <span className="text-primary font-black">E</span>
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#00ff88]/20 flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform">
+                      <span className="text-primary font-black text-sm md:text-base">E</span>
                     </div>
-                    <div className="text-lg font-black mb-1">Easy Mode</div>
-                    <div className="text-sm text-muted-foreground">{easyChallenges.length} challenges</div>
+                    <div className="text-base md:text-lg font-black mb-1">Easy Mode</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">{easyChallenges.length} challenges</div>
                   </button>
                   <button
                     onClick={() => startRandom('medium')}
-                    className="p-6 bg-muted/50 border border-[#ffd700]/30 rounded-2xl hover:bg-muted transition-all group"
+                    className="p-4 md:p-6 bg-muted/50 border border-[#ffd700]/30 rounded-2xl hover:bg-muted transition-all group"
                   >
-                    <div className="w-8 h-8 rounded-full bg-[#ffd700]/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <span className="text-[#ffd700] font-black">M</span>
+                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#ffd700]/20 flex items-center justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform">
+                      <span className="text-[#ffd700] font-black text-sm md:text-base">M</span>
                     </div>
-                    <div className="text-lg font-black mb-1">Medium Mode</div>
-                    <div className="text-sm text-muted-foreground">{mediumChallenges.length} challenges</div>
+                    <div className="text-base md:text-lg font-black mb-1">Medium Mode</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">{mediumChallenges.length} challenges</div>
                   </button>
                 </div>
               </motion.div>
@@ -346,8 +346,8 @@ export default function CodingChallengeGenZ() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h2 className="text-xl font-black mb-4">ALL CHALLENGES</h2>
-                <div className="space-y-3">
+                <h2 className="text-lg md:text-xl font-black mb-3 md:mb-4">ALL CHALLENGES</h2>
+                <div className="space-y-2 md:space-y-3">
                   {challenges.map((challenge, idx) => {
                     const isSolved = solvedIds.has(challenge.id);
                     return (
@@ -357,35 +357,35 @@ export default function CodingChallengeGenZ() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 + idx * 0.05 }}
                         onClick={() => startChallenge(challenge)}
-                        className="w-full p-5 bg-muted/50 border border-border rounded-2xl hover:border-primary/50 hover:bg-muted transition-all group text-left"
+                        className="w-full p-4 md:p-5 bg-muted/50 border border-border rounded-2xl hover:border-primary/50 hover:bg-muted transition-all group text-left"
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        <div className="flex items-center gap-3 md:gap-4">
+                          <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
                             isSolved 
                               ? 'bg-[#00ff88]/20 border border-primary/30' 
                               : 'bg-muted/50 border border-border'
                           }`}>
                             {isSolved ? (
-                              <CheckCircle className="w-6 h-6 text-primary" />
+                              <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                             ) : (
-                              <Code className="w-6 h-6 text-muted-foreground" />
+                              <Code className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                             )}
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-base md:text-lg mb-1 group-hover:text-primary transition-colors truncate">
                               {challenge.title}
                             </h3>
-                            <p className="text-sm text-muted-foreground line-clamp-1">{challenge.description}</p>
+                            <p className="text-xs md:text-sm text-muted-foreground line-clamp-1">{challenge.description}</p>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                            <span className={`px-2 md:px-3 py-1 rounded-lg text-xs font-bold ${
                               challenge.difficulty === 'easy'
                                 ? 'bg-[#00ff88]/20 text-primary border border-primary/30'
                                 : 'bg-[#ffd700]/20 text-[#ffd700] border border-[#ffd700]/30'
                             }`}>
                               {challenge.difficulty.toUpperCase()}
                             </span>
-                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                            <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                           </div>
                         </div>
                       </motion.button>
@@ -398,19 +398,19 @@ export default function CodingChallengeGenZ() {
 
           {/* Challenge View */}
           {viewState === 'challenge' && currentChallenge && (
-            <div className="h-screen flex flex-col">
+            <div className="h-screen flex flex-col pb-safe">
               {/* Header */}
-              <header className="border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-50">
-                <div className="px-6 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+              <header className="border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-50 pt-safe">
+                <div className="px-3 md:px-6 py-3 md:py-4 flex items-center justify-between gap-2 md:gap-4">
+                  <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
                     <button
                       onClick={goBack}
-                      className="p-2 hover:bg-muted rounded-xl transition-colors"
+                      className="p-2 hover:bg-muted rounded-xl transition-colors flex-shrink-0"
                     >
-                      <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                      <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                     </button>
-                    <div>
-                      <h2 className="font-black text-lg">{currentChallenge.title}</h2>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="font-black text-sm md:text-lg truncate">{currentChallenge.title}</h2>
                       <div className="flex items-center gap-2 mt-1">
                         <span className={`px-2 py-0.5 rounded-lg text-xs font-bold ${
                           currentChallenge.difficulty === 'easy'
@@ -419,15 +419,15 @@ export default function CodingChallengeGenZ() {
                         }`}>
                           {currentChallenge.difficulty.toUpperCase()}
                         </span>
-                        <span className="text-xs text-muted-foreground">{currentChallenge.category}</span>
+                        <span className="text-xs text-muted-foreground truncate">{currentChallenge.category}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
                     <select
                       value={language}
                       onChange={(e) => setLanguage(e.target.value as Language)}
-                      className="bg-muted/50 border border-border rounded-xl px-4 py-2 text-sm font-semibold text-foreground cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-[#00ff88]/20 transition-colors"
+                      className="bg-muted/50 border border-border rounded-xl px-3 md:px-4 py-2 text-xs md:text-sm font-semibold text-foreground cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-[#00ff88]/20 transition-colors"
                     >
                       <option value="javascript" className="bg-background">JavaScript</option>
                       <option value="python" className="bg-background">Python</option>
@@ -436,27 +436,27 @@ export default function CodingChallengeGenZ() {
                 </div>
               </header>
 
-              {/* Main Content - Split View */}
-              <div className="flex-1 flex overflow-hidden">
+              {/* Main Content - Split View on Desktop, Stacked on Mobile */}
+              <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
                 {/* Left Panel - Problem Description */}
-                <div className="w-[450px] border-r border-border flex flex-col overflow-hidden">
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="md:w-[450px] border-b md:border-b-0 md:border-r border-border flex flex-col overflow-hidden max-h-[40vh] md:max-h-none">
+                  <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
                     {/* Description */}
                     <div>
-                      <h3 className="text-sm font-black text-primary mb-3 uppercase tracking-wider">Problem</h3>
-                      <p className="text-foreground leading-relaxed whitespace-pre-wrap">
+                      <h3 className="text-xs md:text-sm font-black text-primary mb-2 md:mb-3 uppercase tracking-wider">Problem</h3>
+                      <p className="text-sm md:text-base text-foreground leading-relaxed whitespace-pre-wrap">
                         {currentChallenge.description}
                       </p>
                     </div>
 
                     {/* Examples */}
                     <div>
-                      <h3 className="text-sm font-black text-cyan-500 mb-3 uppercase tracking-wider">Examples</h3>
-                      <div className="space-y-3">
+                      <h3 className="text-xs md:text-sm font-black text-cyan-500 mb-2 md:mb-3 uppercase tracking-wider">Examples</h3>
+                      <div className="space-y-2 md:space-y-3">
                         {currentChallenge.testCases.slice(0, 2).map((tc, idx) => (
-                          <div key={tc.id} className="bg-muted/50 border border-border rounded-xl p-4">
+                          <div key={tc.id} className="bg-muted/50 border border-border rounded-xl p-3 md:p-4">
                             <div className="text-xs text-muted-foreground mb-2">Example {idx + 1}</div>
-                            <div className="font-mono text-sm space-y-1">
+                            <div className="font-mono text-xs md:text-sm space-y-1">
                               <div>
                                 <span className="text-cyan-500">Input:</span>{' '}
                                 <span className="text-foreground">{tc.input}</span>
@@ -577,37 +577,37 @@ export default function CodingChallengeGenZ() {
                 </div>
 
                 {/* Right Panel - Code Editor */}
-                <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 flex flex-col overflow-hidden min-h-0">
                   {/* Editor Header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/50">
-                    <div className="flex items-center gap-3">
-                      <div className="flex gap-2">
-                        <div className="w-3 h-3 rounded-full bg-[#ff0080]" />
-                        <div className="w-3 h-3 rounded-full bg-[#ffd700]" />
-                        <div className="w-3 h-3 rounded-full bg-[#00ff88]" />
+                  <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-border bg-muted/50">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="flex gap-1.5 md:gap-2">
+                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#ff0080]" />
+                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#ffd700]" />
+                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#00ff88]" />
                       </div>
-                      <span className="text-sm font-mono text-muted-foreground">
+                      <span className="text-xs md:text-sm font-mono text-muted-foreground">
                         {language === 'javascript' ? 'solution.js' : 'solution.py'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 md:gap-2">
                       <button
                         onClick={copyCode}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 hover:bg-muted rounded-lg transition-colors"
                         title="Copy code"
                       >
                         {copied ? (
-                          <Check className="w-4 h-4 text-primary" />
+                          <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
                         ) : (
-                          <Copy className="w-4 h-4 text-muted-foreground" />
+                          <Copy className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
                         )}
                       </button>
                       <button
                         onClick={resetCode}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors"
+                        className="p-1.5 md:p-2 hover:bg-muted rounded-lg transition-colors"
                         title="Reset code"
                       >
-                        <RotateCcw className="w-4 h-4 text-muted-foreground" />
+                        <RotateCcw className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground" />
                       </button>
                     </div>
                   </div>
@@ -627,29 +627,29 @@ export default function CodingChallengeGenZ() {
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="border-t border-border p-4 max-h-64 overflow-y-auto bg-background/50"
+                      className="border-t border-border p-3 md:p-4 max-h-48 md:max-h-64 overflow-y-auto bg-background/50"
                     >
-                      <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                         {allPassed ? (
                           <>
-                            <div className="w-10 h-10 rounded-xl bg-[#00ff88]/20 flex items-center justify-center">
-                              <CheckCircle className="w-6 h-6 text-primary" />
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-[#00ff88]/20 flex items-center justify-center flex-shrink-0">
+                              <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                             </div>
-                            <div>
-                              <div className="font-black text-primary">All Tests Passed!</div>
-                              <div className="text-sm text-muted-foreground">{testResults.length} test cases</div>
+                            <div className="min-w-0">
+                              <div className="font-black text-sm md:text-base text-primary">All Tests Passed!</div>
+                              <div className="text-xs md:text-sm text-muted-foreground">{testResults.length} test cases</div>
                             </div>
                           </>
                         ) : (
                           <>
-                            <div className="w-10 h-10 rounded-xl bg-[#ff0080]/20 flex items-center justify-center">
-                              <XCircle className="w-6 h-6 text-[#ff0080]" />
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-[#ff0080]/20 flex items-center justify-center flex-shrink-0">
+                              <XCircle className="w-5 h-5 md:w-6 md:h-6 text-[#ff0080]" />
                             </div>
-                            <div>
-                              <div className="font-black text-[#ff0080]">
+                            <div className="min-w-0">
+                              <div className="font-black text-sm md:text-base text-[#ff0080]">
                                 {passedCount}/{testResults.length} Tests Passed
                               </div>
-                              <div className="text-sm text-muted-foreground">Keep trying!</div>
+                              <div className="text-xs md:text-sm text-muted-foreground">Keep trying!</div>
                             </div>
                           </>
                         )}
@@ -660,7 +660,7 @@ export default function CodingChallengeGenZ() {
                           return (
                             <div
                               key={result.testCaseId}
-                              className={`p-3 rounded-xl border ${
+                              className={`p-2 md:p-3 rounded-xl border ${
                                 result.passed
                                   ? 'bg-[#00ff88]/10 border-primary/30'
                                   : 'bg-[#ff0080]/10 border-[#ff0080]/30'
@@ -668,11 +668,11 @@ export default function CodingChallengeGenZ() {
                             >
                               <div className="flex items-center gap-2 mb-2">
                                 {result.passed ? (
-                                  <CheckCircle className="w-4 h-4 text-primary" />
+                                  <CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary flex-shrink-0" />
                                 ) : (
-                                  <XCircle className="w-4 h-4 text-[#ff0080]" />
+                                  <XCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#ff0080] flex-shrink-0" />
                                 )}
-                                <span className="font-mono font-bold text-sm">Test {i + 1}</span>
+                                <span className="font-mono font-bold text-xs md:text-sm">Test {i + 1}</span>
                                 {result.executionTime !== undefined && (
                                   <span className="text-xs text-muted-foreground">
                                     {result.executionTime.toFixed(2)}ms
@@ -680,14 +680,14 @@ export default function CodingChallengeGenZ() {
                                 )}
                               </div>
                               {!result.passed && (
-                                <div className="pl-6 text-xs font-mono space-y-1">
+                                <div className="pl-5 md:pl-6 text-xs font-mono space-y-1">
                                   {result.error ? (
-                                    <div className="text-[#ff0080]">Error: {result.error}</div>
+                                    <div className="text-[#ff0080] break-words">{result.error}</div>
                                   ) : (
                                     <>
-                                      <div><span className="text-cyan-500">Input:</span> {tc?.input}</div>
-                                      <div><span className="text-primary">Expected:</span> {tc?.expectedOutput}</div>
-                                      <div><span className="text-[#ff0080]">Got:</span> {result.actualOutput}</div>
+                                      <div className="break-words"><span className="text-cyan-500">Input:</span> {tc?.input}</div>
+                                      <div className="break-words"><span className="text-primary">Expected:</span> {tc?.expectedOutput}</div>
+                                      <div className="break-words"><span className="text-[#ff0080]">Got:</span> {result.actualOutput}</div>
                                     </>
                                   )}
                                 </div>
@@ -700,28 +700,28 @@ export default function CodingChallengeGenZ() {
                   )}
 
                   {/* Action Bar */}
-                  <div className="border-t border-border p-4 flex items-center justify-between bg-background/95">
+                  <div className="border-t border-border p-3 md:p-4 flex items-center justify-between bg-background/95 pb-safe">
                     <button
                       onClick={() => setShowSolution(!showSolution)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
+                      className="flex items-center gap-2 px-3 md:px-4 py-2 text-xs md:text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-colors"
                     >
                       {showSolution ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      {showSolution ? 'Hide Solution' : 'Show Solution'}
+                      <span className="hidden sm:inline">{showSolution ? 'Hide Solution' : 'Show Solution'}</span>
                     </button>
                     <button
                       onClick={runCode}
                       disabled={isRunning}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-black rounded-xl hover:from-primary/90 hover:to-cyan-500/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-black text-sm md:text-base rounded-xl hover:from-primary/90 hover:to-cyan-500/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isRunning ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                          {language === 'python' ? 'Loading Python...' : 'Running...'}
+                          <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                          <span className="hidden sm:inline">{language === 'python' ? 'Loading Python...' : 'Running...'}</span>
                         </>
                       ) : (
                         <>
-                          <Play className="w-5 h-5" />
-                          Run Tests
+                          <Play className="w-4 h-4 md:w-5 md:h-5" />
+                          <span>Run Tests</span>
                         </>
                       )}
                     </button>
@@ -738,7 +738,7 @@ export default function CodingChallengeGenZ() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-6"
                 onClick={() => setShowSolution(false)}
               >
                 <motion.div
@@ -746,41 +746,41 @@ export default function CodingChallengeGenZ() {
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.95, opacity: 0 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-background border border-border rounded-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden"
+                  className="bg-background border border-border rounded-2xl max-w-3xl w-full max-h-[85vh] md:max-h-[80vh] overflow-hidden"
                 >
-                  <div className="p-6 border-b border-border flex items-center justify-between">
-                    <h2 className="font-black text-xl flex items-center gap-2">
-                      <Sparkles className="w-6 h-6 text-primary" />
+                  <div className="p-4 md:p-6 border-b border-border flex items-center justify-between">
+                    <h2 className="font-black text-lg md:text-xl flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                       Sample Solution
                     </h2>
                     <button
                       onClick={() => setShowSolution(false)}
                       className="p-2 hover:bg-muted rounded-xl transition-colors"
                     >
-                      <XCircle className="w-6 h-6 text-muted-foreground" />
+                      <XCircle className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                     </button>
                   </div>
-                  <div className="p-6 overflow-y-auto max-h-[60vh]">
+                  <div className="p-4 md:p-6 overflow-y-auto max-h-[calc(85vh-120px)] md:max-h-[60vh]">
                     <CodeDisplay
                       code={currentChallenge.sampleSolution[language]}
                       language={language}
                       height="300px"
                     />
-                    <div className="mt-6 p-6 bg-[#00ff88]/10 border border-primary/30 rounded-2xl">
-                      <h3 className="text-sm font-black text-primary mb-4 uppercase tracking-wider flex items-center gap-2">
+                    <div className="mt-4 md:mt-6 p-4 md:p-6 bg-[#00ff88]/10 border border-primary/30 rounded-2xl">
+                      <h3 className="text-xs md:text-sm font-black text-primary mb-3 md:mb-4 uppercase tracking-wider flex items-center gap-2">
                         <TrendingUp className="w-4 h-4" />
                         Complexity Analysis
                       </h3>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
+                      <div className="space-y-2 md:space-y-3">
+                        <div className="flex justify-between text-sm md:text-base">
                           <span className="text-muted-foreground">Time Complexity:</span>
                           <span className="font-mono font-bold text-foreground">{currentChallenge.complexity.time}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm md:text-base">
                           <span className="text-muted-foreground">Space Complexity:</span>
                           <span className="font-mono font-bold text-foreground">{currentChallenge.complexity.space}</span>
                         </div>
-                        <div className="text-sm text-muted-foreground pt-3 border-t border-primary/20">
+                        <div className="text-xs md:text-sm text-muted-foreground pt-2 md:pt-3 border-t border-primary/20">
                           {currentChallenge.complexity.explanation}
                         </div>
                       </div>
@@ -798,51 +798,51 @@ export default function CodingChallengeGenZ() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-6"
               >
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0, y: 20 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                  className="bg-background border border-primary/30 rounded-2xl max-w-md w-full p-8 text-center"
+                  className="bg-background border border-primary/30 rounded-2xl max-w-md w-full p-6 md:p-8 text-center"
                 >
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                    className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center mx-auto mb-6"
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center mx-auto mb-4 md:mb-6"
                   >
-                    <Trophy className="w-12 h-12 text-black" />
+                    <Trophy className="w-10 h-10 md:w-12 md:h-12 text-black" />
                   </motion.div>
-                  <h2 className="text-3xl font-black mb-2">Challenge Complete!</h2>
-                  <p className="text-muted-foreground mb-6">
+                  <h2 className="text-2xl md:text-3xl font-black mb-2">Challenge Complete!</h2>
+                  <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
                     Amazing work! You've solved this challenge.
                   </p>
 
                   {userComplexity && (
-                    <div className="bg-muted/50 border border-border rounded-xl p-4 mb-6 text-left">
-                      <div className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-wider">
+                    <div className="bg-muted/50 border border-border rounded-xl p-3 md:p-4 mb-4 md:mb-6 text-left">
+                      <div className="text-xs font-bold text-muted-foreground mb-2 md:mb-3 uppercase tracking-wider">
                         Your Solution
                       </div>
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm text-muted-foreground">Time:</span>
+                      <div className="flex justify-between mb-2 text-sm md:text-base">
+                        <span className="text-muted-foreground">Time:</span>
                         <span className="font-mono font-bold text-foreground">{userComplexity.time}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Space:</span>
+                      <div className="flex justify-between text-sm md:text-base">
+                        <span className="text-muted-foreground">Space:</span>
                         <span className="font-mono font-bold text-foreground">{userComplexity.space}</span>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => {
                         setShowSuccessModal(false);
                         setTestResults([]);
                         startRandom();
                       }}
-                      className="flex-1 py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-black rounded-xl hover:from-primary/90 hover:to-cyan-500/90 transition-all"
+                      className="flex-1 py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-black text-sm md:text-base rounded-xl hover:from-primary/90 hover:to-cyan-500/90 transition-all"
                     >
                       Next Challenge →
                     </button>
@@ -853,14 +853,14 @@ export default function CodingChallengeGenZ() {
                         setViewState('list');
                         setLocation('/coding');
                       }}
-                      className="flex-1 py-3 border border-border rounded-xl hover:bg-muted transition-colors"
+                      className="flex-1 py-3 border border-border rounded-xl hover:bg-muted transition-colors text-sm md:text-base"
                     >
                       Back to List
                     </button>
                   </div>
                   <button
                     onClick={() => setShowSuccessModal(false)}
-                    className="w-full mt-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="w-full mt-3 py-2 text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     Review Problem
                   </button>

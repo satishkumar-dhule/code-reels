@@ -132,8 +132,8 @@ export default function CertificationsGenZ() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <div className="min-h-screen bg-background flex items-center justify-center pt-safe pb-safe">
+          <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-primary animate-spin" />
         </div>
       </AppLayout>
     );
@@ -148,22 +148,22 @@ export default function CertificationsGenZ() {
       />
 
       <AppLayout>
-        <div className="min-h-screen bg-background text-foreground">
-          <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="min-h-screen bg-background text-foreground pt-safe">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 pb-safe">
             {/* Header */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-6 mb-12"
+              className="text-center space-y-4 md:space-y-6 mb-8 md:mb-12"
             >
-              <h1 className="text-6xl md:text-7xl font-black">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black">
                 Get
                 <br />
                 <span className="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">
                   certified
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-base md:text-xl text-muted-foreground">
                 {filteredCerts.length} certifications to master
               </p>
             </motion.div>
@@ -173,16 +173,16 @@ export default function CertificationsGenZ() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="max-w-2xl mx-auto mb-8"
+              className="max-w-2xl mx-auto mb-6 md:mb-8"
             >
               <div className="relative">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
+                <Search className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search certifications..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-16 pr-6 py-6 bg-muted/50 backdrop-blur-xl border border-border rounded-[24px] text-xl focus:outline-none focus:border-primary transition-all"
+                  className="w-full pl-12 md:pl-16 pr-4 md:pr-6 py-4 md:py-6 bg-muted/50 backdrop-blur-xl border border-border rounded-[20px] md:rounded-[24px] text-base md:text-xl focus:outline-none focus:border-primary transition-all"
                 />
               </div>
             </motion.div>
@@ -192,11 +192,11 @@ export default function CertificationsGenZ() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex flex-wrap gap-3 justify-center mb-12"
+              className="flex flex-wrap gap-2 md:gap-3 justify-center mb-8 md:mb-12"
             >
               <button
                 onClick={() => setSelectedCategory(null)}
-                className={`px-6 py-3 rounded-full font-semibold transition-all ${
+                className={`px-4 md:px-6 py-2 md:py-3 rounded-full text-sm md:text-base font-semibold transition-all ${
                   !selectedCategory
                     ? 'bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground'
                     : 'bg-muted/50 border border-border hover:bg-muted'
@@ -208,7 +208,7 @@ export default function CertificationsGenZ() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-6 py-3 rounded-full font-semibold transition-all ${
+                  className={`px-4 md:px-6 py-2 md:py-3 rounded-full text-sm md:text-base font-semibold transition-all ${
                     selectedCategory === cat.id
                       ? 'bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground'
                       : 'bg-muted/50 border border-border hover:bg-muted'
@@ -220,7 +220,7 @@ export default function CertificationsGenZ() {
             </motion.div>
 
             {/* Certifications Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredCerts.map((cert, i) => {
                 const IconComponent = iconMap[cert.icon] || Award;
                 const isStarted = startedCerts.has(cert.id);
@@ -231,44 +231,44 @@ export default function CertificationsGenZ() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: Math.min(i * 0.05, 0.5) }}
-                    className="group relative p-6 bg-muted/50 backdrop-blur-xl rounded-[24px] border border-border hover:border-border transition-all overflow-hidden"
+                    className="group relative p-4 md:p-6 bg-muted/50 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-border hover:border-border transition-all overflow-hidden"
                   >
                     {/* Background gradient on hover */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                    <div className="relative space-y-4">
+                    <div className="relative space-y-3 md:space-y-4">
                       {/* Header */}
                       <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-4 flex-1">
+                        <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                           {/* Icon */}
-                          <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-cyan-500/20 rounded-[16px] flex items-center justify-center flex-shrink-0 border border-primary/30">
-                            <IconComponent className="w-7 h-7 text-primary" strokeWidth={2} />
+                          <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-primary/20 to-cyan-500/20 rounded-[14px] md:rounded-[16px] flex items-center justify-center flex-shrink-0 border border-primary/30">
+                            <IconComponent className="w-6 h-6 md:w-7 md:h-7 text-primary" strokeWidth={2} />
                           </div>
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <div className="text-xs text-muted-foreground mb-1">{cert.provider}</div>
-                            <h3 className="text-xl font-bold leading-tight">{cert.name}</h3>
+                            <h3 className="text-base md:text-xl font-bold leading-tight line-clamp-2">{cert.name}</h3>
                           </div>
                         </div>
                       </div>
 
                       {/* Description */}
-                      <p className="text-sm text-muted-foreground line-clamp-2">{cert.description}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">{cert.description}</p>
 
                       {/* Stats */}
-                      <div className="flex items-center gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4 text-primary" />
+                      <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm">
+                        <div className="flex items-center gap-1.5 md:gap-2">
+                          <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary flex-shrink-0" />
                           <span className="text-muted-foreground">{cert.questionCount} questions</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-cyan-500" />
+                        <div className="flex items-center gap-1.5 md:gap-2">
+                          <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-cyan-500 flex-shrink-0" />
                           <span className="text-muted-foreground">{cert.estimatedHours}h</span>
                         </div>
                       </div>
 
                       {/* Difficulty Badge */}
                       <div className="flex items-center gap-2">
-                        <Target className="w-4 h-4 text-muted-foreground" />
+                        <Target className="w-3.5 h-3.5 md:w-4 md:h-4 text-muted-foreground flex-shrink-0" />
                         <span className={`text-xs font-semibold uppercase ${
                           cert.difficulty === 'beginner' ? 'text-green-500' :
                           cert.difficulty === 'intermediate' ? 'text-yellow-500' :
@@ -280,10 +280,10 @@ export default function CertificationsGenZ() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 md:gap-3">
                         <button
                           onClick={() => toggleStarted(cert.id)}
-                          className={`flex-1 px-6 py-3 rounded-[16px] font-bold transition-all ${
+                          className={`flex-1 px-4 md:px-6 py-2.5 md:py-3 rounded-[14px] md:rounded-[16px] text-sm md:text-base font-bold transition-all ${
                             isStarted
                               ? 'bg-muted border border-border hover:bg-white/20'
                               : 'bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground hover:scale-105'
@@ -291,13 +291,13 @@ export default function CertificationsGenZ() {
                         >
                           {isStarted ? (
                             <span className="flex items-center justify-center gap-2">
-                              <Check className="w-5 h-5" />
-                              Started
+                              <Check className="w-4 h-4 md:w-5 md:h-5" />
+                              <span className="hidden sm:inline">Started</span>
                             </span>
                           ) : (
                             <span className="flex items-center justify-center gap-2">
-                              <Plus className="w-5 h-5" />
-                              Start
+                              <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                              <span className="hidden sm:inline">Start</span>
                             </span>
                           )}
                         </button>
@@ -305,9 +305,9 @@ export default function CertificationsGenZ() {
                         {isStarted && (
                           <button
                             onClick={() => navigate(`/channel/${cert.id}`)}
-                            className="px-6 py-3 bg-muted/50 hover:bg-muted rounded-[16px] border border-border transition-all"
+                            className="px-4 md:px-6 py-2.5 md:py-3 bg-muted/50 hover:bg-muted rounded-[14px] md:rounded-[16px] border border-border transition-all"
                           >
-                            <ChevronRight className="w-5 h-5" />
+                            <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                           </button>
                         )}
                       </div>
@@ -322,11 +322,11 @@ export default function CertificationsGenZ() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-20"
+                className="text-center py-12 md:py-20"
               >
-                <div className="text-6xl mb-4">🔍</div>
-                <h3 className="text-2xl font-bold mb-2">No certifications found</h3>
-                <p className="text-muted-foreground">Try a different search or category</p>
+                <div className="text-4xl md:text-6xl mb-3 md:mb-4">🔍</div>
+                <h3 className="text-xl md:text-2xl font-bold mb-2">No certifications found</h3>
+                <p className="text-sm md:text-base text-muted-foreground">Try a different search or category</p>
               </motion.div>
             )}
           </div>

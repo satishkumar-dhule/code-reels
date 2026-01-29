@@ -100,7 +100,7 @@ export function SEOHead({
     updateMeta('robots', noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     
     // Mobile optimization
-    updateMeta('viewport', 'width=device-width, initial-scale=1, maximum-scale=5');
+    updateMeta('viewport', 'width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover');
     updateMeta('theme-color', '#00ff00');
     updateMeta('mobile-web-app-capable', 'yes');
     updateMeta('apple-mobile-web-app-capable', 'yes');

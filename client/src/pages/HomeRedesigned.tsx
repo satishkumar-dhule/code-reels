@@ -17,7 +17,8 @@ export default function HomeRedesigned() {
         canonical="https://open-interview.github.io/"
       />
       
-      <AppLayout>
+      {/* iPhone 13 FIX: Use fullWidth to prevent double padding */}
+      <AppLayout fullWidth>
         <GenZHomePage />
       </AppLayout>
     </>

@@ -19,6 +19,22 @@
   margin-bottom: env(safe-area-inset-bottom);
 }
 
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Hide scrollbar - using layer instead of utility */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -657,6 +673,13 @@ main {
 .pl-safe { padding-left: var(--safe-area-inset-left); }
 .pr-safe { padding-right: var(--safe-area-inset-right); }
 .min-h-dvh { min-height: 100dvh; }
+
+/* Mobile content padding - accounts for fixed nav + safe area */
+@media (max-width: 1023px) {
+  .mobile-content-padding {
+    padding-bottom: calc(80px + var(--safe-area-inset-bottom));
+  }
+}
 
 /* ===== UTILITY CLASSES ===== */
 .no-scrollbar::-webkit-scrollbar { display: none; }

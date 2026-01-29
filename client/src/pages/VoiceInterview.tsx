@@ -424,10 +424,11 @@ export default function VoiceInterview() {
       />
 
       <DesktopSidebarWrapper>
-      <div className="min-h-screen bg-[#0d1117] text-[#e6edf3]">
+      {/* iPhone 13 FIX: Ensure content fits within viewport with safe areas */}
+      <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] overflow-x-hidden w-full">
         {/* Header - COMPACT */}
         <header className="sticky top-0 z-50 border-b border-[#30363d] bg-[#0d1117]/95 backdrop-blur-md">
-          <div className="max-w-4xl mx-auto px-3 h-14 flex items-center justify-between">
+          <div className="max-w-4xl mx-auto px-3 h-14 flex items-center justify-between w-full" style={{ maxWidth: '100vw' }}>
             <div className="flex items-center gap-3">
               <button
                 onClick={exitInterview}
@@ -476,7 +477,7 @@ export default function VoiceInterview() {
           </div>
           
           {/* Progress Bar */}
-          <div className="max-w-4xl mx-auto px-3 pb-2">
+          <div className="max-w-4xl mx-auto px-3 pb-2 w-full" style={{ maxWidth: '100vw' }}>
             <div className="h-1 bg-[#21262d] rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
@@ -488,13 +489,14 @@ export default function VoiceInterview() {
         </header>
 
         {/* Main Content */}
-        <main className="max-w-4xl mx-auto px-4 py-6">
+        <main className="max-w-4xl mx-auto px-4 py-6 w-full overflow-x-hidden" style={{ maxWidth: '100vw' }}>
 
           {/* Question Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-[#30363d] bg-[#161b22] overflow-hidden mb-6"
+            className="rounded-2xl border border-[#30363d] bg-[#161b22] overflow-hidden mb-6 w-full"
+            style={{ maxWidth: '100%' }}
           >
             <div className="p-6">
               <div className="flex items-start justify-between gap-4 mb-4">
@@ -611,7 +613,7 @@ export default function VoiceInterview() {
           </AnimatePresence>
 
           {/* Recording Interface */}
-          <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-6 mb-6">
+          <div className="rounded-2xl border border-[#30363d] bg-[#161b22] p-6 mb-6 w-full overflow-hidden" style={{ maxWidth: '100%' }}>
             {/* Recording Status */}
             <div className="flex items-center justify-center gap-4 mb-6">
               {state === 'recording' && (

@@ -77,7 +77,21 @@ export default defineConfig({
         '**/touch-target-audit.spec.ts',
         '**/reduced-motion.spec.ts',
         '**/custom-checks.spec.ts',
+        '**/iphone13-ui-audit.spec.ts', // Run separately
       ],
+    },
+    
+    // iPhone 13 UI Audit - Separate project for mobile testing
+    {
+      name: 'iphone13-audit',
+      use: {
+        ...devices['iPhone 13'],
+        viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 3,
+        isMobile: true,
+        hasTouch: true,
+      },
+      testMatch: '**/iphone13-ui-audit.spec.ts',
     },
   ],
   

@@ -51,8 +51,9 @@ export default function ProfileGenZ() {
       />
 
       <AppLayout>
-        <div className="min-h-screen bg-background text-foreground">
-          <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* iPhone 13 FIX: Ensure content fits within viewport with safe areas */}
+        <div className="min-h-screen bg-background text-foreground overflow-x-hidden w-full">
+          <div className="max-w-4xl mx-auto px-6 py-12 w-full" style={{ maxWidth: '100vw' }}>
             {/* Header */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -91,7 +92,7 @@ export default function ProfileGenZ() {
             </motion.div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-4 mb-12">
+            <div className="grid grid-cols-3 gap-4 mb-12 w-full" style={{ maxWidth: '100%' }}>
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -131,7 +132,8 @@ export default function ProfileGenZ() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="space-y-6"
+              className="space-y-6 w-full overflow-hidden"
+              style={{ maxWidth: '100%' }}
             >
               <h2 className="text-3xl font-black flex items-center gap-3">
                 <Settings className="w-8 h-8" />
@@ -139,7 +141,7 @@ export default function ProfileGenZ() {
               </h2>
 
               {/* Learning Preferences */}
-              <div className="p-6 bg-muted/50 backdrop-blur-xl rounded-[24px] border border-border space-y-4">
+              <div className="p-6 bg-muted/50 backdrop-blur-xl rounded-[24px] border border-border space-y-4 w-full overflow-hidden" style={{ maxWidth: '100%' }}>
                 <h3 className="text-xl font-bold mb-4">Learning Preferences</h3>
 
                 {/* Shuffle Questions */}
@@ -213,7 +215,7 @@ export default function ProfileGenZ() {
               </div>
 
               {/* Quick Actions */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 w-full" style={{ maxWidth: '100%' }}>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

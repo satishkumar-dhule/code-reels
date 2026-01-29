@@ -276,7 +276,8 @@ export function MobileBottomNav() {
       </AnimatePresence>
 
       {/* REVAMPED: Bottom Navigation Bar - Cleaner, More Accessible */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
+      {/* iPhone 13 FIX: Keep at bottom-0, add pb-safe to push content inside nav up */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden pb-safe">
         <div className="bg-background/95 backdrop-blur-xl border-t border-border shadow-2xl">
           <div className="flex items-center justify-around h-16 px-2 max-w-md mx-auto">
             {mainNavItems.map((item) => {
@@ -576,7 +577,7 @@ export function UnifiedMobileHeader({ title, showBack, onSearchClick }: UnifiedM
   const { balance, formatCredits } = useCredits();
 
   return (
-    <header className="sticky top-0 z-40 lg:hidden bg-card/90 backdrop-blur-xl border-b border-border">
+    <header className="sticky top-0 z-40 lg:hidden bg-card/90 backdrop-blur-xl border-b border-border pt-safe">
       <div className="flex items-center justify-between h-14 px-3">
         {/* Left: Back or Logo */}
         <div className="flex items-center gap-2 min-w-0 flex-1">

@@ -84,8 +84,10 @@ export default function StatsGenZ() {
 
       <AppLayout>
         <PullToRefresh onRefresh={handleRefresh}>
-          <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
-            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+          {/* iPhone 13 FIX: Ensure content fits within viewport with safe areas */}
+          <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white overflow-x-hidden">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 w-full"
+                 style={{ maxWidth: '100vw' }}>
             {/* Header */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -106,13 +108,14 @@ export default function StatsGenZ() {
 
             {/* Top Stats */}
             {isLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12 w-full">
                 {[...Array(4)].map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-12 w-full"
+                   style={{ maxWidth: '100%' }}>
               {/* Streak */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -168,7 +171,8 @@ export default function StatsGenZ() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="p-6 md:p-8 bg-muted/50 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-border mb-8 md:mb-12"
+              className="p-6 md:p-8 bg-muted/50 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-border mb-8 md:mb-12 w-full overflow-hidden"
+              style={{ maxWidth: '100%' }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl md:text-2xl font-bold">Level {level}</h2>
@@ -189,11 +193,13 @@ export default function StatsGenZ() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="space-y-6"
+              className="space-y-6 w-full overflow-hidden"
+              style={{ maxWidth: '100%' }}
             >
               <h2 className="text-2xl md:text-3xl font-black">Channel Progress</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full"
+                   style={{ maxWidth: '100%' }}>
                 {moduleProgress.slice(0, 10).map((mod, i) => (
                   <motion.button
                     key={mod.id}
@@ -238,7 +244,8 @@ export default function StatsGenZ() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1 }}
-              className="mt-12 p-6 md:p-8 bg-muted/50 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-border overflow-hidden"
+              className="mt-12 p-6 md:p-8 bg-muted/50 backdrop-blur-xl rounded-[20px] md:rounded-[24px] border border-border w-full"
+              style={{ maxWidth: '100%', overflowX: 'hidden' }}
             >
               <div className="flex items-center gap-3 mb-6">
                 <Calendar className="w-6 h-6 text-primary" />

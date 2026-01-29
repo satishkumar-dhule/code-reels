@@ -65,9 +65,10 @@ export function AppLayout({
 
       {/* Main content area - fixed padding for Gen Z sidebar */}
       <div className="lg:pl-64 w-full overflow-x-hidden">
-        {/* Page content with bottom padding for mobile nav */}
+        {/* Page content with bottom padding for mobile nav + safe area */}
+        {/* iPhone 13 FIX: mobile-content-padding accounts for nav (64px) + padding (16px) + safe area */}
         <main className={`
-          pb-20 lg:pb-4 w-full overflow-x-hidden
+          mobile-content-padding lg:pb-4 w-full overflow-x-hidden
           ${fullWidth ? '' : 'max-w-7xl mx-auto px-3 lg:px-6 py-3 lg:py-6'}
         `}>
           {children}

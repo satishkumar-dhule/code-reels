@@ -325,8 +325,8 @@ export default function QuestionViewerGenZ() {
 
   if (loading && !currentQuestion) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center pt-safe pb-safe">
+        <div className="text-center px-4">
           <div className="text-6xl mb-4">⏳</div>
           <p className="text-muted-foreground">Loading questions...</p>
         </div>
@@ -336,13 +336,13 @@ export default function QuestionViewerGenZ() {
 
   if (error || !channel) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Channel not found</h2>
-          <p className="text-muted-foreground mb-4">The channel "{channelId}" doesn't exist.</p>
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center pt-safe pb-safe">
+        <div className="text-center px-4">
+          <h2 className="text-xl md:text-2xl font-bold mb-2">Channel not found</h2>
+          <p className="text-sm md:text-base text-muted-foreground mb-4">The channel "{channelId}" doesn't exist.</p>
           <button
             onClick={() => setLocation('/channels')}
-            className="px-6 py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-bold rounded-full"
+            className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-bold rounded-full text-sm md:text-base"
           >
             Go to Channels
           </button>
@@ -355,7 +355,7 @@ export default function QuestionViewerGenZ() {
     const hasFilters = selectedSubChannel !== 'all' || selectedDifficulty !== 'all' || selectedCompany !== 'all';
     
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <div className="min-h-screen bg-background text-foreground flex flex-col pt-safe">
         <Header
           channel={channel}
           onBack={() => setLocation('/channels')}
@@ -363,11 +363,11 @@ export default function QuestionViewerGenZ() {
           currentIndex={currentIndex}
           totalQuestions={totalQuestions}
         />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
+        <div className="flex-1 flex items-center justify-center pb-safe">
+          <div className="text-center px-4">
             <div className="text-6xl mb-4">📝</div>
-            <h2 className="text-2xl font-bold mb-2">No questions found</h2>
-            <p className="text-muted-foreground mb-4">
+            <h2 className="text-xl md:text-2xl font-bold mb-2">No questions found</h2>
+            <p className="text-sm md:text-base text-muted-foreground mb-4">
               {hasFilters ? 'Try adjusting your filters.' : 'Check back soon for new content!'}
             </p>
             {hasFilters && (
@@ -377,7 +377,7 @@ export default function QuestionViewerGenZ() {
                   setSelectedDifficulty('all');
                   setSelectedCompany('all');
                 }}
-                className="px-6 py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-bold rounded-full"
+                className="px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground font-bold rounded-full text-sm md:text-base"
               >
                 Reset Filters
               </button>
@@ -402,7 +402,7 @@ export default function QuestionViewerGenZ() {
         canonical={`https://open-interview.github.io/channel/${channelId}/${currentQuestion.id}`}
       />
 
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <div className="min-h-screen bg-background text-foreground flex flex-col pt-safe">
         {/* Header */}
         <Header
           channel={channel}
@@ -446,7 +446,7 @@ export default function QuestionViewerGenZ() {
           {/* Desktop Split View */}
           <div className="hidden lg:flex flex-1 overflow-hidden">
             {/* Question Panel */}
-            <div className="w-1/2 border-r border-border overflow-y-auto p-8">
+            <div className="w-1/2 border-r border-border overflow-y-auto p-6 md:p-8">
               <QuestionContent
                 question={currentQuestion}
                 questionNumber={currentIndex + 1}
@@ -463,7 +463,7 @@ export default function QuestionViewerGenZ() {
             </div>
             {/* Answer Panel */}
             <div 
-              className="w-1/2 overflow-y-auto p-8"
+              className="w-1/2 overflow-y-auto p-6 md:p-8"
               style={{
                 backgroundColor: isLightMode ? 'hsl(0 0% 100%)' : 'hsl(0 0% 0%)',
                 color: isLightMode ? 'hsl(0 0% 5%)' : 'hsl(0 0% 100%)'
@@ -482,7 +482,7 @@ export default function QuestionViewerGenZ() {
             <div className="flex border-b border-border bg-background">
               <button
                 onClick={() => setMobileView('question')}
-                className={`flex-1 py-4 text-sm font-bold transition-colors ${
+                className={`flex-1 py-3 md:py-4 text-sm font-bold transition-colors ${
                   mobileView === 'question'
                     ? 'text-primary border-b-2 border-primary'
                     : 'text-muted-foreground'
@@ -492,7 +492,7 @@ export default function QuestionViewerGenZ() {
               </button>
               <button
                 onClick={() => setMobileView('answer')}
-                className={`flex-1 py-4 text-sm font-bold transition-colors ${
+                className={`flex-1 py-3 md:py-4 text-sm font-bold transition-colors ${
                   mobileView === 'answer'
                     ? 'text-primary border-b-2 border-primary'
                     : 'text-muted-foreground'
@@ -509,7 +509,7 @@ export default function QuestionViewerGenZ() {
               dragElastic={0.2}
               style={{ x, opacity }}
               onDragEnd={handleDragEnd}
-              className="flex-1 overflow-y-auto p-6 pb-24 relative"
+              className="flex-1 overflow-y-auto p-4 md:p-6 pb-32 relative"
             >
               {/* Swipe Indicators */}
               {swipeDirection === 'left' && (
@@ -567,26 +567,26 @@ export default function QuestionViewerGenZ() {
         </div>
 
         {/* Navigation Footer */}
-        <div className="border-t border-border bg-background/95 backdrop-blur-xl p-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="border-t border-border bg-background/95 backdrop-blur-xl p-3 md:p-4 pb-safe">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 md:gap-4">
             {/* Previous */}
             <motion.button
               onClick={prevQuestion}
               disabled={currentIndex === 0}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-3 bg-muted/50 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors"
+              className="p-2 md:p-3 bg-muted/50 rounded-full disabled:opacity-30 disabled:cursor-not-allowed hover:bg-muted transition-colors flex-shrink-0"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
             </motion.button>
 
             {/* Progress */}
-            <div className="flex-1 max-w-md">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-sm font-bold text-primary">
+            <div className="flex-1 max-w-md min-w-0">
+              <div className="flex items-center gap-2 md:gap-3 mb-2">
+                <span className="text-xs md:text-sm font-bold text-primary whitespace-nowrap">
                   {currentIndex + 1} / {totalQuestions}
                 </span>
-                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden min-w-0">
                   <motion.div
                     className="h-full bg-gradient-to-r from-primary to-cyan-500"
                     initial={{ width: 0 }}
@@ -594,31 +594,31 @@ export default function QuestionViewerGenZ() {
                     transition={{ duration: 0.3 }}
                   />
                 </div>
-                <span className="text-sm font-bold">{progress}%</span>
+                <span className="text-xs md:text-sm font-bold whitespace-nowrap">{progress}%</span>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
               <motion.button
                 onClick={toggleMark}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`p-3 rounded-full transition-colors ${
+                className={`p-2 md:p-3 rounded-full transition-colors ${
                   isMarked
                     ? 'bg-gradient-to-r from-[#ffd700] to-[#ff8c00] text-black'
                     : 'bg-muted/50 hover:bg-muted'
                 }`}
               >
-                <Bookmark className="w-5 h-5" fill={isMarked ? 'currentColor' : 'none'} />
+                <Bookmark className="w-4 h-4 md:w-5 md:h-5" fill={isMarked ? 'currentColor' : 'none'} />
               </motion.button>
               <motion.button
                 onClick={handleShare}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-3 bg-muted/50 rounded-full hover:bg-muted transition-colors"
+                className="hidden sm:block p-2 md:p-3 bg-muted/50 rounded-full hover:bg-muted transition-colors"
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="w-4 h-4 md:w-5 md:h-5" />
               </motion.button>
             </div>
 
@@ -628,9 +628,9 @@ export default function QuestionViewerGenZ() {
               disabled={currentIndex === totalQuestions - 1}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-full disabled:opacity-30 disabled:cursor-not-allowed font-bold"
+              className="p-2 md:p-3 bg-gradient-to-r from-primary to-cyan-500 text-primary-foreground rounded-full disabled:opacity-30 disabled:cursor-not-allowed font-bold flex-shrink-0"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
             </motion.button>
           </div>
         </div>
@@ -713,22 +713,22 @@ export default function QuestionViewerGenZ() {
 function Header({ channel, onBack, onSearch, currentIndex, totalQuestions, progress, onToggleFilters, hasFilters }: any) {
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-3 md:py-4">
+        <div className="flex items-center justify-between gap-2 md:gap-4">
           {/* Left */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
             <motion.button
               onClick={onBack}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="p-2 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
             </motion.button>
-            <div>
-              <h1 className="font-bold text-lg">{channel.name}</h1>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-bold text-sm md:text-lg truncate">{channel.name}</h1>
               {totalQuestions > 0 && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground truncate">
                   Question {currentIndex + 1} of {totalQuestions}
                 </p>
               )}
@@ -736,7 +736,7 @@ function Header({ channel, onBack, onSearch, currentIndex, totalQuestions, progr
           </div>
 
           {/* Right */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
             {onToggleFilters && (
               <motion.button
                 onClick={onToggleFilters}
@@ -748,7 +748,7 @@ function Header({ channel, onBack, onSearch, currentIndex, totalQuestions, progr
                     : 'hover:bg-muted'
                 }`}
               >
-                <Filter className="w-5 h-5" />
+                <Filter className="w-4 h-4 md:w-5 md:h-5" />
               </motion.button>
             )}
             <motion.button
@@ -757,7 +757,7 @@ function Header({ channel, onBack, onSearch, currentIndex, totalQuestions, progr
               whileTap={{ scale: 0.95 }}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4 md:w-5 md:h-5" />
             </motion.button>
           </div>
         </div>
@@ -775,23 +775,23 @@ function FiltersPanel({ channel, selectedSubChannel, selectedDifficulty, selecte
       exit={{ height: 0, opacity: 0 }}
       className="border-b border-border bg-muted/50 backdrop-blur-xl overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-lg">Filters</h3>
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-4 md:py-6">
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h3 className="font-bold text-base md:text-lg">Filters</h3>
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg transition-colors">
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           {/* Sub-channels */}
           {channel.subChannels && channel.subChannels.length > 1 && (
             <div>
-              <label className="text-sm font-semibold text-muted-foreground mb-2 block">Topic</label>
+              <label className="text-xs md:text-sm font-semibold text-muted-foreground mb-2 block">Topic</label>
               <select
                 value={selectedSubChannel}
                 onChange={(e) => onSubChannelChange(e.target.value)}
-                className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl text-foreground focus:outline-none focus:border-primary transition-colors"
+                className="w-full px-3 md:px-4 py-2 md:py-3 bg-muted/50 border border-border rounded-xl text-sm md:text-base text-foreground focus:outline-none focus:border-primary transition-colors"
               >
                 {channel.subChannels.map((sc: any) => (
                   <option key={sc.id} value={sc.id}>{sc.name}</option>
@@ -802,11 +802,11 @@ function FiltersPanel({ channel, selectedSubChannel, selectedDifficulty, selecte
 
           {/* Difficulty */}
           <div>
-            <label className="text-sm font-semibold text-muted-foreground mb-2 block">Difficulty</label>
+            <label className="text-xs md:text-sm font-semibold text-muted-foreground mb-2 block">Difficulty</label>
             <select
               value={selectedDifficulty}
               onChange={(e) => onDifficultyChange(e.target.value)}
-              className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl text-foreground focus:outline-none focus:border-primary transition-colors"
+              className="w-full px-3 md:px-4 py-2 md:py-3 bg-muted/50 border border-border rounded-xl text-sm md:text-base text-foreground focus:outline-none focus:border-primary transition-colors"
             >
               <option value="all">All Levels</option>
               <option value="beginner">Beginner</option>
@@ -818,11 +818,11 @@ function FiltersPanel({ channel, selectedSubChannel, selectedDifficulty, selecte
           {/* Company */}
           {companiesWithCounts.length > 0 && (
             <div>
-              <label className="text-sm font-semibold text-muted-foreground mb-2 block">Company</label>
+              <label className="text-xs md:text-sm font-semibold text-muted-foreground mb-2 block">Company</label>
               <select
                 value={selectedCompany}
                 onChange={(e) => onCompanyChange(e.target.value)}
-                className="w-full px-4 py-3 bg-muted/50 border border-border rounded-xl text-foreground focus:outline-none focus:border-primary transition-colors"
+                className="w-full px-3 md:px-4 py-2 md:py-3 bg-muted/50 border border-border rounded-xl text-sm md:text-base text-foreground focus:outline-none focus:border-primary transition-colors"
               >
                 <option value="all">All Companies</option>
                 {companiesWithCounts.map((c: any) => (
@@ -842,19 +842,19 @@ function FiltersPanel({ channel, selectedSubChannel, selectedDifficulty, selecte
 // Question Content
 function QuestionContent({ question, questionNumber, totalQuestions, isMarked, isCompleted, srsCard, showRatingButtons, hasRated, onAddToSRS, onSRSRating, onToggleMark }: any) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Meta */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="px-3 py-1 bg-gradient-to-r from-primary/20 to-cyan-500/20 border border-primary/30 rounded-full text-xs font-bold text-primary">
+      <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+        <span className="px-2 md:px-3 py-1 bg-gradient-to-r from-primary/20 to-cyan-500/20 border border-primary/30 rounded-full text-xs font-bold text-primary">
           {question.difficulty}
         </span>
         {question.company && (
-          <span className="px-3 py-1 bg-muted/50 border border-border rounded-full text-xs font-bold">
+          <span className="px-2 md:px-3 py-1 bg-muted/50 border border-border rounded-full text-xs font-bold">
             {question.company}
           </span>
         )}
         {isCompleted && (
-          <span className="px-3 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-full text-xs font-bold text-green-500">
+          <span className="px-2 md:px-3 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-full text-xs font-bold text-green-500">
             ✓ Completed
           </span>
         )}
@@ -862,7 +862,7 @@ function QuestionContent({ question, questionNumber, totalQuestions, isMarked, i
         {/* SRS Status Badge */}
         {srsCard && !showRatingButtons && !hasRated && (
           <span 
-            className={`px-3 py-1 rounded-full text-xs font-bold border ${
+            className={`px-2 md:px-3 py-1 rounded-full text-xs font-bold border ${
               getMasteryColor(srsCard.easeFactor)
             }`}
           >
@@ -873,72 +873,72 @@ function QuestionContent({ question, questionNumber, totalQuestions, isMarked, i
 
       {/* Question */}
       <div>
-        <h2 className="text-3xl md:text-4xl font-black mb-4 leading-tight">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-black mb-3 md:mb-4 leading-tight">
           {question.question}
         </h2>
       </div>
 
       {/* Action Buttons Row */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-2 md:gap-3 flex-wrap">
         {/* Bookmark Button */}
         <motion.button
           onClick={onToggleMark}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+          className={`px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center gap-1.5 md:gap-2 ${
             isMarked
               ? 'bg-gradient-to-r from-[#ffd700]/20 to-[#ff0080]/20 border border-[#ffd700]/30 text-[#ffd700]'
               : 'bg-muted/50 border border-border text-muted-foreground hover:border-[#ffd700]/30 hover:text-[#ffd700]'
           }`}
         >
-          <Bookmark className={`w-4 h-4 ${isMarked ? 'fill-current' : ''}`} />
-          {isMarked ? 'Bookmarked' : 'Bookmark'}
+          <Bookmark className={`w-3 h-3 md:w-4 md:h-4 ${isMarked ? 'fill-current' : ''}`} />
+          <span className="hidden sm:inline">{isMarked ? 'Bookmarked' : 'Bookmark'}</span>
         </motion.button>
 
         {/* SRS Button or Rating Buttons */}
         {hasRated ? (
-          <span className="px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-xl text-sm font-bold text-green-400 flex items-center gap-2">
-            <Check className="w-4 h-4" />
-            Review Recorded
+          <span className="px-3 md:px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-xl text-xs md:text-sm font-bold text-green-400 flex items-center gap-1.5 md:gap-2">
+            <Check className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Review Recorded</span>
           </span>
         ) : showRatingButtons && srsCard ? (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground mr-2">Rate your confidence:</span>
+            <span className="text-xs text-muted-foreground mr-1 md:mr-2 hidden sm:inline">Rate your confidence:</span>
             <motion.button
               onClick={() => onSRSRating('again')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1.5 bg-red-500/20 border border-red-500/30 rounded-lg text-xs font-bold text-red-400 hover:bg-red-500/30 transition-all flex items-center gap-1"
+              className="px-2 md:px-3 py-1.5 bg-red-500/20 border border-red-500/30 rounded-lg text-xs font-bold text-red-400 hover:bg-red-500/30 transition-all flex items-center gap-1"
             >
               <RotateCcw className="w-3 h-3" />
-              Again
+              <span className="hidden sm:inline">Again</span>
             </motion.button>
             <motion.button
               onClick={() => onSRSRating('hard')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1.5 bg-orange-500/20 border border-orange-500/30 rounded-lg text-xs font-bold text-orange-400 hover:bg-orange-500/30 transition-all flex items-center gap-1"
+              className="px-2 md:px-3 py-1.5 bg-orange-500/20 border border-orange-500/30 rounded-lg text-xs font-bold text-orange-400 hover:bg-orange-500/30 transition-all flex items-center gap-1"
             >
               <Brain className="w-3 h-3" />
-              Hard
+              <span className="hidden sm:inline">Hard</span>
             </motion.button>
             <motion.button
               onClick={() => onSRSRating('good')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1.5 bg-green-500/20 border border-green-500/30 rounded-lg text-xs font-bold text-green-400 hover:bg-green-500/30 transition-all flex items-center gap-1"
+              className="px-2 md:px-3 py-1.5 bg-green-500/20 border border-green-500/30 rounded-lg text-xs font-bold text-green-400 hover:bg-green-500/30 transition-all flex items-center gap-1"
             >
               <Check className="w-3 h-3" />
-              Good
+              <span className="hidden sm:inline">Good</span>
             </motion.button>
             <motion.button
               onClick={() => onSRSRating('easy')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1.5 bg-blue-500/20 border border-blue-500/30 rounded-lg text-xs font-bold text-blue-400 hover:bg-blue-500/30 transition-all flex items-center gap-1"
+              className="px-2 md:px-3 py-1.5 bg-blue-500/20 border border-blue-500/30 rounded-lg text-xs font-bold text-blue-400 hover:bg-blue-500/30 transition-all flex items-center gap-1"
             >
-              <Zap className="w-4 h-4" />
-              Easy
+              <Zap className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Easy</span>
             </motion.button>
           </div>
         ) : (
@@ -946,10 +946,10 @@ function QuestionContent({ question, questionNumber, totalQuestions, isMarked, i
             onClick={onAddToSRS}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-xl text-sm font-bold text-purple-400 hover:bg-purple-500/30 transition-all flex items-center gap-2"
+            className="px-3 md:px-4 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-xl text-xs md:text-sm font-bold text-purple-400 hover:bg-purple-500/30 transition-all flex items-center gap-1.5 md:gap-2"
           >
-            <Brain className="w-4 h-4" />
-            Add to SRS
+            <Brain className="w-3 h-3 md:w-4 md:h-4" />
+            <span className="hidden sm:inline">Add to SRS</span>
           </motion.button>
         )}
 
@@ -963,7 +963,7 @@ function QuestionContent({ question, questionNumber, totalQuestions, isMarked, i
           {question.tags.map((tag: string) => (
             <span
               key={tag}
-              className="px-3 py-1 bg-muted/50 rounded-full text-xs text-muted-foreground"
+              className="px-2 md:px-3 py-1 bg-muted/50 rounded-full text-xs text-muted-foreground"
             >
               #{tag}
             </span>
